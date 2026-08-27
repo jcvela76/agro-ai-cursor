@@ -1,0 +1,37 @@
+[
+  {
+    "kind": "forecast",
+    "days": [
+      {
+        "date": "2026-08-27",
+        "tempMinCelsius": 16.2,
+        "tempMaxCelsius": 24.8,
+        "precipitationMm": 2.1,
+        "precipitationProbability": 0.35
+      },
+      {
+        "date": "2026-08-28",
+        "tempMinCelsius": 15.9,
+        "tempMaxCelsius": 23.5,
+        "precipitationMm": 0.4,
+        "precipitationProbability": 0.12
+      }
+    ],
+    "evidence": {
+      "sourceId": "offline-open-meteo-synthetic",
+      "sourceLabel": "Open-Meteo (offline fixture)",
+      "emittedAt": "2026-08-26T06:00:00-05:00",
+      "validFrom": "2026-08-27T00:00:00-05:00",
+      "validTo": "2026-08-29T00:00:00-05:00",
+      "timezone": "America/Lima",
+      "spatialScope": {
+        "kind": "point",
+        "latitude": -11.95,
+        "longitude": -77.05,
+        "label": "parcel-lima-norte-001"
+      },
+      "freshnessStatus": "fresh",
+      "freshnessPolicy": "forecast_max_age_12h"
+    }
+  }
+]

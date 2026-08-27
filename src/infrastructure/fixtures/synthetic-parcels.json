@@ -1,0 +1,18 @@
+[
+  {
+    "id": "parcel-lima-norte-001",
+    "orgId": "org-lima-coffee",
+    "name": "Parcela Norte — Lima (sintética)",
+    "latitude": -11.95,
+    "longitude": -77.05,
+    "timezone": "America/Lima"
+  },
+  {
+    "id": "parcel-cusco-valle-002",
+    "orgId": "org-cusco-cacao",
+    "name": "Valle Cusco — Parcela 002 (sintética)",
+    "latitude": -13.52,
+    "longitude": -71.97,
+    "timezone": "America/Lima"
+  }
+]

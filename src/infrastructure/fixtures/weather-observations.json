@@ -1,0 +1,21 @@
+[
+  {
+    "kind": "observation",
+    "temperatureCelsius": 22.4,
+    "precipitationMm": 0.0,
+    "evidence": {
+      "sourceId": "offline-nasa-power-synthetic",
+      "sourceLabel": "NASA POWER (offline fixture)",
+      "observedAt": "2026-08-26T12:00:00-05:00",
+      "timezone": "America/Lima",
+      "spatialScope": {
+        "kind": "point",
+        "latitude": -11.95,
+        "longitude": -77.05,
+        "label": "parcel-lima-norte-001"
+      },
+      "freshnessStatus": "fresh",
+      "freshnessPolicy": "observation_max_age_24h"
+    }
+  }
+]
