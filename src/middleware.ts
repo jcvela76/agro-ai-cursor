@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -15,6 +16,14 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Keep `/` statically cacheable: redirect signed-in users here, not in page.tsx.
+  if (req.nextUrl.pathname === "/") {
+    const { userId } = await auth();
+    if (userId) {
+      return NextResponse.redirect(new URL("/app", req.url));
+    }
+  }
+
   if (!isPublicRoute(req)) {
     await auth.protect();
   }

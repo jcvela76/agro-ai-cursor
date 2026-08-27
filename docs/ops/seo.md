@@ -4,10 +4,10 @@
 
 | Ambiente | Indexación | Host |
 |----------|------------|------|
-| Production (`VERCEL_ENV=production`, `main`) | `index,follow` | apex `geoagro.ai` (post-promote) |
+| Production (`VERCEL_ENV=production`, `main`) | `index,follow` | `https://geoagro.ai` |
 | Preview / staging (`stg`, local) | `noindex,nofollow` + `robots Disallow: /` | `stg.geoagro.ai`, `*.vercel.app` previews |
 
-Canonical y `metadataBase` siempre apuntan a **`https://geoagro.ai`** para no diluir señales entre hosts.
+Canonical y `metadataBase` siempre apuntan a **`https://geoagro.ai`** para no diluir señales entre hosts. `www.geoagro.ai` → apex `308`.
 
 ## Archivos
 
@@ -15,16 +15,25 @@ Canonical y `metadataBase` siempre apuntan a **`https://geoagro.ai`** para no di
 |-------|------|
 | Site constants | `src/lib/site.ts` |
 | Metadata root | `src/app/layout.tsx` |
+| JSON-LD | `src/app/landing-json-ld.tsx` |
 | robots | `src/app/robots.ts` |
 | sitemap | `src/app/sitemap.ts` |
 | OG / Twitter image | `src/app/opengraph-image.jpg`, `twitter-image.jpg` |
 | Icons | `src/app/icon.tsx`, `apple-icon.tsx` |
+| LP images | `public/landing/*` vía `next/image` (AVIF/WebP) |
+| Cache headers | `next.config.ts` (`/` s-maxage=3600; `/landing/*` immutable) |
 
-Rutas SEO públicas en Clerk middleware: `/robots.txt`, `/sitemap.xml`, icon/OG routes.
+Rutas SEO públicas en Clerk middleware: `/robots.txt`, `/sitemap.xml`, icon/OG routes. Signed-in en `/` → redirect `/app` en middleware (la LP no llama `auth()`, ISR `revalidate=3600`).
 
-## Post-promote
+## Checklist anti-penalty
 
-1. ~~Adjuntar apex `geoagro.ai` a Production.~~ Hecho (2026-08-27).
-2. Verificar Search Console / Bing (`metadata.verification` cuando haya tokens).
-3. Slice SEO-2: JSON-LD, `next/image` LCP, cache HTML de `/`.
-4. Opcional: `www` → `geoagro.ai` redirect 308 si aún no está.
+- Un solo canonical (`geoagro.ai`); stg noindex
+- Sin thin/cloaking: mismo copy indexable que ve el usuario
+- JSON-LD alineado al contenido visible (Organization / WebSite / WebPage / SoftwareApplication)
+- LCP: hero `priority` + formatos modernos; sin bloquear crawl
+- No indexar `/app`, `/api`, auth (`robots.txt`)
+
+## Pendiente ops
+
+1. Search Console / Bing verification (`metadata.verification` cuando haya tokens)
+2. Monitor Core Web Vitals en GSC tras indexación

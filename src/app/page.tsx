@@ -1,8 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import Image from "next/image";
 import { LandingHeader } from "./landing-header";
+import { LandingJsonLd } from "./landing-json-ld";
 import { WaitlistForm } from "./waitlist-form";
 import styles from "./landing.module.css";
+
+/** ISR: anonymous LP HTML can be CDN-cached (signed-in users redirected in middleware). */
+export const revalidate = 3600;
 
 const SOURCES = ["Open-Meteo", "NASA POWER", "GFS / ICON", "ERA5-Land"] as const;
 
@@ -147,14 +150,10 @@ const ROADMAP = [
   { done: false, label: "Lanzamiento comercial" },
 ] as const;
 
-export default async function Home() {
-  const { userId } = await auth();
-  if (userId) {
-    redirect("/app");
-  }
-
+export default function Home() {
   return (
     <div className={styles.page}>
+      <LandingJsonLd />
       <LandingHeader />
 
       <section className={styles.hero}>
@@ -182,11 +181,14 @@ export default async function Home() {
         </div>
 
         <div className={styles.heroBleed}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/landing/hero.jpg"
             alt="Andenes agrícolas en la sierra peruana bajo cielo despejado con montañas al fondo"
             className={styles.heroImg}
+            fill
+            priority
+            sizes="100vw"
+            quality={75}
           />
         </div>
 
@@ -232,11 +234,13 @@ export default async function Home() {
             </div>
 
             <div className={styles.problemVisual}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/landing/problem.jpg"
                 alt="Vista aérea de vastos campos agrícolas con montañas nevadas al fondo en el Perú"
                 className={styles.problemImg}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                quality={75}
               />
               <div className={styles.compareOverlay}>
                 <div className={styles.compareCity}>
@@ -332,12 +336,13 @@ export default async function Home() {
                 className={`${styles.product} ${product.coffee ? styles.productCoffee : ""}`}
               >
                 {product.coffee ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src="/landing/coffee.jpg"
                     alt=""
-                    aria-hidden
                     className={styles.productCoffeeBg}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    quality={60}
                   />
                 ) : null}
                 <div className={styles.productInner}>
