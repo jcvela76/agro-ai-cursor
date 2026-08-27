@@ -2,7 +2,7 @@
   "decisions": [
     {
       "id": "rev-lima-norte-observe-001",
-      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
       "parcelId": "parcel-lima-norte-001",
       "kind": "observe",
       "summary": "Floración irregular en ladera norte",
@@ -13,7 +13,7 @@
     },
     {
       "id": "rev-lima-norte-recommend-001",
-      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
       "parcelId": "parcel-lima-norte-001",
       "kind": "recommend",
       "summary": "Priorizar muestreo de humedad en franja baja",

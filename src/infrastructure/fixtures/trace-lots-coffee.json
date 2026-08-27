@@ -2,7 +2,7 @@
   "lots": [
     {
       "id": "lot-lima-coffee-2026-a",
-      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
       "name": "Lote Norte A — cosecha 2026",
       "cropType": "coffee",
       "harvestSeason": "2026",
@@ -14,7 +14,7 @@
     },
     {
       "id": "lot-lima-coffee-2026-b",
-      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
       "name": "Lote Norte B — borrador",
       "cropType": "coffee",
       "harvestSeason": "2026",

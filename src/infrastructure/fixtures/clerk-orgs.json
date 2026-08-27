@@ -1,11 +1,16 @@
 {
   "orgs": [
     {
-      "clerkOrgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "clerkOrgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
       "name": "Lima Coffee (sintetica)",
       "syntheticOrgAlias": "org-lima-coffee",
       "public_metadata": {
-        "entitlements": ["weather"],
+        "entitlements": [
+          "weather",
+          "weather_plus",
+          "traceability",
+          "agronomic_review"
+        ],
         "authorizedParcelIds": []
       }
     }

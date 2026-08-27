@@ -23,16 +23,22 @@ App Clerk: **agro-ai-auth** (`app_3IThUPXYe9TeXFToApdAlaB3OC2`) — org Dashboar
    - Preview + Development: `pk_test_` / `sk_test_`
 5. Redeploy production (`dpl_B11nFZepJ6XXtL6EGmoUiubdjZTX` READY).
 6. Organizations **enabled** en Production.
-7. Recreado **Lima Coffee (sintetica)** con entitlements `weather`, `weather_plus`, `traceability`, `agronomic_review` + `authorizedParcelIds: []`.
-8. Usuario operador `me@juliovela.com` creado en Production (admin de Lima Coffee). Sin password aún → usar **Forgot password** en `/sign-in` la primera vez.
+7. Recreado **Lima Coffee (sintetica)** (`org_3IW1Ls81Xul5wDXca1hCD0iAMQ5`) con entitlements `weather`, `weather_plus`, `traceability`, `agronomic_review`.
+8. Fixtures Neon remapeadas a ese org (antes `org_3ITi6wk2…` Development) + `db:seed` / `db:seed:trace` / `db:seed:review`.
+9. Usuario operador `me@juliovela.com` admin; password recovery OK.
 
-Smoke infra: apex HTML incluye `pk_live` + `clerk.geoagro.ai`; `/sign-in` `x-clerk-auth-status: signed-out` OK.
+## Smoke prod (2026-08-27)
 
-## Smoke pendiente (operador)
+| Check | Resultado |
+|-------|-----------|
+| Sign-in live (`pk_live` / `clerk.geoagro.ai`) | OK |
+| Org Lima Coffee activa | OK |
+| `/api/parcels` → Norte | OK |
+| Clima (NASA POWER, America/Lima) | OK |
+| Trazabilidad lotes A/B + EUDR | OK |
+| Revisión observe + recommend | OK |
 
-1. https://geoagro.ai/sign-in → Forgot password → `me@juliovela.com`
-2. Entrar → activar org Lima Coffee → `/app`
-3. Parcela Norte → Clima / Trace / Review
+Nota: Preview/stg (`pk_test_`) y local Development ya no ven esas filas Neon (mismo DB, org ID distinto). Dual-seed o Neon branch si hace falta smoke en stg.
 
 ## No hacer
 
