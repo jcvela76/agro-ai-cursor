@@ -21,6 +21,7 @@ import {
 } from "@/application/traceability/mutate-org-trace-lots";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
+import type { TraceLotRegistry } from "@/domain/traceability/types";
 import type { OrgMetadataStore } from "@/domain/workspace/types";
 import type { WeatherSource } from "@/domain/weather/types";
 import { SyntheticAccessResolver } from "@/infrastructure/auth/synthetic-access-resolver";
@@ -36,6 +37,7 @@ import { FreeTierWeatherSource } from "@/infrastructure/weather/free-tier-weathe
 import { NasaPowerWeatherSource } from "@/infrastructure/weather/nasa-power-weather-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 import { OpenMeteoWeatherSource } from "@/infrastructure/weather/open-meteo-weather-source";
+import { NeonTraceLotRegistry } from "@/infrastructure/traceability/neon-trace-lot-registry";
 import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
 
 export function createParcelRegistry(): ParcelRegistry {
@@ -45,7 +47,15 @@ export function createParcelRegistry(): ParcelRegistry {
   return new SyntheticParcelRegistry();
 }
 
+export function createTraceLotRegistry(): TraceLotRegistry {
+  if (process.env.DATABASE_URL) {
+    return new NeonTraceLotRegistry(createDb());
+  }
+  return new OfflineTraceLotRegistry();
+}
+
 const parcelRegistry = createParcelRegistry();
+const traceLotRegistry = createTraceLotRegistry();
 
 export const listOrgParcels = new ListOrgParcels(parcelRegistry);
 export const createOrgParcel = new CreateOrgParcel(parcelRegistry);
@@ -116,7 +126,6 @@ export const getParcelWeatherGdd = new GetParcelWeatherGdd(parcelRegistry, weath
 
 export const getParcelWeatherEt0 = new GetParcelWeatherEt0(parcelRegistry, weatherSource);
 
-const traceLotRegistry = new OfflineTraceLotRegistry();
 export const listOrgTraceLots = new ListOrgTraceLots(traceLotRegistry);
 export const createOrgTraceLot = new CreateOrgTraceLot(
   traceLotRegistry,

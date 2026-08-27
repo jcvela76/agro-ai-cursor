@@ -68,7 +68,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 ## Fase 6 — Traceability discovery
 
-**Estado:** Fase 6b (Trace-2) completada (2026-08-27)
+**Estado:** Fase 6c (Trace-3) completada (2026-08-27)
 
 ### Fase 6a — Trace-1 Lot Core
 
@@ -86,9 +86,17 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Persistencia en memoria (Neon diferido); EUDR diferido
 - Tests 69 total
 
-### Fase 6c — siguiente
+### Fase 6c — Trace-3 Neon persistence
 
-- Neon persistence y/o catálogo EUDR
+- Tablas `trace_lots` / `trace_events` / `trace_parcel_links`
+- `NeonTraceLotRegistry` cuando hay `DATABASE_URL`
+- Seed coffee `db:seed:trace`; ADR-023
+- EUDR diferido a Trace-4
+- Tests 70 total
+
+### Fase 6d — siguiente
+
+- Catálogo de campos EUDR
 
 ## Fase 7 — Agronomic Review
 
