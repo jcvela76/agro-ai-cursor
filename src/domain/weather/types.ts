@@ -47,6 +47,16 @@ export interface WeatherForecast {
   evidence: WeatherEvidence;
 }
 
+/** WQ-11: deterministic 30-day precipitation sum (Plus). */
+export interface WeatherRainfall30d {
+  kind: "rainfall_30d";
+  totalPrecipitationMm: number;
+  daysIncluded: number;
+  periodStart: string;
+  periodEnd: string;
+  evidence: WeatherEvidence;
+}
+
 export type WeatherResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: WeatherLimitationReason; message: string };
@@ -54,4 +64,5 @@ export type WeatherResult<T> =
 export interface WeatherSource {
   getObservation(parcelId: string): Promise<WeatherResult<WeatherObservation>>;
   getForecast(parcelId: string): Promise<WeatherResult<WeatherForecast>>;
+  getRainfall30d(parcelId: string): Promise<WeatherResult<WeatherRainfall30d>>;
 }

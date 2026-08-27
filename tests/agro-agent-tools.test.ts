@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/tools";
+import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
@@ -20,6 +21,7 @@ describe("Agro Agent weather tools", () => {
   const source = new OfflineWeatherSource();
   const observation = new GetParcelWeatherObservation(registry, source);
   const forecast = new GetParcelWeatherForecast(registry, source);
+  const rainfall30d = new GetParcelWeatherRainfall30d(registry, source);
   const authority = defaultSyntheticSnapshots[4];
 
   it("returns observation evidence for authorized parcel", async () => {
@@ -28,6 +30,7 @@ describe("Agro Agent weather tools", () => {
       parcelId: "parcel-lima-norte-001",
       observation,
       forecast,
+      rainfall30d,
     });
     const result = (await tools.getParcelWeatherObservation.execute!(
       {},
@@ -46,6 +49,7 @@ describe("Agro Agent weather tools", () => {
       parcelId: "parcel-lima-norte-001",
       observation,
       forecast,
+      rainfall30d,
     });
     const result = (await tools.getParcelWeatherForecast.execute!(
       {},
@@ -55,6 +59,25 @@ describe("Agro Agent weather tools", () => {
     if ("ok" in result && result.ok) {
       expect(result.data.kind).toBe("forecast");
       expect(result.data.days.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("returns 30-day rainfall for Plus parcel", async () => {
+    const tools = createAgroAgentTools({
+      authority,
+      parcelId: "parcel-lima-norte-001",
+      observation,
+      forecast,
+      rainfall30d,
+    });
+    const result = (await tools.getParcelRainfall30d.execute!(
+      {},
+      { toolCallId: "t3", messages: [] },
+    )) as Awaited<ReturnType<NonNullable<typeof tools.getParcelRainfall30d.execute>>>;
+    expect(result).toMatchObject({ ok: true });
+    if ("ok" in result && result.ok) {
+      expect(result.data.kind).toBe("rainfall_30d");
+      expect(result.data.totalPrecipitationMm).toBe(12.4);
     }
   });
 });

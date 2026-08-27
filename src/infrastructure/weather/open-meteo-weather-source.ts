@@ -3,6 +3,7 @@ import type {
   WeatherForecast,
   WeatherForecastDay,
   WeatherObservation,
+  WeatherRainfall30d,
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
@@ -151,6 +152,14 @@ export class OpenMeteoWeatherSource implements WeatherSource {
           freshnessPolicy: "forecast_max_age_12h",
         },
       },
+    };
+  }
+
+  async getRainfall30d(): Promise<WeatherResult<WeatherRainfall30d>> {
+    return {
+      ok: false,
+      reason: "unavailable",
+      message: "Open-Meteo adapter does not provide 30-day rainfall aggregation in this release.",
     };
   }
 }

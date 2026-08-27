@@ -25,6 +25,14 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Panel Agente en `/app` (tab junto a Clima); WA-07 tests
 - Figma `agent/chat/default` high-fi
 
+## Fase 5f — Plus-1 Rainfall 30d (WQ-11)
+
+**Estado:** completada (2026-08-27)
+
+- Agregado determinístico lluvia 30d (NASA POWER / offline)
+- Tool agent `getParcelRainfall30d`; ADR-016
+- Tests WQ-11 (30 total)
+
 ## Fase 6 — Traceability discovery
 
 **Estado:** en curso (paralelo)

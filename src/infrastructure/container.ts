@@ -9,6 +9,7 @@ import {
   UpdateWorkspaceSettings,
 } from "@/application/workspace/workspace-settings";
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
+import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import type { OrgMetadataStore } from "@/domain/workspace/types";
@@ -84,6 +85,11 @@ export const getParcelWeatherObservation = new GetParcelWeatherObservation(
 );
 
 export const getParcelWeatherForecast = new GetParcelWeatherForecast(
+  parcelRegistry,
+  weatherSource,
+);
+
+export const getParcelWeatherRainfall30d = new GetParcelWeatherRainfall30d(
   parcelRegistry,
   weatherSource,
 );

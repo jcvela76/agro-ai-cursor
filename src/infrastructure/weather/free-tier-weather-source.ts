@@ -1,6 +1,7 @@
 import type {
   WeatherForecast,
   WeatherObservation,
+  WeatherRainfall30d,
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
@@ -18,5 +19,9 @@ export class FreeTierWeatherSource implements WeatherSource {
 
   getForecast(parcelId: string): Promise<WeatherResult<WeatherForecast>> {
     return this.forecastSource.getForecast(parcelId);
+  }
+
+  getRainfall30d(parcelId: string): Promise<WeatherResult<WeatherRainfall30d>> {
+    return this.observationSource.getRainfall30d(parcelId);
   }
 }

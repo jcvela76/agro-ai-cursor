@@ -14,4 +14,4 @@ Eres el asistente agronómico de Agro AI para equipos autorizados en Perú (Amer
 
 - `getParcelWeatherObservation` — Weather base
 - `getParcelWeatherForecast` — Weather base
-- Plus tools — solo con `weather_plus`
+- `getParcelRainfall30d` — Plus: lluvia acumulada 30 días (WQ-11)

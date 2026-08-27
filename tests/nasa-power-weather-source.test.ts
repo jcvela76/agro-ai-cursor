@@ -73,4 +73,40 @@ describe("NasaPowerWeatherSource", () => {
       expect(result.message).not.toContain("TRACE_DUMP_XYZ");
     }
   });
+
+  it("sums daily precipitation over 30 days for WQ-11", async () => {
+    const precips: Record<string, number> = {};
+    for (let d = 1; d <= 30; d += 1) {
+      precips[`202608${String(d).padStart(2, "0")}`] = d === 15 ? 0 : 0.5;
+    }
+
+    const fetchFn = async () =>
+      jsonResponse({
+        header: { fill_value: -999 },
+        properties: {
+          parameter: {
+            PRECTOTCORR: precips,
+          },
+        },
+      });
+
+    const source = new NasaPowerWeatherSource(
+      parcels,
+      fetchFn,
+      "https://power.larc.nasa.gov/api/temporal/daily/point",
+      () => new Date("2026-08-30T12:00:00Z"),
+    );
+    const result = await source.getRainfall30d("parcel-lima-norte-001");
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.kind).toBe("rainfall_30d");
+      expect(result.data.daysIncluded).toBe(30);
+      expect(result.data.totalPrecipitationMm).toBe(14.5);
+      expect(result.data.evidence.sourceId).toBe("nasa-power");
+      expect(result.data.evidence.freshnessPolicy).toBe(
+        "sum_daily_precip_30d_max_lag_14d_per_day",
+      );
+    }
+  });
 });

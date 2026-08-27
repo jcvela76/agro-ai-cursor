@@ -1,28 +1,36 @@
 import type {
   WeatherForecast,
   WeatherObservation,
+  WeatherRainfall30d,
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
 import observations from "@/infrastructure/fixtures/weather-observations.json";
 import forecasts from "@/infrastructure/fixtures/weather-forecasts.json";
+import rainfall30d from "@/infrastructure/fixtures/weather-rainfall-30d.json";
 
 type ObservationFixture = WeatherObservation;
 type ForecastFixture = WeatherForecast;
+type Rainfall30dFixture = WeatherRainfall30d;
 
 export class OfflineWeatherSource implements WeatherSource {
   private readonly observations: Map<string, ObservationFixture>;
   private readonly forecasts: Map<string, ForecastFixture>;
+  private readonly rainfall30d: Map<string, Rainfall30dFixture>;
 
   constructor(
     observationFixtures: ObservationFixture[] = observations as ObservationFixture[],
     forecastFixtures: ForecastFixture[] = forecasts as ForecastFixture[],
+    rainfall30dFixtures: Rainfall30dFixture[] = rainfall30d as Rainfall30dFixture[],
   ) {
     this.observations = new Map(
       observationFixtures.map((o) => [o.evidence.spatialScope.label, o]),
     );
     this.forecasts = new Map(
       forecastFixtures.map((f) => [f.evidence.spatialScope.label, f]),
+    );
+    this.rainfall30d = new Map(
+      rainfall30dFixtures.map((r) => [r.evidence.spatialScope.label, r]),
     );
   }
 
@@ -54,6 +62,19 @@ export class OfflineWeatherSource implements WeatherSource {
         ok: false,
         reason: "unavailable",
         message: "No forecast fixture exists for this parcel.",
+      };
+    }
+
+    return { ok: true, data };
+  }
+
+  async getRainfall30d(parcelId: string): Promise<WeatherResult<WeatherRainfall30d>> {
+    const data = this.rainfall30d.get(parcelId);
+    if (!data) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No 30-day rainfall fixture exists for this parcel.",
       };
     }
 

@@ -2,6 +2,7 @@ import type { ParcelRegistry } from "@/domain/parcel/types";
 import type {
   WeatherForecast,
   WeatherObservation,
+  WeatherRainfall30d,
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
@@ -42,7 +43,15 @@ function parseYmdToIso(ymd: string): string {
 }
 
 const LOOKBACK_DAYS = 14;
+const RAINFALL_WINDOW_DAYS = 30;
 const FRESH_MAX_AGE_MS = 48 * 60 * 60 * 1000;
+
+function ymdToIsoDate(ymd: string): string {
+  const year = ymd.slice(0, 4);
+  const month = ymd.slice(4, 6);
+  const day = ymd.slice(6, 8);
+  return `${year}-${month}-${day}`;
+}
 
 function observationFreshness(
   observedYmd: string,
@@ -170,6 +179,106 @@ export class NasaPowerWeatherSource implements WeatherSource {
           },
           freshnessStatus,
           freshnessPolicy: "latest_available_daily_max_lag_14d",
+        },
+      },
+    };
+  }
+
+  async getRainfall30d(parcelId: string): Promise<WeatherResult<WeatherRainfall30d>> {
+    const parcel = await this.parcels.getParcel(parcelId);
+    if (!parcel) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No rainfall data exists for this parcel.",
+      };
+    }
+
+    const end = this.now();
+    const start = new Date(end);
+    start.setUTCDate(start.getUTCDate() - (RAINFALL_WINDOW_DAYS - 1));
+
+    const url = new URL(this.baseUrl);
+    url.searchParams.set("parameters", "PRECTOTCORR");
+    url.searchParams.set("community", "AG");
+    url.searchParams.set("longitude", String(parcel.longitude));
+    url.searchParams.set("latitude", String(parcel.latitude));
+    url.searchParams.set("start", formatYmd(start));
+    url.searchParams.set("end", formatYmd(end));
+    url.searchParams.set("format", "JSON");
+
+    let payload: unknown;
+    try {
+      const response = await this.fetchFn(url.toString());
+      if (!response.ok) {
+        return {
+          ok: false,
+          reason: "internal_error",
+          message: "Weather provider request failed.",
+        };
+      }
+      payload = await response.json();
+    } catch {
+      return {
+        ok: false,
+        reason: "internal_error",
+        message: "Weather provider request failed.",
+      };
+    }
+
+    if (!isNasaPowerResponse(payload)) {
+      return {
+        ok: false,
+        reason: "internal_error",
+        message: "Weather provider returned an unexpected payload.",
+      };
+    }
+
+    const fillValue = payload.header?.fill_value ?? -999;
+    const precips = payload.properties?.parameter?.PRECTOTCORR ?? {};
+    const validDates = Object.keys(precips)
+      .filter((key) => {
+        const p = precips[key];
+        return typeof p === "number" && p !== fillValue;
+      })
+      .sort();
+
+    if (validDates.length === 0) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Insufficient daily precipitation data for a 30-day sum.",
+      };
+    }
+
+    const totalPrecipitationMm = validDates.reduce((sum, key) => sum + precips[key], 0);
+    const periodStart = ymdToIsoDate(validDates[0]);
+    const periodEnd = ymdToIsoDate(validDates[validDates.length - 1]);
+    const latestYmd = validDates[validDates.length - 1];
+    const freshnessStatus = observationFreshness(latestYmd, this.now());
+
+    return {
+      ok: true,
+      data: {
+        kind: "rainfall_30d",
+        totalPrecipitationMm,
+        daysIncluded: validDates.length,
+        periodStart,
+        periodEnd,
+        evidence: {
+          sourceId: "nasa-power",
+          sourceLabel: "NASA POWER",
+          validFrom: periodStart,
+          validTo: periodEnd,
+          timezone: parcel.timezone,
+          spatialScope: {
+            kind: "point",
+            latitude: parcel.latitude,
+            longitude: parcel.longitude,
+            label: parcel.id,
+          },
+          freshnessStatus,
+          freshnessPolicy: "sum_daily_precip_30d_max_lag_14d_per_day",
         },
       },
     };

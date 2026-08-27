@@ -12,6 +12,7 @@ import {
   createAccessResolver,
   getParcelWeatherForecast,
   getParcelWeatherObservation,
+  getParcelWeatherRainfall30d,
 } from "@/infrastructure/container";
 
 export const maxDuration = 60;
@@ -103,6 +104,7 @@ export async function POST(request: Request) {
     parcelId,
     observation: getParcelWeatherObservation,
     forecast: getParcelWeatherForecast,
+    rainfall30d: getParcelWeatherRainfall30d,
   });
 
   const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;
