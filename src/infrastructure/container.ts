@@ -9,6 +9,7 @@ import {
   UpdateWorkspaceSettings,
 } from "@/application/workspace/workspace-settings";
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
+import { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
@@ -106,6 +107,8 @@ export const getParcelWeatherLowRainDays = new GetParcelWeatherLowRainDays(
 );
 
 export const getParcelWeatherGdd = new GetParcelWeatherGdd(parcelRegistry, weatherSource);
+
+export const getParcelWeatherEt0 = new GetParcelWeatherEt0(parcelRegistry, weatherSource);
 
 export function createAccessResolver(): AccessResolver {
   if (process.env.CLERK_SECRET_KEY) {

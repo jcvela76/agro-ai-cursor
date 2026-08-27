@@ -109,6 +109,18 @@ export interface WeatherGdd {
   evidence: WeatherEvidence;
 }
 
+/** WQ-15: reference evapotranspiration accumulation (Plus). */
+export interface WeatherEt0 {
+  kind: "et0";
+  calculationMethodId: string;
+  calculationMethodLabel: string;
+  totalEt0Mm: number;
+  daysIncluded: number;
+  periodStart: string;
+  periodEnd: string;
+  evidence: WeatherEvidence;
+}
+
 export type WeatherResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: WeatherLimitationReason; message: string };
@@ -122,4 +134,5 @@ export interface WeatherSource {
   ): Promise<WeatherResult<WeatherRainfallCampaignComparison>>;
   getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>>;
   getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>>;
+  getEt0(parcelId: string): Promise<WeatherResult<WeatherEt0>>;
 }

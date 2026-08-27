@@ -58,6 +58,14 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Tool agent `getParcelGdd`; ADR-019; método `gdd-mean-base10-calendar-ytd/v1`
 - Tests 48 total
 
+## Fase 5j — Plus-5 Reference ET0 (WQ-15)
+
+**Estado:** completada (2026-08-27)
+
+- ET0 Hargreaves–Samani campaña YTD (NASA Tmax/Tmin + lat / offline)
+- Tool agent `getParcelEt0`; ADR-020; método `et0-hargreaves-samani-calendar-ytd/v1`
+- Tests 57 total
+
 ## Fase 6 — Traceability discovery
 
 **Estado:** en curso (paralelo)

@@ -211,4 +211,50 @@ describe("NasaPowerWeatherSource", () => {
       expect(result.data.evidence.freshnessPolicy).toBe("gdd_mean_base10_calendar_ytd_v1");
     }
   });
+
+  it("accumulates campaign YTD ET0 via Hargreaves–Samani (WQ-15)", async () => {
+    const fetchFn = async () =>
+      jsonResponse({
+        header: { fill_value: -999 },
+        properties: {
+          parameter: {
+            T2M_MAX: {
+              "20260101": 22,
+              "20260102": 24,
+              "20260823": 20,
+              "20260824": -999,
+            },
+            T2M_MIN: {
+              "20260101": 12,
+              "20260102": 14,
+              "20260823": 10,
+              "20260824": 8,
+            },
+          },
+        },
+      });
+
+    const source = new NasaPowerWeatherSource(
+      parcels,
+      fetchFn,
+      "https://power.larc.nasa.gov/api/temporal/daily/point",
+      () => new Date("2026-08-26T12:00:00Z"),
+    );
+    const result = await source.getEt0("parcel-lima-norte-001");
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.kind).toBe("et0");
+      expect(result.data.calculationMethodId).toBe(
+        "et0-hargreaves-samani-calendar-ytd/v1",
+      );
+      expect(result.data.daysIncluded).toBe(3);
+      expect(result.data.periodStart).toBe("2026-01-01");
+      expect(result.data.periodEnd).toBe("2026-08-23");
+      expect(result.data.totalEt0Mm).toBeGreaterThan(0);
+      expect(result.data.evidence.freshnessPolicy).toBe(
+        "et0_hargreaves_samani_calendar_ytd_v1",
+      );
+    }
+  });
 });

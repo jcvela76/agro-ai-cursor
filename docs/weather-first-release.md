@@ -42,7 +42,7 @@ Lista de especificación de producto — no promesa de veinte pantallas.
 | WQ-12 | Comparar precipitación de esta campaña con período de referencia | PLUS (agent) | Método `campaign-vs-prior-year-calendar-ytd/v1`; gate `weather_plus`; tool `getParcelRainfallCampaignComparison` |
 | WQ-13 | ¿Qué días tienen menor probabilidad de lluvia en el horizonte? | PLUS (agent) | Método `forecast-low-precip-probability/v1`; gate `weather_plus`; tool `getParcelLowRainDays` |
 | WQ-14 | Estimar grados-día de crecimiento para esta parcela | PLUS (agent) | Método `gdd-mean-base10-calendar-ytd/v1`; gate `weather_plus`; tool `getParcelGdd` |
-| WQ-15 | Estimar evapotranspiración para esta parcela | PLUS_LATER | Método seleccionado; rechazar si faltan datos |
+| WQ-15 | Estimar evapotranspiración para esta parcela | PLUS (agent) | Método `et0-hargreaves-samani-calendar-ytd/v1`; gate `weather_plus`; tool `getParcelEt0` |
 | WQ-16 | Clima de parcela en otro workspace | REFUSE | Denegar sin confirmar existencia |
 | WQ-17 | Lotes de trazabilidad afectados por pronóstico | REFUSE | Sin tool ni data de Traceability |
 | WQ-18 | ¿Debo fumigar, regar o cosechar ahora? | REFUSE | Explicar límite; no decidir ni ejecutar |

@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import { authorizeWeatherPlusAccess } from "@/domain/auth/authorize-weather-access";
+import type { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import type { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import type { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import type { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
@@ -23,6 +24,7 @@ export const agroAgentToolNames = {
   rainfallCampaignComparison: "getParcelRainfallCampaignComparison",
   lowRainDays: "getParcelLowRainDays",
   gdd: "getParcelGdd",
+  et0: "getParcelEt0",
 } as const;
 
 export const plusToolNames = [
@@ -30,6 +32,7 @@ export const plusToolNames = [
   agroAgentToolNames.rainfallCampaignComparison,
   agroAgentToolNames.lowRainDays,
   agroAgentToolNames.gdd,
+  agroAgentToolNames.et0,
 ] as const;
 
 export function createAgroAgentTools(input: {
@@ -41,6 +44,7 @@ export function createAgroAgentTools(input: {
   rainfallCampaignComparison: GetParcelWeatherRainfallCampaignComparison;
   lowRainDays: GetParcelWeatherLowRainDays;
   gdd: GetParcelWeatherGdd;
+  et0: GetParcelWeatherEt0;
 }) {
   const {
     authority,
@@ -51,6 +55,7 @@ export function createAgroAgentTools(input: {
     rainfallCampaignComparison,
     lowRainDays,
     gdd,
+    et0,
   } = input;
 
   return {
@@ -120,6 +125,18 @@ export function createAgroAgentTools(input: {
       inputSchema: z.object({}),
       execute: async () => {
         const result = await gdd.execute({ authority, parcelId });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelEt0: tool({
+      description:
+        "Estima evapotranspiración de referencia ET0 (mm) acumulada en la campaña año calendario YTD con Hargreaves–Samani sobre Tmax/Tmin (método versionado + evidencia). Requiere Plus. No es ETc de cultivo.",
+      inputSchema: z.object({}),
+      execute: async () => {
+        const result = await et0.execute({ authority, parcelId });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }

@@ -1,4 +1,5 @@
 import type {
+  WeatherEt0,
   WeatherForecast,
   WeatherGdd,
   WeatherLowRainDays,
@@ -40,5 +41,9 @@ export class FreeTierWeatherSource implements WeatherSource {
 
   getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>> {
     return this.observationSource.getGdd(parcelId);
+  }
+
+  getEt0(parcelId: string): Promise<WeatherResult<WeatherEt0>> {
+    return this.observationSource.getEt0(parcelId);
   }
 }

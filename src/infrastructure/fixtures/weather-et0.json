@@ -1,0 +1,26 @@
+[
+  {
+    "kind": "et0",
+    "calculationMethodId": "et0-hargreaves-samani-calendar-ytd/v1",
+    "calculationMethodLabel": "ET0 Hargreaves–Samani (mm), suma año calendario YTD",
+    "totalEt0Mm": 912.4,
+    "daysIncluded": 238,
+    "periodStart": "2026-01-01",
+    "periodEnd": "2026-08-26",
+    "evidence": {
+      "sourceId": "offline-nasa-power-synthetic",
+      "sourceLabel": "NASA POWER (offline fixture)",
+      "validFrom": "2026-01-01",
+      "validTo": "2026-08-26",
+      "timezone": "America/Lima",
+      "spatialScope": {
+        "kind": "point",
+        "latitude": -11.95,
+        "longitude": -77.05,
+        "label": "parcel-lima-norte-001"
+      },
+      "freshnessStatus": "fresh",
+      "freshnessPolicy": "et0_hargreaves_samani_calendar_ytd_v1_offline"
+    }
+  }
+]

@@ -5,7 +5,13 @@ import {
   GDD_CALCULATION_METHOD_ID,
   GDD_CALCULATION_METHOD_LABEL,
 } from "@/domain/weather/compute-gdd";
+import {
+  accumulateEt0,
+  ET0_CALCULATION_METHOD_ID,
+  ET0_CALCULATION_METHOD_LABEL,
+} from "@/domain/weather/compute-et0";
 import type {
+  WeatherEt0,
   WeatherForecast,
   WeatherGdd,
   WeatherLowRainDays,
@@ -495,6 +501,80 @@ export class NasaPowerWeatherSource implements WeatherSource {
           },
           freshnessStatus,
           freshnessPolicy: "gdd_mean_base10_calendar_ytd_v1",
+        },
+      },
+    };
+  }
+
+  async getEt0(parcelId: string): Promise<WeatherResult<WeatherEt0>> {
+    const parcel = await this.parcels.getParcel(parcelId);
+    if (!parcel) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No ET0 data exists for this parcel.",
+      };
+    }
+
+    const now = this.now();
+    const currentYear = now.getUTCFullYear();
+    const campaignStart = new Date(Date.UTC(currentYear, 0, 1));
+
+    const series = await this.fetchDailyTempsMaxMin(parcel, campaignStart, now);
+    if (!series.ok) {
+      return series;
+    }
+
+    const { tmax, tmin, validDates } = series.data;
+    if (validDates.length === 0) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Insufficient daily max/min temperature data for ET0 calculation.",
+      };
+    }
+
+    const days = validDates.map((ymd) => ({
+      date: ymdToIsoDate(ymd),
+      tempMaxCelsius: tmax[ymd],
+      tempMinCelsius: tmin[ymd],
+    }));
+    const accumulation = accumulateEt0(days, parcel.latitude);
+    if (!accumulation) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Insufficient daily max/min temperature data for ET0 calculation.",
+      };
+    }
+
+    const latestYmd = validDates[validDates.length - 1];
+    const freshnessStatus = observationFreshness(latestYmd, now);
+
+    return {
+      ok: true,
+      data: {
+        kind: "et0",
+        calculationMethodId: ET0_CALCULATION_METHOD_ID,
+        calculationMethodLabel: ET0_CALCULATION_METHOD_LABEL,
+        totalEt0Mm: accumulation.totalEt0Mm,
+        daysIncluded: accumulation.daysIncluded,
+        periodStart: accumulation.periodStart,
+        periodEnd: accumulation.periodEnd,
+        evidence: {
+          sourceId: "nasa-power",
+          sourceLabel: "NASA POWER",
+          validFrom: accumulation.periodStart,
+          validTo: accumulation.periodEnd,
+          timezone: parcel.timezone,
+          spatialScope: {
+            kind: "point",
+            latitude: parcel.latitude,
+            longitude: parcel.longitude,
+            label: parcel.id,
+          },
+          freshnessStatus,
+          freshnessPolicy: "et0_hargreaves_samani_calendar_ytd_v1",
         },
       },
     };
