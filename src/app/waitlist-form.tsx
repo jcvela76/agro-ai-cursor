@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import styles from "../landing.module.css";
+import styles from "./landing.module.css";
 
 type Props = {
   variant?: "hero" | "closing";
