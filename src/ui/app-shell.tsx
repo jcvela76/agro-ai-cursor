@@ -26,13 +26,58 @@ import { Panel } from "@/ui/panel";
 import { WeatherPanel } from "@/ui/weather-panel";
 import styles from "./app-shell.module.css";
 
-const STYLE_URL = "https://demotiles.maplibre.org/style.json";
+const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 const PARCELS_SOURCE = "agro-parcels";
 const PARCELS_FILL = "agro-parcels-fill";
 const PARCELS_LINE = "agro-parcels-line";
+const PARCEL_DETAIL_MAX_ZOOM = 16;
 
 type DrawMode = "idle" | "draw" | "edit";
 type SideTab = "weather" | "agent";
+
+function extendBoundsWithGeometry(bounds: LngLatBounds, geometry: ParcelGeometry) {
+  const rings =
+    geometry.type === "Polygon" ? geometry.coordinates : geometry.coordinates.flat();
+  for (const ring of rings) {
+    for (const coord of ring) {
+      bounds.extend([coord[0], coord[1]]);
+    }
+  }
+}
+
+function boundsForParcels(parcels: Parcel[]): LngLatBounds | null {
+  const bounds = new LngLatBounds();
+  let hasPoint = false;
+  for (const parcel of parcels) {
+    if (parcel.geometry?.type === "Polygon") {
+      extendBoundsWithGeometry(bounds, parcel.geometry);
+      hasPoint = true;
+    } else {
+      bounds.extend([parcel.longitude, parcel.latitude]);
+      hasPoint = true;
+    }
+  }
+  return hasPoint ? bounds : null;
+}
+
+function flyToParcel(map: MapLibreMap, parcel: Parcel) {
+  if (parcel.geometry?.type === "Polygon") {
+    const bounds = new LngLatBounds();
+    extendBoundsWithGeometry(bounds, parcel.geometry);
+    map.fitBounds(bounds, {
+      padding: 72,
+      maxZoom: PARCEL_DETAIL_MAX_ZOOM,
+      duration: 700,
+      essential: true,
+    });
+    return;
+  }
+  map.flyTo({
+    center: [parcel.longitude, parcel.latitude],
+    zoom: 14,
+    essential: true,
+  });
+}
 
 function parcelsToFeatureCollection(parcels: Parcel[]) {
   return {
@@ -60,13 +105,13 @@ function syncParcelLayers(map: MapLibreMap, parcels: Parcel[]) {
     id: PARCELS_FILL,
     type: "fill",
     source: PARCELS_SOURCE,
-    paint: { "fill-color": "#4F6F52", "fill-opacity": 0.35 },
+    paint: { "fill-color": "#4F6F52", "fill-opacity": 0.55 },
   });
   map.addLayer({
     id: PARCELS_LINE,
     type: "line",
     source: PARCELS_SOURCE,
-    paint: { "line-color": "#1C2A1F", "line-width": 2 },
+    paint: { "line-color": "#1C2A1F", "line-width": 3 },
   });
 }
 
@@ -123,6 +168,23 @@ export function AppShell({
   useEffect(() => {
     void reloadParcels();
   }, [reloadParcels]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !selectedId || drawMode !== "idle") {
+      return;
+    }
+    const parcel = parcels.find((p) => p.id === selectedId);
+    if (!parcel) {
+      return;
+    }
+    const frame = () => flyToParcel(map, parcel);
+    if (map.isStyleLoaded()) {
+      frame();
+    } else {
+      map.once("load", frame);
+    }
+  }, [selectedId, parcels, drawMode]);
 
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) {
@@ -230,20 +292,19 @@ export function AppShell({
       markersRef.current.push(marker);
     }
 
-    if (parcels.length === 1) {
-      map.flyTo({
-        center: [parcels[0].longitude, parcels[0].latitude],
-        zoom: 11,
-        essential: true,
-      });
-    } else if (parcels.length > 1) {
-      const bounds = new LngLatBounds();
-      for (const p of parcels) {
-        bounds.extend([p.longitude, p.latitude]);
-      }
-      map.fitBounds(bounds, { padding: 80, maxZoom: 12 });
+    if (selectedId) {
+      return;
     }
-  }, [parcels, selectParcel, drawMode]);
+    const bounds = boundsForParcels(parcels);
+    if (!bounds) {
+      return;
+    }
+    if (parcels.length === 1) {
+      flyToParcel(map, parcels[0]);
+    } else {
+      map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 0 });
+    }
+  }, [parcels, selectParcel, drawMode, selectedId]);
 
   const selected = parcels.find((p) => p.id === selectedId) ?? null;
 
@@ -518,7 +579,7 @@ export function AppShell({
         <div className={styles.hint}>
           {parcels.length === 0 && !listError
             ? "Dibuja tu primera parcela"
-            : "Selecciona una parcela o dibuja una nueva"}
+            : "Toca un punto verde para acercar y ver el polígono"}
         </div>
       ) : null}
 
