@@ -68,7 +68,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 ## Fase 6 — Traceability discovery
 
-**Estado:** Fase 6c (Trace-3) completada (2026-08-27)
+**Estado:** Fase 6d (Trace-4) completada (2026-08-27)
 
 ### Fase 6a — Trace-1 Lot Core
 
@@ -94,9 +94,16 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - EUDR diferido a Trace-4
 - Tests 70 total
 
-### Fase 6d — siguiente
+### Fase 6d — Trace-4 EUDR field catalog
 
-- Catálogo de campos EUDR
+- Catálogo piloto: país, productor, fin de producción, declaración deforestación + parcel link
+- `evaluateEudrExportReadiness`; gate en `exported`
+- UI create con campos EUDR; ADR-024; docs/traceability/eudr-field-catalog.md
+- Tests 72+ total
+
+### Fase 6e — siguiente
+
+- Ops / Review / billing según prioridad
 
 ## Fase 7 — Agronomic Review
 

@@ -51,6 +51,10 @@ export class NeonTraceLotRegistry implements TraceLotRegistry {
         cropType: input.cropType,
         harvestSeason: input.harvestSeason,
         status: "draft",
+        countryOfProduction: input.countryOfProduction,
+        producerName: input.producerName,
+        productionEndDate: input.productionEndDate ?? null,
+        deforestationFreeDeclared: input.deforestationFreeDeclared,
       })
       .returning();
 
@@ -133,6 +137,12 @@ export class NeonTraceLotRegistry implements TraceLotRegistry {
       cropType: row.cropType,
       harvestSeason: row.harvestSeason,
       status: row.status,
+      countryOfProduction: row.countryOfProduction,
+      producerName: row.producerName,
+      deforestationFreeDeclared: row.deforestationFreeDeclared,
+      ...(row.productionEndDate
+        ? { productionEndDate: row.productionEndDate }
+        : {}),
     };
   }
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   TRACE_EVENT_TYPES,
+  evaluateEudrExportReadiness,
   type TraceEventType,
   type TraceLotView,
 } from "@/domain/traceability/types";
@@ -49,6 +50,10 @@ export function TraceLotsPanel({
   const [formError, setFormError] = useState<string | null>(null);
   const [lotName, setLotName] = useState("");
   const [harvestSeason, setHarvestSeason] = useState(String(new Date().getFullYear()));
+  const [producerName, setProducerName] = useState("");
+  const [countryOfProduction, setCountryOfProduction] = useState("PE");
+  const [productionEndDate, setProductionEndDate] = useState("");
+  const [deforestationFreeDeclared, setDeforestationFreeDeclared] = useState(false);
   const [linkParcel, setLinkParcel] = useState(true);
   const [eventLotId, setEventLotId] = useState<string | null>(null);
   const [eventType, setEventType] = useState<TraceEventType>("planted");
@@ -103,6 +108,10 @@ export function TraceLotsPanel({
           name: lotName,
           harvestSeason,
           cropType: "coffee",
+          producerName,
+          countryOfProduction,
+          productionEndDate: productionEndDate || null,
+          deforestationFreeDeclared,
           parcelId: linkParcel ? parcelId : null,
         }),
       });
@@ -116,6 +125,9 @@ export function TraceLotsPanel({
         return;
       }
       setLotName("");
+      setProducerName("");
+      setProductionEndDate("");
+      setDeforestationFreeDeclared(false);
       setState((prev) =>
         prev.kind === "ok"
           ? { kind: "ok", lots: [...prev.lots, json.data!] }
@@ -201,8 +213,8 @@ export function TraceLotsPanel({
   return (
     <div className={styles.list}>
       <p className={styles.intro}>
-        Lotes coffee del workspace (sin geometría). Destacados los vinculados a esta
-        parcela.
+        Lotes coffee del workspace (sin geometría). Catálogo EUDR piloto en create;
+        export exige declaración completa + vínculo a parcela.
       </p>
 
       <form className={styles.form} onSubmit={createLot}>
@@ -227,6 +239,47 @@ export function TraceLotsPanel({
             disabled={busy}
           />
         </label>
+        <label className={styles.field}>
+          Productor
+          <input
+            value={producerName}
+            onChange={(ev) => setProducerName(ev.target.value)}
+            required
+            maxLength={120}
+            disabled={busy}
+            placeholder="Operador / cooperativa"
+          />
+        </label>
+        <label className={styles.field}>
+          País de producción
+          <input
+            value={countryOfProduction}
+            onChange={(ev) => setCountryOfProduction(ev.target.value.toUpperCase())}
+            required
+            maxLength={2}
+            minLength={2}
+            disabled={busy}
+            aria-label="Código ISO del país"
+          />
+        </label>
+        <label className={styles.field}>
+          Fin de producción (opcional)
+          <input
+            type="date"
+            value={productionEndDate}
+            onChange={(ev) => setProductionEndDate(ev.target.value)}
+            disabled={busy}
+          />
+        </label>
+        <label className={styles.check}>
+          <input
+            type="checkbox"
+            checked={deforestationFreeDeclared}
+            onChange={(ev) => setDeforestationFreeDeclared(ev.target.checked)}
+            disabled={busy}
+          />
+          Declaro libre de deforestación
+        </label>
         <label className={styles.check}>
           <input
             type="checkbox"
@@ -236,7 +289,10 @@ export function TraceLotsPanel({
           />
           Vincular a esta parcela
         </label>
-        <Button type="submit" disabled={busy || !lotName.trim()}>
+        <Button
+          type="submit"
+          disabled={busy || !lotName.trim() || !producerName.trim()}
+        >
           Crear lote
         </Button>
       </form>
@@ -252,6 +308,7 @@ export function TraceLotsPanel({
           {state.lots.map((view) => {
             const linkedHere = view.parcelLinks.some((l) => l.parcelId === parcelId);
             const adding = eventLotId === view.lot.id;
+            const eudr = evaluateEudrExportReadiness(view);
             return (
               <li
                 key={view.lot.id}
@@ -266,6 +323,15 @@ export function TraceLotsPanel({
                 <p className={styles.meta}>
                   {view.lot.cropType} · temporada {view.lot.harvestSeason}
                   {linkedHere ? " · vinculado a esta parcela" : null}
+                </p>
+                <p className={styles.meta}>
+                  EUDR · {view.lot.countryOfProduction} · {view.lot.producerName}
+                  {view.lot.productionEndDate
+                    ? ` · fin ${view.lot.productionEndDate}`
+                    : ""}
+                  {view.lot.deforestationFreeDeclared ? " · libre deforestación" : ""}
+                  {" · "}
+                  {eudr.ok ? "listo export" : "incompleto export"}
                 </p>
                 {view.events.length > 0 ? (
                   <ol className={styles.events}>

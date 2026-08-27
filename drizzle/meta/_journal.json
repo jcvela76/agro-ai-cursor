@@ -8,6 +8,13 @@
       "when": 1787843795406,
       "tag": "0000_trace_lots",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787847600000,
+      "tag": "0001_trace_lots_eudr",
+      "breakpoints": true
     }
   ]
 }

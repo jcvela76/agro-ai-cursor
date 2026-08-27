@@ -23,6 +23,11 @@ async function main() {
         cropType: lot.cropType,
         harvestSeason: lot.harvestSeason,
         status: lot.status as TraceLotStatus,
+        countryOfProduction: lot.countryOfProduction,
+        producerName: lot.producerName,
+        productionEndDate:
+          "productionEndDate" in lot ? (lot.productionEndDate as string) : null,
+        deforestationFreeDeclared: lot.deforestationFreeDeclared,
       })
       .onConflictDoUpdate({
         target: traceLots.id,
@@ -32,6 +37,11 @@ async function main() {
           cropType: lot.cropType,
           harvestSeason: lot.harvestSeason,
           status: lot.status as TraceLotStatus,
+          countryOfProduction: lot.countryOfProduction,
+          producerName: lot.producerName,
+          productionEndDate:
+            "productionEndDate" in lot ? (lot.productionEndDate as string) : null,
+          deforestationFreeDeclared: lot.deforestationFreeDeclared,
         },
       });
   }

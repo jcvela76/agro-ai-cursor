@@ -1,6 +1,6 @@
 # Traceability — discovery
 
-Estado: **Fase 6c (Trace-3) Neon persistence** — lotes/eventos/links en Postgres.
+Estado: **Fase 6d (Trace-4) EUDR field catalog** — campos mínimos + gate export.
 
 ## Objetivo fase 2
 
@@ -8,19 +8,21 @@ MVP interno coffee/EUDR con datos sintéticos. Integración con Agro Agent solo 
 
 ## Preguntas (piloto v1)
 
-| # | Pregunta | Estado v1 (ADR-021..023) |
+| # | Pregunta | Estado v1 (ADR-021..024) |
 |---|----------|--------------------------|
 | 1 | Eventos mínimos | Cerrado: `planted` \| `harvested` \| `processed` \| `exported` |
 | 2 | Quién firma/aprueba | Diferido; evento append-only con `actorId` |
 | 3 | Evidencia documental | `evidenceRef` opcional (string); sin uploads |
 | 4 | Parcela ↔ lote | `ParcelLink` por `parcelId`; sin geometría en respuestas Trace |
-| 5 | Campos EUDR obligatorios | **Abierta** — diferido a Trace-4 |
+| 5 | Campos EUDR obligatorios | **Cerrado** — ver [eudr-field-catalog.md](./eudr-field-catalog.md) |
 
 ## Contratos de dominio
 
 Interfaces en `src/domain/traceability/types.ts`:
 
 - `TraceLot` / `TraceEvent` / `ParcelLink` / `TraceLotView`
+- EUDR en lote: `countryOfProduction`, `producerName`, `productionEndDate?`, `deforestationFreeDeclared`
+- `evaluateEudrExportReadiness` — gate de `exported`
 - `TraceLotRegistry` — list + create + append
 
 Runtime: `NeonTraceLotRegistry` (DATABASE_URL) o `OfflineTraceLotRegistry` (tests). APIs `GET|POST /api/trace/lots` + `POST .../events`. Seed: `npm run db:seed:trace`.
@@ -32,4 +34,4 @@ Runtime: `NeonTraceLotRegistry` (DATABASE_URL) o `OfflineTraceLotRegistry` (test
 
 ## Próximo paso
 
-**Trace-4:** catálogo de campos EUDR.
+Fase 7 Agronomic Review (futuro) u ops (Billing / SENAMHI / Clerk prod).

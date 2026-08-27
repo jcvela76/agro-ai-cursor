@@ -5,6 +5,10 @@ CREATE TABLE "trace_lots" (
 	"crop_type" text NOT NULL,
 	"harvest_season" text NOT NULL,
 	"status" text DEFAULT 'draft' NOT NULL,
+	"country_of_production" text DEFAULT 'PE' NOT NULL,
+	"producer_name" text DEFAULT '' NOT NULL,
+	"production_end_date" text,
+	"deforestation_free_declared" boolean DEFAULT false NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint

@@ -2,7 +2,11 @@ import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import { authorizeTraceabilityAccess } from "@/domain/auth/authorize-traceability-access";
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import {
+  DEFAULT_COUNTRY_OF_PRODUCTION,
   TRACE_EVENT_TYPES,
+  evaluateEudrExportReadiness,
+  isIsoCountryCode,
+  isIsoDateOnly,
   type TraceEventType,
   type TraceLotRegistry,
   type TraceLotView,
@@ -15,7 +19,8 @@ export type TraceMutationDenyReason =
   | "no_org"
   | "not_found"
   | "invalid_input"
-  | "cross_org_parcel";
+  | "cross_org_parcel"
+  | "eudr_incomplete";
 
 export type TraceMutationResult =
   | { ok: true; data: TraceLotView }
@@ -46,6 +51,10 @@ export class CreateOrgTraceLot {
     harvestSeason: string;
     cropType?: string;
     parcelId?: string | null;
+    countryOfProduction?: string;
+    producerName: string;
+    productionEndDate?: string | null;
+    deforestationFreeDeclared?: boolean;
   }): Promise<TraceMutationResult> {
     const access = authorizeTraceabilityAccess(input.authority);
     if (!access.ok) {
@@ -68,11 +77,34 @@ export class CreateOrgTraceLot {
     const name = input.name.trim();
     const harvestSeason = input.harvestSeason.trim();
     const cropType = (input.cropType ?? "coffee").trim() || "coffee";
-    if (!name || !harvestSeason) {
+    const producerName = input.producerName.trim();
+    const countryOfProduction = (
+      input.countryOfProduction?.trim() || DEFAULT_COUNTRY_OF_PRODUCTION
+    ).toUpperCase();
+    const productionEndDate = input.productionEndDate?.trim() || undefined;
+    const deforestationFreeDeclared = Boolean(input.deforestationFreeDeclared);
+
+    if (!name || !harvestSeason || !producerName) {
       return {
         ok: false,
         reason: "invalid_input",
-        message: "name and harvestSeason are required",
+        message: "name, harvestSeason and producerName are required",
+      };
+    }
+
+    if (!isIsoCountryCode(countryOfProduction)) {
+      return {
+        ok: false,
+        reason: "invalid_input",
+        message: "countryOfProduction must be an ISO 3166-1 alpha-2 code",
+      };
+    }
+
+    if (productionEndDate && !isIsoDateOnly(productionEndDate)) {
+      return {
+        ok: false,
+        reason: "invalid_input",
+        message: "productionEndDate must be YYYY-MM-DD",
       };
     }
 
@@ -93,6 +125,10 @@ export class CreateOrgTraceLot {
       name,
       cropType,
       harvestSeason,
+      countryOfProduction,
+      producerName,
+      productionEndDate,
+      deforestationFreeDeclared,
       parcelId,
     });
     return { ok: true, data };
@@ -152,6 +188,17 @@ export class AppendOrgTraceEvent {
         reason: "not_found",
         message: "Lot is not available",
       };
+    }
+
+    if (input.eventType === "exported") {
+      const readiness = evaluateEudrExportReadiness(existing);
+      if (!readiness.ok) {
+        return {
+          ok: false,
+          reason: "eudr_incomplete",
+          message: `EUDR catalog incomplete: ${readiness.missing.join(", ")}`,
+        };
+      }
     }
 
     const evidenceRef = input.evidenceRef?.trim() || undefined;

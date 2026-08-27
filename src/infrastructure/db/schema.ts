@@ -1,4 +1,13 @@
-import { jsonb, doublePrecision, pgTable, text, timestamp, primaryKey, index } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  jsonb,
+  doublePrecision,
+  pgTable,
+  text,
+  timestamp,
+  primaryKey,
+  index,
+} from "drizzle-orm/pg-core";
 import type { ParcelGeometry } from "@/domain/parcel/types";
 import type { TraceEventType, TraceLotStatus } from "@/domain/traceability/types";
 
@@ -22,6 +31,12 @@ export const traceLots = pgTable(
     cropType: text("crop_type").notNull(),
     harvestSeason: text("harvest_season").notNull(),
     status: text("status").$type<TraceLotStatus>().notNull().default("draft"),
+    countryOfProduction: text("country_of_production").notNull().default("PE"),
+    producerName: text("producer_name").notNull().default(""),
+    productionEndDate: text("production_end_date"),
+    deforestationFreeDeclared: boolean("deforestation_free_declared")
+      .notNull()
+      .default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [index("trace_lots_org_id_idx").on(table.orgId)],

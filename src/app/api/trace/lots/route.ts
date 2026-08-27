@@ -56,6 +56,10 @@ export async function POST(request: Request) {
     harvestSeason?: string;
     cropType?: string;
     parcelId?: string | null;
+    countryOfProduction?: string;
+    producerName?: string;
+    productionEndDate?: string | null;
+    deforestationFreeDeclared?: boolean;
   };
   try {
     body = (await request.json()) as typeof body;
@@ -77,6 +81,10 @@ export async function POST(request: Request) {
     harvestSeason: body.harvestSeason ?? "",
     cropType: body.cropType,
     parcelId: body.parcelId,
+    countryOfProduction: body.countryOfProduction,
+    producerName: body.producerName ?? "",
+    productionEndDate: body.productionEndDate,
+    deforestationFreeDeclared: body.deforestationFreeDeclared,
   });
 
   if (!result.ok) {

@@ -46,6 +46,12 @@ export class OfflineTraceLotRegistry implements TraceLotRegistry {
       cropType: input.cropType,
       harvestSeason: input.harvestSeason,
       status: "draft",
+      countryOfProduction: input.countryOfProduction,
+      producerName: input.producerName,
+      deforestationFreeDeclared: input.deforestationFreeDeclared,
+      ...(input.productionEndDate
+        ? { productionEndDate: input.productionEndDate }
+        : {}),
     };
     this.lots.push(lot);
 
