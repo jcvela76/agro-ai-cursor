@@ -32,7 +32,8 @@ export const defaultSyntheticSnapshots: AccessSnapshot[] = [
     orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     isActiveMember: true,
     entitlements: ["weather"],
-    authorizedParcelIds: [],
+    // Non-empty allowlist that excludes lima → WA-03 missing_parcel_access
+    authorizedParcelIds: ["parcel-other-999"],
   },
   {
     userId: "user-parcel-only-003",
@@ -54,6 +55,14 @@ export const defaultSyntheticSnapshots: AccessSnapshot[] = [
     isActiveMember: true,
     entitlements: ["weather", "weather_plus"],
     authorizedParcelIds: ["parcel-lima-norte-001"],
+  },
+  {
+    userId: "user-org-wide-weather-006",
+    orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+    isActiveMember: true,
+    entitlements: ["weather"],
+    // Empty allowlist = all org parcels (ADR-011)
+    authorizedParcelIds: [],
   },
 ];
 

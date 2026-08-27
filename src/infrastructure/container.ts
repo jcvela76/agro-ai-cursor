@@ -1,4 +1,9 @@
 import { ListOrgParcels } from "@/application/parcel/list-org-parcels";
+import {
+  CreateOrgParcel,
+  DeleteOrgParcel,
+  UpdateOrgParcel,
+} from "@/application/parcel/mutate-org-parcels";
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
@@ -23,6 +28,9 @@ export function createParcelRegistry(): ParcelRegistry {
 const parcelRegistry = createParcelRegistry();
 
 export const listOrgParcels = new ListOrgParcels(parcelRegistry);
+export const createOrgParcel = new CreateOrgParcel(parcelRegistry);
+export const updateOrgParcel = new UpdateOrgParcel(parcelRegistry);
+export const deleteOrgParcel = new DeleteOrgParcel(parcelRegistry);
 
 export function createWeatherSource(
   mode = process.env.WEATHER_SOURCE ?? "offline",

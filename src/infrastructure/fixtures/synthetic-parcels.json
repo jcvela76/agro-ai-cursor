@@ -5,7 +5,19 @@
     "name": "Parcela Norte — Lima (sintética)",
     "latitude": -11.95,
     "longitude": -77.05,
-    "timezone": "America/Lima"
+    "timezone": "America/Lima",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-77.06, -11.96],
+          [-77.04, -11.96],
+          [-77.04, -11.94],
+          [-77.06, -11.94],
+          [-77.06, -11.96]
+        ]
+      ]
+    }
   },
   {
     "id": "parcel-cusco-valle-002",
@@ -13,6 +25,18 @@
     "name": "Valle Cusco — Parcela 002 (sintética)",
     "latitude": -13.52,
     "longitude": -71.97,
-    "timezone": "America/Lima"
+    "timezone": "America/Lima",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-71.98, -13.53],
+          [-71.96, -13.53],
+          [-71.96, -13.51],
+          [-71.98, -13.51],
+          [-71.98, -13.53]
+        ]
+      ]
+    }
   }
 ]

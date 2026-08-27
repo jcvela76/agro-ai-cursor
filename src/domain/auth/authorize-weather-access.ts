@@ -65,7 +65,11 @@ export function authorizeWeatherAccess(
     };
   }
 
-  if (!authority.authorizedParcelIds.includes(parcelId)) {
+  // Empty allowlist = all parcels in the org (ADR-011). Non-empty = restrictive.
+  if (
+    authority.authorizedParcelIds.length > 0 &&
+    !authority.authorizedParcelIds.includes(parcelId)
+  ) {
     return {
       ok: false,
       reason: "missing_parcel_access",

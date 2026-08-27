@@ -2,8 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import {
   createAccessResolver,
-  createOrgParcel,
-  listOrgParcels,
+  deleteOrgParcel,
+  updateOrgParcel,
 } from "@/infrastructure/container";
 
 function mutationStatus(reason: string): number {
@@ -20,29 +20,12 @@ function mutationStatus(reason: string): number {
   }
 }
 
-export async function GET() {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ parcelId: string }> },
+) {
   const { userId, orgId } = await auth();
-  const accessResolver = createAccessResolver();
-  const authority = await accessResolver.resolve(userId, orgId ?? null);
-
-  const result = await listOrgParcels.execute({
-    authority,
-    orgId: orgId ?? null,
-  });
-
-  if (!result.ok) {
-    const status = result.reason === "unauthenticated" ? 401 : 400;
-    return NextResponse.json(
-      { status: "PARCEL_LIST_DENIED", reason: result.reason, message: result.message },
-      { status },
-    );
-  }
-
-  return NextResponse.json({ status: "OK", data: result.data });
-}
-
-export async function POST(request: Request) {
-  const { userId, orgId } = await auth();
+  const { parcelId } = await context.params;
   const accessResolver = createAccessResolver();
   const authority = await accessResolver.resolve(userId, orgId ?? null);
 
@@ -56,10 +39,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await createOrgParcel.execute({
+  const result = await updateOrgParcel.execute({
     authority,
     orgId: orgId ?? null,
-    name: body.name ?? "",
+    parcelId,
+    name: body.name,
     geometry: body.geometry,
     timezone: body.timezone,
   });
@@ -71,5 +55,30 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ status: "OK", data: result.data }, { status: 201 });
+  return NextResponse.json({ status: "OK", data: result.data });
+}
+
+export async function DELETE(
+  _request: Request,
+  context: { params: Promise<{ parcelId: string }> },
+) {
+  const { userId, orgId } = await auth();
+  const { parcelId } = await context.params;
+  const accessResolver = createAccessResolver();
+  const authority = await accessResolver.resolve(userId, orgId ?? null);
+
+  const result = await deleteOrgParcel.execute({
+    authority,
+    orgId: orgId ?? null,
+    parcelId,
+  });
+
+  if (!result.ok) {
+    return NextResponse.json(
+      { status: "PARCEL_MUTATION_DENIED", reason: result.reason, message: result.message },
+      { status: mutationStatus(result.reason) },
+    );
+  }
+
+  return NextResponse.json({ status: "OK" });
 }

@@ -76,3 +76,15 @@ describe("WA-01 path: authorized access snapshot", () => {
     }
   });
 });
+
+describe("ADR-011: empty authorizedParcelIds allows all org parcels", () => {
+  it("authorizes when allowlist is empty and org matches", () => {
+    const orgWide = defaultSyntheticSnapshots[5];
+    const result = authorizeWeatherAccess(
+      orgWide,
+      "parcel-lima-norte-001",
+      "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+    );
+    expect(result.ok).toBe(true);
+  });
+});

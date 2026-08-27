@@ -6,9 +6,9 @@
       "syntheticOrgAlias": "org-lima-coffee",
       "public_metadata": {
         "entitlements": ["weather"],
-        "authorizedParcelIds": ["parcel-lima-norte-001"]
+        "authorizedParcelIds": []
       }
     }
   ],
-  "notes": "Clerk org IDs are not secrets. Parcel IDs remain synthetic fixtures."
+  "notes": "Empty authorizedParcelIds = all org parcels for Weather (ADR-011). Clerk org IDs are not secrets."
 }
