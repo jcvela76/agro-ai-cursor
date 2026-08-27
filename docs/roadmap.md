@@ -137,7 +137,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 | Slice | Contenido |
 |-------|-----------|
 | LP marketing | **Live** en `geoagro.ai` (`main`); staging `stg.geoagro.ai` |
-| Clerk prod keys | **Diferido post-LP** — ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md). Hoy Vercel sigue en instancia Development |
+| Clerk prod keys | **Hecho 2026-08-27** — apex `pk_live_` / FAPI `clerk.geoagro.ai`; Preview/stg siguen `pk_test_`. Ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md) |
 | Billing | Clerk Billing / Stripe post gate legal |
 
 ## Docs por slice (canónico)

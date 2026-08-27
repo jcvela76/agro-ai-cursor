@@ -1,39 +1,49 @@
 # Ops — Clerk production keys
 
-Estado actual (2026-08-27): **dev instance en prod Vercel**.
+Estado (2026-08-27): **Production live en apex**.
 
-- Local `.env.local`: `pk_test_` / `sk_test_`
-- Frontend Clerk JS en local: `*.clerk.accounts.dev` (Development)
-- Vercel Production tiene `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` (mismo patrón histórico de smoke: instancia **Development**)
+| Ambiente | Instancia | Keys | FAPI |
+|----------|-----------|------|------|
+| Local `.env.local` | Development | `pk_test_` / `sk_test_` | `firm-feline-543.clerk.accounts.dev` |
+| Vercel Preview / Development | Development | `pk_test_` / `sk_test_` | `*.clerk.accounts.dev` |
+| Vercel Production (`geoagro.ai`) | Production | `pk_live_` / `sk_live_` | `clerk.geoagro.ai` / `accounts.geoagro.ai` |
 
-## Por qué importa
+App Clerk: **agro-ai-auth** (`app_3IThUPXYe9TeXFToApdAlaB3OC2`) — org Dashboard **Raw Code's projects** (GitHub). Managed via Vercel Marketplace.
 
-Instancia Development ≠ Production. Usuarios/orgs/metadata de Lima Coffee viven en **dev**. Keys `pk_live_`/`sk_live_` apuntan a otra instancia vacía hasta migrar/recrear.
+## Hecho (cutover)
 
-## Plan (slice Ops)
+1. Production instance + dominio primario **`geoagro.ai`** (antes placeholder `*.lcl.dev`).
+2. DNS Vercel (CNAME):
+   - `clerk` → `frontend-api.clerk.services`
+   - `accounts` → `accounts.clerk.services`
+   - `clkmail` / `clk._domainkey` / `clk2._domainkey` → mail/DKIM Clerk
+3. DNS Application + Email **Verified**; SSL emitido.
+4. Vercel env:
+   - Production: `pk_live_` / `sk_live_`
+   - Preview + Development: `pk_test_` / `sk_test_`
+5. Redeploy production (`dpl_B11nFZepJ6XXtL6EGmoUiubdjZTX` READY).
+6. Organizations **enabled** en Production.
+7. Recreado **Lima Coffee (sintetica)** con entitlements `weather`, `weather_plus`, `traceability`, `agronomic_review` + `authorizedParcelIds: []`.
+8. Usuario operador `me@juliovela.com` creado en Production (admin de Lima Coffee). Sin password aún → usar **Forgot password** en `/sign-in` la primera vez.
 
-1. **Activar Production** en Clerk Dashboard (toggle Development → Create production instance) **o** `npx clerk@latest deploy` (wizard DNS/OAuth).
-2. Dominio producción: `agro-ai-cursor.vercel.app` (y custom domain si existe). Completar DNS CNAME que indique Clerk.
-3. Copiar **API Keys** Production (`pk_live_`, `sk_live_`).
-4. En Vercel:
-   - Dejar `pk_test_`/`sk_test_` solo en Preview + Development.
-   - Añadir `pk_live_`/`sk_live_` **solo Production**.
-5. Redeploy production.
-6. Recrear en instancia Production:
-   - Org Lima Coffee (o equivalente)
-   - Entitlements en `public_metadata`: `weather`, `weather_plus`, `traceability`, `agronomic_review`
-   - Membership del operador
-7. Smoke: sign-in en prod → `/app` → parcela Norte → Clima / Trace / Review.
+Smoke infra: apex HTML incluye `pk_live` + `clerk.geoagro.ai`; `/sign-in` `x-clerk-auth-status: signed-out` OK.
+
+## Smoke pendiente (operador)
+
+1. https://geoagro.ai/sign-in → Forgot password → `me@juliovela.com`
+2. Entrar → activar org Lima Coffee → `/app`
+3. Parcela Norte → Clima / Trace / Review
 
 ## No hacer
 
 - Poner `pk_live_` en `.env.local` sin subdomain HTTPS (Clerk lo bloquea en localhost).
+- Borrar DNS TXT/CNAME de Clerk o el TXT de Search Console.
 - Billing / SENAMHI en este slice (gate legal).
 
-## Bloqueo / defer
+## Staging
 
-**Diferido post-LP (2026-08-27):** no activar Production ni DNS Clerk hasta LP marketing en dominio canónico. Seguir con Development (`pk_test_` / `sk_test_`) en local y Vercel.
+`stg.geoagro.ai` (rama `stg`) sigue en keys **Development** (`pk_test_`) vía Preview. Ver [staging-domain.md](staging-domain.md).
 
-**Staging:** host de prueba = `https://stg.geoagro.ai` (rama `stg`). Apex `geoagro.ai` solo tras promote a `main`. Ver [staging-domain.md](staging-domain.md).
+## Nota OAuth
 
-Cuando retomar: pasos 1–7 arriba + recrear Lima Coffee en instancia live. Dominio producción previsto: `geoagro.ai`.
+Production no usa shared Google OAuth de Development. Hoy sign-in = **email + password**. Si se quiere Google en live, configurar OAuth credentials propias en Clerk Dashboard → User & authentication.

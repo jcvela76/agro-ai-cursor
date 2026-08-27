@@ -27,4 +27,4 @@
 
 ## Clerk
 
-Staging y prod Vercel siguen en instancia **Development** hasta cutover (ver [clerk-production-keys.md](clerk-production-keys.md)).
+Staging (Preview) sigue en instancia Clerk **Development** (`pk_test_`). Production apex usa **Production** (`pk_live_`, FAPI `clerk.geoagro.ai`). Ver [clerk-production-keys.md](clerk-production-keys.md).
