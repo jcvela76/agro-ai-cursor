@@ -68,7 +68,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 ## Fase 6 — Traceability discovery
 
-**Estado:** Fase 6a (Trace-1) completada (2026-08-27)
+**Estado:** Fase 6b (Trace-2) completada (2026-08-27)
 
 ### Fase 6a — Trace-1 Lot Core
 
@@ -78,9 +78,17 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - ADR-021; WQ-17 sin agent tools
 - Tests 63 total
 
-### Fase 6b — siguiente
+### Fase 6b — Trace-2 Lot mutations
 
-- Mutations (crear lote / append event) o catálogo EUDR
+- `CreateOrgTraceLot` + `AppendOrgTraceEvent`
+- `POST /api/trace/lots` + `POST /api/trace/lots/[lotId]/events`
+- UI forms crear lote / añadir evento; ADR-022
+- Persistencia en memoria (Neon diferido); EUDR diferido
+- Tests 69 total
+
+### Fase 6c — siguiente
+
+- Neon persistence y/o catálogo EUDR
 
 ## Fase 7 — Agronomic Review
 

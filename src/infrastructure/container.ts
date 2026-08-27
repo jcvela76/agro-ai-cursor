@@ -15,6 +15,10 @@ import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-lo
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
 import { ListOrgTraceLots } from "@/application/traceability/list-org-trace-lots";
+import {
+  AppendOrgTraceEvent,
+  CreateOrgTraceLot,
+} from "@/application/traceability/mutate-org-trace-lots";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import type { OrgMetadataStore } from "@/domain/workspace/types";
@@ -114,6 +118,11 @@ export const getParcelWeatherEt0 = new GetParcelWeatherEt0(parcelRegistry, weath
 
 const traceLotRegistry = new OfflineTraceLotRegistry();
 export const listOrgTraceLots = new ListOrgTraceLots(traceLotRegistry);
+export const createOrgTraceLot = new CreateOrgTraceLot(
+  traceLotRegistry,
+  parcelRegistry,
+);
+export const appendOrgTraceEvent = new AppendOrgTraceEvent(traceLotRegistry);
 
 export function createAccessResolver(): AccessResolver {
   if (process.env.CLERK_SECRET_KEY) {

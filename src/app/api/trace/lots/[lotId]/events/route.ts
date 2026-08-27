@@ -1,9 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import {
+  appendOrgTraceEvent,
   createAccessResolver,
-  createOrgTraceLot,
-  listOrgTraceLots,
 } from "@/infrastructure/container";
 
 function statusForReason(reason: string): number {
@@ -22,40 +21,19 @@ function statusForReason(reason: string): number {
   }
 }
 
-export async function GET() {
-  const { userId, orgId } = await auth();
-  const accessResolver = createAccessResolver();
-  const authority = await accessResolver.resolve(userId, orgId ?? null);
-
-  const result = await listOrgTraceLots.execute({
-    authority,
-    orgId: orgId ?? null,
-  });
-
-  if (!result.ok) {
-    return NextResponse.json(
-      {
-        status: "TRACE_UNAVAILABLE",
-        reason: result.reason,
-        message: result.message,
-      },
-      { status: statusForReason(result.reason) },
-    );
-  }
-
-  return NextResponse.json({ status: "OK", data: result.data });
-}
-
-export async function POST(request: Request) {
+export async function POST(
+  request: Request,
+  context: { params: Promise<{ lotId: string }> },
+) {
+  const { lotId } = await context.params;
   const { userId, orgId } = await auth();
   const accessResolver = createAccessResolver();
   const authority = await accessResolver.resolve(userId, orgId ?? null);
 
   let body: {
-    name?: string;
-    harvestSeason?: string;
-    cropType?: string;
-    parcelId?: string | null;
+    eventType?: unknown;
+    occurredAt?: string;
+    evidenceRef?: string | null;
   };
   try {
     body = (await request.json()) as typeof body;
@@ -70,13 +48,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await createOrgTraceLot.execute({
+  const result = await appendOrgTraceEvent.execute({
     authority,
     orgId: orgId ?? null,
-    name: body.name ?? "",
-    harvestSeason: body.harvestSeason ?? "",
-    cropType: body.cropType,
-    parcelId: body.parcelId,
+    lotId,
+    eventType: body.eventType,
+    occurredAt: body.occurredAt ?? "",
+    evidenceRef: body.evidenceRef,
   });
 
   if (!result.ok) {
