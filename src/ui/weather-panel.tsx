@@ -9,7 +9,6 @@ import type {
 } from "@/domain/weather/types";
 import { Badge } from "@/ui/badge";
 import { EvidenceRow } from "@/ui/evidence-row";
-import { Panel } from "@/ui/panel";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./weather-panel.module.css";
 
@@ -39,13 +38,7 @@ async function fetchWeather<T>(url: string): Promise<WeatherOk<T> | WeatherLimit
   return (await res.json()) as WeatherOk<T> | WeatherLimited;
 }
 
-export function WeatherPanel({
-  parcel,
-  onClose,
-}: {
-  parcel: Parcel;
-  onClose: () => void;
-}) {
+export function WeatherPanel({ parcel }: { parcel: Parcel }) {
   const [tab, setTab] = useState<Tab>("observation");
   const [observation, setObservation] = useState<WeatherOk<WeatherObservation> | WeatherLimited | null>(
     null,
@@ -77,7 +70,7 @@ export function WeatherPanel({
   }, [parcel.id]);
 
   return (
-    <Panel title={parcel.name} onClose={onClose} className={styles.panelFill}>
+    <div className={styles.content}>
       <div className={styles.tabs}>
         <button
           type="button"
@@ -102,7 +95,7 @@ export function WeatherPanel({
       ) : null}
 
       {!loading && tab === "forecast" && forecast ? <ForecastView payload={forecast} /> : null}
-    </Panel>
+    </div>
   );
 }
 

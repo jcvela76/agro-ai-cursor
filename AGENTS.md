@@ -70,9 +70,10 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 
 ## Pendientes conocidos
 
-- eve init completo + wiring LLM Agro Agent (UI-5)
+- eve init (diferido post UI-5; ADR-014)
 - Billing real (Clerk Billing / Stripe) post gate legal
 - SENAMHI paid stub post gate legal
+- Probar `OPENAI_API_KEY` + `WEATHER_SOURCE=free` en prod
 
 <!-- BEGIN:nextjs-agent-rules -->
 

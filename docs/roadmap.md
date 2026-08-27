@@ -15,6 +15,15 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Entitlements + allowlist + OrganizationProfile
 - ADR-013; Figma `app/admin/default`
 
+## Fase 5e — UI-5 Agro Agent (Plus + LLM)
+
+**Estado:** completada (2026-08-26)
+
+- ADR-014: AI SDK `streamText` + tools observation/forecast; eve diferido
+- `POST /api/agent/chat` Plus gate + stream; `GET` plusEnabled
+- Panel Agente en `/app` (tab junto a Clima); WA-07 tests
+- Figma `agent/chat/default` high-fi
+
 ## Fase 6 — Traceability discovery
 
 **Estado:** en curso (paralelo)
@@ -27,7 +36,6 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 | Slice | Contenido |
 |-------|-----------|
-| UI-5 | Panel Agro Agent (Plus + LLM) |
 | Billing | Clerk Billing / Stripe post gate legal |
 
 ## Docs por slice (canónico)

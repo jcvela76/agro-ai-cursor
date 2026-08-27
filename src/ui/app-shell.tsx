@@ -20,6 +20,7 @@ import {
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
+import { AgentChatPanel } from "@/ui/agent-chat-panel";
 import { Button } from "@/ui/button";
 import { Panel } from "@/ui/panel";
 import { WeatherPanel } from "@/ui/weather-panel";
@@ -31,6 +32,7 @@ const PARCELS_FILL = "agro-parcels-fill";
 const PARCELS_LINE = "agro-parcels-line";
 
 type DrawMode = "idle" | "draw" | "edit";
+type SideTab = "weather" | "agent";
 
 function parcelsToFeatureCollection(parcels: Parcel[]) {
   return {
@@ -87,6 +89,7 @@ export function AppShell({
   const [listError, setListError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(initialParcelId);
   const [drawMode, setDrawMode] = useState<DrawMode>("idle");
+  const [sideTab, setSideTab] = useState<SideTab>("weather");
   const [draftName, setDraftName] = useState("Nueva parcela");
   const [draftGeometry, setDraftGeometry] = useState<ParcelGeometry | null>(null);
   const [busy, setBusy] = useState(false);
@@ -95,6 +98,7 @@ export function AppShell({
   const selectParcel = useCallback(
     (parcelId: string | null) => {
       setSelectedId(parcelId);
+      setSideTab("weather");
       const url = parcelId ? `/app?parcel=${encodeURIComponent(parcelId)}` : "/app";
       router.replace(url, { scroll: false });
     },
@@ -475,7 +479,28 @@ export function AppShell({
 
       {drawMode === "idle" && selected ? (
         <div className={styles.panelSlot}>
-          <WeatherPanel parcel={selected} onClose={() => selectParcel(null)} />
+          <Panel title={selected.name} onClose={() => selectParcel(null)} className={styles.panelFill}>
+            <div className={styles.tabs}>
+              <button
+                type="button"
+                className={sideTab === "weather" ? styles.tabActive : styles.tab}
+                onClick={() => setSideTab("weather")}
+              >
+                Clima
+              </button>
+              <button
+                type="button"
+                className={sideTab === "agent" ? styles.tabActive : styles.tab}
+                onClick={() => setSideTab("agent")}
+              >
+                Agente
+              </button>
+            </div>
+            {sideTab === "weather" ? <WeatherPanel parcel={selected} /> : null}
+            {sideTab === "agent" ? (
+              <AgentChatPanel parcel={selected} isAdmin={isAdmin} />
+            ) : null}
+          </Panel>
           <div className={styles.dangerRow}>
             {selected.geometry?.type === "Polygon" ? (
               <Button type="button" variant="ghost" onClick={startEditSelected} disabled={busy}>

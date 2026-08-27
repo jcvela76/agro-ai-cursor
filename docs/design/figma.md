@@ -48,7 +48,7 @@ Código espejo: CSS variables en `src/app/globals.css` + atoms en `src/ui/`.
 | `weather/observation/default` | WQ-01, WA-01 | wireframe |
 | `weather/forecast/default` | WQ-03, WA-02 | wireframe |
 | `weather/limitation-states/default` | WA-06 | wireframe |
-| `agent/chat/default` | WA-07, Plus gate | wireframe (UI-5) |
+| `agent/chat/default` | WA-07, Plus gate + chat | UI-5 high-fi |
 
 ## Workflow
 
