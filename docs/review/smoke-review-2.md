@@ -20,9 +20,12 @@ Deploy: `614f38e` READY · org Lima Coffee · entitlement `agronomic_review` act
 | Append Neon (smoke script) visible | PASS (`Smoke Review 2026-08-27-16-36-43`) |
 | Persistencia Neon | PASS (rows en `review_decisions`) |
 
-## Local (application) — 2026-08-27
+## Local UI — 2026-08-27
 
-```
-PASS [offline] gate deny → list → append decide → list includes → cross-org blocked
-PASS [neon]    same (SMOKE_NEON=1)
-```
+`http://localhost:3000` · Lima Coffee · parcela Norte.
+
+| Check | Result |
+|-------|--------|
+| Tab Revisión + seed/Neon list | PASS |
+| Append `decide` desde form | PASS (`Smoke UI local Review-2`) |
+| Reload → sigue en lista + Neon | PASS (`rev-a07cd09e-…`) |
