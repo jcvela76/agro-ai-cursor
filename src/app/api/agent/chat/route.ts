@@ -1,4 +1,3 @@
-import { openai } from "@ai-sdk/openai";
 import { auth } from "@clerk/nextjs/server";
 import {
   convertToModelMessages,
@@ -17,6 +16,18 @@ import {
 
 export const maxDuration = 60;
 
+/** Default via AI Gateway (`provider/model`). Override with AI_GATEWAY_MODEL. */
+const DEFAULT_GATEWAY_MODEL = "openai/gpt-4o-mini";
+
+function isGatewayConfigured(): boolean {
+  // Vercel runtime uses OIDC automatically; local/CI can use AI_GATEWAY_API_KEY or pulled OIDC token.
+  return Boolean(
+    process.env.AI_GATEWAY_API_KEY ||
+      process.env.VERCEL_OIDC_TOKEN ||
+      process.env.VERCEL,
+  );
+}
+
 export async function GET() {
   const { userId, orgId } = await auth();
   const accessResolver = createAccessResolver();
@@ -25,6 +36,7 @@ export async function GET() {
     status: "OK",
     data: {
       plusEnabled: isPlusToolAllowed({ authority }),
+      gatewayConfigured: isGatewayConfigured(),
     },
   });
 }
@@ -44,11 +56,12 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!isGatewayConfigured()) {
     return NextResponse.json(
       {
         status: "AGENT_UNAVAILABLE",
-        message: "Agro Agent model is not configured (OPENAI_API_KEY missing).",
+        message:
+          "Agro Agent model is not configured (AI Gateway: set AI_GATEWAY_API_KEY or run on Vercel with OIDC).",
       },
       { status: 503 },
     );
@@ -92,8 +105,10 @@ export async function POST(request: Request) {
     forecast: getParcelWeatherForecast,
   });
 
+  const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;
+
   const result = streamText({
-    model: openai(process.env.OPENAI_MODEL ?? "gpt-4o-mini"),
+    model,
     system: `${loadAgroAgentInstructions()}\n\nParcela activa (fija): ${parcelId}. Usa solo tools; no inventes valores.`,
     messages: modelMessages,
     tools,

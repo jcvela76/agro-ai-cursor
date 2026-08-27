@@ -17,9 +17,10 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 ## Fase 5e — UI-5 Agro Agent (Plus + LLM)
 
-**Estado:** completada (2026-08-26)
+**Estado:** completada (2026-08-26); model auth → ADR-015 Gateway (2026-08-27)
 
 - ADR-014: AI SDK `streamText` + tools observation/forecast; eve diferido
+- ADR-015: Vercel AI Gateway (OIDC) en vez de `OPENAI_API_KEY` directa; re-evaluar
 - `POST /api/agent/chat` Plus gate + stream; `GET` plusEnabled
 - Panel Agente en `/app` (tab junto a Clima); WA-07 tests
 - Figma `agent/chat/default` high-fi

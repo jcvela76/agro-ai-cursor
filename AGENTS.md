@@ -71,9 +71,10 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 ## Pendientes conocidos
 
 - eve init (diferido post UI-5; ADR-014)
+- Re-evaluar model path (ADR-015): Gateway vs OpenAI key directa vs Bedrock / eve
 - Billing real (Clerk Billing / Stripe) post gate legal
 - SENAMHI paid stub post gate legal
-- Probar `OPENAI_API_KEY` + `WEATHER_SOURCE=free` en prod
+- Smoke chat LLM en prod con AI Gateway (Clima free ya OK)
 
 <!-- BEGIN:nextjs-agent-rules -->
 
