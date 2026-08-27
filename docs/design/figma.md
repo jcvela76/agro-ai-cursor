@@ -10,7 +10,7 @@ Archivo design canónico. UI-1 consolidó tokens + atoms + frames high-fi (2026-
 | fileKey | `oTT6PqFOAijVxYZb5wztEP` |
 | Página wireframes | `Weather wireframes` |
 | Página UI-1 | `UI-1 Design System` |
-| Figma Make | https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page — LP waitlist (stg) |
+| Figma Make | https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page — LP waitlist (stg); port fiel en `/` con assets en `public/landing/` |
 
 ## Tokens (variables `Agro UI-1`)
 

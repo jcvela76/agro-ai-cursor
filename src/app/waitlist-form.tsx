@@ -4,11 +4,16 @@ import { useState, type FormEvent } from "react";
 import styles from "./landing.module.css";
 
 type Props = {
-  variant?: "hero" | "closing";
+  dark?: boolean;
   id?: string;
+  hint?: string;
 };
 
-export function WaitlistForm({ variant = "hero", id }: Props) {
+export function WaitlistForm({
+  dark = false,
+  id,
+  hint = "Te avisamos cuando abra el piloto.",
+}: Props) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -30,7 +35,7 @@ export function WaitlistForm({ variant = "hero", id }: Props) {
         return;
       }
       setStatus("ok");
-      setMessage("Listo. Te avisamos cuando abra el piloto.");
+      setMessage("✓ Anotado. Te escribimos en cuanto abramos acceso.");
       setEmail("");
     } catch {
       setStatus("error");
@@ -38,18 +43,24 @@ export function WaitlistForm({ variant = "hero", id }: Props) {
     }
   }
 
+  if (status === "ok") {
+    return <p className={styles.waitlistOk}>{message}</p>;
+  }
+
+  const inputId = id ? `${id}-email` : "waitlist-email";
+
   return (
     <form
       id={id}
-      className={variant === "hero" ? styles.waitlistHero : styles.waitlistClosing}
+      className={`${styles.waitlistForm} ${dark ? styles.waitlistDark : ""}`}
       onSubmit={onSubmit}
       noValidate
     >
-      <label className={styles.srOnly} htmlFor={id ? `${id}-email` : "waitlist-email"}>
+      <label className={styles.srOnly} htmlFor={inputId}>
         Correo electrónico
       </label>
       <input
-        id={id ? `${id}-email` : "waitlist-email"}
+        id={inputId}
         className={styles.waitlistInput}
         type="email"
         name="email"
@@ -60,18 +71,19 @@ export function WaitlistForm({ variant = "hero", id }: Props) {
         onChange={(e) => setEmail(e.target.value)}
         disabled={status === "loading"}
       />
-      <button className={styles.cta} type="submit" disabled={status === "loading"}>
-        {status === "loading" ? "Enviando…" : "Inscribirse en lista de espera"}
+      <button
+        className={styles.btnPrimary}
+        type="submit"
+        disabled={status === "loading"}
+      >
+        {status === "loading" ? "Enviando…" : "Inscribirse →"}
       </button>
       {message ? (
-        <p
-          className={status === "ok" ? styles.waitlistOk : styles.waitlistError}
-          role="status"
-        >
+        <p className={styles.waitlistError} role="status">
           {message}
         </p>
       ) : (
-        <p className={styles.waitlistHint}>Te avisamos cuando lancemos el piloto. Sin cobro.</p>
+        <span className={styles.waitlistHintMobile}>{hint}</span>
       )}
     </form>
   );
