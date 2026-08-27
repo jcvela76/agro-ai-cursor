@@ -24,8 +24,19 @@ App Clerk: **agro-ai-auth** (`app_3IThUPXYe9TeXFToApdAlaB3OC2`) — org Dashboar
 5. Redeploy production (`dpl_B11nFZepJ6XXtL6EGmoUiubdjZTX` READY).
 6. Organizations **enabled** en Production.
 7. Recreado **Lima Coffee (sintetica)** (`org_3IW1Ls81Xul5wDXca1hCD0iAMQ5`) con entitlements `weather`, `weather_plus`, `traceability`, `agronomic_review`.
-8. Fixtures Neon remapeadas a ese org (antes `org_3ITi6wk2…` Development) + `db:seed` / `db:seed:trace` / `db:seed:review`.
+8. **Dual-seed Neon** (mismo DB): Development + Production en paralelo — ver tabla abajo.
 9. Usuario operador `me@juliovela.com` admin; password recovery OK.
+
+## Dual-seed (Neon compartido)
+
+Clerk org IDs no migran entre instancias → dos copias de fixtures en el mismo Neon:
+
+| Ambiente | Clerk org | Parcela Norte | Lots / review IDs |
+|----------|-----------|---------------|-------------------|
+| Development / stg / local / tests | `org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G` | `parcel-lima-norte-001` (canónico) | sin sufijo |
+| Production (`geoagro.ai`) | `org_3IW1Ls81Xul5wDXca1hCD0iAMQ5` | `parcel-lima-norte-prod-001` | sufijo `-prod` |
+
+Tras editar fixtures: `npm run db:seed && npm run db:seed:trace && npm run db:seed:review`.
 
 ## Smoke prod (2026-08-27)
 
@@ -33,12 +44,20 @@ App Clerk: **agro-ai-auth** (`app_3IThUPXYe9TeXFToApdAlaB3OC2`) — org Dashboar
 |-------|-----------|
 | Sign-in live (`pk_live` / `clerk.geoagro.ai`) | OK |
 | Org Lima Coffee activa | OK |
-| `/api/parcels` → Norte | OK |
+| `/api/parcels` → Norte (`…-prod-001`) | OK |
 | Clima (NASA POWER, America/Lima) | OK |
 | Trazabilidad lotes A/B + EUDR | OK |
 | Revisión observe + recommend | OK |
 
-Nota: Preview/stg (`pk_test_`) y local Development ya no ven esas filas Neon (mismo DB, org ID distinto). Dual-seed o Neon branch si hace falta smoke en stg.
+## Smoke stg (2026-08-27, post dual-seed)
+
+| Check | Resultado |
+|-------|-----------|
+| Sign-in Development (`pk_test_` / `accounts.dev`) | OK |
+| Org Lima Coffee + Norte `parcel-lima-norte-001` | OK |
+| Clima (NASA POWER) | OK |
+| Trazabilidad lotes A/B | OK |
+| Revisión observe + recommend (seed) | OK |
 
 ## No hacer
 

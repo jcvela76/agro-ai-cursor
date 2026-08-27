@@ -1,9 +1,25 @@
 {
   "orgs": [
     {
-      "clerkOrgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+      "clerkOrgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
       "name": "Lima Coffee (sintetica)",
       "syntheticOrgAlias": "org-lima-coffee",
+      "environment": "development",
+      "public_metadata": {
+        "entitlements": [
+          "weather",
+          "weather_plus",
+          "traceability",
+          "agronomic_review"
+        ],
+        "authorizedParcelIds": []
+      }
+    },
+    {
+      "clerkOrgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+      "name": "Lima Coffee (sintetica)",
+      "syntheticOrgAlias": "org-lima-coffee-prod",
+      "environment": "production",
       "public_metadata": {
         "entitlements": [
           "weather",
@@ -15,5 +31,5 @@
       }
     }
   ],
-  "notes": "Empty authorizedParcelIds = all org parcels for Weather (ADR-011). Clerk org IDs are not secrets."
+  "notes": "Dual-seed en Neon compartido: Development usa IDs canónicos (tests/stg/local); Production usa sufijo -prod. Empty authorizedParcelIds = all org parcels (ADR-011)."
 }

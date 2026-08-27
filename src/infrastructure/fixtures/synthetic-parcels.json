@@ -1,6 +1,26 @@
 [
   {
     "id": "parcel-lima-norte-001",
+    "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+    "name": "Parcela Norte — Lima (sintética)",
+    "latitude": -11.95,
+    "longitude": -77.05,
+    "timezone": "America/Lima",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [-77.06, -11.96],
+          [-77.04, -11.96],
+          [-77.04, -11.94],
+          [-77.06, -11.94],
+          [-77.06, -11.96]
+        ]
+      ]
+    }
+  },
+  {
+    "id": "parcel-lima-norte-prod-001",
     "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
     "name": "Parcela Norte — Lima (sintética)",
     "latitude": -11.95,

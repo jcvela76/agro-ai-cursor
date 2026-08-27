@@ -2,7 +2,7 @@
   "decisions": [
     {
       "id": "rev-lima-norte-observe-001",
-      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
       "parcelId": "parcel-lima-norte-001",
       "kind": "observe",
       "summary": "Floración irregular en ladera norte",
@@ -13,8 +13,29 @@
     },
     {
       "id": "rev-lima-norte-recommend-001",
-      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
       "parcelId": "parcel-lima-norte-001",
+      "kind": "recommend",
+      "summary": "Priorizar muestreo de humedad en franja baja",
+      "rationale": "La observación de floración irregular coincide con zona de menor retención; conviene medir antes de ajustar riego.",
+      "actorId": "user-agronomist-001",
+      "decidedAt": "2026-03-14T18:00:00.000Z"
+    },
+    {
+      "id": "rev-lima-norte-prod-observe-001",
+      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+      "parcelId": "parcel-lima-norte-prod-001",
+      "kind": "observe",
+      "summary": "Floración irregular en ladera norte",
+      "rationale": "Recorrido de campo: ~30% de plantas con floración desfasada respecto al resto del lote.",
+      "actorId": "user-agronomist-001",
+      "decidedAt": "2026-03-12T15:30:00.000Z",
+      "evidenceRef": "field-note-2026-03-12"
+    },
+    {
+      "id": "rev-lima-norte-prod-recommend-001",
+      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+      "parcelId": "parcel-lima-norte-prod-001",
       "kind": "recommend",
       "summary": "Priorizar muestreo de humedad en franja baja",
       "rationale": "La observación de floración irregular coincide con zona de menor retención; conviene medir antes de ajustar riego.",

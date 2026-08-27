@@ -2,7 +2,7 @@
   "lots": [
     {
       "id": "lot-lima-coffee-2026-a",
-      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
       "name": "Lote Norte A — cosecha 2026",
       "cropType": "coffee",
       "harvestSeason": "2026",
@@ -14,6 +14,29 @@
     },
     {
       "id": "lot-lima-coffee-2026-b",
+      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "name": "Lote Norte B — borrador",
+      "cropType": "coffee",
+      "harvestSeason": "2026",
+      "status": "draft",
+      "countryOfProduction": "PE",
+      "producerName": "Cooperativa Sintética Norte",
+      "deforestationFreeDeclared": false
+    },
+    {
+      "id": "lot-lima-coffee-prod-2026-a",
+      "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+      "name": "Lote Norte A — cosecha 2026",
+      "cropType": "coffee",
+      "harvestSeason": "2026",
+      "status": "verified",
+      "countryOfProduction": "PE",
+      "producerName": "Cooperativa Sintética Norte",
+      "productionEndDate": "2026-06-20",
+      "deforestationFreeDeclared": true
+    },
+    {
+      "id": "lot-lima-coffee-prod-2026-b",
       "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
       "name": "Lote Norte B — borrador",
       "cropType": "coffee",
@@ -53,6 +76,35 @@
       "eventType": "planted",
       "occurredAt": "2025-11-01T12:00:00-05:00",
       "actorId": "user_synthetic_agronomo"
+    },
+    {
+      "id": "evt-prod-a-planted",
+      "lotId": "lot-lima-coffee-prod-2026-a",
+      "eventType": "planted",
+      "occurredAt": "2025-10-15T12:00:00-05:00",
+      "actorId": "user_synthetic_agronomo"
+    },
+    {
+      "id": "evt-prod-a-harvested",
+      "lotId": "lot-lima-coffee-prod-2026-a",
+      "eventType": "harvested",
+      "occurredAt": "2026-06-20T12:00:00-05:00",
+      "actorId": "user_synthetic_agronomo",
+      "evidenceRef": "synthetic://evidence/harvest-a-2026"
+    },
+    {
+      "id": "evt-prod-a-processed",
+      "lotId": "lot-lima-coffee-prod-2026-a",
+      "eventType": "processed",
+      "occurredAt": "2026-07-05T12:00:00-05:00",
+      "actorId": "user_synthetic_planta"
+    },
+    {
+      "id": "evt-prod-b-planted",
+      "lotId": "lot-lima-coffee-prod-2026-b",
+      "eventType": "planted",
+      "occurredAt": "2025-11-01T12:00:00-05:00",
+      "actorId": "user_synthetic_agronomo"
     }
   ],
   "parcelLinks": [
@@ -64,6 +116,16 @@
     {
       "parcelId": "parcel-lima-norte-001",
       "lotId": "lot-lima-coffee-2026-b",
+      "linkedAt": "2025-11-01T12:00:00-05:00"
+    },
+    {
+      "parcelId": "parcel-lima-norte-prod-001",
+      "lotId": "lot-lima-coffee-prod-2026-a",
+      "linkedAt": "2025-10-15T12:00:00-05:00"
+    },
+    {
+      "parcelId": "parcel-lima-norte-prod-001",
+      "lotId": "lot-lima-coffee-prod-2026-b",
       "linkedAt": "2025-11-01T12:00:00-05:00"
     }
   ]
