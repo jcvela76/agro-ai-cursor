@@ -93,3 +93,14 @@ export const reviewDecisions = pgTable(
     index("review_decisions_parcel_id_idx").on(table.parcelId),
   ],
 );
+
+export const waitlistSignups = pgTable(
+  "waitlist_signups",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull().unique(),
+    source: text("source").notNull().default("landing"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("waitlist_signups_email_idx").on(table.email)],
+);

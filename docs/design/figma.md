@@ -10,7 +10,7 @@ Archivo design canónico. UI-1 consolidó tokens + atoms + frames high-fi (2026-
 | fileKey | `oTT6PqFOAijVxYZb5wztEP` |
 | Página wireframes | `Weather wireframes` |
 | Página UI-1 | `UI-1 Design System` |
-| Figma Make | exploración → consolidar en `UI-1 Design System` |
+| Figma Make | https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page — LP waitlist (stg) |
 
 ## Tokens (variables `Agro UI-1`)
 
@@ -39,7 +39,7 @@ Código espejo: CSS variables en `src/app/globals.css` + atoms en `src/ui/`.
 | Frame | Spec | Estado |
 |-------|------|--------|
 | `marketing/lp/weather-gate` | LP pública + CTA Clerk | UI-1 high-fi |
-| `marketing/lp/full` | LP marketing + precios informativos | UI-3 high-fi |
+| `marketing/lp/full` | LP marketing + waitlist + pronto en producción | Make + stg |
 | `app/map-shell/default` | Mapa fullscreen + chrome | UI-1 high-fi |
 | `app/map-shell/draw` | Dibujar/guardar polígono | UI-2 high-fi |
 | `app/admin/default` | Entitlements + allowlist | UI-4 high-fi |

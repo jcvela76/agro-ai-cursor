@@ -136,7 +136,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 | Slice | Contenido |
 |-------|-----------|
-| LP marketing (stg) | Rama `stg` + LP descriptiva + `stg.geoagro.ai`; apex `geoagro.ai` al promote a `main` |
+| LP marketing (stg) | `stg.geoagro.ai`: LP Make-inspired, lista de espera, claims honestos; apex al promote |
 | Clerk prod keys | **Diferido post-LP** — ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md). Hoy Vercel sigue en instancia Development |
 | Billing | Clerk Billing / Stripe post gate legal |
 

@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { WaitlistForm } from "./waitlist-form";
 import styles from "./landing.module.css";
 
 function HeroMapVisual() {
@@ -59,7 +60,15 @@ function HeroMapVisual() {
         strokeWidth="6"
       />
       <circle cx="1090" cy="400" r="10" fill="#FFFDF8" />
-      <circle cx="1090" cy="400" r="18" fill="none" stroke="#FFFDF8" strokeWidth="3" opacity="0.7" />
+      <circle
+        cx="1090"
+        cy="400"
+        r="18"
+        fill="none"
+        stroke="#FFFDF8"
+        strokeWidth="3"
+        opacity="0.7"
+      />
     </svg>
   );
 }
@@ -79,63 +88,88 @@ export default async function Home() {
         <header className={styles.top}>
           <p className={styles.brand}>Agro AI</p>
           <nav className={styles.nav}>
-            <Link className={styles.cta} href="/sign-in">
-              Acceso piloto
+            <a className={styles.ghostOnDark} href="#problema">
+              Problema
+            </a>
+            <a className={styles.ghostOnDark} href="#productos">
+              Productos
+            </a>
+            <Link className={styles.ghostOnDark} href="/sign-in">
+              Entrar
             </Link>
-            <Link className={styles.ghostOnDark} href="/sign-up">
-              Crear cuenta
-            </Link>
+            <a className={styles.cta} href="#lista-espera">
+              Lista de espera
+            </a>
           </nav>
         </header>
 
         <div className={`${styles.heroCopy} ${styles.reveal}`}>
-          <p className={styles.statusLine}>Pronto en producción</p>
-          <h1 className={styles.headline}>Clima confiable para tu parcela exacta</h1>
+          <p className={styles.statusLine}>geoagro.ai · Perú · Pronto en producción</p>
+          <h1 className={styles.headline}>
+            El clima exacto de tu parcela.
+            <span className={styles.headlineBreak}> No del aeropuerto.</span>
+          </h1>
           <p className={styles.support}>
-            Observación y pronóstico con fuente, frescura y alcance espacial
-            explícitos. Sin inventar datos cuando la evidencia falta. Mercado
-            inicial: Perú.
+            Observación y pronóstico parcel-aware con fuente, frescura y alcance
+            espacial explícitos. Sin inventar datos cuando la evidencia falta.
           </p>
-          <div className={styles.actions}>
-            <Link className={styles.cta} href="/sign-in">
-              Acceso piloto
-            </Link>
-            <Link className={styles.ghostOnDark} href="/sign-up">
-              Crear cuenta
-            </Link>
-          </div>
+          <WaitlistForm id="lista-espera" variant="hero" />
+          <p className={styles.sourcesLine}>
+            Fuentes · Open-Meteo · NASA POWER
+          </p>
         </div>
       </section>
 
       <div className={styles.body}>
-        <section className={`${styles.section} ${styles.revealDelay}`}>
-          <h2 className={styles.sectionTitle}>El problema</h2>
+        <section className={`${styles.section} ${styles.revealDelay}`} id="problema">
+          <p className={styles.eyebrow}>El problema</p>
+          <h2 className={styles.sectionTitle}>
+            El clima de la ciudad no describe tu lote
+          </h2>
           <p className={styles.sectionBody}>
-            El clima genérico de la ciudad no describe tu lote. Falta saber de qué
-            fuente viene el dato, cuándo se observó, hasta cuándo vale el
-            pronóstico y si sigue fresco — antes de decidir en campo.
+            Falta saber de qué fuente viene el dato, cuándo se observó, hasta
+            cuándo vale el pronóstico y si sigue fresco — antes de decidir en
+            campo. Agro AI ancla el contexto al contorno autorizado de tu parcela.
           </p>
+          <div className={styles.compareRow}>
+            <article className={styles.compare}>
+              <p className={styles.compareLabel}>Ciudad · estación lejana</p>
+              <p className={styles.compareValue}>Genérico</p>
+              <p className={styles.compareDetail}>Sin alcance espacial del lote</p>
+            </article>
+            <article className={styles.compareAccent}>
+              <p className={styles.compareLabel}>Tu parcela</p>
+              <p className={styles.compareValue}>Con evidencia</p>
+              <p className={styles.compareDetail}>Fuente · frescura · alcance</p>
+            </article>
+          </div>
         </section>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Weather base</h2>
+          <p className={styles.eyebrow}>Weather base</p>
+          <h2 className={styles.sectionTitle}>
+            Observación + pronóstico. Con fuente y frescura.
+          </h2>
           <p className={styles.sectionBody}>
-            Primer producto de Agro AI: contexto climático parcel-aware,
-            determinístico y auditable.
+            Primer producto de Agro AI: contexto climático determinístico y
+            auditable sobre parcelas del workspace.
           </p>
           <ul className={styles.list}>
             <li>Parcela autorizada del workspace, dibujada en el mapa</li>
             <li>Observación ordinaria con evidencia completa</li>
             <li>Pronóstico ordinario con horizonte y validez</li>
-            <li>Estados cerrados: no disponible, obsoleto, error — nunca fabricados</li>
+            <li>
+              Estados cerrados: no disponible, obsoleto, error — nunca fabricados
+            </li>
           </ul>
         </section>
 
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Plataforma multiproducto</h2>
+        <section className={styles.section} id="productos">
+          <p className={styles.eyebrow}>Productos</p>
+          <h2 className={styles.sectionTitle}>En piloto activo</h2>
           <p className={styles.sectionBody}>
-            Weather es el inicio. El mismo workspace activa productos con
-            permisos scoped — sin mezclar evidencia ni autoridad.
+            El mismo workspace activa productos con permisos scoped — sin mezclar
+            evidencia ni autoridad.
           </p>
           <div className={styles.productGrid}>
             <article className={styles.product}>
@@ -160,69 +194,63 @@ export default async function Home() {
         </section>
 
         <section className={styles.section} id="precios">
-          <h2 className={styles.sectionTitle}>Precios</h2>
+          <p className={styles.eyebrow}>Precios</p>
+          <h2 className={styles.sectionTitle}>Referencial. Sin compromiso de pago.</h2>
           <p className={styles.sectionBody}>
-            Orientativos. No constituyen oferta comercial vinculante.
+            Orientativos para el lanzamiento. No constituyen oferta comercial
+            vinculante. El acceso al piloto será por invitación; la lista de
+            espera no implica cobro.
           </p>
           <div className={styles.priceGrid}>
             <article className={styles.price}>
               <h3>Weather base</h3>
               <p className={styles.priceAmount}>Incluido</p>
               <p className={styles.priceDetail}>
-                Al crear workspace con entitlement Weather. Mapa, parcelas y
-                evidencia climática.
+                Mapa, parcelas y evidencia climática cuando el workspace tenga
+                entitlement Weather.
               </p>
-              <Link className={styles.cta} href="/sign-in">
-                Acceso piloto
-              </Link>
             </article>
             <article className={styles.price}>
-              <h3>Intelligence Plus</h3>
+              <h3>Plus · Trace · Review</h3>
               <p className={styles.priceAmount}>Piloto</p>
               <p className={styles.priceDetail}>
-                Add-on conversacional activo en orgs con entitlement. Cobro real
-                en un release posterior.
+                Activos en orgs invitadas. Cobro real en un release posterior.
               </p>
-              <Link className={styles.ghost} href="/sign-in">
-                Acceso piloto
-              </Link>
             </article>
             <article className={styles.price}>
-              <h3>Traceability · Review</h3>
-              <p className={styles.priceAmount}>Piloto</p>
+              <h3>Lanzamiento</h3>
+              <p className={styles.priceAmount}>Consultar</p>
               <p className={styles.priceDetail}>
-                Traceability coffee/EUDR y Review append-only activos en piloto.
-                Sin cobro aún.
+                Condiciones públicas se definirán al abrir producción. Sin
+                tarjeta en esta página.
               </p>
             </article>
           </div>
           <p className={styles.disclaimer}>
-            Precios informativos. No constituyen oferta comercial. El acceso
-            actual es piloto vía Clerk; no procesamos pagos en esta página. La
-            producción pública estará disponible pronto.
+            Precios informativos. No procesamos pagos aquí. SENAMHI y otras
+            fuentes pagas quedan fuera hasta gate legal.
           </p>
         </section>
 
         <section className={`${styles.closing} ${styles.reveal}`}>
+          <p className={styles.eyebrow}>Estado del producto</p>
           <h2 className={styles.sectionTitle}>Pronto en producción</h2>
           <p className={styles.sectionBody}>
-            Agro AI ya opera en piloto con parcelas, clima, Plus, trazabilidad y
-            revisión agronómica. La apertura pública llegará pronto — el acceso
-            actual es piloto (Clerk); las cuentas nuevas no implican cobro ni
-            entitlements comerciales.
+            Agro AI ya opera en piloto interno. Inscríbete en la lista de espera
+            para enterarte cuando abramos el piloto a productores y técnicos en
+            Perú.
           </p>
-          <div className={styles.actions}>
-            <Link className={styles.cta} href="/sign-in">
-              Acceso piloto
+          <WaitlistForm id="lista-espera-cierre" variant="closing" />
+          <p className={styles.closingNote}>
+            ¿Ya tienes workspace?{" "}
+            <Link className={styles.inlineLink} href="/sign-in">
+              Entrar
             </Link>
-            <Link className={styles.ghost} href="/sign-up">
-              Crear cuenta
-            </Link>
-          </div>
+          </p>
         </section>
 
         <footer className={styles.footer}>
-          <span>Agro AI</span>
+          <span>Agro AI · geoagro.ai</span>
           <span>Mercado inicial: Perú · Pronto en producción</span>
         </footer>
       </div>
