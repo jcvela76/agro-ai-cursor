@@ -127,6 +127,11 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Tabla `review_decisions`; `NeonReviewDecisionRegistry` si `DATABASE_URL`
 - Seed `db:seed:review`; ADR-026
 
+### Hygiene Review — smoke cleanup
+
+- `db:cleanup:review-smoke` (dry-run / `APPLY=1`)
+- Conserva fixtures observe/recommend Lima Norte
+
 ## UI backlog
 
 | Slice | Contenido |

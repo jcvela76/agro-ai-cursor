@@ -20,7 +20,8 @@
     "db:seed:review": "npx tsx scripts/seed-review-decisions.ts",
     "smoke:trace-eudr": "npx tsx scripts/smoke-trace-eudr.ts",
     "smoke:review": "npx tsx scripts/smoke-review.ts",
-    "db:cleanup:lima-smoke": "npx tsx scripts/cleanup-lima-coffee-smoke.ts"
+    "db:cleanup:lima-smoke": "npx tsx scripts/cleanup-lima-coffee-smoke.ts",
+    "db:cleanup:review-smoke": "npx tsx scripts/cleanup-review-smoke.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.86",
