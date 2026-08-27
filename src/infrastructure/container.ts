@@ -14,6 +14,8 @@ import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
+import { AppendOrgReviewDecision } from "@/application/review/append-org-review-decision";
+import { ListOrgReviewDecisions } from "@/application/review/list-org-review-decisions";
 import { ListOrgTraceLots } from "@/application/traceability/list-org-trace-lots";
 import {
   AppendOrgTraceEvent,
@@ -22,6 +24,7 @@ import {
 } from "@/application/traceability/mutate-org-trace-lots";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
+import type { ReviewDecisionRegistry } from "@/domain/review/types";
 import type { TraceLotRegistry } from "@/domain/traceability/types";
 import type { OrgMetadataStore } from "@/domain/workspace/types";
 import type { WeatherSource } from "@/domain/weather/types";
@@ -34,6 +37,7 @@ import {
 import { createDb } from "@/infrastructure/db/client";
 import { NeonParcelRegistry } from "@/infrastructure/parcel/neon-parcel-registry";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
+import { OfflineReviewDecisionRegistry } from "@/infrastructure/review/offline-review-registry";
 import { FreeTierWeatherSource } from "@/infrastructure/weather/free-tier-weather-source";
 import { NasaPowerWeatherSource } from "@/infrastructure/weather/nasa-power-weather-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
@@ -55,8 +59,14 @@ export function createTraceLotRegistry(): TraceLotRegistry {
   return new OfflineTraceLotRegistry();
 }
 
+export function createReviewDecisionRegistry(): ReviewDecisionRegistry {
+  // Review-2: Neon when schema exists. Review-1 stays offline/append-in-process.
+  return new OfflineReviewDecisionRegistry();
+}
+
 const parcelRegistry = createParcelRegistry();
 const traceLotRegistry = createTraceLotRegistry();
+const reviewDecisionRegistry = createReviewDecisionRegistry();
 
 export const listOrgParcels = new ListOrgParcels(parcelRegistry);
 export const createOrgParcel = new CreateOrgParcel(parcelRegistry);
@@ -134,6 +144,14 @@ export const createOrgTraceLot = new CreateOrgTraceLot(
 );
 export const appendOrgTraceEvent = new AppendOrgTraceEvent(traceLotRegistry);
 export const updateOrgTraceLotEudr = new UpdateOrgTraceLotEudr(traceLotRegistry);
+
+export const listOrgReviewDecisions = new ListOrgReviewDecisions(
+  reviewDecisionRegistry,
+);
+export const appendOrgReviewDecision = new AppendOrgReviewDecision(
+  reviewDecisionRegistry,
+  parcelRegistry,
+);
 
 export function createAccessResolver(): AccessResolver {
   if (process.env.CLERK_SECRET_KEY) {

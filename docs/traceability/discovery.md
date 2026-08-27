@@ -34,4 +34,4 @@ Runtime: `NeonTraceLotRegistry` (DATABASE_URL) o `OfflineTraceLotRegistry` (test
 
 ## Próximo paso
 
-Fase 7 Agronomic Review (futuro) u ops (Billing / SENAMHI / Clerk prod).
+Fase 7 Agronomic Review (Review-1 en curso) u ops (Billing / SENAMHI / Clerk prod).

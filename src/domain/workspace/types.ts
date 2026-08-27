@@ -15,6 +15,7 @@ export const ALL_ENTITLEMENTS: ProductEntitlement[] = [
   "weather",
   "weather_plus",
   "traceability",
+  "agronomic_review",
 ];
 
 export function normalizeEntitlements(raw: unknown): ProductEntitlement[] {
@@ -23,7 +24,12 @@ export function normalizeEntitlements(raw: unknown): ProductEntitlement[] {
   }
   const set = new Set<ProductEntitlement>();
   for (const item of raw) {
-    if (item === "weather" || item === "weather_plus" || item === "traceability") {
+    if (
+      item === "weather" ||
+      item === "weather_plus" ||
+      item === "traceability" ||
+      item === "agronomic_review"
+    ) {
       set.add(item);
     }
   }

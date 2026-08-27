@@ -71,6 +71,13 @@ export const defaultSyntheticSnapshots: AccessSnapshot[] = [
     entitlements: ["weather", "traceability"],
     authorizedParcelIds: [],
   },
+  {
+    userId: "user-review-008",
+    orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+    isActiveMember: true,
+    entitlements: ["weather", "agronomic_review"],
+    authorizedParcelIds: [],
+  },
 ];
 
 export const syntheticAccessResolver = new SyntheticAccessResolver(defaultSyntheticSnapshots);

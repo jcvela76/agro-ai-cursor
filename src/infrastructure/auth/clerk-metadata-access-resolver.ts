@@ -8,7 +8,10 @@ function parseEntitlements(value: unknown): ProductEntitlement[] {
   }
   return value.filter(
     (item): item is ProductEntitlement =>
-      item === "weather" || item === "weather_plus" || item === "traceability",
+      item === "weather" ||
+      item === "weather_plus" ||
+      item === "traceability" ||
+      item === "agronomic_review",
   );
 }
 

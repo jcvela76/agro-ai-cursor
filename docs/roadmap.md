@@ -109,11 +109,18 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 ### Fase 6f — siguiente
 
-- Ops / Review / billing según prioridad
+- Ops / Review / billing según prioridad → **Fase 7 abierta**
 
 ## Fase 7 — Agronomic Review
 
-**Estado:** futuro
+**Estado:** en curso (Review-1)
+
+### Review-1 — Decision core (Fase 7a)
+
+- Entitlement `agronomic_review`; gate `REVIEW_UNAVAILABLE`
+- `ReviewDecision` append-only (`observe` \| `recommend` \| `decide`)
+- `OfflineReviewDecisionRegistry` + fixtures; Neon diferido
+- `GET|POST /api/review/decisions`; tab Revisión; ADR-025
 
 ## UI backlog
 

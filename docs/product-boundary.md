@@ -23,7 +23,7 @@ Agro AI ayuda a equipos agrícolas autorizados a entender y gestionar parcelas u
 | **Weather** | Primer producto implementable |
 | **Weather Intelligence Plus** | Add-on de pago/trial dentro de Weather — posterior a Weather base |
 | **Traceability** | Producto separado (piloto coffee/EUDR) |
-| **Agronomic Review** | Producto separado — fuera del primer release |
+| **Agronomic Review** | Producto separado — Review-1 (append-only) |
 
 El runtime de AI conversacional es **infraestructura compartida**, no un producto omnipotente. Weather autoriza las tools que expone al agente.
 

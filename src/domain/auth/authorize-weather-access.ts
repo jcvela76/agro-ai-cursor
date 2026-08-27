@@ -1,4 +1,8 @@
-export type ProductEntitlement = "weather" | "weather_plus" | "traceability";
+export type ProductEntitlement =
+  | "weather"
+  | "weather_plus"
+  | "traceability"
+  | "agronomic_review";
 
 export type WeatherAccessDenyReason =
   | "unauthenticated"

@@ -24,6 +24,7 @@ import { AgentChatPanel } from "@/ui/agent-chat-panel";
 import { Button } from "@/ui/button";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { Panel } from "@/ui/panel";
+import { ReviewPanel } from "@/ui/review-panel";
 import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { WeatherPanel } from "@/ui/weather-panel";
 import styles from "./app-shell.module.css";
@@ -35,7 +36,7 @@ const PARCELS_LINE = "agro-parcels-line";
 const PARCEL_DETAIL_MAX_ZOOM = 16;
 
 type DrawMode = "idle" | "draw" | "edit";
-type SideTab = "weather" | "agent" | "trace";
+type SideTab = "weather" | "agent" | "trace" | "review";
 
 function extendBoundsWithGeometry(bounds: LngLatBounds, geometry: ParcelGeometry) {
   const rings =
@@ -876,6 +877,13 @@ export function AppShell({
               >
                 Trazabilidad
               </button>
+              <button
+                type="button"
+                className={sideTab === "review" ? styles.tabActive : styles.tab}
+                onClick={() => setSideTab("review")}
+              >
+                Revisión
+              </button>
             </div>
             {sideTab === "weather" ? <WeatherPanel parcel={selected} /> : null}
             {sideTab === "agent" ? (
@@ -883,6 +891,9 @@ export function AppShell({
             ) : null}
             {sideTab === "trace" ? (
               <TraceLotsPanel parcelId={selected.id} isAdmin={isAdmin} />
+            ) : null}
+            {sideTab === "review" ? (
+              <ReviewPanel parcelId={selected.id} isAdmin={isAdmin} />
             ) : null}
             <div className={styles.panelFooter}>
               <Button

@@ -12,7 +12,12 @@ import styles from "./admin-panel.module.css";
 const ENTITLEMENT_OPTIONS: { id: ProductEntitlement; label: string; hint: string }[] = [
   { id: "weather", label: "Weather base", hint: "Observación y pronóstico parcel-aware" },
   { id: "weather_plus", label: "Intelligence Plus", hint: "Implica Weather base" },
-  { id: "traceability", label: "Traceability", hint: "Producto separado (discovery)" },
+  { id: "traceability", label: "Traceability", hint: "Piloto coffee / EUDR" },
+  {
+    id: "agronomic_review",
+    label: "Agronomic Review",
+    hint: "Decisiones humanas append-only",
+  },
 ];
 
 export function AdminPanel() {
