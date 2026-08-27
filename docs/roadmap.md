@@ -136,8 +136,9 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 | Slice | Contenido |
 |-------|-----------|
+| LP marketing + coming soon | Dominio Vercel; landing pública antes de go-live |
+| Clerk prod keys | **Diferido post-LP** — ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md). Hoy Vercel sigue en instancia Development |
 | Billing | Clerk Billing / Stripe post gate legal |
-| Clerk prod keys | Ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md) — hoy Vercel sigue en instancia Development |
 
 ## Docs por slice (canónico)
 

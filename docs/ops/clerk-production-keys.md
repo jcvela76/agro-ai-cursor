@@ -30,6 +30,8 @@ Instancia Development ≠ Production. Usuarios/orgs/metadata de Lima Coffee vive
 - Poner `pk_live_` en `.env.local` sin subdomain HTTPS (Clerk lo bloquea en localhost).
 - Billing / SENAMHI en este slice (gate legal).
 
-## Bloqueo actual
+## Bloqueo / defer
 
-Hace falta acción en Clerk Dashboard / `clerk auth login` del operador para crear la instancia Production y entregar keys live (o completar `clerk deploy`).
+**Diferido post-LP (2026-08-27):** no activar Production ni DNS Clerk hasta LP marketing / coming soon en el dominio Vercel. Seguir con Development (`pk_test_` / `sk_test_`) en local y Vercel.
+
+Cuando retomar: pasos 1–7 arriba + recrear Lima Coffee en instancia live.
