@@ -7,6 +7,10 @@ import type {
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
+import {
+  denyUnlessPaidWeatherProvider,
+  type WeatherUseCaseOptions,
+} from "@/application/weather/weather-use-case-options";
 
 export interface GetParcelWeatherInput {
   authority: AccessSnapshot | null | undefined;
@@ -17,6 +21,7 @@ export class GetParcelWeatherObservation {
   constructor(
     private readonly parcels: ParcelRegistry,
     private readonly weatherSource: WeatherSource,
+    private readonly options: WeatherUseCaseOptions = {},
   ) {}
 
   async execute(input: GetParcelWeatherInput): Promise<WeatherResult<WeatherObservation>> {
@@ -38,6 +43,14 @@ export class GetParcelWeatherObservation {
       };
     }
 
+    const paidDeny = denyUnlessPaidWeatherProvider(
+      input.authority,
+      this.options.requirePaidWeatherProvider,
+    );
+    if (paidDeny) {
+      return paidDeny;
+    }
+
     return this.weatherSource.getObservation(input.parcelId);
   }
 }
@@ -46,6 +59,7 @@ export class GetParcelWeatherForecast {
   constructor(
     private readonly parcels: ParcelRegistry,
     private readonly weatherSource: WeatherSource,
+    private readonly options: WeatherUseCaseOptions = {},
   ) {}
 
   async execute(input: GetParcelWeatherInput): Promise<WeatherResult<WeatherForecast>> {
@@ -65,6 +79,14 @@ export class GetParcelWeatherForecast {
         reason: "unavailable",
         message: "Weather data is not available for this request.",
       };
+    }
+
+    const paidDeny = denyUnlessPaidWeatherProvider(
+      input.authority,
+      this.options.requirePaidWeatherProvider,
+    );
+    if (paidDeny) {
+      return paidDeny;
     }
 
     return this.weatherSource.getForecast(input.parcelId);

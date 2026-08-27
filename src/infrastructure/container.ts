@@ -44,8 +44,12 @@ import { FreeTierWeatherSource } from "@/infrastructure/weather/free-tier-weathe
 import { NasaPowerWeatherSource } from "@/infrastructure/weather/nasa-power-weather-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 import { OpenMeteoWeatherSource } from "@/infrastructure/weather/open-meteo-weather-source";
+import { SenamhiStubWeatherSource } from "@/infrastructure/weather/senamhi-stub-weather-source";
 import { NeonTraceLotRegistry } from "@/infrastructure/traceability/neon-trace-lot-registry";
 import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
+import {
+  isPaidWeatherSourceMode,
+} from "@/application/weather/weather-use-case-options";
 
 export function createParcelRegistry(): ParcelRegistry {
   if (process.env.DATABASE_URL) {
@@ -107,22 +111,34 @@ export function createWeatherSource(
         new NasaPowerWeatherSource(parcelRegistry),
         new OpenMeteoWeatherSource(parcelRegistry),
       );
+    case "senamhi_stub":
+      return new SenamhiStubWeatherSource();
+    case "senamhi":
+      throw new Error(
+        "WEATHER_SOURCE=senamhi (live) is disabled until contract/legal; use senamhi_stub.",
+      );
     case "offline":
     default:
       return new OfflineWeatherSource();
   }
 }
 
-const weatherSource = createWeatherSource();
+const weatherSourceMode = process.env.WEATHER_SOURCE ?? "offline";
+const weatherSource = createWeatherSource(weatherSourceMode);
+const weatherUseCaseOptions = {
+  requirePaidWeatherProvider: isPaidWeatherSourceMode(weatherSourceMode),
+};
 
 export const getParcelWeatherObservation = new GetParcelWeatherObservation(
   parcelRegistry,
   weatherSource,
+  weatherUseCaseOptions,
 );
 
 export const getParcelWeatherForecast = new GetParcelWeatherForecast(
   parcelRegistry,
   weatherSource,
+  weatherUseCaseOptions,
 );
 
 export const getParcelWeatherRainfall30d = new GetParcelWeatherRainfall30d(

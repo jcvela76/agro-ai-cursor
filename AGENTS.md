@@ -73,7 +73,7 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 - eve init (diferido post UI-5; ADR-014)
 - Re-evaluar model path (ADR-015): Gateway vs OpenAI key directa vs Bedrock / eve
 - Cobro Billing **live** en Production (checklist `docs/ops/billing.md`; sandbox Billing-1 hecho)
-- SENAMHI paid stub (slice 2; detrás de entitlement)
+- SENAMHI live / contrato (stub `senamhi_stub` hecho; ADR-031)
 
 <!-- BEGIN:nextjs-agent-rules -->
 

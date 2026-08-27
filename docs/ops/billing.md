@@ -117,9 +117,10 @@ Hasta entonces: **ningún cobro live** en apex.
 
 `/app/admin` sigue permitiendo editar entitlements a mano. El PATCH conserva `billingPlanSlug`. Tras confiar en webhooks, el override queda solo para incidentes.
 
-## SENAMHI (slice siguiente)
+## SENAMHI
 
-SENAMHI paid stub va **detrás** de entitlement / subscription (ADR-006). No forma parte de Billing-1.
+- **Stub (hecho):** `WEATHER_SOURCE=senamhi_stub` → `SenamhiStubWeatherSource` (fixtures offline, provenance SENAMHI stub). Requiere entitlement `weather_plus` (ADR-006 / ADR-031).
+- **Live:** `WEATHER_SOURCE=senamhi` rechazado en factory hasta contrato/legal.
 
 ## Archivos ancla
 

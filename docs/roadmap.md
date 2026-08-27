@@ -139,7 +139,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 | LP marketing | **Live** en `geoagro.ai` (`main`); staging `stg.geoagro.ai` |
 | Clerk prod keys | **Hecho 2026-08-27** — apex `pk_live_` / FAPI `clerk.geoagro.ai`; Preview/stg siguen `pk_test_`. Ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md) |
 | Billing-1 | **Hecho 2026-08-27** — Clerk Billing sandbox + webhook → entitlements; ops `docs/ops/billing.md` (ADR-030). Cobro live Production diferido |
-| SENAMHI-1 stub | Adaptador paid offline detrás de entitlement (`WEATHER_SOURCE=senamhi_stub`); live post contrato |
+| SENAMHI-1 stub | **Hecho 2026-08-27** — `SenamhiStubWeatherSource` + gate `weather_plus`; `WEATHER_SOURCE=senamhi_stub`; live post contrato (ADR-031) |
 
 ## Docs por slice (canónico)
 

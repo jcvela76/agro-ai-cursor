@@ -63,7 +63,7 @@ Tras editar fixtures: `npm run db:seed && npm run db:seed:trace && npm run db:se
 
 - Poner `pk_live_` en `.env.local` sin subdomain HTTPS (Clerk lo bloquea en localhost).
 - Borrar DNS TXT/CNAME de Clerk o el TXT de Search Console.
-- Billing live / SENAMHI (sandbox Billing-1: ver `docs/ops/billing.md`).
+- Billing live / SENAMHI live (sandbox Billing-1 + SENAMHI stub: ver `docs/ops/billing.md`).
 
 ## Staging
 
