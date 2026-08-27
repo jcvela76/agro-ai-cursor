@@ -9,6 +9,7 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 import type { ParcelGeometry } from "@/domain/parcel/types";
+import type { ReviewDecisionKind } from "@/domain/review/types";
 import type { TraceEventType, TraceLotStatus } from "@/domain/traceability/types";
 
 export const parcels = pgTable("parcels", {
@@ -70,5 +71,25 @@ export const traceParcelLinks = pgTable(
   (table) => [
     primaryKey({ columns: [table.parcelId, table.lotId] }),
     index("trace_parcel_links_lot_id_idx").on(table.lotId),
+  ],
+);
+
+export const reviewDecisions = pgTable(
+  "review_decisions",
+  {
+    id: text("id").primaryKey(),
+    orgId: text("org_id").notNull(),
+    parcelId: text("parcel_id").notNull(),
+    kind: text("kind").$type<ReviewDecisionKind>().notNull(),
+    summary: text("summary").notNull(),
+    rationale: text("rationale").notNull(),
+    actorId: text("actor_id").notNull(),
+    decidedAt: timestamp("decided_at", { withTimezone: true }).notNull(),
+    evidenceRef: text("evidence_ref"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("review_decisions_org_id_idx").on(table.orgId),
+    index("review_decisions_parcel_id_idx").on(table.parcelId),
   ],
 );

@@ -113,7 +113,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 ## Fase 7 — Agronomic Review
 
-**Estado:** en curso (Review-1)
+**Estado:** Review-2 cerrada (Neon)
 
 ### Review-1 — Decision core (Fase 7a)
 
@@ -121,6 +121,11 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - `ReviewDecision` append-only (`observe` \| `recommend` \| `decide`)
 - `OfflineReviewDecisionRegistry` + fixtures; Neon diferido
 - `GET|POST /api/review/decisions`; tab Revisión; ADR-025
+
+### Review-2 — Neon persistence (Fase 7b)
+
+- Tabla `review_decisions`; `NeonReviewDecisionRegistry` si `DATABASE_URL`
+- Seed `db:seed:review`; ADR-026
 
 ## UI backlog
 

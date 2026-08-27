@@ -38,6 +38,7 @@ import { createDb } from "@/infrastructure/db/client";
 import { NeonParcelRegistry } from "@/infrastructure/parcel/neon-parcel-registry";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
 import { OfflineReviewDecisionRegistry } from "@/infrastructure/review/offline-review-registry";
+import { NeonReviewDecisionRegistry } from "@/infrastructure/review/neon-review-registry";
 import { FreeTierWeatherSource } from "@/infrastructure/weather/free-tier-weather-source";
 import { NasaPowerWeatherSource } from "@/infrastructure/weather/nasa-power-weather-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
@@ -60,7 +61,9 @@ export function createTraceLotRegistry(): TraceLotRegistry {
 }
 
 export function createReviewDecisionRegistry(): ReviewDecisionRegistry {
-  // Review-2: Neon when schema exists. Review-1 stays offline/append-in-process.
+  if (process.env.DATABASE_URL) {
+    return new NeonReviewDecisionRegistry(createDb());
+  }
   return new OfflineReviewDecisionRegistry();
 }
 

@@ -10,7 +10,7 @@ interface ReviewFixtureFile {
   decisions: ReviewDecision[];
 }
 
-/** In-memory append-only registry for Review-1 (Neon deferred to Review-2). */
+/** In-memory append-only registry for tests / local without DATABASE_URL. */
 export class OfflineReviewDecisionRegistry implements ReviewDecisionRegistry {
   private readonly decisions: ReviewDecision[];
 

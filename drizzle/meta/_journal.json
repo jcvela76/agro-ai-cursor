@@ -15,6 +15,13 @@
       "when": 1787847600000,
       "tag": "0001_trace_lots_eudr",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787852000000,
+      "tag": "0002_review_decisions",
+      "breakpoints": true
     }
   ]
 }
