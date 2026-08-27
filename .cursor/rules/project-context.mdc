@@ -1,0 +1,18 @@
+---
+description: Carga contexto externo del proyecto desde ~/Projects/context/
+alwaysApply: true
+---
+
+# Contexto del proyecto
+
+Este proyecto vive en `~/Projects/agro-ai/`.
+
+Antes de implementar cambios, lee:
+
+1. `~/Projects/context/agro-ai/overview.md` — objetivo, stack, estado
+2. `~/Projects/context/agro-ai/decisions.md` — decisiones técnicas vigentes
+3. `~/Projects/context/agro-ai/session-log.md` — última sesión y pendientes
+
+Al cerrar una sesión de trabajo, actualiza `session-log.md` y `decisions.md` si hubo decisiones nuevas.
+
+Para crear un proyecto nuevo en este workspace, usa `~/Projects/agentes/scripts/new-project.sh`.
