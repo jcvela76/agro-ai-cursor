@@ -69,6 +69,39 @@ Tras editar fixtures: `npm run db:seed && npm run db:seed:trace && npm run db:se
 
 `stg.geoagro.ai` (rama `stg`) sigue en keys **Development** (`pk_test_`) vía Preview. Ver [staging-domain.md](staging-domain.md).
 
-## Nota OAuth
+## Google OAuth (Production)
 
-Production no usa shared Google OAuth de Development. Hoy sign-in = **email + password**. Si se quiere Google en live, configurar OAuth credentials propias en Clerk Dashboard → User & authentication.
+**Estado (2026-08-27):** habilitado en Clerk Production. Sign-in muestra **Continue with Google**.
+
+| | |
+|--|--|
+| GCP project | `itsenjoyable-reporting` |
+| OAuth client | `Agro AI geoagro.ai` (Web) |
+| Redirect URI | `https://clerk.geoagro.ai/v1/oauth_callback` |
+| JS origins | `https://geoagro.ai`, `https://www.geoagro.ai` |
+| Publishing | **Testing** — solo test users en Audience |
+| Test user | añadir `me@juliovela.com` en Audience si aún no está |
+
+### Redirect URI (Clerk Production)
+
+```
+https://clerk.geoagro.ai/v1/oauth_callback
+```
+
+No uses `accounts.geoagro.ai/v1/oauth_callback` (Account Portal; 404 si lo abres a mano).
+
+### Re-config / rotación
+
+1. Google Cloud → Clients → editar client / regenerar secret
+2. Clerk Dashboard → Production → SSO → Google → Client ID/Secret → Save
+3. Si Publishing = Testing: Audience → Add users
+
+### Smoke
+
+1. Incógnito → `https://geoagro.ai/sign-in` → **Continue with Google**
+2. Cuenta test user (p.ej. `me@juliovela.com`)
+3. Org Lima Coffee + `/app` OK
+
+### Nota publishing status
+
+Mientras esté en **Testing**, solo test users. Para audiencia abierta: Audience → **Publish app** (puede requerir verificación Google).
