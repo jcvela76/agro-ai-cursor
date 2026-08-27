@@ -8,7 +8,8 @@ Archivo design canónico creado 2026-08-26.
 |---------|-----|
 | **Design file** | https://www.figma.com/design/oTT6PqFOAijVxYZb5wztEP |
 | fileKey | `oTT6PqFOAijVxYZb5wztEP` |
-| Figma Make | _exploraciones en Make → consolidar en design file_ |
+| Página | `Weather wireframes` |
+| Figma Make | _exploraciones adicionales → consolidar aquí_ |
 
 ## Convenciones
 
@@ -20,12 +21,12 @@ Archivo design canónico creado 2026-08-26.
 
 | Frame | Spec | Estado |
 |-------|------|--------|
+| `parcel/list/default` | WA-03, WA-05 | wireframe |
+| `weather/observation/default` | WQ-01, WA-01 | wireframe |
+| `weather/forecast/default` | WQ-03, WA-02 | wireframe |
+| `weather/limitation-states/default` | WA-06 | wireframe |
+| `agent/chat/default` | WA-07, Plus gate | wireframe |
 | `platform/login` | Clerk org selector | pendiente |
-| `parcel/list` | WA-03, WA-05 | pendiente |
-| `weather/observation` | WQ-01, WA-01 | pendiente |
-| `weather/forecast` | WQ-03, WA-02 | pendiente |
-| `weather/limitation-states` | WA-06 | pendiente |
-| `agent/chat` | WA-07, Plus gate | pendiente |
 
 ## Workflow
 
