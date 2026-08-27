@@ -449,17 +449,6 @@ export function AppShell({
 
       <header className={styles.chrome}>
         <p className={styles.brand}>Agro AI</p>
-        <div className={styles.toolbar}>
-          {drawMode === "idle" ? (
-            <Button type="button" variant="onDark" onClick={startDraw}>
-              Dibujar parcela
-            </Button>
-          ) : (
-            <Button type="button" variant="onDark" onClick={resetDrawState}>
-              Cancelar
-            </Button>
-          )}
-        </div>
         <div className={styles.chromeRight}>
           {isAdmin ? (
             <Link className={styles.adminLink} href="/app/admin">
@@ -487,6 +476,26 @@ export function AppShell({
       {actionError ? (
         <div className={styles.toast} role="alert">
           {actionError}
+        </div>
+      ) : null}
+
+      {drawMode === "idle" ? (
+        <div className={styles.mapToolbar}>
+          <Button type="button" onClick={startDraw}>
+            Dibujar parcela
+          </Button>
+        </div>
+      ) : drawMode === "draw" && !draftGeometry ? (
+        <div className={styles.mapToolbar}>
+          <Button type="button" variant="ghost" onClick={resetDrawState}>
+            Cancelar dibujo
+          </Button>
+        </div>
+      ) : drawMode === "edit" ? (
+        <div className={styles.mapToolbar}>
+          <Button type="button" variant="ghost" onClick={resetDrawState}>
+            Cancelar edición
+          </Button>
         </div>
       ) : null}
 
@@ -561,25 +570,30 @@ export function AppShell({
             {sideTab === "agent" ? (
               <AgentChatPanel parcel={selected} isAdmin={isAdmin} />
             ) : null}
-          </Panel>
-          <div className={styles.dangerRow}>
-            {selected.geometry?.type === "Polygon" ? (
-              <Button type="button" variant="ghost" onClick={startEditSelected} disabled={busy}>
-                Editar geometría
+            <div className={styles.panelFooter}>
+              {selected.geometry?.type === "Polygon" ? (
+                <Button type="button" variant="ghost" onClick={startEditSelected} disabled={busy}>
+                  Editar geometría
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => void deleteSelected()}
+                disabled={busy}
+              >
+                Eliminar parcela
               </Button>
-            ) : null}
-            <Button type="button" variant="ghost" onClick={() => void deleteSelected()} disabled={busy}>
-              Eliminar parcela
-            </Button>
-          </div>
+            </div>
+          </Panel>
         </div>
       ) : null}
 
       {drawMode === "idle" && !selected ? (
         <div className={styles.hint}>
           {parcels.length === 0 && !listError
-            ? "Dibuja tu primera parcela"
-            : "Toca un punto verde para acercar y ver el polígono"}
+            ? "Pulsa «Dibujar parcela» arriba a la izquierda"
+            : "Toca un punto verde para detalle, o «Dibujar parcela» para crear otra"}
         </div>
       ) : null}
 

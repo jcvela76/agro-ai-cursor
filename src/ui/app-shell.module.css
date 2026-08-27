@@ -31,11 +31,24 @@
   color: var(--color-fg-on-dark);
 }
 
-.toolbar {
+.mapToolbar {
+  position: absolute;
+  top: 4.5rem;
+  left: 1rem;
+  z-index: 2;
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
-  flex: 1;
-  justify-content: center;
+  max-width: min(20rem, calc(100vw - 2rem));
+}
+
+.panelFooter {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .field {
@@ -65,12 +78,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-}
-
-.dangerRow {
-  margin-top: var(--space-3);
-  display: flex;
-  justify-content: flex-end;
 }
 
 .brand {
@@ -204,6 +211,11 @@
 }
 
 @media (max-width: 640px) {
+  .mapToolbar {
+    top: 4.25rem;
+    left: 0.75rem;
+  }
+
   .panelSlot {
     top: auto;
     left: 0.75rem;
