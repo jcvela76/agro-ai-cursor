@@ -22,21 +22,21 @@ export class SyntheticAccessResolver implements AccessResolver {
 export const defaultSyntheticSnapshots: AccessSnapshot[] = [
   {
     userId: "user-agronomist-001",
-    orgId: "org-lima-coffee",
+    orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     isActiveMember: true,
     entitlements: ["weather"],
     authorizedParcelIds: ["parcel-lima-norte-001"],
   },
   {
     userId: "user-no-parcel-002",
-    orgId: "org-lima-coffee",
+    orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     isActiveMember: true,
     entitlements: ["weather"],
     authorizedParcelIds: [],
   },
   {
     userId: "user-parcel-only-003",
-    orgId: "org-lima-coffee",
+    orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     isActiveMember: true,
     entitlements: [],
     authorizedParcelIds: ["parcel-lima-norte-001"],
@@ -50,7 +50,7 @@ export const defaultSyntheticSnapshots: AccessSnapshot[] = [
   },
   {
     userId: "user-plus-005",
-    orgId: "org-lima-coffee",
+    orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     isActiveMember: true,
     entitlements: ["weather", "weather_plus"],
     authorizedParcelIds: ["parcel-lima-norte-001"],

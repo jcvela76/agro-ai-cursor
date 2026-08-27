@@ -46,7 +46,31 @@ Subagents compartidos en ~/Projects/agentes/subagents/:
 - `explore-codebase` — exploración al abrir el proyecto
 - `session-handoff` — actualizar contexto al cerrar sesión
 
+## MCP y skills (auth / browser)
+
+Configurados en `~/.cursor/mcp.json`:
+
+- **clerk** — snippets SDK (`b2b-saas`, `organizations`, `server-side`)
+- **playwright** — automatización de browser
+- **MCP_DOCKER** — gateway (incluye playwright + GitHub)
+
+Skills locales en `.agents/skills/`: `clerk-setup`, `clerk-orgs`, `clerk-nextjs-patterns`.
+
+Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `CLERK_SECRET_KEY`; el browser MCP no hereda tu sesión SSO de Vercel.
+
 ## Pendientes conocidos
 
-- **ADR-004:** stack técnico TBD (primera sesión de implementación)
-- **Primer slice Weather:** workspace + parcela sintética + vista offline + tests
+- Conectar GitHub ↔ Vercel project (link falló en bootstrap)
+- Adaptadores Open-Meteo / NASA POWER live
+- Frames Figma weather + Agro Agent chat
+- eve init completo + wiring LLM Agro Agent
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

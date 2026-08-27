@@ -16,7 +16,7 @@ describe("WA-03: weather entitlement without parcel access", () => {
     const result = authorizeWeatherAccess(
       weatherNoParcel,
       "parcel-lima-norte-001",
-      "org-lima-coffee",
+      "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -31,7 +31,7 @@ describe("WA-04: parcel access without weather entitlement", () => {
     const result = authorizeWeatherAccess(
       parcelNoWeather,
       "parcel-lima-norte-001",
-      "org-lima-coffee",
+      "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -46,7 +46,7 @@ describe("WA-05: cross-workspace parcel", () => {
     const result = authorizeWeatherAccess(
       crossWorkspace,
       "parcel-lima-norte-001",
-      "org-lima-coffee",
+      "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -68,7 +68,7 @@ describe("WA-01 path: authorized access snapshot", () => {
     const result = authorizeWeatherAccess(
       authorized,
       "parcel-lima-norte-001",
-      "org-lima-coffee",
+      "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
     );
     expect(result.ok).toBe(true);
     if (result.ok) {

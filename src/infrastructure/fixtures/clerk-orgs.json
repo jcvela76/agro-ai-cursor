@@ -1,0 +1,14 @@
+{
+  "orgs": [
+    {
+      "clerkOrgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "name": "Lima Coffee (sintetica)",
+      "syntheticOrgAlias": "org-lima-coffee",
+      "public_metadata": {
+        "entitlements": ["weather"],
+        "authorizedParcelIds": ["parcel-lima-norte-001"]
+      }
+    }
+  ],
+  "notes": "Clerk org IDs are not secrets. Parcel IDs remain synthetic fixtures."
+}

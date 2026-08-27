@@ -37,3 +37,6 @@ coverage/
 .terraform/
 *.tfstate
 *.tfstate.*
+.vercel
+.env*
+!.env.example
