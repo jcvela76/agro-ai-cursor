@@ -41,6 +41,21 @@ function parseYmdToIso(ymd: string): string {
   return `${year}-${month}-${day}T12:00:00`;
 }
 
+const LOOKBACK_DAYS = 14;
+const FRESH_MAX_AGE_MS = 48 * 60 * 60 * 1000;
+
+function observationFreshness(
+  observedYmd: string,
+  now: Date,
+): "fresh" | "stale" {
+  const year = Number(observedYmd.slice(0, 4));
+  const month = Number(observedYmd.slice(4, 6));
+  const day = Number(observedYmd.slice(6, 8));
+  const observed = Date.UTC(year, month - 1, day, 12, 0, 0);
+  const ageMs = now.getTime() - observed;
+  return ageMs <= FRESH_MAX_AGE_MS ? "fresh" : "stale";
+}
+
 /** NASA POWER free daily observation adapter. Forecast is not provided by this source. */
 export class NasaPowerWeatherSource implements WeatherSource {
   constructor(
@@ -70,7 +85,7 @@ export class NasaPowerWeatherSource implements WeatherSource {
 
     const end = this.now();
     const start = new Date(end);
-    start.setUTCDate(start.getUTCDate() - 3);
+    start.setUTCDate(start.getUTCDate() - LOOKBACK_DAYS);
 
     const url = new URL(this.baseUrl);
     url.searchParams.set("parameters", "T2M,PRECTOTCORR");
@@ -115,7 +130,12 @@ export class NasaPowerWeatherSource implements WeatherSource {
       .filter((key) => {
         const t = temps[key];
         const p = precips[key];
-        return typeof t === "number" && t !== fillValue && typeof p === "number" && p !== fillValue;
+        return (
+          typeof t === "number" &&
+          t !== fillValue &&
+          typeof p === "number" &&
+          p !== fillValue
+        );
       })
       .sort();
 
@@ -127,6 +147,9 @@ export class NasaPowerWeatherSource implements WeatherSource {
         message: "No observation available for this parcel.",
       };
     }
+
+    const now = this.now();
+    const freshnessStatus = observationFreshness(latest, now);
 
     return {
       ok: true,
@@ -145,8 +168,8 @@ export class NasaPowerWeatherSource implements WeatherSource {
             longitude: parcel.longitude,
             label: parcel.id,
           },
-          freshnessStatus: "fresh",
-          freshnessPolicy: "observation_max_age_24h",
+          freshnessStatus,
+          freshnessPolicy: "latest_available_daily_max_lag_14d",
         },
       },
     };

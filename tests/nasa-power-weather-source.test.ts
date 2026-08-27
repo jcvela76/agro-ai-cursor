@@ -18,8 +18,24 @@ describe("NasaPowerWeatherSource", () => {
         header: { fill_value: -999 },
         properties: {
           parameter: {
-            T2M: { "20260824": -999, "20260825": 21.5, "20260826": 22.4 },
-            PRECTOTCORR: { "20260824": -999, "20260825": 0.2, "20260826": 0.0 },
+            T2M: {
+              "20260820": -999,
+              "20260821": 21.5,
+              "20260822": 22.1,
+              "20260823": 22.4,
+              "20260824": -999,
+              "20260825": -999,
+              "20260826": -999,
+            },
+            PRECTOTCORR: {
+              "20260820": -999,
+              "20260821": 0.2,
+              "20260822": 0.1,
+              "20260823": 0.0,
+              "20260824": -999,
+              "20260825": -999,
+              "20260826": -999,
+            },
           },
         },
       });
@@ -37,7 +53,11 @@ describe("NasaPowerWeatherSource", () => {
       expect(result.data.temperatureCelsius).toBe(22.4);
       expect(result.data.precipitationMm).toBe(0);
       expect(result.data.evidence.sourceId).toBe("nasa-power");
-      expect(result.data.evidence.observedAt).toContain("2026-08-26");
+      expect(result.data.evidence.observedAt).toContain("2026-08-23");
+      expect(result.data.evidence.freshnessStatus).toBe("stale");
+      expect(result.data.evidence.freshnessPolicy).toBe(
+        "latest_available_daily_max_lag_14d",
+      );
       expect(result.data.evidence.spatialScope.label).toBe("parcel-lima-norte-001");
     }
   });
