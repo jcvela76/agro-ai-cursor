@@ -24,6 +24,7 @@ Rutas SEO públicas en Clerk middleware: `/robots.txt`, `/sitemap.xml`, icon/OG 
 
 ## Post-promote
 
-1. Adjuntar apex `geoagro.ai` a Production.
+1. ~~Adjuntar apex `geoagro.ai` a Production.~~ Hecho (2026-08-27).
 2. Verificar Search Console / Bing (`metadata.verification` cuando haya tokens).
 3. Slice SEO-2: JSON-LD, `next/image` LCP, cache HTML de `/`.
+4. Opcional: `www` → `geoagro.ai` redirect 308 si aún no está.

@@ -4,21 +4,27 @@
 
 | Ambiente | Git | Host | Notas |
 |----------|-----|------|--------|
-| Production | `main` | `agro-ai-cursor.vercel.app` (apex `geoagro.ai` solo tras promote) | Live; no pushear WIP de LP aquí |
-| Staging | `stg` | `https://stg.geoagro.ai` | Único host de staging |
+| Production | `main` | `https://geoagro.ai` (+ `www`, `agro-ai-cursor.vercel.app`) | LP waitlist + SEO indexable |
+| Staging | `stg` | `https://stg.geoagro.ai` | Preview; `robots Disallow: /` |
 
 ## Flujo
 
 1. Trabajar y pushear en `stg`.
 2. Smoke en `https://stg.geoagro.ai`.
-3. Promote a `main` solo con OK explícito; entonces adjuntar apex `geoagro.ai` a Production.
+3. Promote: fast-forward `main` ← `stg` + push; apex ya adjunto a Production.
 
-## Dominio
+## Dominios (proyecto `agro-ai-cursor`)
 
-- Apex `geoagro.ai` registrado en Vercel (team `raw-codes-projects`).
-- Subdominio `stg.geoagro.ai` → proyecto `agro-ai-cursor`, git branch `stg`.
-- Preview debe ser público: Vercel Authentication **off** en el proyecto (si está on, `stg.geoagro.ai` redirige a SSO de Vercel).
+| Host | gitBranch | Rol |
+|------|-----------|-----|
+| `geoagro.ai` | Production (`null`) | Apex prod |
+| `www.geoagro.ai` | Production | Prefer redirect → apex |
+| `stg.geoagro.ai` | `stg` | Staging |
+| `agro-ai-cursor.vercel.app` | Production | Alias Vercel |
+
+- Apex registrado en Vercel (team `raw-codes-projects`).
+- Preview público: Vercel Authentication **off**.
 
 ## Clerk
 
-Staging y prod Vercel siguen en instancia **Development** hasta cutover post-LP (ver [clerk-production-keys.md](clerk-production-keys.md)).
+Staging y prod Vercel siguen en instancia **Development** hasta cutover (ver [clerk-production-keys.md](clerk-production-keys.md)).
