@@ -17,6 +17,7 @@
 
 - Apex `geoagro.ai` registrado en Vercel (team `raw-codes-projects`).
 - Subdominio `stg.geoagro.ai` → proyecto `agro-ai-cursor`, git branch `stg`.
+- Preview debe ser público: Vercel Authentication **off** en el proyecto (si está on, `stg.geoagro.ai` redirige a SSO de Vercel).
 
 ## Clerk
 
