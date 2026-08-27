@@ -3,9 +3,11 @@ import type {
   WeatherForecast,
   WeatherObservation,
   WeatherRainfall30d,
+  WeatherRainfallCampaignComparison,
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
+import type { Parcel } from "@/domain/parcel/types";
 import type { FetchFn } from "@/infrastructure/weather/open-meteo-weather-source";
 
 interface NasaPowerResponse {
@@ -45,6 +47,9 @@ function parseYmdToIso(ymd: string): string {
 const LOOKBACK_DAYS = 14;
 const RAINFALL_WINDOW_DAYS = 30;
 const FRESH_MAX_AGE_MS = 48 * 60 * 60 * 1000;
+const CAMPAIGN_COMPARISON_METHOD_ID = "campaign-vs-prior-year-calendar-ytd/v1";
+const CAMPAIGN_COMPARISON_METHOD_LABEL =
+  "Campaña año calendario (YTD) vs mismo rango año anterior";
 
 function ymdToIsoDate(ymd: string): string {
   const year = ymd.slice(0, 4);
@@ -63,6 +68,13 @@ function observationFreshness(
   const observed = Date.UTC(year, month - 1, day, 12, 0, 0);
   const ageMs = now.getTime() - observed;
   return ageMs <= FRESH_MAX_AGE_MS ? "fresh" : "stale";
+}
+
+function sumPrecipitation(
+  precips: Record<string, number>,
+  dates: string[],
+): number {
+  return dates.reduce((sum, key) => sum + precips[key], 0);
 }
 
 /** NASA POWER free daily observation adapter. Forecast is not provided by this source. */
@@ -198,6 +210,163 @@ export class NasaPowerWeatherSource implements WeatherSource {
     const start = new Date(end);
     start.setUTCDate(start.getUTCDate() - (RAINFALL_WINDOW_DAYS - 1));
 
+    const series = await this.fetchDailyPrecipitation(parcel, start, end);
+    if (!series.ok) {
+      return series;
+    }
+
+    const { precips, validDates } = series.data;
+    if (validDates.length === 0) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Insufficient daily precipitation data for a 30-day sum.",
+      };
+    }
+
+    const totalPrecipitationMm = sumPrecipitation(precips, validDates);
+    const periodStart = ymdToIsoDate(validDates[0]);
+    const periodEnd = ymdToIsoDate(validDates[validDates.length - 1]);
+    const latestYmd = validDates[validDates.length - 1];
+    const freshnessStatus = observationFreshness(latestYmd, this.now());
+
+    return {
+      ok: true,
+      data: {
+        kind: "rainfall_30d",
+        totalPrecipitationMm,
+        daysIncluded: validDates.length,
+        periodStart,
+        periodEnd,
+        evidence: {
+          sourceId: "nasa-power",
+          sourceLabel: "NASA POWER",
+          validFrom: periodStart,
+          validTo: periodEnd,
+          timezone: parcel.timezone,
+          spatialScope: {
+            kind: "point",
+            latitude: parcel.latitude,
+            longitude: parcel.longitude,
+            label: parcel.id,
+          },
+          freshnessStatus,
+          freshnessPolicy: "sum_daily_precip_30d_max_lag_14d_per_day",
+        },
+      },
+    };
+  }
+
+  async getRainfallCampaignComparison(
+    parcelId: string,
+  ): Promise<WeatherResult<WeatherRainfallCampaignComparison>> {
+    const parcel = await this.parcels.getParcel(parcelId);
+    if (!parcel) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No rainfall comparison data exists for this parcel.",
+      };
+    }
+
+    const now = this.now();
+    const currentYear = now.getUTCFullYear();
+    const campaignStart = new Date(Date.UTC(currentYear, 0, 1));
+    const fetchStart = new Date(Date.UTC(currentYear - 1, 0, 1));
+
+    const series = await this.fetchDailyPrecipitation(parcel, fetchStart, now);
+    if (!series.ok) {
+      return series;
+    }
+
+    const { precips, validDates } = series.data;
+    const campaignStartYmd = formatYmd(campaignStart);
+    const campaignDatesAll = validDates.filter((d) => d >= campaignStartYmd);
+    const latestCampaignYmd = campaignDatesAll[campaignDatesAll.length - 1];
+
+    if (!latestCampaignYmd) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Insufficient campaign-year precipitation data for comparison.",
+      };
+    }
+
+    const referenceStartYmd = formatYmd(new Date(Date.UTC(currentYear - 1, 0, 1)));
+    const referenceEndYmd = `${currentYear - 1}${latestCampaignYmd.slice(4)}`;
+    const campaignDates = validDates.filter(
+      (d) => d >= campaignStartYmd && d <= latestCampaignYmd,
+    );
+    const referenceDates = validDates.filter(
+      (d) => d >= referenceStartYmd && d <= referenceEndYmd,
+    );
+
+    if (campaignDates.length === 0 || referenceDates.length === 0) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Insufficient paired precipitation data for campaign comparison.",
+      };
+    }
+
+    const campaignTotal = sumPrecipitation(precips, campaignDates);
+    const referenceTotal = sumPrecipitation(precips, referenceDates);
+    const deltaMm = campaignTotal - referenceTotal;
+    const deltaPercent =
+      referenceTotal === 0 ? null : (deltaMm / referenceTotal) * 100;
+
+    const campaignStartIso = ymdToIsoDate(campaignDates[0]);
+    const campaignEndIso = ymdToIsoDate(campaignDates[campaignDates.length - 1]);
+    const referenceStartIso = ymdToIsoDate(referenceDates[0]);
+    const referenceEndIso = ymdToIsoDate(referenceDates[referenceDates.length - 1]);
+    const freshnessStatus = observationFreshness(latestCampaignYmd, now);
+
+    return {
+      ok: true,
+      data: {
+        kind: "rainfall_campaign_comparison",
+        comparisonMethodId: CAMPAIGN_COMPARISON_METHOD_ID,
+        comparisonMethodLabel: CAMPAIGN_COMPARISON_METHOD_LABEL,
+        campaign: {
+          totalPrecipitationMm: campaignTotal,
+          daysIncluded: campaignDates.length,
+          periodStart: campaignStartIso,
+          periodEnd: campaignEndIso,
+        },
+        reference: {
+          totalPrecipitationMm: referenceTotal,
+          daysIncluded: referenceDates.length,
+          periodStart: referenceStartIso,
+          periodEnd: referenceEndIso,
+        },
+        deltaMm,
+        deltaPercent,
+        evidence: {
+          sourceId: "nasa-power",
+          sourceLabel: "NASA POWER",
+          validFrom: campaignStartIso,
+          validTo: campaignEndIso,
+          timezone: parcel.timezone,
+          spatialScope: {
+            kind: "point",
+            latitude: parcel.latitude,
+            longitude: parcel.longitude,
+            label: parcel.id,
+          },
+          freshnessStatus,
+          freshnessPolicy: "campaign_vs_prior_year_calendar_ytd_v1",
+        },
+      },
+    };
+  }
+
+  private async fetchDailyPrecipitation(
+    parcel: Parcel,
+    start: Date,
+    end: Date,
+  ): Promise<
+    WeatherResult<{ precips: Record<string, number>; validDates: string[] }>
+  > {
     const url = new URL(this.baseUrl);
     url.searchParams.set("parameters", "PRECTOTCORR");
     url.searchParams.set("community", "AG");
@@ -243,44 +412,6 @@ export class NasaPowerWeatherSource implements WeatherSource {
       })
       .sort();
 
-    if (validDates.length === 0) {
-      return {
-        ok: false,
-        reason: "unavailable",
-        message: "Insufficient daily precipitation data for a 30-day sum.",
-      };
-    }
-
-    const totalPrecipitationMm = validDates.reduce((sum, key) => sum + precips[key], 0);
-    const periodStart = ymdToIsoDate(validDates[0]);
-    const periodEnd = ymdToIsoDate(validDates[validDates.length - 1]);
-    const latestYmd = validDates[validDates.length - 1];
-    const freshnessStatus = observationFreshness(latestYmd, this.now());
-
-    return {
-      ok: true,
-      data: {
-        kind: "rainfall_30d",
-        totalPrecipitationMm,
-        daysIncluded: validDates.length,
-        periodStart,
-        periodEnd,
-        evidence: {
-          sourceId: "nasa-power",
-          sourceLabel: "NASA POWER",
-          validFrom: periodStart,
-          validTo: periodEnd,
-          timezone: parcel.timezone,
-          spatialScope: {
-            kind: "point",
-            latitude: parcel.latitude,
-            longitude: parcel.longitude,
-            label: parcel.id,
-          },
-          freshnessStatus,
-          freshnessPolicy: "sum_daily_precip_30d_max_lag_14d_per_day",
-        },
-      },
-    };
+    return { ok: true, data: { precips, validDates } };
   }
 }

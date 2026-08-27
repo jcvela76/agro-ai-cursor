@@ -10,6 +10,7 @@ import {
 } from "@/application/workspace/workspace-settings";
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
+import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import type { OrgMetadataStore } from "@/domain/workspace/types";
@@ -93,6 +94,9 @@ export const getParcelWeatherRainfall30d = new GetParcelWeatherRainfall30d(
   parcelRegistry,
   weatherSource,
 );
+
+export const getParcelWeatherRainfallCampaignComparison =
+  new GetParcelWeatherRainfallCampaignComparison(parcelRegistry, weatherSource);
 
 export function createAccessResolver(): AccessResolver {
   if (process.env.CLERK_SECRET_KEY) {

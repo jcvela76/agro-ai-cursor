@@ -109,4 +109,50 @@ describe("NasaPowerWeatherSource", () => {
       );
     }
   });
+
+  it("compares campaign YTD vs prior year for WQ-12", async () => {
+    const precips: Record<string, number> = {
+      "20250101": 0.5,
+      "20250823": 1.0,
+      "20260101": 3.0,
+      "20260823": 2.0,
+    };
+
+    const fetchFn = async () =>
+      jsonResponse({
+        header: { fill_value: -999 },
+        properties: {
+          parameter: {
+            PRECTOTCORR: precips,
+          },
+        },
+      });
+
+    const source = new NasaPowerWeatherSource(
+      parcels,
+      fetchFn,
+      "https://power.larc.nasa.gov/api/temporal/daily/point",
+      () => new Date("2026-08-26T12:00:00Z"),
+    );
+    const result = await source.getRainfallCampaignComparison("parcel-lima-norte-001");
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.kind).toBe("rainfall_campaign_comparison");
+      expect(result.data.comparisonMethodId).toBe(
+        "campaign-vs-prior-year-calendar-ytd/v1",
+      );
+      expect(result.data.campaign.periodStart).toBe("2026-01-01");
+      expect(result.data.campaign.periodEnd).toBe("2026-08-23");
+      expect(result.data.reference.periodStart).toBe("2025-01-01");
+      expect(result.data.reference.periodEnd).toBe("2025-08-23");
+      expect(result.data.campaign.totalPrecipitationMm).toBe(5);
+      expect(result.data.reference.totalPrecipitationMm).toBe(1.5);
+      expect(result.data.deltaMm).toBe(3.5);
+      expect(result.data.deltaPercent).toBeCloseTo(233.33, 1);
+      expect(result.data.evidence.freshnessPolicy).toBe(
+        "campaign_vs_prior_year_calendar_ytd_v1",
+      );
+    }
+  });
 });

@@ -57,6 +57,25 @@ export interface WeatherRainfall30d {
   evidence: WeatherEvidence;
 }
 
+/** WQ-12: campaign vs reference precipitation comparison (Plus). */
+export interface WeatherRainfallPeriodSummary {
+  totalPrecipitationMm: number;
+  daysIncluded: number;
+  periodStart: string;
+  periodEnd: string;
+}
+
+export interface WeatherRainfallCampaignComparison {
+  kind: "rainfall_campaign_comparison";
+  comparisonMethodId: string;
+  comparisonMethodLabel: string;
+  campaign: WeatherRainfallPeriodSummary;
+  reference: WeatherRainfallPeriodSummary;
+  deltaMm: number;
+  deltaPercent: number | null;
+  evidence: WeatherEvidence;
+}
+
 export type WeatherResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: WeatherLimitationReason; message: string };
@@ -65,4 +84,7 @@ export interface WeatherSource {
   getObservation(parcelId: string): Promise<WeatherResult<WeatherObservation>>;
   getForecast(parcelId: string): Promise<WeatherResult<WeatherForecast>>;
   getRainfall30d(parcelId: string): Promise<WeatherResult<WeatherRainfall30d>>;
+  getRainfallCampaignComparison(
+    parcelId: string,
+  ): Promise<WeatherResult<WeatherRainfallCampaignComparison>>;
 }

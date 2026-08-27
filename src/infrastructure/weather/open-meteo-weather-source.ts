@@ -4,6 +4,7 @@ import type {
   WeatherForecastDay,
   WeatherObservation,
   WeatherRainfall30d,
+  WeatherRainfallCampaignComparison,
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
@@ -160,6 +161,17 @@ export class OpenMeteoWeatherSource implements WeatherSource {
       ok: false,
       reason: "unavailable",
       message: "Open-Meteo adapter does not provide 30-day rainfall aggregation in this release.",
+    };
+  }
+
+  async getRainfallCampaignComparison(): Promise<
+    WeatherResult<WeatherRainfallCampaignComparison>
+  > {
+    return {
+      ok: false,
+      reason: "unavailable",
+      message:
+        "Open-Meteo adapter does not provide campaign rainfall comparison in this release.",
     };
   }
 }

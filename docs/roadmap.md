@@ -33,6 +33,14 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Tool agent `getParcelRainfall30d`; ADR-016
 - Tests WQ-11 (30 total)
 
+## Fase 5g — Plus-2 Campaign comparison (WQ-12)
+
+**Estado:** completada (2026-08-27)
+
+- Comparación campaña YTD vs año anterior (NASA / offline)
+- Tool agent `getParcelRainfallCampaignComparison`; ADR-017
+- Tests 34 total
+
 ## Fase 6 — Traceability discovery
 
 **Estado:** en curso (paralelo)

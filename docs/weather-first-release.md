@@ -39,7 +39,7 @@ Lista de especificación de producto — no promesa de veinte pantallas.
 | WQ-09 | ¿Por qué no hay datos para esta parcela o período? | BASE | Razón cerrada segura sin detalles crudos de proveedor |
 | WQ-10 | ¿Mi fecha solicitada está fuera del rango soportado? | BASE | Rechazar rango no soportado y mostrar límite disponible |
 | WQ-11 | ¿Cuánta lluvia acumuló en los últimos 30 días? | PLUS (agent) | Agregado determinístico NASA/offline; gate `weather_plus`; tool `getParcelRainfall30d` |
-| WQ-12 | Comparar precipitación de esta campaña con período de referencia | PLUS_LATER | Método de comparación versionado |
+| WQ-12 | Comparar precipitación de esta campaña con período de referencia | PLUS (agent) | Método `campaign-vs-prior-year-calendar-ytd/v1`; gate `weather_plus`; tool `getParcelRainfallCampaignComparison` |
 | WQ-13 | ¿Qué días tienen menor probabilidad de lluvia en el horizonte? | PLUS_LATER | Output acotado e incertidumbre honesta |
 | WQ-14 | Estimar grados-día de crecimiento para esta parcela | PLUS_LATER | Calculadora aprobada e inputs completos |
 | WQ-15 | Estimar evapotranspiración para esta parcela | PLUS_LATER | Método seleccionado; rechazar si faltan datos |

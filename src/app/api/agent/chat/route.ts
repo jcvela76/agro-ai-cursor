@@ -13,6 +13,7 @@ import {
   getParcelWeatherForecast,
   getParcelWeatherObservation,
   getParcelWeatherRainfall30d,
+  getParcelWeatherRainfallCampaignComparison,
 } from "@/infrastructure/container";
 
 export const maxDuration = 60;
@@ -105,6 +106,7 @@ export async function POST(request: Request) {
     observation: getParcelWeatherObservation,
     forecast: getParcelWeatherForecast,
     rainfall30d: getParcelWeatherRainfall30d,
+    rainfallCampaignComparison: getParcelWeatherRainfallCampaignComparison,
   });
 
   const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;

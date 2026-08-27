@@ -2,26 +2,31 @@ import type {
   WeatherForecast,
   WeatherObservation,
   WeatherRainfall30d,
+  WeatherRainfallCampaignComparison,
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
 import observations from "@/infrastructure/fixtures/weather-observations.json";
 import forecasts from "@/infrastructure/fixtures/weather-forecasts.json";
 import rainfall30d from "@/infrastructure/fixtures/weather-rainfall-30d.json";
+import rainfallCampaignComparison from "@/infrastructure/fixtures/weather-rainfall-campaign-comparison.json";
 
 type ObservationFixture = WeatherObservation;
 type ForecastFixture = WeatherForecast;
 type Rainfall30dFixture = WeatherRainfall30d;
+type RainfallCampaignComparisonFixture = WeatherRainfallCampaignComparison;
 
 export class OfflineWeatherSource implements WeatherSource {
   private readonly observations: Map<string, ObservationFixture>;
   private readonly forecasts: Map<string, ForecastFixture>;
   private readonly rainfall30d: Map<string, Rainfall30dFixture>;
+  private readonly rainfallCampaignComparison: Map<string, RainfallCampaignComparisonFixture>;
 
   constructor(
     observationFixtures: ObservationFixture[] = observations as ObservationFixture[],
     forecastFixtures: ForecastFixture[] = forecasts as ForecastFixture[],
     rainfall30dFixtures: Rainfall30dFixture[] = rainfall30d as Rainfall30dFixture[],
+    rainfallCampaignComparisonFixtures: RainfallCampaignComparisonFixture[] = rainfallCampaignComparison as RainfallCampaignComparisonFixture[],
   ) {
     this.observations = new Map(
       observationFixtures.map((o) => [o.evidence.spatialScope.label, o]),
@@ -31,6 +36,9 @@ export class OfflineWeatherSource implements WeatherSource {
     );
     this.rainfall30d = new Map(
       rainfall30dFixtures.map((r) => [r.evidence.spatialScope.label, r]),
+    );
+    this.rainfallCampaignComparison = new Map(
+      rainfallCampaignComparisonFixtures.map((r) => [r.evidence.spatialScope.label, r]),
     );
   }
 
@@ -75,6 +83,21 @@ export class OfflineWeatherSource implements WeatherSource {
         ok: false,
         reason: "unavailable",
         message: "No 30-day rainfall fixture exists for this parcel.",
+      };
+    }
+
+    return { ok: true, data };
+  }
+
+  async getRainfallCampaignComparison(
+    parcelId: string,
+  ): Promise<WeatherResult<WeatherRainfallCampaignComparison>> {
+    const data = this.rainfallCampaignComparison.get(parcelId);
+    if (!data) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No campaign rainfall comparison fixture exists for this parcel.",
       };
     }
 

@@ -1,0 +1,36 @@
+[
+  {
+    "kind": "rainfall_campaign_comparison",
+    "comparisonMethodId": "campaign-vs-prior-year-calendar-ytd/v1",
+    "comparisonMethodLabel": "Campaña año calendario (YTD) vs mismo rango año anterior",
+    "campaign": {
+      "totalPrecipitationMm": 45.2,
+      "daysIncluded": 238,
+      "periodStart": "2026-01-01",
+      "periodEnd": "2026-08-26"
+    },
+    "reference": {
+      "totalPrecipitationMm": 38.7,
+      "daysIncluded": 238,
+      "periodStart": "2025-01-01",
+      "periodEnd": "2025-08-26"
+    },
+    "deltaMm": 6.5,
+    "deltaPercent": 16.8,
+    "evidence": {
+      "sourceId": "offline-nasa-power-synthetic",
+      "sourceLabel": "NASA POWER (offline fixture)",
+      "validFrom": "2026-01-01",
+      "validTo": "2026-08-26",
+      "timezone": "America/Lima",
+      "spatialScope": {
+        "kind": "point",
+        "latitude": -11.95,
+        "longitude": -77.05,
+        "label": "parcel-lima-norte-001"
+      },
+      "freshnessStatus": "fresh",
+      "freshnessPolicy": "campaign_vs_prior_year_calendar_ytd_v1_offline"
+    }
+  }
+]
