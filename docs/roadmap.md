@@ -22,11 +22,13 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 **Estado:** completada (2026-08-26)
 
-- `parcels.geometry` JSONB + centroide lat/lon (ADR-011)
-- Allowlist Weather opcional (vacío = todas las del org)
-- CRUD `POST/PATCH/DELETE /api/parcels`
-- terra-draw en `/app` (crear / editar vértices / eliminar)
-- Tests: 19 passed
+## Fase 5c — UI-3 Marketing LP
+
+**Estado:** completada (2026-08-26)
+
+- LP multi-sección en `/` (problema, Weather, productos, precios, CTA)
+- Precios informativos; subscribe → Clerk Sign up (ADR-012, sin Stripe)
+- Figma `marketing/lp/full`
 
 ## Fase 6 — Traceability discovery
 
@@ -40,16 +42,9 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 | Slice | Contenido |
 |-------|-----------|
-| UI-3 | LP marketing completo + pricing/subscribe |
 | UI-4 | Admin workspace (entitlements UI) |
 | UI-5 | Panel Agro Agent (Plus + LLM) |
-
-## Tracks paralelos
-
-| Track | Estado |
-|-------|--------|
-| Agro Agent (eve scaffold) | Plus gate + `/api/agent/chat` scaffold; LLM pendiente |
-| SENAMHI paid | Stub post gate legal |
+| Billing | Clerk Billing / Stripe post gate legal |
 
 ## Docs por slice (canónico)
 
@@ -59,6 +54,6 @@ Al cerrar cada slice: ADR si aplica, `session-log`, `roadmap`, `figma.md` si UI,
 
 | Gate | Cuándo |
 |------|--------|
-| Legal/Privacy | Antes de SENAMHI live o beta real |
+| Legal/Privacy | Antes de SENAMHI live, beta real o billing |
 | Agro Agent LLM en prod | Después de Plus gate tests |
 | Remoto GitHub | `agro-ai-cursor` |

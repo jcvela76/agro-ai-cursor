@@ -39,6 +39,7 @@ Código espejo: CSS variables en `src/app/globals.css` + atoms en `src/ui/`.
 | Frame | Spec | Estado |
 |-------|------|--------|
 | `marketing/lp/weather-gate` | LP pública + CTA Clerk | UI-1 high-fi |
+| `marketing/lp/full` | LP marketing + precios informativos | UI-3 high-fi |
 | `app/map-shell/default` | Mapa fullscreen + chrome | UI-1 high-fi |
 | `app/map-shell/draw` | Dibujar/guardar polígono | UI-2 high-fi |
 | `weather/panel-observation` | WA-01 | UI-1 high-fi |
