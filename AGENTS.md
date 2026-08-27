@@ -72,8 +72,8 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 
 - eve init (diferido post UI-5; ADR-014)
 - Re-evaluar model path (ADR-015): Gateway vs OpenAI key directa vs Bedrock / eve
-- Billing real (Clerk Billing / Stripe) post gate legal
-- SENAMHI paid stub post gate legal
+- Cobro Billing **live** en Production (checklist `docs/ops/billing.md`; sandbox Billing-1 hecho)
+- SENAMHI paid stub (slice 2; detrás de entitlement)
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -382,6 +382,10 @@ export default function Home() {
               definidas. El acceso piloto es completamente gratuito. No se requiere
               tarjeta de crédito ni compromiso de contratación.
             </p>
+            <p className={styles.pricingNotice}>
+              Sandbox (stg): admins del workspace pueden abrir{" "}
+              <a href="/app/billing">planes de prueba</a> sin cobro live en Perú.
+            </p>
           </div>
 
           <div className={styles.priceGrid}>

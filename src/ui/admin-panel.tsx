@@ -155,6 +155,23 @@ export function AdminPanel() {
       {settings ? (
         <>
           <section className={styles.section}>
+            <h2>Suscripción</h2>
+            <p className={styles.muted}>
+              Plan sincronizado por Clerk Billing (webhook). Override manual de entitlements
+              sigue disponible abajo (ops).
+            </p>
+            <p className={styles.muted}>
+              Plan actual:{" "}
+              <strong>{settings.billingPlanSlug ?? "— (sin sync aún)"}</strong>
+            </p>
+            <p>
+              <Link className={styles.back} href="/app/billing">
+                Gestionar suscripción →
+              </Link>
+            </p>
+          </section>
+
+          <section className={styles.section}>
             <h2>Entitlements</h2>
             <p className={styles.muted}>
               Productos activos en el metadata público de la organización Clerk.

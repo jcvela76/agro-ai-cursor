@@ -3,6 +3,8 @@ import type { ProductEntitlement } from "@/domain/auth/authorize-weather-access"
 export interface WorkspaceSettings {
   entitlements: ProductEntitlement[];
   authorizedParcelIds: string[];
+  /** Clerk Billing plan slug last synced via webhook (ADR-030). */
+  billingPlanSlug?: string | null;
 }
 
 export interface OrgMetadataStore {

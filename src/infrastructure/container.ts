@@ -4,6 +4,7 @@ import {
   DeleteOrgParcel,
   UpdateOrgParcel,
 } from "@/application/parcel/mutate-org-parcels";
+import { SyncOrgBillingEntitlements } from "@/application/billing/sync-org-billing-entitlements";
 import {
   GetWorkspaceSettings,
   UpdateWorkspaceSettings,
@@ -91,6 +92,7 @@ export function createOrgMetadataStore(): OrgMetadataStore {
 const orgMetadataStore = createOrgMetadataStore();
 export const getWorkspaceSettings = new GetWorkspaceSettings(orgMetadataStore);
 export const updateWorkspaceSettings = new UpdateWorkspaceSettings(orgMetadataStore);
+export const syncOrgBillingEntitlements = new SyncOrgBillingEntitlements(orgMetadataStore);
 
 export function createWeatherSource(
   mode = process.env.WEATHER_SOURCE ?? "offline",

@@ -21,9 +21,11 @@ export class UpdateWorkspaceSettings {
     entitlements: unknown;
     authorizedParcelIds: unknown;
   }): Promise<WorkspaceSettings> {
+    const current = await this.store.getPublicMetadata(input.orgId);
     const settings: WorkspaceSettings = {
       entitlements: normalizeEntitlements(input.entitlements),
       authorizedParcelIds: normalizeParcelIds(input.authorizedParcelIds),
+      billingPlanSlug: current.billingPlanSlug ?? null,
     };
     return this.store.setWorkspaceSettings(input.orgId, settings);
   }

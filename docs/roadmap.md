@@ -138,7 +138,8 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 |-------|-----------|
 | LP marketing | **Live** en `geoagro.ai` (`main`); staging `stg.geoagro.ai` |
 | Clerk prod keys | **Hecho 2026-08-27** — apex `pk_live_` / FAPI `clerk.geoagro.ai`; Preview/stg siguen `pk_test_`. Ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md) |
-| Billing | Clerk Billing / Stripe post gate legal |
+| Billing-1 | **Hecho 2026-08-27** — Clerk Billing sandbox + webhook → entitlements; ops `docs/ops/billing.md` (ADR-030). Cobro live Production diferido |
+| SENAMHI-1 stub | Adaptador paid offline detrás de entitlement (`WEATHER_SOURCE=senamhi_stub`); live post contrato |
 
 ## Docs por slice (canónico)
 
@@ -148,6 +149,6 @@ ADR si aplica, `session-log`, `roadmap`, `figma.md` si UI, `AGENTS`, **commit + 
 
 | Gate | Cuándo |
 |------|--------|
-| Legal/Privacy | Antes de SENAMHI live, beta real o billing |
+| Legal/Privacy | Antes de SENAMHI live, beta real o **cobro Billing live** (sandbox OK; ver checklist en ops/billing.md) |
 | Agro Agent LLM en prod | Después de Plus gate tests |
 | Remoto GitHub | `agro-ai-cursor` |

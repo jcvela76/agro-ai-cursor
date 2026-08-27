@@ -11,10 +11,7 @@ export class ClerkOrgMetadataStore implements OrgMetadataStore {
     const client = await clerkClient();
     const org = await client.organizations.getOrganization({ organizationId: orgId });
     const metadata = org.publicMetadata ?? {};
-    return {
-      entitlements: normalizeEntitlements(metadata.entitlements),
-      authorizedParcelIds: normalizeParcelIds(metadata.authorizedParcelIds),
-    };
+    return readWorkspaceSettings(metadata);
   }
 
   async setWorkspaceSettings(orgId: string, settings: WorkspaceSettings): Promise<WorkspaceSettings> {
@@ -26,14 +23,20 @@ export class ClerkOrgMetadataStore implements OrgMetadataStore {
         ...existing,
         entitlements: settings.entitlements,
         authorizedParcelIds: settings.authorizedParcelIds,
+        billingPlanSlug: settings.billingPlanSlug ?? existing.billingPlanSlug ?? null,
       },
     });
-    const metadata = org.publicMetadata ?? {};
-    return {
-      entitlements: normalizeEntitlements(metadata.entitlements),
-      authorizedParcelIds: normalizeParcelIds(metadata.authorizedParcelIds),
-    };
+    return readWorkspaceSettings(org.publicMetadata ?? {});
   }
+}
+
+function readWorkspaceSettings(metadata: Record<string, unknown>): WorkspaceSettings {
+  const slug = metadata.billingPlanSlug;
+  return {
+    entitlements: normalizeEntitlements(metadata.entitlements),
+    authorizedParcelIds: normalizeParcelIds(metadata.authorizedParcelIds),
+    billingPlanSlug: typeof slug === "string" ? slug : slug === null ? null : undefined,
+  };
 }
 
 /** In-memory store for tests. */
@@ -46,6 +49,7 @@ export class MemoryOrgMetadataStore implements OrgMetadataStore {
         this.byOrg.set(orgId, {
           entitlements: [...settings.entitlements],
           authorizedParcelIds: [...settings.authorizedParcelIds],
+          billingPlanSlug: settings.billingPlanSlug ?? null,
         });
       }
     }
@@ -56,6 +60,7 @@ export class MemoryOrgMetadataStore implements OrgMetadataStore {
       this.byOrg.get(orgId) ?? {
         entitlements: [],
         authorizedParcelIds: [],
+        billingPlanSlug: null,
       }
     );
   }
@@ -64,6 +69,7 @@ export class MemoryOrgMetadataStore implements OrgMetadataStore {
     const next = {
       entitlements: [...settings.entitlements],
       authorizedParcelIds: [...settings.authorizedParcelIds],
+      billingPlanSlug: settings.billingPlanSlug ?? null,
     };
     this.byOrg.set(orgId, next);
     return next;
