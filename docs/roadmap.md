@@ -136,7 +136,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 | Slice | Contenido |
 |-------|-----------|
-| LP marketing + coming soon | Dominio Vercel; landing pública antes de go-live |
+| LP marketing (stg) | Rama `stg` + LP descriptiva + `stg.geoagro.ai`; apex `geoagro.ai` al promote a `main` |
 | Clerk prod keys | **Diferido post-LP** — ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md). Hoy Vercel sigue en instancia Development |
 | Billing | Clerk Billing / Stripe post gate legal |
 

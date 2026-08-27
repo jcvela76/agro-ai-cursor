@@ -89,17 +89,19 @@ export default async function Home() {
         </header>
 
         <div className={`${styles.heroCopy} ${styles.reveal}`}>
+          <p className={styles.statusLine}>Pronto en producción</p>
           <h1 className={styles.headline}>Clima confiable para tu parcela exacta</h1>
           <p className={styles.support}>
             Observación y pronóstico con fuente, frescura y alcance espacial
-            explícitos. Sin inventar datos cuando la evidencia falta.
+            explícitos. Sin inventar datos cuando la evidencia falta. Mercado
+            inicial: Perú.
           </p>
           <div className={styles.actions}>
-            <Link className={styles.cta} href="/sign-up">
-              Empezar
+            <Link className={styles.cta} href="/sign-in">
+              Acceso piloto
             </Link>
-            <Link className={styles.ghostOnDark} href="/sign-in">
-              Ya tengo workspace
+            <Link className={styles.ghostOnDark} href="/sign-up">
+              Crear cuenta
             </Link>
           </div>
         </div>
@@ -152,7 +154,7 @@ export default async function Home() {
             <article className={styles.product}>
               <h3>Agronomic Review</h3>
               <p>Decisiones humanas append-only sobre la evidencia acumulada.</p>
-              <span className={styles.tag}>Futuro</span>
+              <span className={styles.tag}>Disponible · piloto</span>
             </article>
           </div>
         </section>
@@ -170,8 +172,8 @@ export default async function Home() {
                 Al crear workspace con entitlement Weather. Mapa, parcelas y
                 evidencia climática.
               </p>
-              <Link className={styles.cta} href="/sign-up">
-                Crear cuenta
+              <Link className={styles.cta} href="/sign-in">
+                Acceso piloto
               </Link>
             </article>
             <article className={styles.price}>
@@ -181,44 +183,46 @@ export default async function Home() {
                 Add-on conversacional activo en orgs con entitlement. Cobro real
                 en un release posterior.
               </p>
-              <Link className={styles.ghost} href="/sign-up">
-                Crear cuenta
+              <Link className={styles.ghost} href="/sign-in">
+                Acceso piloto
               </Link>
             </article>
             <article className={styles.price}>
               <h3>Traceability · Review</h3>
-              <p className={styles.priceAmount}>Piloto / futuro</p>
+              <p className={styles.priceAmount}>Piloto</p>
               <p className={styles.priceDetail}>
-                Traceability en piloto coffee. Review fuera de este release. Sin
-                cobro aún.
+                Traceability coffee/EUDR y Review append-only activos en piloto.
+                Sin cobro aún.
               </p>
             </article>
           </div>
           <p className={styles.disclaimer}>
-            Los precios mostrados son informativos. La suscripción actual abre un
-            workspace vía Clerk; no procesamos pagos en esta página.
+            Precios informativos. No constituyen oferta comercial. El acceso
+            actual es piloto vía Clerk; no procesamos pagos en esta página. La
+            producción pública estará disponible pronto.
           </p>
         </section>
 
         <section className={`${styles.closing} ${styles.reveal}`}>
-          <h2 className={styles.sectionTitle}>Empieza con tu primera parcela</h2>
+          <h2 className={styles.sectionTitle}>Pronto en producción</h2>
           <p className={styles.sectionBody}>
-            Crea la cuenta, activa el workspace y dibuja el lote. El clima llega
-            con evidencia, no con promesas.
+            Agro AI ya opera en piloto con parcelas, clima, Plus, trazabilidad y
+            revisión agronómica. La apertura pública llegará pronto — mientras
+            tanto, los workspaces invitados pueden entrar.
           </p>
           <div className={styles.actions}>
-            <Link className={styles.cta} href="/sign-up">
-              Suscribirse
+            <Link className={styles.cta} href="/sign-in">
+              Acceso piloto
             </Link>
-            <Link className={styles.ghost} href="/sign-in">
-              Entrar
+            <Link className={styles.ghost} href="/sign-up">
+              Crear cuenta
             </Link>
           </div>
         </section>
 
         <footer className={styles.footer}>
           <span>Agro AI</span>
-          <span>Mercado inicial: Perú</span>
+          <span>Mercado inicial: Perú · Pronto en producción</span>
         </footer>
       </div>
     </main>

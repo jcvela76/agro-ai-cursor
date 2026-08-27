@@ -32,6 +32,8 @@ Instancia Development ≠ Production. Usuarios/orgs/metadata de Lima Coffee vive
 
 ## Bloqueo / defer
 
-**Diferido post-LP (2026-08-27):** no activar Production ni DNS Clerk hasta LP marketing / coming soon en el dominio Vercel. Seguir con Development (`pk_test_` / `sk_test_`) en local y Vercel.
+**Diferido post-LP (2026-08-27):** no activar Production ni DNS Clerk hasta LP marketing en dominio canónico. Seguir con Development (`pk_test_` / `sk_test_`) en local y Vercel.
 
-Cuando retomar: pasos 1–7 arriba + recrear Lima Coffee en instancia live.
+**Staging:** host de prueba = `https://stg.geoagro.ai` (rama `stg`). Apex `geoagro.ai` solo tras promote a `main`. Ver [staging-domain.md](staging-domain.md).
+
+Cuando retomar: pasos 1–7 arriba + recrear Lima Coffee en instancia live. Dominio producción previsto: `geoagro.ai`.
