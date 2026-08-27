@@ -1,0 +1,154 @@
+import type { ParcelRegistry } from "@/domain/parcel/types";
+import type {
+  WeatherForecast,
+  WeatherObservation,
+  WeatherResult,
+  WeatherSource,
+} from "@/domain/weather/types";
+import type { FetchFn } from "@/infrastructure/weather/open-meteo-weather-source";
+
+interface NasaPowerResponse {
+  properties?: {
+    parameter?: {
+      T2M?: Record<string, number>;
+      PRECTOTCORR?: Record<string, number>;
+    };
+  };
+  header?: {
+    fill_value?: number;
+  };
+}
+
+function isNasaPowerResponse(payload: unknown): payload is NasaPowerResponse {
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+  const parameter = (payload as NasaPowerResponse).properties?.parameter;
+  return Boolean(parameter && typeof parameter === "object");
+}
+
+function formatYmd(date: Date): string {
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(date.getUTCDate()).padStart(2, "0");
+  return `${y}${m}${d}`;
+}
+
+function parseYmdToIso(ymd: string): string {
+  const year = ymd.slice(0, 4);
+  const month = ymd.slice(4, 6);
+  const day = ymd.slice(6, 8);
+  return `${year}-${month}-${day}T12:00:00`;
+}
+
+/** NASA POWER free daily observation adapter. Forecast is not provided by this source. */
+export class NasaPowerWeatherSource implements WeatherSource {
+  constructor(
+    private readonly parcels: ParcelRegistry,
+    private readonly fetchFn: FetchFn = fetch,
+    private readonly baseUrl = "https://power.larc.nasa.gov/api/temporal/daily/point",
+    private readonly now: () => Date = () => new Date(),
+  ) {}
+
+  async getForecast(): Promise<WeatherResult<WeatherForecast>> {
+    return {
+      ok: false,
+      reason: "unavailable",
+      message: "NASA POWER adapter does not provide forecasts in this release.",
+    };
+  }
+
+  async getObservation(parcelId: string): Promise<WeatherResult<WeatherObservation>> {
+    const parcel = this.parcels.getParcel(parcelId);
+    if (!parcel) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No observation fixture exists for this parcel.",
+      };
+    }
+
+    const end = this.now();
+    const start = new Date(end);
+    start.setUTCDate(start.getUTCDate() - 3);
+
+    const url = new URL(this.baseUrl);
+    url.searchParams.set("parameters", "T2M,PRECTOTCORR");
+    url.searchParams.set("community", "AG");
+    url.searchParams.set("longitude", String(parcel.longitude));
+    url.searchParams.set("latitude", String(parcel.latitude));
+    url.searchParams.set("start", formatYmd(start));
+    url.searchParams.set("end", formatYmd(end));
+    url.searchParams.set("format", "JSON");
+
+    let payload: unknown;
+    try {
+      const response = await this.fetchFn(url.toString());
+      if (!response.ok) {
+        return {
+          ok: false,
+          reason: "internal_error",
+          message: "Weather provider request failed.",
+        };
+      }
+      payload = await response.json();
+    } catch {
+      return {
+        ok: false,
+        reason: "internal_error",
+        message: "Weather provider request failed.",
+      };
+    }
+
+    if (!isNasaPowerResponse(payload)) {
+      return {
+        ok: false,
+        reason: "internal_error",
+        message: "Weather provider returned an unexpected payload.",
+      };
+    }
+
+    const fillValue = payload.header?.fill_value ?? -999;
+    const temps = payload.properties?.parameter?.T2M ?? {};
+    const precips = payload.properties?.parameter?.PRECTOTCORR ?? {};
+    const dates = Object.keys(temps)
+      .filter((key) => {
+        const t = temps[key];
+        const p = precips[key];
+        return typeof t === "number" && t !== fillValue && typeof p === "number" && p !== fillValue;
+      })
+      .sort();
+
+    const latest = dates[dates.length - 1];
+    if (!latest) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No observation available for this parcel.",
+      };
+    }
+
+    return {
+      ok: true,
+      data: {
+        kind: "observation",
+        temperatureCelsius: temps[latest],
+        precipitationMm: precips[latest],
+        evidence: {
+          sourceId: "nasa-power",
+          sourceLabel: "NASA POWER",
+          observedAt: parseYmdToIso(latest),
+          timezone: parcel.timezone,
+          spatialScope: {
+            kind: "point",
+            latitude: parcel.latitude,
+            longitude: parcel.longitude,
+            label: parcel.id,
+          },
+          freshnessStatus: "fresh",
+          freshnessPolicy: "observation_max_age_24h",
+        },
+      },
+    };
+  }
+}
