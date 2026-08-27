@@ -7,6 +7,7 @@ import type {
   TraceLotRegistry,
   TraceLotView,
   ParcelLink,
+  UpdateTraceLotEudrInput,
 } from "@/domain/traceability/types";
 import fixture from "@/infrastructure/fixtures/trace-lots-coffee.json";
 
@@ -86,6 +87,30 @@ export class OfflineTraceLotRegistry implements TraceLotRegistry {
       lot.status = "exported";
     }
 
+    return this.toView(lot);
+  }
+
+  async updateLotEudr(input: UpdateTraceLotEudrInput): Promise<TraceLotView> {
+    const lot = this.lots.find((l) => l.id === input.lotId);
+    if (!lot) {
+      throw new Error(`Lot not found: ${input.lotId}`);
+    }
+    if (input.producerName !== undefined) {
+      lot.producerName = input.producerName;
+    }
+    if (input.countryOfProduction !== undefined) {
+      lot.countryOfProduction = input.countryOfProduction;
+    }
+    if (input.productionEndDate !== undefined) {
+      if (input.productionEndDate === null) {
+        delete lot.productionEndDate;
+      } else {
+        lot.productionEndDate = input.productionEndDate;
+      }
+    }
+    if (input.deforestationFreeDeclared !== undefined) {
+      lot.deforestationFreeDeclared = input.deforestationFreeDeclared;
+    }
     return this.toView(lot);
   }
 

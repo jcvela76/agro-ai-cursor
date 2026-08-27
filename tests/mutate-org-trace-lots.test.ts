@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   AppendOrgTraceEvent,
   CreateOrgTraceLot,
+  UpdateOrgTraceLotEudr,
 } from "@/application/traceability/mutate-org-trace-lots";
 import { evaluateEudrExportReadiness } from "@/domain/traceability/types";
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
@@ -176,11 +177,57 @@ describe("Trace-2/4: mutate org trace lots + EUDR", () => {
     }
   });
 
-  it("fixture lot A is EUDR-ready for export", () => {
+  it("updates EUDR fields on draft lot", async () => {
     const registry = new OfflineTraceLotRegistry();
-    return registry.getLotView("lot-lima-coffee-2026-a").then((view) => {
-      expect(view).toBeDefined();
-      expect(evaluateEudrExportReadiness(view!).ok).toBe(true);
+    const update = new UpdateOrgTraceLotEudr(registry);
+    const result = await update.execute({
+      authority: entitled,
+      orgId,
+      lotId: "lot-lima-coffee-2026-b",
+      productionEndDate: "2026-07-01",
+      deforestationFreeDeclared: true,
     });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.lot.productionEndDate).toBe("2026-07-01");
+      expect(result.data.lot.deforestationFreeDeclared).toBe(true);
+      expect(evaluateEudrExportReadiness(result.data).ok).toBe(true);
+    }
+  });
+
+  it("rejects EUDR update after export", async () => {
+    const registry = new OfflineTraceLotRegistry();
+    const create = new CreateOrgTraceLot(registry, new SyntheticParcelRegistry());
+    const append = new AppendOrgTraceEvent(registry);
+    const update = new UpdateOrgTraceLotEudr(registry);
+    const created = await create.execute({
+      authority: entitled,
+      orgId,
+      name: "Lote lock",
+      harvestSeason: "2026",
+      producerName: "Prod",
+      productionEndDate: "2026-07-01",
+      deforestationFreeDeclared: true,
+      parcelId: "parcel-lima-norte-001",
+    });
+    expect(created.ok).toBe(true);
+    if (!created.ok) return;
+    await append.execute({
+      authority: entitled,
+      orgId,
+      lotId: created.data.lot.id,
+      eventType: "exported",
+      occurredAt: "2026-08-01T12:00:00-05:00",
+    });
+    const locked = await update.execute({
+      authority: entitled,
+      orgId,
+      lotId: created.data.lot.id,
+      producerName: "Other",
+    });
+    expect(locked.ok).toBe(false);
+    if (!locked.ok) {
+      expect(locked.reason).toBe("invalid_input");
+    }
   });
 });

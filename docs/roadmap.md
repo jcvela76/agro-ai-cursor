@@ -68,7 +68,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 ## Fase 6 — Traceability discovery
 
-**Estado:** Fase 6d (Trace-4) completada (2026-08-27)
+**Estado:** Fase 6e (hygiene) completada (2026-08-27)
 
 ### Fase 6a — Trace-1 Lot Core
 
@@ -101,7 +101,13 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - UI create con campos EUDR; ADR-024; docs/traceability/eudr-field-catalog.md
 - Tests 72+ total
 
-### Fase 6e — siguiente
+### Fase 6e — Hygiene Lima Coffee
+
+- Cleanup smoke parcels/lots (`db:cleanup:lima-smoke`)
+- `PATCH /api/trace/lots/[lotId]` Completar EUDR en no-exportados
+- Docs `hygiene-lima-coffee.md`
+
+### Fase 6f — siguiente
 
 - Ops / Review / billing según prioridad
 

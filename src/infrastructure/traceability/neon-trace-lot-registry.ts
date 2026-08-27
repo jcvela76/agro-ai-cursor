@@ -8,6 +8,7 @@ import type {
   TraceLotRegistry,
   TraceLotView,
   ParcelLink,
+  UpdateTraceLotEudrInput,
 } from "@/domain/traceability/types";
 import type { Db } from "@/infrastructure/db/client";
 import { traceEvents, traceLots, traceParcelLinks } from "@/infrastructure/db/schema";
@@ -98,6 +99,45 @@ export class NeonTraceLotRegistry implements TraceLotRegistry {
     const view = await this.getLotView(input.lotId);
     if (!view) {
       throw new Error(`Lot not found after append: ${input.lotId}`);
+    }
+    return view;
+  }
+
+  async updateLotEudr(input: UpdateTraceLotEudrInput): Promise<TraceLotView> {
+    const existing = await this.getLotView(input.lotId);
+    if (!existing) {
+      throw new Error(`Lot not found: ${input.lotId}`);
+    }
+
+    const patch: {
+      producerName?: string;
+      countryOfProduction?: string;
+      productionEndDate?: string | null;
+      deforestationFreeDeclared?: boolean;
+    } = {};
+    if (input.producerName !== undefined) {
+      patch.producerName = input.producerName;
+    }
+    if (input.countryOfProduction !== undefined) {
+      patch.countryOfProduction = input.countryOfProduction;
+    }
+    if (input.productionEndDate !== undefined) {
+      patch.productionEndDate = input.productionEndDate;
+    }
+    if (input.deforestationFreeDeclared !== undefined) {
+      patch.deforestationFreeDeclared = input.deforestationFreeDeclared;
+    }
+
+    if (Object.keys(patch).length > 0) {
+      await this.db
+        .update(traceLots)
+        .set(patch)
+        .where(eq(traceLots.id, input.lotId));
+    }
+
+    const view = await this.getLotView(input.lotId);
+    if (!view) {
+      throw new Error(`Lot not found after EUDR update: ${input.lotId}`);
     }
     return view;
   }

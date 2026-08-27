@@ -212,3 +212,107 @@ export class AppendOrgTraceEvent {
     return { ok: true, data };
   }
 }
+
+export class UpdateOrgTraceLotEudr {
+  constructor(private readonly lots: TraceLotRegistry) {}
+
+  async execute(input: {
+    authority: AccessSnapshot | null | undefined;
+    orgId: string | null | undefined;
+    lotId: string;
+    producerName?: string;
+    countryOfProduction?: string;
+    productionEndDate?: string | null;
+    deforestationFreeDeclared?: boolean;
+  }): Promise<TraceMutationResult> {
+    const access = authorizeTraceabilityAccess(input.authority);
+    if (!access.ok) {
+      return {
+        ok: false,
+        reason: access.reason,
+        message: "Traceability data is not available for this request.",
+      };
+    }
+
+    const orgId = input.orgId ?? input.authority!.orgId;
+    if (!orgId || input.authority!.orgId !== orgId) {
+      return {
+        ok: false,
+        reason: "no_org",
+        message: "Traceability data is not available for this request.",
+      };
+    }
+
+    const existing = await this.lots.getLotView(input.lotId);
+    if (!existing || existing.lot.orgId !== orgId) {
+      return {
+        ok: false,
+        reason: "not_found",
+        message: "Lot is not available",
+      };
+    }
+
+    if (existing.lot.status === "exported") {
+      return {
+        ok: false,
+        reason: "invalid_input",
+        message: "EUDR fields cannot be changed after export",
+      };
+    }
+
+    const patch: {
+      lotId: string;
+      producerName?: string;
+      countryOfProduction?: string;
+      productionEndDate?: string | null;
+      deforestationFreeDeclared?: boolean;
+    } = { lotId: input.lotId };
+
+    if (input.producerName !== undefined) {
+      const producerName = input.producerName.trim();
+      if (!producerName) {
+        return {
+          ok: false,
+          reason: "invalid_input",
+          message: "producerName is required when provided",
+        };
+      }
+      patch.producerName = producerName;
+    }
+
+    if (input.countryOfProduction !== undefined) {
+      const country = input.countryOfProduction.trim().toUpperCase();
+      if (!isIsoCountryCode(country)) {
+        return {
+          ok: false,
+          reason: "invalid_input",
+          message: "countryOfProduction must be an ISO 3166-1 alpha-2 code",
+        };
+      }
+      patch.countryOfProduction = country;
+    }
+
+    if (input.productionEndDate !== undefined) {
+      if (input.productionEndDate === null || input.productionEndDate === "") {
+        patch.productionEndDate = null;
+      } else {
+        const date = input.productionEndDate.trim();
+        if (!isIsoDateOnly(date)) {
+          return {
+            ok: false,
+            reason: "invalid_input",
+            message: "productionEndDate must be YYYY-MM-DD",
+          };
+        }
+        patch.productionEndDate = date;
+      }
+    }
+
+    if (input.deforestationFreeDeclared !== undefined) {
+      patch.deforestationFreeDeclared = Boolean(input.deforestationFreeDeclared);
+    }
+
+    const data = await this.lots.updateLotEudr(patch);
+    return { ok: true, data };
+  }
+}

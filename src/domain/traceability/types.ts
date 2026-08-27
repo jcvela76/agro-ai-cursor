@@ -121,9 +121,19 @@ export function evaluateEudrExportReadiness(
   return missing.length === 0 ? { ok: true } : { ok: false, missing };
 }
 
+export interface UpdateTraceLotEudrInput {
+  lotId: string;
+  producerName?: string;
+  countryOfProduction?: string;
+  /** Pass null to clear. */
+  productionEndDate?: string | null;
+  deforestationFreeDeclared?: boolean;
+}
+
 export interface TraceLotRegistry {
   listLotsByOrg(orgId: string): Promise<TraceLotView[]>;
   getLotView(lotId: string): Promise<TraceLotView | undefined>;
   createLot(input: CreateTraceLotInput): Promise<TraceLotView>;
   appendEvent(input: AppendTraceEventInput): Promise<TraceLotView>;
+  updateLotEudr(input: UpdateTraceLotEudrInput): Promise<TraceLotView>;
 }

@@ -18,6 +18,7 @@ import { ListOrgTraceLots } from "@/application/traceability/list-org-trace-lots
 import {
   AppendOrgTraceEvent,
   CreateOrgTraceLot,
+  UpdateOrgTraceLotEudr,
 } from "@/application/traceability/mutate-org-trace-lots";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
@@ -132,6 +133,7 @@ export const createOrgTraceLot = new CreateOrgTraceLot(
   parcelRegistry,
 );
 export const appendOrgTraceEvent = new AppendOrgTraceEvent(traceLotRegistry);
+export const updateOrgTraceLotEudr = new UpdateOrgTraceLotEudr(traceLotRegistry);
 
 export function createAccessResolver(): AccessResolver {
   if (process.env.CLERK_SECRET_KEY) {

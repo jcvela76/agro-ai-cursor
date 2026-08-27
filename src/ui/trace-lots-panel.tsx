@@ -56,6 +56,11 @@ export function TraceLotsPanel({
   const [deforestationFreeDeclared, setDeforestationFreeDeclared] = useState(false);
   const [linkParcel, setLinkParcel] = useState(true);
   const [eventLotId, setEventLotId] = useState<string | null>(null);
+  const [eudrLotId, setEudrLotId] = useState<string | null>(null);
+  const [editProducer, setEditProducer] = useState("");
+  const [editCountry, setEditCountry] = useState("PE");
+  const [editEndDate, setEditEndDate] = useState("");
+  const [editDeforestFree, setEditDeforestFree] = useState(false);
   const [eventType, setEventType] = useState<TraceEventType>("planted");
   const [eventDate, setEventDate] = useState(todayDateInput);
   const [evidenceRef, setEvidenceRef] = useState("");
@@ -176,6 +181,46 @@ export function TraceLotsPanel({
       });
     } catch {
       setFormError("No se pudo añadir el evento.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveEudr = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!eudrLotId) return;
+    setFormError(null);
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/trace/lots/${eudrLotId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          producerName: editProducer,
+          countryOfProduction: editCountry,
+          productionEndDate: editEndDate || null,
+          deforestationFreeDeclared: editDeforestFree,
+        }),
+      });
+      const json = (await res.json()) as {
+        status: string;
+        message?: string;
+        data?: TraceLotView;
+      };
+      if (!res.ok || json.status !== "OK" || !json.data) {
+        setFormError(json.message ?? "No se pudo actualizar EUDR.");
+        return;
+      }
+      setEudrLotId(null);
+      setState((prev) => {
+        if (prev.kind !== "ok") return prev;
+        return {
+          kind: "ok",
+          lots: prev.lots.map((v) => (v.lot.id === json.data!.lot.id ? json.data! : v)),
+        };
+      });
+    } catch {
+      setFormError("No se pudo actualizar EUDR.");
     } finally {
       setBusy(false);
     }
@@ -308,7 +353,9 @@ export function TraceLotsPanel({
           {state.lots.map((view) => {
             const linkedHere = view.parcelLinks.some((l) => l.parcelId === parcelId);
             const adding = eventLotId === view.lot.id;
+            const editingEudr = eudrLotId === view.lot.id;
             const eudr = evaluateEudrExportReadiness(view);
+            const canEditEudr = view.lot.status !== "exported";
             return (
               <li
                 key={view.lot.id}
@@ -348,6 +395,64 @@ export function TraceLotsPanel({
                 ) : (
                   <p className={styles.muted}>Sin eventos</p>
                 )}
+
+                {editingEudr ? (
+                  <form className={styles.eventForm} onSubmit={saveEudr}>
+                    <p className={styles.formTitle}>Completar EUDR</p>
+                    <label className={styles.field}>
+                      Productor
+                      <input
+                        value={editProducer}
+                        onChange={(ev) => setEditProducer(ev.target.value)}
+                        required
+                        maxLength={120}
+                        disabled={busy}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      País
+                      <input
+                        value={editCountry}
+                        onChange={(ev) => setEditCountry(ev.target.value.toUpperCase())}
+                        required
+                        maxLength={2}
+                        minLength={2}
+                        disabled={busy}
+                      />
+                    </label>
+                    <label className={styles.field}>
+                      Fin de producción
+                      <input
+                        type="date"
+                        value={editEndDate}
+                        onChange={(ev) => setEditEndDate(ev.target.value)}
+                        disabled={busy}
+                      />
+                    </label>
+                    <label className={styles.check}>
+                      <input
+                        type="checkbox"
+                        checked={editDeforestFree}
+                        onChange={(ev) => setEditDeforestFree(ev.target.checked)}
+                        disabled={busy}
+                      />
+                      Declaro libre de deforestación
+                    </label>
+                    <div className={styles.formActions}>
+                      <Button type="submit" disabled={busy || !editProducer.trim()}>
+                        Guardar EUDR
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        disabled={busy}
+                        onClick={() => setEudrLotId(null)}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </form>
+                ) : null}
 
                 {adding ? (
                   <form className={styles.eventForm} onSubmit={appendEvent}>
@@ -402,20 +507,43 @@ export function TraceLotsPanel({
                     </div>
                   </form>
                 ) : (
-                  <button
-                    type="button"
-                    className={styles.linkBtn}
-                    disabled={busy}
-                    onClick={() => {
-                      setFormError(null);
-                      setEventLotId(view.lot.id);
-                      setEventType("planted");
-                      setEventDate(todayDateInput());
-                      setEvidenceRef("");
-                    }}
-                  >
-                    Añadir evento
-                  </button>
+                  <div className={styles.formActions}>
+                    {canEditEudr && !eudr.ok && !editingEudr ? (
+                      <button
+                        type="button"
+                        className={styles.linkBtn}
+                        disabled={busy}
+                        onClick={() => {
+                          setFormError(null);
+                          setEventLotId(null);
+                          setEudrLotId(view.lot.id);
+                          setEditProducer(view.lot.producerName);
+                          setEditCountry(view.lot.countryOfProduction || "PE");
+                          setEditEndDate(view.lot.productionEndDate ?? "");
+                          setEditDeforestFree(view.lot.deforestationFreeDeclared);
+                        }}
+                      >
+                        Completar EUDR
+                      </button>
+                    ) : null}
+                    {!editingEudr ? (
+                      <button
+                        type="button"
+                        className={styles.linkBtn}
+                        disabled={busy}
+                        onClick={() => {
+                          setFormError(null);
+                          setEudrLotId(null);
+                          setEventLotId(view.lot.id);
+                          setEventType("planted");
+                          setEventDate(todayDateInput());
+                          setEvidenceRef("");
+                        }}
+                      >
+                        Añadir evento
+                      </button>
+                    ) : null}
+                  </div>
                 )}
               </li>
             );
