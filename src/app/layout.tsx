@@ -17,7 +17,7 @@ const sourceSans = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: "Agro AI",
-  description: "Clima confiable para tu parcela exacta",
+  description: "El clima exacto de tu parcela. Lista de espera para el piloto en Perú.",
 };
 
 export default function RootLayout({
