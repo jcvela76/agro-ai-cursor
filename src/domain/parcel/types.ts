@@ -9,4 +9,5 @@ export interface Parcel {
 
 export interface ParcelRegistry {
   getParcel(parcelId: string): Promise<Parcel | undefined>;
+  listByOrgId(orgId: string): Promise<Parcel[]>;
 }

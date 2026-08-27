@@ -26,6 +26,7 @@ Esas rutas son referencia read-only para producto y lecciones. Toda implementaci
 
 - Nombres de archivos y carpetas: kebab-case
 - Commits: mensajes concisos enfocados en el "por qué"
+- **Cada slice cerrado = un commit + push** (ver `.cursor/rules/slice-commit-push.mdc`)
 - No commitear secretos (.env, credentials, keys)
 - Desarrollo inicial solo con datos sintéticos no-personales
 - Autorización evaluada antes de inspeccionar candidatos de proveedor
@@ -69,9 +70,10 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 
 ## Pendientes conocidos
 
-- Adaptadores Open-Meteo / NASA POWER live (código listo; probar `WEATHER_SOURCE=free` en prod)
-- High-fi Figma / design-to-code UI
-- eve init completo + wiring LLM Agro Agent
+- UI-2 dibujar/editar geometría de parcelas
+- UI-3 LP marketing + pricing/subscribe
+- UI-4 admin workspace
+- eve init completo + wiring LLM Agro Agent (UI-5)
 - SENAMHI paid stub post gate legal
 
 <!-- BEGIN:nextjs-agent-rules -->

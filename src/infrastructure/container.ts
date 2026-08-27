@@ -1,3 +1,4 @@
+import { ListOrgParcels } from "@/application/parcel/list-org-parcels";
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
@@ -20,6 +21,8 @@ export function createParcelRegistry(): ParcelRegistry {
 }
 
 const parcelRegistry = createParcelRegistry();
+
+export const listOrgParcels = new ListOrgParcels(parcelRegistry);
 
 export function createWeatherSource(
   mode = process.env.WEATHER_SOURCE ?? "offline",

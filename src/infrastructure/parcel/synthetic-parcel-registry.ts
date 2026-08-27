@@ -11,4 +11,8 @@ export class SyntheticParcelRegistry implements ParcelRegistry {
   async getParcel(parcelId: string): Promise<Parcel | undefined> {
     return this.parcels.get(parcelId);
   }
+
+  async listByOrgId(orgId: string): Promise<Parcel[]> {
+    return [...this.parcels.values()].filter((p) => p.orgId === orgId);
+  }
 }

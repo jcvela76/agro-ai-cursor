@@ -1,72 +1,65 @@
 # Roadmap
 
-Secuencia simplificada de entrega. Este documento es el plan activo; no hay fases M0/M1/M2 ni packets de evidencia.
+Secuencia simplificada de entrega. Este documento es el plan activo.
 
-## Fase 0 — Contexto y límites
+## Fase 0–2 — Contexto, spec, arquitectura
 
-**Estado:** completada (bootstrap 2026-08-26)
-
-- Product boundary definido
-- Failure lessons documentadas
-- ADR-001 a ADR-003 aceptadas
-
-## Fase 1 — Especificación de producto
-
-**Estado:** completada
-
-- Charter Weather first-release
-- Corpus WQ/WA
-- Non-goals explícitos
-
-## Fase 2 — Arquitectura y stack
-
-**Estado:** completada (2026-08-26)
-
-- ADR-004..008 cerradas (Next.js + Vercel + Clerk + proveedores + eve + Figma)
-- Estructura modular monolith en `src/`
+**Estado:** completadas
 
 ## Fase 3 — Foundation
 
-**Estado:** en curso
+**Estado:** completada
 
 - Next.js + TypeScript + Vitest + CI
-- Remoto GitHub `agro-ai-cursor`
-- Clerk middleware en `/api/*`
+- Remoto GitHub `jcvela76/agro-ai-cursor`
+- Clerk + Neon + Vercel prod
 
-## Fase 4 — Weather MVP
+## Fase 4 — Weather MVP (API)
 
-**Estado:** en curso (slice offline)
+**Estado:** completada (free live)
 
-- Parcelas sintéticas + deny-before-provider
-- Endpoints observation/forecast offline
-- Tests WA-01, WA-03..WA-05, WA-07
-- Pendiente: adaptadores Open-Meteo / NASA POWER live
+- Deny-before-provider + observation/forecast
+- Open-Meteo + NASA POWER (`WEATHER_SOURCE=free`)
+- Tests WA-01, WA-03..05, WA-07, WA-08
 
-## Fase 5 — Traceability discovery
+## Fase 5 — UI-1 Map shell + design system
+
+**Estado:** completada (2026-08-26)
+
+- Figma tokens/atoms + frames LP / map-shell / weather panel
+- `/` LP gate pública; `/app` mapa MapLibre + panel Weather
+- `GET /api/parcels` org-scoped (Parcel Core)
+- Atoms en `src/ui/`
+
+## Fase 6 — Traceability discovery
 
 **Estado:** en curso (paralelo)
 
-- `docs/traceability/discovery.md`
-- Interfaces TypeScript sin runtime
-
-## Fase 6 — Agronomic Review
+## Fase 7 — Agronomic Review
 
 **Estado:** futuro
+
+## UI backlog (post UI-1)
+
+| Slice | Contenido |
+|-------|-----------|
+| UI-2 | Dibujar/editar geometría (GeoJSON + CRUD) |
+| UI-3 | LP marketing completo + pricing/subscribe |
+| UI-4 | Admin workspace (entitlements UI) |
+| UI-5 | Panel Agro Agent (Plus + LLM) |
 
 ## Tracks paralelos
 
 | Track | Estado |
 |-------|--------|
-| Agro Agent (eve scaffold) | Plus gate + `/api/agent/chat` scaffold |
-| Figma UX/UI | `docs/design/figma.md` — archivo pendiente MCP |
-| Proveedores free live | Pendiente sesión 2 |
+| Agro Agent (eve scaffold) | Plus gate + `/api/agent/chat` scaffold; LLM pendiente |
+| SENAMHI paid | Stub post gate legal |
 
 ## Gates transversales
 
 | Gate | Cuándo |
 |------|--------|
 | Legal/Privacy | Antes de SENAMHI live o beta real |
-| Proveedor weather vivo | Después de offline + auth |
 | Agro Agent LLM en prod | Después de Plus gate tests |
-| UI en Next.js | Después de frames Figma aprobados |
+| UI-2 draw | Después de schema geometría |
 | Remoto GitHub | `agro-ai-cursor` |

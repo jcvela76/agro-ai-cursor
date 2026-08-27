@@ -12,6 +12,15 @@ export class NeonParcelRegistry implements ParcelRegistry {
     if (!row) {
       return undefined;
     }
+    return this.toParcel(row);
+  }
+
+  async listByOrgId(orgId: string): Promise<Parcel[]> {
+    const rows = await this.db.select().from(parcels).where(eq(parcels.orgId, orgId));
+    return rows.map((row) => this.toParcel(row));
+  }
+
+  private toParcel(row: typeof parcels.$inferSelect): Parcel {
     return {
       id: row.id,
       orgId: row.orgId,

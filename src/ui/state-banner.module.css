@@ -1,0 +1,28 @@
+.banner {
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-fg-on-dark);
+}
+
+.title {
+  display: block;
+  font-size: 0.875rem;
+}
+
+.detail {
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  opacity: 0.92;
+}
+
+.stale {
+  background: var(--color-status-stale);
+}
+
+.unavailable {
+  background: var(--color-accent-sky);
+}
+
+.error {
+  background: var(--color-status-error);
+}
