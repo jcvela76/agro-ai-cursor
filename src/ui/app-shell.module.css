@@ -35,11 +35,15 @@
   position: absolute;
   top: 4.5rem;
   left: 1rem;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
   max-width: min(20rem, calc(100vw - 2rem));
+  padding: 0.375rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow: var(--shadow-panel);
 }
 
 .panelFooter {

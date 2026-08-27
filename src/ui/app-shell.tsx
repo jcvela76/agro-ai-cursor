@@ -139,6 +139,7 @@ export function AppShell({
   const [draftGeometry, setDraftGeometry] = useState<ParcelGeometry | null>(null);
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [drawReady, setDrawReady] = useState(false);
 
   const selectParcel = useCallback(
     (parcelId: string | null) => {
@@ -200,56 +201,79 @@ export function AppShell({
     map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
     mapRef.current = map;
 
-    map.on("load", () => {
-      const draw = new TerraDraw({
-        adapter: new TerraDrawMapLibreGLAdapter({ map }),
-        modes: [
-          new TerraDrawRenderMode({
-            modeName: "render",
-            styles: {
-              polygonFillColor: "#4F6F52",
-              polygonFillOpacity: 0.2,
-              polygonOutlineColor: "#1C2A1F",
-              polygonOutlineWidth: 2,
-            },
-          }),
-          new TerraDrawPolygonMode(),
-          new TerraDrawSelectMode({
-            flags: {
-              polygon: {
-                feature: {
-                  draggable: true,
-                  coordinates: {
-                    midpoints: true,
+    const initDraw = () => {
+      if (drawRef.current) {
+        setDrawReady(true);
+        return;
+      }
+      try {
+        const draw = new TerraDraw({
+          adapter: new TerraDrawMapLibreGLAdapter({ map }),
+          modes: [
+            new TerraDrawRenderMode({
+              modeName: "render",
+              styles: {
+                polygonFillColor: "#4F6F52",
+                polygonFillOpacity: 0.2,
+                polygonOutlineColor: "#1C2A1F",
+                polygonOutlineWidth: 2,
+              },
+            }),
+            new TerraDrawPolygonMode(),
+            new TerraDrawSelectMode({
+              flags: {
+                polygon: {
+                  feature: {
                     draggable: true,
-                    deletable: true,
+                    coordinates: {
+                      midpoints: true,
+                      draggable: true,
+                      deletable: true,
+                    },
                   },
                 },
               },
-            },
-          }),
-        ],
-      });
-      draw.start();
-      draw.setMode("render");
-      drawRef.current = draw;
-
-      draw.on("finish", (id) => {
-        const feature = draw.getSnapshotFeature(id);
-        if (!feature || feature.geometry.type !== "Polygon") {
-          return;
-        }
-        draftFeatureIdRef.current = id;
-        setDraftGeometry(feature.geometry as ParcelGeometry);
-        setDraftName("Nueva parcela");
-        setDrawMode("draw");
+            }),
+          ],
+        });
+        draw.start();
         draw.setMode("render");
-      });
+        drawRef.current = draw;
+        setDrawReady(true);
+
+        draw.on("finish", (id) => {
+          const feature = draw.getSnapshotFeature(id);
+          if (!feature || feature.geometry.type !== "Polygon") {
+            return;
+          }
+          draftFeatureIdRef.current = id;
+          setDraftGeometry(feature.geometry as ParcelGeometry);
+          setDraftName("Nueva parcela");
+          setDrawMode("draw");
+          draw.setMode("render");
+        });
+      } catch {
+        setActionError("No se pudo inicializar el dibujo en el mapa");
+      }
+    };
+
+    const ensureDraw = () => {
+      if (map.isStyleLoaded()) {
+        initDraw();
+      }
+    };
+
+    map.on("load", ensureDraw);
+    map.once("idle", ensureDraw);
+    map.on("error", () => {
+      setActionError("El mapa base no cargó; recarga la página");
     });
+    queueMicrotask(ensureDraw);
 
     return () => {
       drawRef.current?.stop();
       drawRef.current = null;
+      setDrawReady(false);
       markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
       map.remove();
@@ -320,7 +344,10 @@ export function AppShell({
 
   const startDraw = () => {
     const draw = drawRef.current;
-    if (!draw) return;
+    if (!draw) {
+      setActionError("Espera a que el mapa termine de cargar e inténtalo de nuevo");
+      return;
+    }
     setActionError(null);
     setDraftGeometry(null);
     selectParcel(null);
@@ -481,8 +508,8 @@ export function AppShell({
 
       {drawMode === "idle" ? (
         <div className={styles.mapToolbar}>
-          <Button type="button" onClick={startDraw}>
-            Dibujar parcela
+          <Button type="button" onClick={startDraw} disabled={!drawReady}>
+            {drawReady ? "Dibujar parcela" : "Cargando mapa…"}
           </Button>
         </div>
       ) : drawMode === "draw" && !draftGeometry ? (
