@@ -79,10 +79,10 @@ export default async function Home() {
         <header className={styles.top}>
           <p className={styles.brand}>Agro AI</p>
           <nav className={styles.nav}>
-            <Link className={styles.ghostOnDark} href="/sign-in">
-              Entrar
+            <Link className={styles.cta} href="/sign-in">
+              Acceso piloto
             </Link>
-            <Link className={styles.cta} href="/sign-up">
+            <Link className={styles.ghostOnDark} href="/sign-up">
               Crear cuenta
             </Link>
           </nav>
@@ -207,8 +207,9 @@ export default async function Home() {
           <h2 className={styles.sectionTitle}>Pronto en producción</h2>
           <p className={styles.sectionBody}>
             Agro AI ya opera en piloto con parcelas, clima, Plus, trazabilidad y
-            revisión agronómica. La apertura pública llegará pronto — mientras
-            tanto, los workspaces invitados pueden entrar.
+            revisión agronómica. La apertura pública llegará pronto — el acceso
+            actual es piloto (Clerk); las cuentas nuevas no implican cobro ni
+            entitlements comerciales.
           </p>
           <div className={styles.actions}>
             <Link className={styles.cta} href="/sign-in">
