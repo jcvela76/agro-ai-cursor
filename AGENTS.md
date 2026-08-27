@@ -70,7 +70,6 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 
 ## Pendientes conocidos
 
-- UI-4 admin workspace
 - eve init completo + wiring LLM Agro Agent (UI-5)
 - Billing real (Clerk Billing / Stripe) post gate legal
 - SENAMHI paid stub post gate legal

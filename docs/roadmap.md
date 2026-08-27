@@ -2,33 +2,18 @@
 
 Secuencia simplificada de entrega. Este documento es el plan activo.
 
-## Fase 0–2 — Contexto, spec, arquitectura
+## Fase 0–5c — Foundation → UI-3
 
-**Estado:** completadas
+**Estado:** completadas (ver historial session-log)
 
-## Fase 3 — Foundation
-
-**Estado:** completada
-
-## Fase 4 — Weather MVP (API)
-
-**Estado:** completada (free live)
-
-## Fase 5 — UI-1 Map shell + design system
+## Fase 5d — UI-4 Admin workspace
 
 **Estado:** completada (2026-08-26)
 
-## Fase 5b — UI-2 Parcel draw
-
-**Estado:** completada (2026-08-26)
-
-## Fase 5c — UI-3 Marketing LP
-
-**Estado:** completada (2026-08-26)
-
-- LP multi-sección en `/` (problema, Weather, productos, precios, CTA)
-- Precios informativos; subscribe → Clerk Sign up (ADR-012, sin Stripe)
-- Figma `marketing/lp/full`
+- `/app/admin` solo `org:admin`
+- `GET|PATCH /api/workspace/settings` → Clerk `publicMetadata`
+- Entitlements + allowlist + OrganizationProfile
+- ADR-013; Figma `app/admin/default`
 
 ## Fase 6 — Traceability discovery
 
@@ -42,13 +27,12 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 | Slice | Contenido |
 |-------|-----------|
-| UI-4 | Admin workspace (entitlements UI) |
 | UI-5 | Panel Agro Agent (Plus + LLM) |
 | Billing | Clerk Billing / Stripe post gate legal |
 
 ## Docs por slice (canónico)
 
-Al cerrar cada slice: ADR si aplica, `session-log`, `roadmap`, `figma.md` si UI, `AGENTS` pendientes, **commit + push**.
+ADR si aplica, `session-log`, `roadmap`, `figma.md` si UI, `AGENTS`, **commit + push**.
 
 ## Gates transversales
 

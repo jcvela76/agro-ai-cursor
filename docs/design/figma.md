@@ -42,6 +42,7 @@ Código espejo: CSS variables en `src/app/globals.css` + atoms en `src/ui/`.
 | `marketing/lp/full` | LP marketing + precios informativos | UI-3 high-fi |
 | `app/map-shell/default` | Mapa fullscreen + chrome | UI-1 high-fi |
 | `app/map-shell/draw` | Dibujar/guardar polígono | UI-2 high-fi |
+| `app/admin/default` | Entitlements + allowlist | UI-4 high-fi |
 | `weather/panel-observation` | WA-01 | UI-1 high-fi |
 | `parcel/list/default` | WA-03, WA-05 | wireframe |
 | `weather/observation/default` | WQ-01, WA-01 | wireframe |

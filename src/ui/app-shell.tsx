@@ -1,6 +1,7 @@
 "use client";
 
-import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import { OrganizationSwitcher, UserButton, useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -73,6 +74,8 @@ export function AppShell({
   initialParcelId: string | null;
 }) {
   const router = useRouter();
+  const { has } = useAuth();
+  const isAdmin = has?.({ role: "org:admin" }) ?? false;
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const drawRef = useRef<TerraDraw | null>(null);
@@ -393,6 +396,11 @@ export function AppShell({
           )}
         </div>
         <div className={styles.chromeRight}>
+          {isAdmin ? (
+            <Link className={styles.adminLink} href="/app/admin">
+              Admin
+            </Link>
+          ) : null}
           <OrganizationSwitcher
             hidePersonal
             afterSelectOrganizationUrl="/app"

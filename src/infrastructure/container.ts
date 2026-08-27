@@ -4,12 +4,21 @@ import {
   DeleteOrgParcel,
   UpdateOrgParcel,
 } from "@/application/parcel/mutate-org-parcels";
+import {
+  GetWorkspaceSettings,
+  UpdateWorkspaceSettings,
+} from "@/application/workspace/workspace-settings";
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
+import type { OrgMetadataStore } from "@/domain/workspace/types";
 import type { WeatherSource } from "@/domain/weather/types";
 import { SyntheticAccessResolver } from "@/infrastructure/auth/synthetic-access-resolver";
 import { ClerkMetadataAccessResolver } from "@/infrastructure/auth/clerk-metadata-access-resolver";
+import {
+  ClerkOrgMetadataStore,
+  MemoryOrgMetadataStore,
+} from "@/infrastructure/auth/clerk-org-metadata-store";
 import { createDb } from "@/infrastructure/db/client";
 import { NeonParcelRegistry } from "@/infrastructure/parcel/neon-parcel-registry";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
@@ -31,6 +40,22 @@ export const listOrgParcels = new ListOrgParcels(parcelRegistry);
 export const createOrgParcel = new CreateOrgParcel(parcelRegistry);
 export const updateOrgParcel = new UpdateOrgParcel(parcelRegistry);
 export const deleteOrgParcel = new DeleteOrgParcel(parcelRegistry);
+
+export function createOrgMetadataStore(): OrgMetadataStore {
+  if (process.env.CLERK_SECRET_KEY) {
+    return new ClerkOrgMetadataStore();
+  }
+  return new MemoryOrgMetadataStore({
+    "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G": {
+      entitlements: ["weather"],
+      authorizedParcelIds: [],
+    },
+  });
+}
+
+const orgMetadataStore = createOrgMetadataStore();
+export const getWorkspaceSettings = new GetWorkspaceSettings(orgMetadataStore);
+export const updateWorkspaceSettings = new UpdateWorkspaceSettings(orgMetadataStore);
 
 export function createWeatherSource(
   mode = process.env.WEATHER_SOURCE ?? "offline",

@@ -87,6 +87,20 @@
   gap: var(--space-3);
 }
 
+.adminLink {
+  color: var(--color-fg-on-dark);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(243, 240, 232, 0.35);
+  border-radius: var(--radius-sm);
+}
+
+.adminLink:hover {
+  background: rgba(243, 240, 232, 0.1);
+}
+
 .orgSwitcher {
   color-scheme: dark;
 }

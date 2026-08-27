@@ -1,0 +1,108 @@
+.page {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.eyebrow {
+  margin: 0 0 var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-fg-muted);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+}
+
+.back {
+  color: var(--color-fg-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.section {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.section h2 {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.muted {
+  color: var(--color-fg-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.checkList {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.check {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.check input {
+  margin-top: 0.2rem;
+}
+
+.check strong {
+  display: block;
+}
+
+.check small {
+  display: block;
+  color: var(--color-fg-muted);
+  font-size: 0.8125rem;
+}
+
+.actions {
+  margin-bottom: var(--space-6);
+}
+
+.error {
+  color: var(--color-status-error);
+  font-weight: 600;
+}
+
+.ok {
+  color: var(--color-status-fresh);
+  font-weight: 600;
+}
+
+.clerkEmbed {
+  margin-top: var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-panel);
+}
+
+.orgProfileRoot {
+  width: 100%;
+}
