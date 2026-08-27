@@ -1,7 +1,9 @@
 import type { ParcelRegistry } from "@/domain/parcel/types";
+import { rankLowRainDaysFromForecast } from "@/domain/weather/rank-low-rain-days";
 import type {
   WeatherForecast,
   WeatherForecastDay,
+  WeatherLowRainDays,
   WeatherObservation,
   WeatherRainfall30d,
   WeatherRainfallCampaignComparison,
@@ -65,7 +67,7 @@ export class OpenMeteoWeatherSource implements WeatherSource {
       "temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max",
     );
     url.searchParams.set("timezone", parcel.timezone);
-    url.searchParams.set("forecast_days", "2");
+    url.searchParams.set("forecast_days", "7");
 
     let payload: unknown;
     try {
@@ -173,5 +175,13 @@ export class OpenMeteoWeatherSource implements WeatherSource {
       message:
         "Open-Meteo adapter does not provide campaign rainfall comparison in this release.",
     };
+  }
+
+  async getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>> {
+    const forecast = await this.getForecast(parcelId);
+    if (!forecast.ok) {
+      return forecast;
+    }
+    return rankLowRainDaysFromForecast(forecast.data);
   }
 }

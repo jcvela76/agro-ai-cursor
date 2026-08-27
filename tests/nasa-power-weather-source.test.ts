@@ -155,4 +155,16 @@ describe("NasaPowerWeatherSource", () => {
       );
     }
   });
+
+  it("returns unavailable for low-rain days (WQ-13 requires forecast probability)", async () => {
+    const source = new NasaPowerWeatherSource(parcels, async () => {
+      throw new Error("should not fetch");
+    });
+    const result = await source.getLowRainDays("parcel-lima-norte-001");
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe("unavailable");
+      expect(result.message).toContain("precipitation probability");
+    }
+  });
 });

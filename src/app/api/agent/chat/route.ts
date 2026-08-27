@@ -11,6 +11,7 @@ import { loadAgroAgentInstructions } from "@/agents/agro-agent/load-instructions
 import {
   createAccessResolver,
   getParcelWeatherForecast,
+  getParcelWeatherLowRainDays,
   getParcelWeatherObservation,
   getParcelWeatherRainfall30d,
   getParcelWeatherRainfallCampaignComparison,
@@ -107,6 +108,7 @@ export async function POST(request: Request) {
     forecast: getParcelWeatherForecast,
     rainfall30d: getParcelWeatherRainfall30d,
     rainfallCampaignComparison: getParcelWeatherRainfallCampaignComparison,
+    lowRainDays: getParcelWeatherLowRainDays,
   });
 
   const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;

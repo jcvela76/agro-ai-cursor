@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import { authorizeWeatherPlusAccess } from "@/domain/auth/authorize-weather-access";
+import type { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import type { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import type { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
 import type { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
@@ -19,11 +20,13 @@ export const agroAgentToolNames = {
   forecast: "getParcelWeatherForecast",
   rainfall30d: "getParcelRainfall30d",
   rainfallCampaignComparison: "getParcelRainfallCampaignComparison",
+  lowRainDays: "getParcelLowRainDays",
 } as const;
 
 export const plusToolNames = [
   agroAgentToolNames.rainfall30d,
   agroAgentToolNames.rainfallCampaignComparison,
+  agroAgentToolNames.lowRainDays,
 ] as const;
 
 export function createAgroAgentTools(input: {
@@ -33,9 +36,17 @@ export function createAgroAgentTools(input: {
   forecast: GetParcelWeatherForecast;
   rainfall30d: GetParcelWeatherRainfall30d;
   rainfallCampaignComparison: GetParcelWeatherRainfallCampaignComparison;
+  lowRainDays: GetParcelWeatherLowRainDays;
 }) {
-  const { authority, parcelId, observation, forecast, rainfall30d, rainfallCampaignComparison } =
-    input;
+  const {
+    authority,
+    parcelId,
+    observation,
+    forecast,
+    rainfall30d,
+    rainfallCampaignComparison,
+    lowRainDays,
+  } = input;
 
   return {
     getParcelWeatherObservation: tool({
@@ -80,6 +91,18 @@ export function createAgroAgentTools(input: {
       inputSchema: z.object({}),
       execute: async () => {
         const result = await rainfallCampaignComparison.execute({ authority, parcelId });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelLowRainDays: tool({
+      description:
+        "Ranking de días del horizonte de pronóstico con menor probabilidad de precipitación (método versionado + evidencia). Requiere Plus.",
+      inputSchema: z.object({}),
+      execute: async () => {
+        const result = await lowRainDays.execute({ authority, parcelId });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }

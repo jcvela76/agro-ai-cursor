@@ -1,5 +1,6 @@
 import type {
   WeatherForecast,
+  WeatherLowRainDays,
   WeatherObservation,
   WeatherRainfall30d,
   WeatherRainfallCampaignComparison,
@@ -10,23 +11,27 @@ import observations from "@/infrastructure/fixtures/weather-observations.json";
 import forecasts from "@/infrastructure/fixtures/weather-forecasts.json";
 import rainfall30d from "@/infrastructure/fixtures/weather-rainfall-30d.json";
 import rainfallCampaignComparison from "@/infrastructure/fixtures/weather-rainfall-campaign-comparison.json";
+import lowRainDays from "@/infrastructure/fixtures/weather-low-rain-days.json";
 
 type ObservationFixture = WeatherObservation;
 type ForecastFixture = WeatherForecast;
 type Rainfall30dFixture = WeatherRainfall30d;
 type RainfallCampaignComparisonFixture = WeatherRainfallCampaignComparison;
+type LowRainDaysFixture = WeatherLowRainDays;
 
 export class OfflineWeatherSource implements WeatherSource {
   private readonly observations: Map<string, ObservationFixture>;
   private readonly forecasts: Map<string, ForecastFixture>;
   private readonly rainfall30d: Map<string, Rainfall30dFixture>;
   private readonly rainfallCampaignComparison: Map<string, RainfallCampaignComparisonFixture>;
+  private readonly lowRainDays: Map<string, LowRainDaysFixture>;
 
   constructor(
     observationFixtures: ObservationFixture[] = observations as ObservationFixture[],
     forecastFixtures: ForecastFixture[] = forecasts as ForecastFixture[],
     rainfall30dFixtures: Rainfall30dFixture[] = rainfall30d as Rainfall30dFixture[],
     rainfallCampaignComparisonFixtures: RainfallCampaignComparisonFixture[] = rainfallCampaignComparison as RainfallCampaignComparisonFixture[],
+    lowRainDaysFixtures: LowRainDaysFixture[] = lowRainDays as LowRainDaysFixture[],
   ) {
     this.observations = new Map(
       observationFixtures.map((o) => [o.evidence.spatialScope.label, o]),
@@ -39,6 +44,9 @@ export class OfflineWeatherSource implements WeatherSource {
     );
     this.rainfallCampaignComparison = new Map(
       rainfallCampaignComparisonFixtures.map((r) => [r.evidence.spatialScope.label, r]),
+    );
+    this.lowRainDays = new Map(
+      lowRainDaysFixtures.map((r) => [r.evidence.spatialScope.label, r]),
     );
   }
 
@@ -98,6 +106,19 @@ export class OfflineWeatherSource implements WeatherSource {
         ok: false,
         reason: "unavailable",
         message: "No campaign rainfall comparison fixture exists for this parcel.",
+      };
+    }
+
+    return { ok: true, data };
+  }
+
+  async getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>> {
+    const data = this.lowRainDays.get(parcelId);
+    if (!data) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No low-rain days fixture exists for this parcel.",
       };
     }
 

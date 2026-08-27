@@ -76,6 +76,26 @@ export interface WeatherRainfallCampaignComparison {
   evidence: WeatherEvidence;
 }
 
+/** WQ-13: forecast days ranked by lowest precipitation probability (Plus). */
+export interface WeatherLowRainDay {
+  date: string;
+  precipitationProbability: number;
+  precipitationMm: number;
+  rank: number;
+}
+
+export interface WeatherLowRainDays {
+  kind: "low_rain_days";
+  rankingMethodId: string;
+  rankingMethodLabel: string;
+  horizonStart: string;
+  horizonEnd: string;
+  daysInHorizon: number;
+  daysWithProbability: number;
+  days: WeatherLowRainDay[];
+  evidence: WeatherEvidence;
+}
+
 export type WeatherResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: WeatherLimitationReason; message: string };
@@ -87,4 +107,5 @@ export interface WeatherSource {
   getRainfallCampaignComparison(
     parcelId: string,
   ): Promise<WeatherResult<WeatherRainfallCampaignComparison>>;
+  getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>>;
 }

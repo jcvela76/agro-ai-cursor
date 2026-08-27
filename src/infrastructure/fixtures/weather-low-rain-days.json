@@ -1,0 +1,41 @@
+[
+  {
+    "kind": "low_rain_days",
+    "rankingMethodId": "forecast-low-precip-probability/v1",
+    "rankingMethodLabel": "Días del horizonte de pronóstico ordenados por menor probabilidad máxima de precipitación",
+    "horizonStart": "2026-08-27",
+    "horizonEnd": "2026-08-28",
+    "daysInHorizon": 2,
+    "daysWithProbability": 2,
+    "days": [
+      {
+        "date": "2026-08-28",
+        "precipitationProbability": 0.12,
+        "precipitationMm": 0.4,
+        "rank": 1
+      },
+      {
+        "date": "2026-08-27",
+        "precipitationProbability": 0.35,
+        "precipitationMm": 2.1,
+        "rank": 2
+      }
+    ],
+    "evidence": {
+      "sourceId": "offline-open-meteo-synthetic",
+      "sourceLabel": "Open-Meteo (offline fixture)",
+      "emittedAt": "2026-08-26T06:00:00-05:00",
+      "validFrom": "2026-08-27T00:00:00-05:00",
+      "validTo": "2026-08-29T00:00:00-05:00",
+      "timezone": "America/Lima",
+      "spatialScope": {
+        "kind": "point",
+        "latitude": -11.95,
+        "longitude": -77.05,
+        "label": "parcel-lima-norte-001"
+      },
+      "freshnessStatus": "fresh",
+      "freshnessPolicy": "forecast_max_age_12h"
+    }
+  }
+]

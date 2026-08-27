@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/tools";
+import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
@@ -27,17 +28,23 @@ describe("Agro Agent weather tools", () => {
     registry,
     source,
   );
+  const lowRainDays = new GetParcelWeatherLowRainDays(registry, source);
   const authority = defaultSyntheticSnapshots[4];
 
-  it("returns observation evidence for authorized parcel", async () => {
-    const tools = createAgroAgentTools({
+  function toolsFor(parcelId: string) {
+    return createAgroAgentTools({
       authority,
-      parcelId: "parcel-lima-norte-001",
+      parcelId,
       observation,
       forecast,
       rainfall30d,
       rainfallCampaignComparison,
+      lowRainDays,
     });
+  }
+
+  it("returns observation evidence for authorized parcel", async () => {
+    const tools = toolsFor("parcel-lima-norte-001");
     const result = (await tools.getParcelWeatherObservation.execute!(
       {},
       { toolCallId: "t1", messages: [] },
@@ -50,14 +57,7 @@ describe("Agro Agent weather tools", () => {
   });
 
   it("returns forecast for authorized parcel", async () => {
-    const tools = createAgroAgentTools({
-      authority,
-      parcelId: "parcel-lima-norte-001",
-      observation,
-      forecast,
-      rainfall30d,
-      rainfallCampaignComparison,
-    });
+    const tools = toolsFor("parcel-lima-norte-001");
     const result = (await tools.getParcelWeatherForecast.execute!(
       {},
       { toolCallId: "t2", messages: [] },
@@ -70,14 +70,7 @@ describe("Agro Agent weather tools", () => {
   });
 
   it("returns 30-day rainfall for Plus parcel", async () => {
-    const tools = createAgroAgentTools({
-      authority,
-      parcelId: "parcel-lima-norte-001",
-      observation,
-      forecast,
-      rainfall30d,
-      rainfallCampaignComparison,
-    });
+    const tools = toolsFor("parcel-lima-norte-001");
     const result = (await tools.getParcelRainfall30d.execute!(
       {},
       { toolCallId: "t3", messages: [] },
@@ -90,14 +83,7 @@ describe("Agro Agent weather tools", () => {
   });
 
   it("returns campaign comparison for Plus parcel", async () => {
-    const tools = createAgroAgentTools({
-      authority,
-      parcelId: "parcel-lima-norte-001",
-      observation,
-      forecast,
-      rainfall30d,
-      rainfallCampaignComparison,
-    });
+    const tools = toolsFor("parcel-lima-norte-001");
     const result = (await tools.getParcelRainfallCampaignComparison.execute!(
       {},
       { toolCallId: "t4", messages: [] },
@@ -111,6 +97,20 @@ describe("Agro Agent weather tools", () => {
         "campaign-vs-prior-year-calendar-ytd/v1",
       );
       expect(result.data.deltaMm).toBe(6.5);
+    }
+  });
+
+  it("returns low-rain days ranking for Plus parcel", async () => {
+    const tools = toolsFor("parcel-lima-norte-001");
+    const result = (await tools.getParcelLowRainDays.execute!(
+      {},
+      { toolCallId: "t5", messages: [] },
+    )) as Awaited<ReturnType<NonNullable<typeof tools.getParcelLowRainDays.execute>>>;
+    expect(result).toMatchObject({ ok: true });
+    if ("ok" in result && result.ok) {
+      expect(result.data.kind).toBe("low_rain_days");
+      expect(result.data.rankingMethodId).toBe("forecast-low-precip-probability/v1");
+      expect(result.data.days[0].date).toBe("2026-08-28");
     }
   });
 });

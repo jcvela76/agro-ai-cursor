@@ -1,6 +1,7 @@
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import type {
   WeatherForecast,
+  WeatherLowRainDays,
   WeatherObservation,
   WeatherRainfall30d,
   WeatherRainfallCampaignComparison,
@@ -413,5 +414,14 @@ export class NasaPowerWeatherSource implements WeatherSource {
       .sort();
 
     return { ok: true, data: { precips, validDates } };
+  }
+
+  async getLowRainDays(_parcelId: string): Promise<WeatherResult<WeatherLowRainDays>> {
+    return {
+      ok: false,
+      reason: "unavailable",
+      message:
+        "NASA POWER does not provide forecast precipitation probability for low-rain day ranking.",
+    };
   }
 }

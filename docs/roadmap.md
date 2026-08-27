@@ -41,6 +41,15 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Tool agent `getParcelRainfallCampaignComparison`; ADR-017
 - Tests 34 total
 
+## Fase 5h — Plus-3 Low-rain days (WQ-13)
+
+**Estado:** completada (2026-08-27)
+
+- Ranking de días del horizonte por menor probabilidad de precipitación (Open-Meteo / offline)
+- Tool agent `getParcelLowRainDays`; ADR-018; método `forecast-low-precip-probability/v1`
+- Horizon forecast Open-Meteo ampliado a 7 días
+- Tests 41 total
+
 ## Fase 6 — Traceability discovery
 
 **Estado:** en curso (paralelo)

@@ -38,6 +38,35 @@ describe("OpenMeteoWeatherSource", () => {
     }
   });
 
+  it("ranks low-rain days from forecast precipitation probability (WQ-13)", async () => {
+    const fetchFn = async () =>
+      jsonResponse({
+        timezone: "America/Lima",
+        daily: {
+          time: ["2026-08-27", "2026-08-28", "2026-08-29"],
+          temperature_2m_max: [24.8, 23.5, 22.1],
+          temperature_2m_min: [16.2, 15.9, 15.1],
+          precipitation_sum: [2.1, 0.4, 1.0],
+          precipitation_probability_max: [35, 12, 25],
+        },
+      });
+
+    const source = new OpenMeteoWeatherSource(parcels, fetchFn);
+    const result = await source.getLowRainDays("parcel-lima-norte-001");
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.kind).toBe("low_rain_days");
+      expect(result.data.rankingMethodId).toBe("forecast-low-precip-probability/v1");
+      expect(result.data.days.map((d) => d.date)).toEqual([
+        "2026-08-28",
+        "2026-08-29",
+        "2026-08-27",
+      ]);
+      expect(result.data.days[0].precipitationProbability).toBe(0.12);
+    }
+  });
+
   it("WA-08: unknown payload fails safely without leaking raw content", async () => {
     const fetchFn = async () => jsonResponse({ weird: true, raw_error: "SECRET_STACK" });
     const source = new OpenMeteoWeatherSource(parcels, fetchFn);
