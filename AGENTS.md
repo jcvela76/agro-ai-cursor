@@ -74,7 +74,6 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 - Re-evaluar model path (ADR-015): Gateway vs OpenAI key directa vs Bedrock / eve
 - Billing real (Clerk Billing / Stripe) post gate legal
 - SENAMHI paid stub post gate legal
-- Smoke chat LLM en prod con AI Gateway (Clima free ya OK)
 
 <!-- BEGIN:nextjs-agent-rules -->
 
