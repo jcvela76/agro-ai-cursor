@@ -98,7 +98,7 @@ No uses `accounts.geoagro.ai/v1/oauth_callback` (Account Portal; 404 si lo abres
 
 ### Smoke
 
-1. Incógnito → `https://geoagro.ai/sign-in` → **Continue with Google**
+1. Incógnito → `https://geoagro.ai/sign-in` → **Continue with Google** — **OK 2026-08-27**
 2. Cuenta test user (p.ej. `me@juliovela.com`)
 3. Org Lima Coffee + `/app` OK
 
