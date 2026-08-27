@@ -19,6 +19,7 @@
     "db:seed:trace": "npx tsx scripts/seed-trace-lots.ts",
     "db:seed:review": "npx tsx scripts/seed-review-decisions.ts",
     "smoke:trace-eudr": "npx tsx scripts/smoke-trace-eudr.ts",
+    "smoke:review": "npx tsx scripts/smoke-review.ts",
     "db:cleanup:lima-smoke": "npx tsx scripts/cleanup-lima-coffee-smoke.ts"
   },
   "dependencies": {
