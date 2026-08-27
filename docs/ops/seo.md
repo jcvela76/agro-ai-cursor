@@ -35,5 +35,16 @@ Rutas SEO públicas en Clerk middleware: `/robots.txt`, `/sitemap.xml`, icon/OG 
 
 ## Pendiente ops
 
-1. Search Console / Bing verification (`metadata.verification` cuando haya tokens)
+1. ~~Search Console / Bing verification~~ — Domain `sc-domain:geoagro.ai` verificado (DNS TXT en Vercel); sitemap `https://geoagro.ai/sitemap.xml` submitted (Success).
 2. Monitor Core Web Vitals en GSC tras indexación
+3. Bing Webmaster (opcional)
+
+## Search Console
+
+| Item | Valor |
+|------|-------|
+| Cuenta | `me@juliovela.com` |
+| Property | `sc-domain:geoagro.ai` |
+| Método | DNS TXT (`google-site-verification=…` en Vercel DNS) |
+| Sitemap | `https://geoagro.ai/sitemap.xml` |
+| Consola | https://search.google.com/search-console?resource_id=sc-domain%3Ageoagro.ai |
