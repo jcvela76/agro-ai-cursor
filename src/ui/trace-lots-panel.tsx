@@ -202,7 +202,7 @@ export function TraceLotsPanel({
     <div className={styles.list}>
       <p className={styles.intro}>
         Lotes coffee del workspace (sin geometría). Destacados los vinculados a esta
-        parcela. Mutaciones en memoria (piloto).
+        parcela.
       </p>
 
       <form className={styles.form} onSubmit={createLot}>

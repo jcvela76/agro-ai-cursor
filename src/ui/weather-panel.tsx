@@ -117,14 +117,21 @@ function ObservationView({
   const { data } = payload;
   return (
     <div className={styles.content}>
-      <p className={styles.metric}>
-        {data.temperatureCelsius.toFixed(1)}
-        <span className={styles.unit}> °C</span>
-      </p>
-      <p className={styles.submetric}>Precipitación {data.precipitationMm.toFixed(1)} mm</p>
-      <Badge tone={freshnessTone(data.evidence.freshnessStatus)}>
-        {data.evidence.freshnessStatus}
-      </Badge>
+      <div className={styles.metricBlock}>
+        <p className={styles.metric}>
+          {data.temperatureCelsius.toFixed(1)}
+          <span className={styles.unit}> °C</span>
+        </p>
+        <p className={styles.submetric}>
+          Precipitación {data.precipitationMm.toFixed(1)} mm
+          <span className={styles.freshnessInline}>
+            {" · "}
+            <Badge tone={freshnessTone(data.evidence.freshnessStatus)}>
+              {data.evidence.freshnessStatus}
+            </Badge>
+          </span>
+        </p>
+      </div>
       <EvidenceBlock evidence={data.evidence} />
     </div>
   );
@@ -148,9 +155,17 @@ function ForecastView({
   const { data } = payload;
   return (
     <div className={styles.content}>
-      <Badge tone={freshnessTone(data.evidence.freshnessStatus)}>
-        {data.evidence.freshnessStatus}
-      </Badge>
+      <div className={styles.metricBlock}>
+        <p className={styles.submetric}>
+          Pronóstico 7 días
+          <span className={styles.freshnessInline}>
+            {" · "}
+            <Badge tone={freshnessTone(data.evidence.freshnessStatus)}>
+              {data.evidence.freshnessStatus}
+            </Badge>
+          </span>
+        </p>
+      </div>
       <ul className={styles.days}>
         {data.days.slice(0, 7).map((day) => (
           <li key={day.date} className={styles.day}>

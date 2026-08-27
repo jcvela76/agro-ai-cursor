@@ -2,28 +2,42 @@
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
-  padding: var(--space-5) var(--space-6) var(--space-7);
+  background: var(--color-bg-canvas);
 }
 
-.atmosphere {
-  position: fixed;
+.heroPlane {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6) var(--space-7);
+  color: var(--color-fg-on-dark);
+  isolation: isolate;
+}
+
+.heroImage {
+  position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 10% 12%, rgba(91, 143, 168, 0.3), transparent 55%),
-    radial-gradient(ellipse 70% 45% at 92% 8%, rgba(79, 111, 82, 0.24), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(166, 124, 82, 0.12), transparent 55%),
-    linear-gradient(165deg, #e8e2d4 0%, var(--color-bg-canvas) 42%, #dfe8df 100%);
+  width: 100%;
+  height: 100%;
   z-index: 0;
+  display: block;
+}
+
+.heroShade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(28, 42, 31, 0.55) 0%, rgba(28, 42, 31, 0.28) 42%, rgba(28, 42, 31, 0.72) 100%);
 }
 
 .top,
-.hero,
-.section,
-.closing,
-.footer {
+.heroCopy {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .top {
@@ -31,16 +45,17 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  margin-bottom: clamp(2.5rem, 10vh, 5.5rem);
 }
 
 .brand {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(2.75rem, 7vw, 4.75rem);
   font-weight: 650;
   letter-spacing: -0.03em;
   line-height: 1;
+  color: #fffdf8;
+  text-shadow: 0 1px 18px rgba(28, 42, 31, 0.35);
 }
 
 .nav {
@@ -49,21 +64,29 @@
   align-items: center;
 }
 
-.hero {
-  max-width: 42rem;
-  min-height: min(52vh, 28rem);
-  margin-bottom: clamp(3rem, 10vh, 6rem);
+.heroCopy {
+  max-width: 38rem;
+  padding-bottom: clamp(1rem, 4vh, 2.5rem);
 }
 
 .headline {
   margin: 0 0 var(--space-4);
   font-family: var(--font-display);
-  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-size: clamp(1.65rem, 3.2vw, 2.35rem);
   font-weight: 600;
   line-height: 1.15;
+  color: #fffdf8;
+  text-shadow: 0 1px 14px rgba(28, 42, 31, 0.4);
 }
 
-.support,
+.support {
+  margin: 0 0 var(--space-5);
+  color: rgba(255, 253, 248, 0.88);
+  font-size: 1.0625rem;
+  max-width: 34rem;
+  line-height: 1.55;
+}
+
 .sectionBody {
   margin: 0 0 var(--space-5);
   color: var(--color-fg-muted);
@@ -79,7 +102,8 @@
 }
 
 .cta,
-.ghost {
+.ghost,
+.ghostOnDark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -91,7 +115,8 @@
 }
 
 .cta:hover,
-.ghost:hover {
+.ghost:hover,
+.ghostOnDark:hover {
   transform: translateY(-2px);
 }
 
@@ -106,6 +131,21 @@
   color: var(--color-fg-primary);
 }
 
+.ghostOnDark {
+  border: 1px solid rgba(255, 253, 248, 0.45);
+  background: rgba(28, 42, 31, 0.28);
+  color: #fffdf8;
+  backdrop-filter: blur(6px);
+}
+
+.body {
+  position: relative;
+  z-index: 1;
+  padding: clamp(2.5rem, 8vh, 4.5rem) var(--space-6) var(--space-7);
+  background:
+    linear-gradient(165deg, #e8e2d4 0%, var(--color-bg-canvas) 42%, #dfe8df 100%);
+}
+
 .section {
   max-width: 48rem;
   margin: 0 auto clamp(3.5rem, 9vh, 5.5rem);
@@ -117,6 +157,7 @@
   font-family: var(--font-display);
   font-size: clamp(1.35rem, 2.4vw, 1.75rem);
   font-weight: 600;
+  color: var(--color-fg-primary);
 }
 
 .list {
@@ -146,9 +187,8 @@
 .product,
 .price {
   padding: var(--space-5);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 253, 248, 0.72);
+  border-top: 1px solid var(--color-border-subtle);
+  background: transparent;
 }
 
 .product h3,
@@ -156,6 +196,7 @@
   margin: 0 0 var(--space-2);
   font-family: var(--font-display);
   font-size: 1.125rem;
+  color: var(--color-fg-primary);
 }
 
 .product p,
@@ -173,7 +214,7 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-accent-sky);
+  color: var(--color-accent-field);
 }
 
 .priceAmount {
@@ -240,14 +281,20 @@
   }
 
   .cta:hover,
-  .ghost:hover {
+  .ghost:hover,
+  .ghostOnDark:hover {
     transform: none;
   }
 }
 
 @media (max-width: 640px) {
-  .page {
+  .heroPlane {
     padding: var(--space-4);
+    min-height: 92svh;
+  }
+
+  .body {
+    padding: var(--space-5) var(--space-4) var(--space-6);
   }
 
   .top {
@@ -257,9 +304,5 @@
 
   .brand {
     font-size: 2.75rem;
-  }
-
-  .hero {
-    min-height: auto;
   }
 }

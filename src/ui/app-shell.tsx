@@ -103,7 +103,7 @@ function parcelsToFeatureCollection(parcels: Parcel[]) {
 function syncParcelLayers(
   map: MapLibreMap,
   parcels: Parcel[],
-  options?: { hide?: boolean; excludeId?: string | null },
+  options?: { hide?: boolean; excludeId?: string | null; selectedId?: string | null },
 ) {
   const visible = options?.hide
     ? []
@@ -114,21 +114,53 @@ function syncParcelLayers(
   const source = map.getSource(PARCELS_SOURCE) as GeoJSONSource | undefined;
   if (source) {
     source.setData(data);
-    return;
+  } else {
+    map.addSource(PARCELS_SOURCE, {
+      type: "geojson",
+      data,
+      promoteId: "parcelId",
+    });
+    map.addLayer({
+      id: PARCELS_FILL,
+      type: "fill",
+      source: PARCELS_SOURCE,
+      paint: {
+        "fill-color": "#4F6F52",
+        "fill-opacity": [
+          "case",
+          ["boolean", ["feature-state", "selected"], false],
+          0.62,
+          0.38,
+        ],
+      },
+    });
+    map.addLayer({
+      id: PARCELS_LINE,
+      type: "line",
+      source: PARCELS_SOURCE,
+      paint: {
+        "line-color": "#1C2A1F",
+        "line-width": [
+          "case",
+          ["boolean", ["feature-state", "selected"], false],
+          3.5,
+          2,
+        ],
+      },
+    });
   }
-  map.addSource(PARCELS_SOURCE, { type: "geojson", data });
-  map.addLayer({
-    id: PARCELS_FILL,
-    type: "fill",
-    source: PARCELS_SOURCE,
-    paint: { "fill-color": "#4F6F52", "fill-opacity": 0.55 },
-  });
-  map.addLayer({
-    id: PARCELS_LINE,
-    type: "line",
-    source: PARCELS_SOURCE,
-    paint: { "line-color": "#1C2A1F", "line-width": 3 },
-  });
+
+  for (const parcel of visible) {
+    if (!parcel.geometry) continue;
+    try {
+      map.setFeatureState(
+        { source: PARCELS_SOURCE, id: parcel.id },
+        { selected: parcel.id === options?.selectedId },
+      );
+    } catch {
+      // Source may not be ready yet on first paint.
+    }
+  }
 }
 
 export function AppShell({
@@ -146,6 +178,7 @@ export function AppShell({
   const draftFeatureIdRef = useRef<string | number | null>(null);
   const editingParcelIdRef = useRef<string | null>(null);
   const drawModeRef = useRef<DrawMode>("idle");
+  const selectParcelRef = useRef<(parcelId: string | null) => void>(() => {});
 
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [listError, setListError] = useState<string | null>(null);
@@ -170,6 +203,7 @@ export function AppShell({
     },
     [router],
   );
+  selectParcelRef.current = selectParcel;
 
   const reloadParcels = useCallback(async () => {
     const res = await fetch("/api/parcels");
@@ -343,6 +377,30 @@ export function AppShell({
         return;
       }
     });
+
+    map.on("click", (event) => {
+      if (drawModeRef.current !== "idle") {
+        return;
+      }
+      if (!map.getLayer(PARCELS_FILL)) {
+        return;
+      }
+      const hits = map.queryRenderedFeatures(event.point, { layers: [PARCELS_FILL] });
+      const parcelId = hits[0]?.properties?.parcelId;
+      if (typeof parcelId === "string") {
+        selectParcelRef.current(parcelId);
+      }
+    });
+
+    map.on("mousemove", (event) => {
+      if (drawModeRef.current !== "idle" || !map.getLayer(PARCELS_FILL)) {
+        map.getCanvas().style.cursor = "";
+        return;
+      }
+      const hits = map.queryRenderedFeatures(event.point, { layers: [PARCELS_FILL] });
+      map.getCanvas().style.cursor = hits.length > 0 ? "pointer" : "";
+    });
+
     // Fallback if style.load already fired before listeners attached.
     const poll = window.setInterval(() => {
       if (drawRef.current) {
@@ -385,6 +443,7 @@ export function AppShell({
       syncParcelLayers(map, parcels, {
         hide: drawMode === "draw",
         excludeId: drawMode === "edit" ? editingId : null,
+        selectedId: drawMode === "idle" ? selectedId : null,
       });
     if (map.getStyle()) {
       apply();
@@ -395,8 +454,12 @@ export function AppShell({
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
+    // Markers only for parcels without polygon — polygons are the selection target.
     if (drawMode === "idle") {
       for (const parcel of parcels) {
+        if (parcel.geometry?.type === "Polygon") {
+          continue;
+        }
         const el = document.createElement("button");
         el.type = "button";
         el.className =
@@ -790,11 +853,6 @@ export function AppShell({
               >
                 Guardar datos
               </Button>
-              {selected.geometry?.type === "Polygon" ? (
-                <Button type="button" onClick={startEditSelected} disabled={busy || !drawReady}>
-                  Editar geometría
-                </Button>
-              ) : null}
             </div>
             <div className={styles.tabs}>
               <button
@@ -844,7 +902,7 @@ export function AppShell({
         <div className={styles.hint}>
           {parcels.length === 0 && !listError
             ? "Pulsa «Dibujar parcela» para crear la primera"
-            : "Toca un punto verde para editarla · «Nueva parcela» para crear otra"}
+            : "Toca la parcela en el mapa para abrirla · «Nueva parcela» para crear otra"}
         </div>
       ) : null}
 
