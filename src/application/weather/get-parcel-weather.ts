@@ -20,7 +20,7 @@ export class GetParcelWeatherObservation {
   ) {}
 
   async execute(input: GetParcelWeatherInput): Promise<WeatherResult<WeatherObservation>> {
-    const parcel = this.parcels.getParcel(input.parcelId);
+    const parcel = await this.parcels.getParcel(input.parcelId);
     if (!parcel) {
       return {
         ok: false,
@@ -49,7 +49,7 @@ export class GetParcelWeatherForecast {
   ) {}
 
   async execute(input: GetParcelWeatherInput): Promise<WeatherResult<WeatherForecast>> {
-    const parcel = this.parcels.getParcel(input.parcelId);
+    const parcel = await this.parcels.getParcel(input.parcelId);
     if (!parcel) {
       return {
         ok: false,

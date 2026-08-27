@@ -74,7 +74,7 @@ export class NasaPowerWeatherSource implements WeatherSource {
   }
 
   async getObservation(parcelId: string): Promise<WeatherResult<WeatherObservation>> {
-    const parcel = this.parcels.getParcel(parcelId);
+    const parcel = await this.parcels.getParcel(parcelId);
     if (!parcel) {
       return {
         ok: false,

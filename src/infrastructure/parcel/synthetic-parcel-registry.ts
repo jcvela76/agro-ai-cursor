@@ -8,7 +8,7 @@ export class SyntheticParcelRegistry implements ParcelRegistry {
     this.parcels = new Map(parcels.map((p) => [p.id, p]));
   }
 
-  getParcel(parcelId: string): Parcel | undefined {
+  async getParcel(parcelId: string): Promise<Parcel | undefined> {
     return this.parcels.get(parcelId);
   }
 }

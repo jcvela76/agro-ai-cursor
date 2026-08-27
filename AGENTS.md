@@ -54,16 +54,25 @@ Configurados en `~/.cursor/mcp.json`:
 - **playwright** — automatización de browser
 - **MCP_DOCKER** — gateway (incluye playwright + GitHub)
 
-Skills locales en `.agents/skills/`: `clerk-setup`, `clerk-orgs`, `clerk-nextjs-patterns`.
+Skills locales en `.agents/skills/`:
+
+- Clerk: `clerk-setup`, `clerk-orgs`, `clerk-nextjs-patterns`
+- Neon: `neon`, `neon-postgres`, `neon-postgres-branches`
+
+MCP Neon (Docker catalog) requiere `neon.api_key`:
+
+```bash
+docker mcp secret set neon.api_key=<api-key-from-console.neon.tech>
+```
 
 Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `CLERK_SECRET_KEY`; el browser MCP no hereda tu sesión SSO de Vercel.
 
 ## Pendientes conocidos
 
-- Conectar GitHub ↔ Vercel project (link falló en bootstrap)
-- Adaptadores Open-Meteo / NASA POWER live
-- Frames Figma weather + Agro Agent chat
+- Adaptadores Open-Meteo / NASA POWER live (código listo; probar `WEATHER_SOURCE=free` en prod)
+- High-fi Figma / design-to-code UI
 - eve init completo + wiring LLM Agro Agent
+- SENAMHI paid stub post gate legal
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -1,15 +1,25 @@
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
+import type { ParcelRegistry } from "@/domain/parcel/types";
 import type { WeatherSource } from "@/domain/weather/types";
 import { SyntheticAccessResolver } from "@/infrastructure/auth/synthetic-access-resolver";
 import { ClerkMetadataAccessResolver } from "@/infrastructure/auth/clerk-metadata-access-resolver";
+import { createDb } from "@/infrastructure/db/client";
+import { NeonParcelRegistry } from "@/infrastructure/parcel/neon-parcel-registry";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
 import { FreeTierWeatherSource } from "@/infrastructure/weather/free-tier-weather-source";
 import { NasaPowerWeatherSource } from "@/infrastructure/weather/nasa-power-weather-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 import { OpenMeteoWeatherSource } from "@/infrastructure/weather/open-meteo-weather-source";
 
-const parcelRegistry = new SyntheticParcelRegistry();
+export function createParcelRegistry(): ParcelRegistry {
+  if (process.env.DATABASE_URL) {
+    return new NeonParcelRegistry(createDb());
+  }
+  return new SyntheticParcelRegistry();
+}
+
+const parcelRegistry = createParcelRegistry();
 
 export function createWeatherSource(
   mode = process.env.WEATHER_SOURCE ?? "offline",

@@ -46,7 +46,7 @@ export class OpenMeteoWeatherSource implements WeatherSource {
   }
 
   async getForecast(parcelId: string): Promise<WeatherResult<WeatherForecast>> {
-    const parcel = this.parcels.getParcel(parcelId);
+    const parcel = await this.parcels.getParcel(parcelId);
     if (!parcel) {
       return {
         ok: false,

@@ -8,5 +8,5 @@ export interface Parcel {
 }
 
 export interface ParcelRegistry {
-  getParcel(parcelId: string): Parcel | undefined;
+  getParcel(parcelId: string): Promise<Parcel | undefined>;
 }
