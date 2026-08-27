@@ -16,7 +16,7 @@ export async function GET(
   const { parcelId } = await context.params;
 
   const accessResolver = createAccessResolver();
-  const authority = await accessResolver.resolve(userId, orgId);
+  const authority = await accessResolver.resolve(userId, orgId ?? null);
 
   const result = await getParcelWeatherObservation.execute({ authority, parcelId });
 

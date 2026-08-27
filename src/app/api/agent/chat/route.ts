@@ -6,7 +6,7 @@ import { createAccessResolver } from "@/infrastructure/container";
 export async function POST(request: Request) {
   const { userId, orgId } = await auth();
   const accessResolver = createAccessResolver();
-  const authority = await accessResolver.resolve(userId, orgId);
+  const authority = await accessResolver.resolve(userId, orgId ?? null);
 
   if (!isPlusToolAllowed({ authority })) {
     return NextResponse.json(
