@@ -82,6 +82,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-4);
 }
 
 .brand {
@@ -212,6 +213,12 @@
 
 .marker:hover {
   transform: scale(1.15);
+}
+
+.markerSelected {
+  outline: 2px solid #1c2a1f;
+  outline-offset: 2px;
+  transform: scale(1.2);
 }
 
 @media (max-width: 640px) {

@@ -22,6 +22,7 @@ import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
 import { AgentChatPanel } from "@/ui/agent-chat-panel";
 import { Button } from "@/ui/button";
+import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { Panel } from "@/ui/panel";
 import { WeatherPanel } from "@/ui/weather-panel";
 import styles from "./app-shell.module.css";
@@ -60,12 +61,17 @@ function boundsForParcels(parcels: Parcel[]): LngLatBounds | null {
   return hasPoint ? bounds : null;
 }
 
-function flyToParcel(map: MapLibreMap, parcel: Parcel) {
+function flyToParcel(
+  map: MapLibreMap,
+  parcel: Parcel,
+  options?: { padding?: number | { top: number; bottom: number; left: number; right: number } },
+) {
+  const padding = options?.padding ?? 72;
   if (parcel.geometry?.type === "Polygon") {
     const bounds = new LngLatBounds();
     extendBoundsWithGeometry(bounds, parcel.geometry);
     map.fitBounds(bounds, {
-      padding: 72,
+      padding,
       maxZoom: PARCEL_DETAIL_MAX_ZOOM,
       duration: 700,
       essential: true,
@@ -93,8 +99,17 @@ function parcelsToFeatureCollection(parcels: Parcel[]) {
   };
 }
 
-function syncParcelLayers(map: MapLibreMap, parcels: Parcel[]) {
-  const data = parcelsToFeatureCollection(parcels);
+function syncParcelLayers(
+  map: MapLibreMap,
+  parcels: Parcel[],
+  options?: { hide?: boolean; excludeId?: string | null },
+) {
+  const visible = options?.hide
+    ? []
+    : options?.excludeId
+      ? parcels.filter((p) => p.id !== options.excludeId)
+      : parcels;
+  const data = parcelsToFeatureCollection(visible);
   const source = map.getSource(PARCELS_SOURCE) as GeoJSONSource | undefined;
   if (source) {
     source.setData(data);
@@ -129,6 +144,7 @@ export function AppShell({
   const markersRef = useRef<Marker[]>([]);
   const draftFeatureIdRef = useRef<string | number | null>(null);
   const editingParcelIdRef = useRef<string | null>(null);
+  const drawModeRef = useRef<DrawMode>("idle");
 
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [listError, setListError] = useState<string | null>(null);
@@ -137,9 +153,12 @@ export function AppShell({
   const [sideTab, setSideTab] = useState<SideTab>("weather");
   const [draftName, setDraftName] = useState("Nueva parcela");
   const [draftGeometry, setDraftGeometry] = useState<ParcelGeometry | null>(null);
+  const [detailName, setDetailName] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [drawReady, setDrawReady] = useState(false);
+
+  drawModeRef.current = drawMode;
 
   const selectParcel = useCallback(
     (parcelId: string | null) => {
@@ -180,10 +199,10 @@ export function AppShell({
       return;
     }
     const frame = () => flyToParcel(map, parcel);
-    if (map.isStyleLoaded()) {
+    if (map.getStyle()) {
       frame();
     } else {
-      map.once("load", frame);
+      map.once("style.load", frame);
     }
   }, [selectedId, parcels, drawMode]);
 
@@ -191,6 +210,8 @@ export function AppShell({
     if (!mapContainerRef.current || mapRef.current) {
       return;
     }
+
+    ensureMapLibreWorker();
 
     const map = new MapLibreMap({
       container: mapContainerRef.current,
@@ -206,6 +227,11 @@ export function AppShell({
         setDrawReady(true);
         return;
       }
+      // Style JSON can be present while vector tiles keep isStyleLoaded()/loaded() false.
+      // TerraDraw only needs the style object + map canvas, not every tile.
+      if (!map.getStyle()) {
+        return;
+      }
       try {
         const draw = new TerraDraw({
           adapter: new TerraDrawMapLibreGLAdapter({ map }),
@@ -219,7 +245,18 @@ export function AppShell({
                 polygonOutlineWidth: 2,
               },
             }),
-            new TerraDrawPolygonMode(),
+            new TerraDrawPolygonMode({
+              styles: {
+                fillColor: "#4F6F52",
+                fillOpacity: 0.35,
+                outlineColor: "#1C2A1F",
+                outlineWidth: 3,
+                closingPointWidth: 14,
+                closingPointColor: "#C45C26",
+                closingPointOutlineWidth: 2,
+                closingPointOutlineColor: "#FFFDF8",
+              },
+            }),
             new TerraDrawSelectMode({
               flags: {
                 polygon: {
@@ -233,6 +270,20 @@ export function AppShell({
                   },
                 },
               },
+              styles: {
+                selectedPolygonColor: "#4F6F52",
+                selectedPolygonFillOpacity: 0.35,
+                selectedPolygonOutlineColor: "#1C2A1F",
+                selectedPolygonOutlineWidth: 3,
+                selectionPointWidth: 16,
+                selectionPointColor: "#C45C26",
+                selectionPointOutlineColor: "#FFFDF8",
+                selectionPointOutlineWidth: 3,
+                midPointColor: "#F3F0E8",
+                midPointWidth: 12,
+                midPointOutlineColor: "#1C2A1F",
+                midPointOutlineWidth: 2,
+              },
             }),
           ],
         });
@@ -242,6 +293,14 @@ export function AppShell({
         setDrawReady(true);
 
         draw.on("finish", (id) => {
+          // Select/edit must not be treated as a new polygon finish.
+          if (drawModeRef.current === "edit" || editingParcelIdRef.current) {
+            const edited = draw.getSnapshotFeature(id);
+            if (edited?.geometry.type === "Polygon") {
+              setDraftGeometry(edited.geometry as ParcelGeometry);
+            }
+            return;
+          }
           const feature = draw.getSnapshotFeature(id);
           if (!feature || feature.geometry.type !== "Polygon") {
             return;
@@ -252,25 +311,50 @@ export function AppShell({
           setDrawMode("draw");
           draw.setMode("render");
         });
-      } catch {
-        setActionError("No se pudo inicializar el dibujo en el mapa");
+
+        draw.on("change", (ids) => {
+          if (drawModeRef.current !== "edit") {
+            return;
+          }
+          const featureId = draftFeatureIdRef.current;
+          if (featureId == null || !ids.includes(featureId)) {
+            return;
+          }
+          const feature = draw.getSnapshotFeature(featureId);
+          if (feature?.geometry.type === "Polygon") {
+            setDraftGeometry(feature.geometry as ParcelGeometry);
+          }
+        });
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "No se pudo inicializar el dibujo en el mapa";
+        setActionError(message);
       }
     };
 
-    const ensureDraw = () => {
-      if (map.isStyleLoaded()) {
-        initDraw();
+    map.on("style.load", initDraw);
+    map.on("load", initDraw);
+    map.once("idle", initDraw);
+    map.on("error", (event) => {
+      // Tile/source noise is common; only surface hard style failures.
+      const err = event.error;
+      if (err && "status" in err && (err as { status?: number }).status === 404) {
+        return;
       }
-    };
-
-    map.on("load", ensureDraw);
-    map.once("idle", ensureDraw);
-    map.on("error", () => {
-      setActionError("El mapa base no cargó; recarga la página");
     });
-    queueMicrotask(ensureDraw);
+    // Fallback if style.load already fired before listeners attached.
+    const poll = window.setInterval(() => {
+      if (drawRef.current) {
+        window.clearInterval(poll);
+        return;
+      }
+      initDraw();
+    }, 250);
+    const pollStop = window.setTimeout(() => window.clearInterval(poll), 8000);
 
     return () => {
+      window.clearInterval(poll);
+      window.clearTimeout(pollStop);
       drawRef.current?.stop();
       drawRef.current = null;
       setDrawReady(false);
@@ -281,42 +365,55 @@ export function AppShell({
     };
   }, []);
 
+  const selected = parcels.find((p) => p.id === selectedId) ?? null;
+
+  useEffect(() => {
+    if (selected) {
+      setDetailName(selected.name);
+    }
+  }, [selected]);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) {
       return;
     }
 
-    const apply = () => syncParcelLayers(map, parcels);
-    if (map.isStyleLoaded()) {
+    const editingId = editingParcelIdRef.current;
+    const apply = () =>
+      syncParcelLayers(map, parcels, {
+        hide: drawMode === "draw",
+        excludeId: drawMode === "edit" ? editingId : null,
+      });
+    if (map.getStyle()) {
       apply();
     } else {
-      map.once("load", apply);
+      map.once("style.load", apply);
     }
 
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
-    for (const parcel of parcels) {
-      const el = document.createElement("button");
-      el.type = "button";
-      el.className = styles.marker;
-      el.setAttribute("aria-label", parcel.name);
-      el.addEventListener("click", (event) => {
-        event.stopPropagation();
-        if (drawMode !== "idle") {
-          return;
-        }
-        selectParcel(parcel.id);
-      });
+    if (drawMode === "idle") {
+      for (const parcel of parcels) {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className =
+          parcel.id === selectedId ? `${styles.marker} ${styles.markerSelected}` : styles.marker;
+        el.setAttribute("aria-label", parcel.name);
+        el.addEventListener("click", (event) => {
+          event.stopPropagation();
+          selectParcel(parcel.id);
+        });
 
-      const marker = new Marker({ element: el })
-        .setLngLat([parcel.longitude, parcel.latitude])
-        .addTo(map);
-      markersRef.current.push(marker);
+        const marker = new Marker({ element: el })
+          .setLngLat([parcel.longitude, parcel.latitude])
+          .addTo(map);
+        markersRef.current.push(marker);
+      }
     }
 
-    if (selectedId) {
+    if (selectedId || drawMode !== "idle") {
       return;
     }
     const bounds = boundsForParcels(parcels);
@@ -330,9 +427,8 @@ export function AppShell({
     }
   }, [parcels, selectParcel, drawMode, selectedId]);
 
-  const selected = parcels.find((p) => p.id === selectedId) ?? null;
-
-  const resetDrawState = () => {
+  const resetDrawState = (opts?: { restoreSelection?: boolean }) => {
+    const editingId = editingParcelIdRef.current;
     drawRef.current?.clear();
     drawRef.current?.setMode("render");
     draftFeatureIdRef.current = null;
@@ -340,6 +436,9 @@ export function AppShell({
     setDraftGeometry(null);
     setDrawMode("idle");
     setActionError(null);
+    if (opts?.restoreSelection !== false && editingId) {
+      selectParcel(editingId);
+    }
   };
 
   const startDraw = () => {
@@ -363,20 +462,25 @@ export function AppShell({
       setActionError("Dibuja un polígono cerrado primero");
       return;
     }
+    const name = draftName.trim();
+    if (!name) {
+      setActionError("El nombre es obligatorio");
+      return;
+    }
     setBusy(true);
     setActionError(null);
     try {
       const res = await fetch("/api/parcels", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: draftName, geometry: draftGeometry }),
+        body: JSON.stringify({ name, geometry: draftGeometry }),
       });
       const json = (await res.json()) as { status: string; data?: Parcel; message?: string };
       if (!res.ok || json.status !== "OK" || !json.data) {
         setActionError(json.message ?? "No se pudo guardar");
         return;
       }
-      resetDrawState();
+      resetDrawState({ restoreSelection: false });
       await reloadParcels();
       selectParcel(json.data.id);
     } catch {
@@ -388,28 +492,60 @@ export function AppShell({
 
   const startEditSelected = () => {
     const draw = drawRef.current;
+    const map = mapRef.current;
     if (!draw || !selected?.geometry || selected.geometry.type !== "Polygon") {
+      setActionError("Esta parcela no tiene polígono editable");
       return;
     }
+    if (!drawReady) {
+      setActionError("Espera a que el mapa termine de cargar e inténtalo de nuevo");
+      return;
+    }
+    const geometry = selected.geometry;
+    const parcelId = selected.id;
     setActionError(null);
-    editingParcelIdRef.current = selected.id;
-    draw.clear();
-    const featureId = draw.getFeatureId();
-    draw.addFeatures([
-      {
-        type: "Feature",
-        id: featureId,
-        geometry: selected.geometry,
-        properties: { mode: "polygon" },
-      },
-    ]);
-    draftFeatureIdRef.current = featureId;
-    setDraftGeometry(selected.geometry);
-    setDraftName(selected.name);
-    draw.setMode("select");
-    draw.selectFeature(featureId);
+    editingParcelIdRef.current = parcelId;
     setDrawMode("edit");
-    selectParcel(null);
+    setDraftName(selected.name);
+    setDraftGeometry(geometry);
+
+    let loaded = false;
+    const loadEditableFeature = () => {
+      if (loaded || editingParcelIdRef.current !== parcelId) {
+        return;
+      }
+      loaded = true;
+      draw.clear();
+      const featureId = draw.getFeatureId();
+      const validation = draw.addFeatures([
+        {
+          type: "Feature",
+          id: featureId,
+          geometry,
+          properties: { mode: "polygon" },
+        },
+      ]);
+      if (validation.some((v) => !v.valid)) {
+        setActionError("No se pudo cargar la geometría para editar");
+        resetDrawState();
+        return;
+      }
+      draftFeatureIdRef.current = featureId;
+      draw.setMode("select");
+      draw.selectFeature(featureId);
+    };
+
+    // Zoom first so vertex handles are large enough to grab, then mount edit feature.
+    if (map) {
+      flyToParcel(map, selected, {
+        padding: { top: 96, bottom: 96, left: 96, right: 420 },
+      });
+      map.once("moveend", loadEditableFeature);
+      // Fallback if already at target / moveend skipped.
+      window.setTimeout(loadEditableFeature, 800);
+    } else {
+      loadEditableFeature();
+    }
   };
 
   const saveEdit = async () => {
@@ -425,24 +561,57 @@ export function AppShell({
       setActionError("Geometría inválida");
       return;
     }
+    const name = draftName.trim();
+    if (!name) {
+      setActionError("El nombre es obligatorio");
+      return;
+    }
     setBusy(true);
     setActionError(null);
     try {
       const res = await fetch(`/api/parcels/${encodeURIComponent(editingId)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: draftName, geometry: feature.geometry }),
+        body: JSON.stringify({ name, geometry: feature.geometry }),
       });
       const json = (await res.json()) as { status: string; data?: Parcel; message?: string };
       if (!res.ok || json.status !== "OK" || !json.data) {
         setActionError(json.message ?? "No se pudo actualizar");
         return;
       }
-      resetDrawState();
+      resetDrawState({ restoreSelection: false });
       await reloadParcels();
       selectParcel(json.data.id);
     } catch {
       setActionError("No se pudo actualizar");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveDetailName = async () => {
+    if (!selectedId) return;
+    const name = detailName.trim();
+    if (!name) {
+      setActionError("El nombre es obligatorio");
+      return;
+    }
+    setBusy(true);
+    setActionError(null);
+    try {
+      const res = await fetch(`/api/parcels/${encodeURIComponent(selectedId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const json = (await res.json()) as { status: string; data?: Parcel; message?: string };
+      if (!res.ok || json.status !== "OK" || !json.data) {
+        setActionError(json.message ?? "No se pudo guardar el nombre");
+        return;
+      }
+      await reloadParcels();
+    } catch {
+      setActionError("No se pudo guardar el nombre");
     } finally {
       setBusy(false);
     }
@@ -508,19 +677,38 @@ export function AppShell({
 
       {drawMode === "idle" ? (
         <div className={styles.mapToolbar}>
-          <Button type="button" onClick={startDraw} disabled={!drawReady}>
-            {drawReady ? "Dibujar parcela" : "Cargando mapa…"}
-          </Button>
+          {!drawReady ? (
+            <Button type="button" disabled>
+              Cargando mapa…
+            </Button>
+          ) : selected?.geometry?.type === "Polygon" ? (
+            <>
+              <Button type="button" onClick={startEditSelected} disabled={busy}>
+                Editar geometría
+              </Button>
+              <Button type="button" variant="ghost" onClick={startDraw} disabled={busy}>
+                Nueva parcela
+              </Button>
+            </>
+          ) : parcels.length === 0 ? (
+            <Button type="button" onClick={startDraw} disabled={busy}>
+              Dibujar parcela
+            </Button>
+          ) : (
+            <Button type="button" variant="ghost" onClick={startDraw} disabled={busy}>
+              Nueva parcela
+            </Button>
+          )}
         </div>
       ) : drawMode === "draw" && !draftGeometry ? (
         <div className={styles.mapToolbar}>
-          <Button type="button" variant="ghost" onClick={resetDrawState}>
+          <Button type="button" variant="ghost" onClick={() => resetDrawState({ restoreSelection: false })}>
             Cancelar dibujo
           </Button>
         </div>
       ) : drawMode === "edit" ? (
         <div className={styles.mapToolbar}>
-          <Button type="button" variant="ghost" onClick={resetDrawState}>
+          <Button type="button" variant="ghost" onClick={() => resetDrawState()}>
             Cancelar edición
           </Button>
         </div>
@@ -528,21 +716,27 @@ export function AppShell({
 
       {drawMode === "draw" && draftGeometry ? (
         <div className={styles.panelSlot}>
-          <Panel title="Guardar parcela" onClose={resetDrawState}>
+          <Panel title="Guardar parcela" onClose={() => resetDrawState({ restoreSelection: false })}>
             <label className={styles.field}>
               <span>Nombre</span>
               <input
                 value={draftName}
                 onChange={(e) => setDraftName(e.target.value)}
                 className={styles.input}
+                autoFocus
               />
             </label>
-            <p className={styles.help}>Polígono listo. Guarda para persistirlo en el workspace.</p>
+            <p className={styles.help}>Polígono listo. Guarda nombre y geometría en el workspace.</p>
             <div className={styles.actions}>
               <Button type="button" onClick={() => void saveDraft()} disabled={busy}>
-                Guardar
+                Guardar parcela
               </Button>
-              <Button type="button" variant="ghost" onClick={resetDrawState} disabled={busy}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => resetDrawState({ restoreSelection: false })}
+                disabled={busy}
+              >
                 Descartar
               </Button>
             </div>
@@ -552,7 +746,7 @@ export function AppShell({
 
       {drawMode === "edit" ? (
         <div className={styles.panelSlot}>
-          <Panel title="Editar parcela" onClose={resetDrawState}>
+          <Panel title="Editar parcela" onClose={() => resetDrawState()}>
             <label className={styles.field}>
               <span>Nombre</span>
               <input
@@ -561,12 +755,14 @@ export function AppShell({
                 className={styles.input}
               />
             </label>
-            <p className={styles.help}>Arrastra vértices en el mapa y guarda los cambios.</p>
+            <p className={styles.help}>
+              Arrastra vértices o la parcela en el mapa. Guarda para persistir nombre y geometría.
+            </p>
             <div className={styles.actions}>
               <Button type="button" onClick={() => void saveEdit()} disabled={busy}>
                 Guardar cambios
               </Button>
-              <Button type="button" variant="ghost" onClick={resetDrawState} disabled={busy}>
+              <Button type="button" variant="ghost" onClick={() => resetDrawState()} disabled={busy}>
                 Cancelar
               </Button>
             </div>
@@ -577,6 +773,28 @@ export function AppShell({
       {drawMode === "idle" && selected ? (
         <div className={styles.panelSlot}>
           <Panel title={selected.name} onClose={() => selectParcel(null)} className={styles.panelFill}>
+            <label className={styles.field}>
+              <span>Nombre</span>
+              <input
+                value={detailName}
+                onChange={(e) => setDetailName(e.target.value)}
+                className={styles.input}
+              />
+            </label>
+            <div className={styles.actions}>
+              <Button
+                type="button"
+                onClick={() => void saveDetailName()}
+                disabled={busy || detailName.trim() === selected.name}
+              >
+                Guardar datos
+              </Button>
+              {selected.geometry?.type === "Polygon" ? (
+                <Button type="button" onClick={startEditSelected} disabled={busy || !drawReady}>
+                  Editar geometría
+                </Button>
+              ) : null}
+            </div>
             <div className={styles.tabs}>
               <button
                 type="button"
@@ -598,11 +816,6 @@ export function AppShell({
               <AgentChatPanel parcel={selected} isAdmin={isAdmin} />
             ) : null}
             <div className={styles.panelFooter}>
-              {selected.geometry?.type === "Polygon" ? (
-                <Button type="button" variant="ghost" onClick={startEditSelected} disabled={busy}>
-                  Editar geometría
-                </Button>
-              ) : null}
               <Button
                 type="button"
                 variant="ghost"
@@ -619,8 +832,8 @@ export function AppShell({
       {drawMode === "idle" && !selected ? (
         <div className={styles.hint}>
           {parcels.length === 0 && !listError
-            ? "Pulsa «Dibujar parcela» arriba a la izquierda"
-            : "Toca un punto verde para detalle, o «Dibujar parcela» para crear otra"}
+            ? "Pulsa «Dibujar parcela» para crear la primera"
+            : "Toca un punto verde para editarla · «Nueva parcela» para crear otra"}
         </div>
       ) : null}
 
@@ -628,6 +841,10 @@ export function AppShell({
         <div className={styles.hint}>
           Haz clic en el mapa para trazar el polígono; doble clic para cerrar
         </div>
+      ) : null}
+
+      {drawMode === "edit" ? (
+        <div className={styles.hint}>Arrastra vértices en el mapa y pulsa Guardar cambios</div>
       ) : null}
     </div>
   );
