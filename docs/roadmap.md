@@ -68,7 +68,19 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 
 ## Fase 6 — Traceability discovery
 
-**Estado:** en curso (paralelo)
+**Estado:** Fase 6a (Trace-1) completada (2026-08-27)
+
+### Fase 6a — Trace-1 Lot Core
+
+- Entitlement `traceability` + `authorizeTraceabilityAccess`
+- Fixtures coffee + `OfflineTraceLotRegistry` + `ListOrgTraceLots`
+- `GET /api/trace/lots`; tab Trazabilidad en `/app`
+- ADR-021; WQ-17 sin agent tools
+- Tests 63 total
+
+### Fase 6b — siguiente
+
+- Mutations (crear lote / append event) o catálogo EUDR
 
 ## Fase 7 — Agronomic Review
 

@@ -64,6 +64,13 @@ export const defaultSyntheticSnapshots: AccessSnapshot[] = [
     // Empty allowlist = all org parcels (ADR-011)
     authorizedParcelIds: [],
   },
+  {
+    userId: "user-trace-007",
+    orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+    isActiveMember: true,
+    entitlements: ["weather", "traceability"],
+    authorizedParcelIds: [],
+  },
 ];
 
 export const syntheticAccessResolver = new SyntheticAccessResolver(defaultSyntheticSnapshots);

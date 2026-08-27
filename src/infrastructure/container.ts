@@ -14,6 +14,7 @@ import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
+import { ListOrgTraceLots } from "@/application/traceability/list-org-trace-lots";
 import type { AccessResolver } from "@/domain/auth/access-resolver";
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import type { OrgMetadataStore } from "@/domain/workspace/types";
@@ -31,6 +32,7 @@ import { FreeTierWeatherSource } from "@/infrastructure/weather/free-tier-weathe
 import { NasaPowerWeatherSource } from "@/infrastructure/weather/nasa-power-weather-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 import { OpenMeteoWeatherSource } from "@/infrastructure/weather/open-meteo-weather-source";
+import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
 
 export function createParcelRegistry(): ParcelRegistry {
   if (process.env.DATABASE_URL) {
@@ -109,6 +111,9 @@ export const getParcelWeatherLowRainDays = new GetParcelWeatherLowRainDays(
 export const getParcelWeatherGdd = new GetParcelWeatherGdd(parcelRegistry, weatherSource);
 
 export const getParcelWeatherEt0 = new GetParcelWeatherEt0(parcelRegistry, weatherSource);
+
+const traceLotRegistry = new OfflineTraceLotRegistry();
+export const listOrgTraceLots = new ListOrgTraceLots(traceLotRegistry);
 
 export function createAccessResolver(): AccessResolver {
   if (process.env.CLERK_SECRET_KEY) {

@@ -1,32 +1,37 @@
 # Traceability — discovery
 
-Estado: **discovery en paralelo** (sin runtime en fase 1).
+Estado: **Fase 6a (Trace-1) runtime mínimo** — listado de lotes con fixtures coffee.
 
 ## Objetivo fase 2
 
 MVP interno coffee/EUDR con datos sintéticos. Integración con Agro Agent solo cuando el producto Traceability esté activo en el workspace (WQ-17 REFUSE hasta entonces).
 
-## Preguntas abiertas
+## Preguntas (piloto v1)
 
-1. ¿Qué eventos mínimos conforman un lote trazable (siembra, cosecha, procesamiento, export)?
-2. ¿Quién firma/aprueba cada transición en workflow humano?
-3. ¿Qué evidencia documental adjunta cada evento?
-4. ¿Cómo se vincula parcela ↔ lote sin exponer geometría excesiva en Weather?
-5. ¿Qué campos EUDR son obligatorios vs opcionales en piloto Perú?
+| # | Pregunta | Estado v1 (ADR-021) |
+|---|----------|---------------------|
+| 1 | Eventos mínimos | Cerrado: `planted` \| `harvested` \| `processed` \| `exported` |
+| 2 | Quién firma/aprueba | Diferido; evento append-only con `actorId` |
+| 3 | Evidencia documental | `evidenceRef` opcional (string); sin uploads |
+| 4 | Parcela ↔ lote | `ParcelLink` por `parcelId`; sin geometría en respuestas Trace |
+| 5 | Campos EUDR obligatorios | **Abierta** — diferido a Trace-2+ |
 
-## Contratos de dominio (TypeScript)
+## Contratos de dominio
 
 Interfaces en `src/domain/traceability/types.ts`:
 
-- `TraceLot` — identidad del lote
-- `TraceEvent` — evento append-only
+- `TraceLot` — identidad del lote (+ `name`)
+- `TraceEvent` — evento append-only (`TraceEventType` cerrado)
 - `ParcelLink` — vínculo parcela-lote
+- `TraceLotView` / `TraceLotRegistry` — listado org-scoped
+
+Runtime Trace-1: `OfflineTraceLotRegistry` + `GET /api/trace/lots` + tab Trazabilidad en `/app`.
 
 ## Límites vs Weather
 
-- Agro Agent **no** expone tools de trazabilidad en v1.
-- Pronósticos weather **no** inferen lotes afectados (WQ-17 REFUSE).
+- Agro Agent **no** expone tools de trazabilidad (WQ-17).
+- Pronósticos weather **no** inferen lotes afectados.
 
 ## Próximo paso
 
-Entrevistas de workflow + fixtures sintéticos coffee antes de closed beta.
+**Trace-2:** mutations (crear lote / append event) o catálogo de campos EUDR.
