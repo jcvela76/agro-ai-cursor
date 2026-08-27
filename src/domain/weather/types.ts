@@ -96,6 +96,19 @@ export interface WeatherLowRainDays {
   evidence: WeatherEvidence;
 }
 
+/** WQ-14: growing degree days accumulation (Plus). */
+export interface WeatherGdd {
+  kind: "gdd";
+  calculationMethodId: string;
+  calculationMethodLabel: string;
+  baseTempCelsius: number;
+  totalGdd: number;
+  daysIncluded: number;
+  periodStart: string;
+  periodEnd: string;
+  evidence: WeatherEvidence;
+}
+
 export type WeatherResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: WeatherLimitationReason; message: string };
@@ -108,4 +121,5 @@ export interface WeatherSource {
     parcelId: string,
   ): Promise<WeatherResult<WeatherRainfallCampaignComparison>>;
   getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>>;
+  getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>>;
 }

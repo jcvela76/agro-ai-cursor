@@ -1,6 +1,13 @@
 import type { ParcelRegistry } from "@/domain/parcel/types";
+import {
+  accumulateGdd,
+  GDD_BASE_TEMP_CELSIUS,
+  GDD_CALCULATION_METHOD_ID,
+  GDD_CALCULATION_METHOD_LABEL,
+} from "@/domain/weather/compute-gdd";
 import type {
   WeatherForecast,
+  WeatherGdd,
   WeatherLowRainDays,
   WeatherObservation,
   WeatherRainfall30d,
@@ -15,6 +22,8 @@ interface NasaPowerResponse {
   properties?: {
     parameter?: {
       T2M?: Record<string, number>;
+      T2M_MAX?: Record<string, number>;
+      T2M_MIN?: Record<string, number>;
       PRECTOTCORR?: Record<string, number>;
     };
   };
@@ -414,6 +423,147 @@ export class NasaPowerWeatherSource implements WeatherSource {
       .sort();
 
     return { ok: true, data: { precips, validDates } };
+  }
+
+  async getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>> {
+    const parcel = await this.parcels.getParcel(parcelId);
+    if (!parcel) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No GDD data exists for this parcel.",
+      };
+    }
+
+    const now = this.now();
+    const currentYear = now.getUTCFullYear();
+    const campaignStart = new Date(Date.UTC(currentYear, 0, 1));
+
+    const series = await this.fetchDailyTempsMaxMin(parcel, campaignStart, now);
+    if (!series.ok) {
+      return series;
+    }
+
+    const { tmax, tmin, validDates } = series.data;
+    if (validDates.length === 0) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Insufficient daily max/min temperature data for GDD calculation.",
+      };
+    }
+
+    const days = validDates.map((ymd) => ({
+      date: ymdToIsoDate(ymd),
+      tempMaxCelsius: tmax[ymd],
+      tempMinCelsius: tmin[ymd],
+    }));
+    const accumulation = accumulateGdd(days, GDD_BASE_TEMP_CELSIUS);
+    if (!accumulation) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Insufficient daily max/min temperature data for GDD calculation.",
+      };
+    }
+
+    const latestYmd = validDates[validDates.length - 1];
+    const freshnessStatus = observationFreshness(latestYmd, now);
+
+    return {
+      ok: true,
+      data: {
+        kind: "gdd",
+        calculationMethodId: GDD_CALCULATION_METHOD_ID,
+        calculationMethodLabel: GDD_CALCULATION_METHOD_LABEL,
+        baseTempCelsius: accumulation.baseTempCelsius,
+        totalGdd: accumulation.totalGdd,
+        daysIncluded: accumulation.daysIncluded,
+        periodStart: accumulation.periodStart,
+        periodEnd: accumulation.periodEnd,
+        evidence: {
+          sourceId: "nasa-power",
+          sourceLabel: "NASA POWER",
+          validFrom: accumulation.periodStart,
+          validTo: accumulation.periodEnd,
+          timezone: parcel.timezone,
+          spatialScope: {
+            kind: "point",
+            latitude: parcel.latitude,
+            longitude: parcel.longitude,
+            label: parcel.id,
+          },
+          freshnessStatus,
+          freshnessPolicy: "gdd_mean_base10_calendar_ytd_v1",
+        },
+      },
+    };
+  }
+
+  private async fetchDailyTempsMaxMin(
+    parcel: Parcel,
+    start: Date,
+    end: Date,
+  ): Promise<
+    WeatherResult<{
+      tmax: Record<string, number>;
+      tmin: Record<string, number>;
+      validDates: string[];
+    }>
+  > {
+    const url = new URL(this.baseUrl);
+    url.searchParams.set("parameters", "T2M_MAX,T2M_MIN");
+    url.searchParams.set("community", "AG");
+    url.searchParams.set("longitude", String(parcel.longitude));
+    url.searchParams.set("latitude", String(parcel.latitude));
+    url.searchParams.set("start", formatYmd(start));
+    url.searchParams.set("end", formatYmd(end));
+    url.searchParams.set("format", "JSON");
+
+    let payload: unknown;
+    try {
+      const response = await this.fetchFn(url.toString());
+      if (!response.ok) {
+        return {
+          ok: false,
+          reason: "internal_error",
+          message: "Weather provider request failed.",
+        };
+      }
+      payload = await response.json();
+    } catch {
+      return {
+        ok: false,
+        reason: "internal_error",
+        message: "Weather provider request failed.",
+      };
+    }
+
+    if (!isNasaPowerResponse(payload)) {
+      return {
+        ok: false,
+        reason: "internal_error",
+        message: "Weather provider returned an unexpected payload.",
+      };
+    }
+
+    const fillValue = payload.header?.fill_value ?? -999;
+    const tmax = payload.properties?.parameter?.T2M_MAX ?? {};
+    const tmin = payload.properties?.parameter?.T2M_MIN ?? {};
+    const validDates = Object.keys(tmax)
+      .filter((key) => {
+        const max = tmax[key];
+        const min = tmin[key];
+        return (
+          typeof max === "number" &&
+          max !== fillValue &&
+          typeof min === "number" &&
+          min !== fillValue
+        );
+      })
+      .sort();
+
+    return { ok: true, data: { tmax, tmin, validDates } };
   }
 
   async getLowRainDays(_parcelId: string): Promise<WeatherResult<WeatherLowRainDays>> {

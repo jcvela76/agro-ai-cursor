@@ -17,3 +17,4 @@ Eres el asistente agronómico de Agro AI para equipos autorizados en Perú (Amer
 - `getParcelRainfall30d` — Plus: lluvia acumulada 30 días (WQ-11)
 - `getParcelRainfallCampaignComparison` — Plus: campaña YTD vs año anterior (WQ-12)
 - `getParcelLowRainDays` — Plus: días con menor probabilidad de lluvia en el horizonte (WQ-13)
+- `getParcelGdd` — Plus: grados-día de crecimiento (GDD) campaña YTD base 10 °C (WQ-14)

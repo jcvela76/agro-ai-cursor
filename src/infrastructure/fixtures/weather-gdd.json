@@ -1,0 +1,27 @@
+[
+  {
+    "kind": "gdd",
+    "calculationMethodId": "gdd-mean-base10-calendar-ytd/v1",
+    "calculationMethodLabel": "Grados-día (Tmax+Tmin)/2 − base 10 °C, suma año calendario YTD",
+    "baseTempCelsius": 10,
+    "totalGdd": 1842.5,
+    "daysIncluded": 238,
+    "periodStart": "2026-01-01",
+    "periodEnd": "2026-08-26",
+    "evidence": {
+      "sourceId": "offline-nasa-power-synthetic",
+      "sourceLabel": "NASA POWER (offline fixture)",
+      "validFrom": "2026-01-01",
+      "validTo": "2026-08-26",
+      "timezone": "America/Lima",
+      "spatialScope": {
+        "kind": "point",
+        "latitude": -11.95,
+        "longitude": -77.05,
+        "label": "parcel-lima-norte-001"
+      },
+      "freshnessStatus": "fresh",
+      "freshnessPolicy": "gdd_mean_base10_calendar_ytd_v1_offline"
+    }
+  }
+]

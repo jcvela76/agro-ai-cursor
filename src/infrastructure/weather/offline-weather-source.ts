@@ -1,5 +1,6 @@
 import type {
   WeatherForecast,
+  WeatherGdd,
   WeatherLowRainDays,
   WeatherObservation,
   WeatherRainfall30d,
@@ -12,12 +13,14 @@ import forecasts from "@/infrastructure/fixtures/weather-forecasts.json";
 import rainfall30d from "@/infrastructure/fixtures/weather-rainfall-30d.json";
 import rainfallCampaignComparison from "@/infrastructure/fixtures/weather-rainfall-campaign-comparison.json";
 import lowRainDays from "@/infrastructure/fixtures/weather-low-rain-days.json";
+import gdd from "@/infrastructure/fixtures/weather-gdd.json";
 
 type ObservationFixture = WeatherObservation;
 type ForecastFixture = WeatherForecast;
 type Rainfall30dFixture = WeatherRainfall30d;
 type RainfallCampaignComparisonFixture = WeatherRainfallCampaignComparison;
 type LowRainDaysFixture = WeatherLowRainDays;
+type GddFixture = WeatherGdd;
 
 export class OfflineWeatherSource implements WeatherSource {
   private readonly observations: Map<string, ObservationFixture>;
@@ -25,6 +28,7 @@ export class OfflineWeatherSource implements WeatherSource {
   private readonly rainfall30d: Map<string, Rainfall30dFixture>;
   private readonly rainfallCampaignComparison: Map<string, RainfallCampaignComparisonFixture>;
   private readonly lowRainDays: Map<string, LowRainDaysFixture>;
+  private readonly gdd: Map<string, GddFixture>;
 
   constructor(
     observationFixtures: ObservationFixture[] = observations as ObservationFixture[],
@@ -32,6 +36,7 @@ export class OfflineWeatherSource implements WeatherSource {
     rainfall30dFixtures: Rainfall30dFixture[] = rainfall30d as Rainfall30dFixture[],
     rainfallCampaignComparisonFixtures: RainfallCampaignComparisonFixture[] = rainfallCampaignComparison as RainfallCampaignComparisonFixture[],
     lowRainDaysFixtures: LowRainDaysFixture[] = lowRainDays as LowRainDaysFixture[],
+    gddFixtures: GddFixture[] = gdd as GddFixture[],
   ) {
     this.observations = new Map(
       observationFixtures.map((o) => [o.evidence.spatialScope.label, o]),
@@ -48,6 +53,7 @@ export class OfflineWeatherSource implements WeatherSource {
     this.lowRainDays = new Map(
       lowRainDaysFixtures.map((r) => [r.evidence.spatialScope.label, r]),
     );
+    this.gdd = new Map(gddFixtures.map((r) => [r.evidence.spatialScope.label, r]));
   }
 
   async getObservation(parcelId: string): Promise<WeatherResult<WeatherObservation>> {
@@ -119,6 +125,19 @@ export class OfflineWeatherSource implements WeatherSource {
         ok: false,
         reason: "unavailable",
         message: "No low-rain days fixture exists for this parcel.",
+      };
+    }
+
+    return { ok: true, data };
+  }
+
+  async getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>> {
+    const data = this.gdd.get(parcelId);
+    if (!data) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No GDD fixture exists for this parcel.",
       };
     }
 

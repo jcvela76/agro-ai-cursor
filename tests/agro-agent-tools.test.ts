@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/tools";
+import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
@@ -29,6 +30,7 @@ describe("Agro Agent weather tools", () => {
     source,
   );
   const lowRainDays = new GetParcelWeatherLowRainDays(registry, source);
+  const gdd = new GetParcelWeatherGdd(registry, source);
   const authority = defaultSyntheticSnapshots[4];
 
   function toolsFor(parcelId: string) {
@@ -40,6 +42,7 @@ describe("Agro Agent weather tools", () => {
       rainfall30d,
       rainfallCampaignComparison,
       lowRainDays,
+      gdd,
     });
   }
 
@@ -111,6 +114,20 @@ describe("Agro Agent weather tools", () => {
       expect(result.data.kind).toBe("low_rain_days");
       expect(result.data.rankingMethodId).toBe("forecast-low-precip-probability/v1");
       expect(result.data.days[0].date).toBe("2026-08-28");
+    }
+  });
+
+  it("returns GDD accumulation for Plus parcel", async () => {
+    const tools = toolsFor("parcel-lima-norte-001");
+    const result = (await tools.getParcelGdd.execute!(
+      {},
+      { toolCallId: "t6", messages: [] },
+    )) as Awaited<ReturnType<NonNullable<typeof tools.getParcelGdd.execute>>>;
+    expect(result).toMatchObject({ ok: true });
+    if ("ok" in result && result.ok) {
+      expect(result.data.kind).toBe("gdd");
+      expect(result.data.calculationMethodId).toBe("gdd-mean-base10-calendar-ytd/v1");
+      expect(result.data.totalGdd).toBe(1842.5);
     }
   });
 });

@@ -50,6 +50,14 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Horizon forecast Open-Meteo ampliado a 7 días
 - Tests 41 total
 
+## Fase 5i — Plus-4 Growing degree days (WQ-14)
+
+**Estado:** completada (2026-08-27)
+
+- GDD campaña YTD: `(Tmax+Tmin)/2 − 10 °C` (NASA T2M_MAX/T2M_MIN / offline)
+- Tool agent `getParcelGdd`; ADR-019; método `gdd-mean-base10-calendar-ytd/v1`
+- Tests 48 total
+
 ## Fase 6 — Traceability discovery
 
 **Estado:** en curso (paralelo)

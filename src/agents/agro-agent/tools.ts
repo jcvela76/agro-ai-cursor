@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import { authorizeWeatherPlusAccess } from "@/domain/auth/authorize-weather-access";
+import type { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import type { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import type { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import type { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
@@ -21,12 +22,14 @@ export const agroAgentToolNames = {
   rainfall30d: "getParcelRainfall30d",
   rainfallCampaignComparison: "getParcelRainfallCampaignComparison",
   lowRainDays: "getParcelLowRainDays",
+  gdd: "getParcelGdd",
 } as const;
 
 export const plusToolNames = [
   agroAgentToolNames.rainfall30d,
   agroAgentToolNames.rainfallCampaignComparison,
   agroAgentToolNames.lowRainDays,
+  agroAgentToolNames.gdd,
 ] as const;
 
 export function createAgroAgentTools(input: {
@@ -37,6 +40,7 @@ export function createAgroAgentTools(input: {
   rainfall30d: GetParcelWeatherRainfall30d;
   rainfallCampaignComparison: GetParcelWeatherRainfallCampaignComparison;
   lowRainDays: GetParcelWeatherLowRainDays;
+  gdd: GetParcelWeatherGdd;
 }) {
   const {
     authority,
@@ -46,6 +50,7 @@ export function createAgroAgentTools(input: {
     rainfall30d,
     rainfallCampaignComparison,
     lowRainDays,
+    gdd,
   } = input;
 
   return {
@@ -103,6 +108,18 @@ export function createAgroAgentTools(input: {
       inputSchema: z.object({}),
       execute: async () => {
         const result = await lowRainDays.execute({ authority, parcelId });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelGdd: tool({
+      description:
+        "Estima grados-día de crecimiento (GDD) acumulados en la campaña año calendario YTD con base 10 °C y Tmax/Tmin diarios (método versionado + evidencia). Requiere Plus.",
+      inputSchema: z.object({}),
+      execute: async () => {
+        const result = await gdd.execute({ authority, parcelId });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }

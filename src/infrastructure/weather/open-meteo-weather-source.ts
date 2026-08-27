@@ -2,6 +2,7 @@ import type { ParcelRegistry } from "@/domain/parcel/types";
 import { rankLowRainDaysFromForecast } from "@/domain/weather/rank-low-rain-days";
 import type {
   WeatherForecast,
+  WeatherGdd,
   WeatherForecastDay,
   WeatherLowRainDays,
   WeatherObservation,
@@ -183,5 +184,14 @@ export class OpenMeteoWeatherSource implements WeatherSource {
       return forecast;
     }
     return rankLowRainDaysFromForecast(forecast.data);
+  }
+
+  async getGdd(): Promise<WeatherResult<WeatherGdd>> {
+    return {
+      ok: false,
+      reason: "unavailable",
+      message:
+        "Open-Meteo adapter does not provide campaign-year GDD aggregation in this release.",
+    };
   }
 }
