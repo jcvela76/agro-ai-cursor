@@ -16,7 +16,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "npx tsx scripts/seed-parcels.ts",
-    "db:seed:trace": "npx tsx scripts/seed-trace-lots.ts"
+    "db:seed:trace": "npx tsx scripts/seed-trace-lots.ts",
+    "smoke:trace-eudr": "npx tsx scripts/smoke-trace-eudr.ts"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.86",
