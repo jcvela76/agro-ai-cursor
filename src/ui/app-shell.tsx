@@ -973,23 +973,11 @@ export function AppShell({
                 className={styles.input}
               />
             </label>
-            <div className={styles.actions}>
-              <Button
-                type="button"
-                onClick={() => void saveDetailName()}
-                disabled={busy || detailName.trim() === selected.name}
-              >
-                Guardar datos
-              </Button>
-              {selected.geometry?.type === "Polygon" ? (
-                <Button type="button" variant="ghost" onClick={startEditSelected} disabled={busy}>
-                  Editar geometría
-                </Button>
-              ) : null}
-            </div>
-            <div className={styles.tabs}>
+            <div className={styles.tabs} role="tablist" aria-label="Secciones de parcela">
               <button
                 type="button"
+                role="tab"
+                aria-selected={sideTab === "weather"}
                 className={sideTab === "weather" ? styles.tabActive : styles.tab}
                 onClick={() => setSideTab("weather")}
               >
@@ -997,6 +985,8 @@ export function AppShell({
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={sideTab === "spectral"}
                 className={sideTab === "spectral" ? styles.tabActive : styles.tab}
                 onClick={() => setSideTab("spectral")}
               >
@@ -1004,6 +994,8 @@ export function AppShell({
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={sideTab === "agent"}
                 className={sideTab === "agent" ? styles.tabActive : styles.tab}
                 onClick={() => setSideTab("agent")}
               >
@@ -1011,6 +1003,8 @@ export function AppShell({
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={sideTab === "trace"}
                 className={sideTab === "trace" ? styles.tabActive : styles.tab}
                 onClick={() => setSideTab("trace")}
               >
@@ -1018,6 +1012,8 @@ export function AppShell({
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={sideTab === "review"}
                 className={sideTab === "review" ? styles.tabActive : styles.tab}
                 onClick={() => setSideTab("review")}
               >
@@ -1044,9 +1040,24 @@ export function AppShell({
               <ReviewPanel parcelId={selected.id} isAdmin={isAdmin} />
             ) : null}
             <div className={styles.panelFooter}>
+              <div className={styles.panelFooterActions}>
+                <Button
+                  type="button"
+                  onClick={() => void saveDetailName()}
+                  disabled={busy || detailName.trim() === selected.name}
+                >
+                  Guardar datos
+                </Button>
+                {selected.geometry?.type === "Polygon" ? (
+                  <Button type="button" variant="ghost" onClick={startEditSelected} disabled={busy}>
+                    Editar geometría
+                  </Button>
+                ) : null}
+              </div>
               <Button
                 type="button"
                 variant="ghost"
+                className={styles.panelFooterDanger}
                 onClick={() => void deleteSelected()}
                 disabled={busy}
               >
