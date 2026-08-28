@@ -150,7 +150,7 @@ export function createAgroAgentTools(input: {
     }),
     getParcelVegetationIndices: tool({
       description:
-        "Obtiene índices de vegetación (NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR) derivados de reflectancia multiespectral con evidencia de escena. Requiere Plus.",
+        "Obtiene índices de vegetación (NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR) derivados de reflectancia multiespectral con evidencia de escena. Usar NDWI/NDMI para preguntas de humedad/riego (orientación basada en evidencia). Requiere Plus.",
       inputSchema: z.object({}),
       execute: async () => {
         const result = await vegetationIndices.execute({ authority, parcelId });

@@ -121,10 +121,10 @@ export async function POST(request: Request) {
 
   const result = streamText({
     model,
-    system: `${loadAgroAgentInstructions()}\n\nParcela activa (fija): ${parcelId}. Usa solo tools; no inventes valores.`,
+    system: `${loadAgroAgentInstructions()}\n\nParcela activa (fija): ${parcelId}. Usa solo tools; no inventes valores. Si preguntan riego o humedad: invoca el playbook hídrico completo en el mismo turno (observation, forecast, rainfall30d, et0, vegetationIndices) antes de responder.`,
     messages: modelMessages,
     tools,
-    stopWhen: stepCountIs(6),
+    stopWhen: stepCountIs(10),
   });
 
   return result.toUIMessageStreamResponse();
