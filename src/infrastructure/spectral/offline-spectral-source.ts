@@ -6,6 +6,7 @@ import type {
   SpectralResult,
   SpectralSource,
 } from "@/domain/spectral/types";
+import { resolveOfflineFixtureParcelId } from "@/infrastructure/fixtures/resolve-offline-fixture-parcel-id";
 import reflectanceFixtures from "@/infrastructure/fixtures/spectral-reflectance.json";
 
 interface ReflectanceFixture {
@@ -23,12 +24,13 @@ export class OfflineSpectralSource implements SpectralSource {
   }
 
   async getVegetationIndices(parcelId: string): Promise<SpectralResult<ParcelVegetationIndices>> {
-    const fixture = this.fixtures.get(parcelId);
+    const fixtureKey = resolveOfflineFixtureParcelId(parcelId);
+    const fixture = this.fixtures.get(fixtureKey);
     if (!fixture) {
       return {
         ok: false,
         reason: "unavailable",
-        message: "No spectral fixture exists for this parcel.",
+        message: "No hay datos espectrales offline para esta parcela.",
       };
     }
 
@@ -36,7 +38,7 @@ export class OfflineSpectralSource implements SpectralSource {
       return {
         ok: false,
         reason: "stale",
-        message: "The latest spectral scene is no longer sufficiently fresh.",
+        message: "La escena espectral ya no cumple la política de frescura.",
       };
     }
 

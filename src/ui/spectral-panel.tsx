@@ -26,6 +26,19 @@ function limitationTone(reason: SpectralLimitationReason): "stale" | "unavailabl
   return "unavailable";
 }
 
+function limitationDetail(reason: SpectralLimitationReason): string | undefined {
+  if (reason === "stale") {
+    return "La escena superó la política de frescura configurada.";
+  }
+  if (reason === "unsupported_range") {
+    return "El índice solicitado no está soportado.";
+  }
+  if (reason === "internal_error") {
+    return "Intenta de nuevo en unos minutos.";
+  }
+  return undefined;
+}
+
 function freshnessTone(status: string): "fresh" | "stale" | "unknown" {
   if (status === "fresh") return "fresh";
   if (status === "stale") return "stale";
@@ -87,7 +100,7 @@ export function SpectralPanel({
     return (
       <StateBanner
         title={payload.message}
-        detail={payload.reason}
+        detail={limitationDetail(payload.reason)}
         tone={limitationTone(payload.reason)}
       />
     );

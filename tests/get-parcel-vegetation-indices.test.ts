@@ -35,4 +35,21 @@ describe("Spectral-1: parcel vegetation indices (Plus)", () => {
       expect(result.data.evidence.satelliteMission).toBe("Sentinel-2");
     }
   });
+
+  it("resolves prod dual-seed parcel id to the same offline fixture", async () => {
+    const result = await useCase.execute({
+      authority: {
+        userId: "user-plus-prod",
+        orgId: "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+        isActiveMember: true,
+        entitlements: ["weather", "weather_plus"],
+        authorizedParcelIds: [],
+      },
+      parcelId: "parcel-lima-norte-prod-001",
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.indices[0]?.value).toBeCloseTo(0.2857, 3);
+    }
+  });
 });

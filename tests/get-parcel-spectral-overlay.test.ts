@@ -33,4 +33,22 @@ describe("Spectral-2: parcel spectral overlay (Plus)", () => {
       expect(result.data.grid.features.length).toBeGreaterThan(0);
     }
   });
+
+  it("resolves prod dual-seed parcel id for overlay grid", async () => {
+    const result = await useCase.execute({
+      authority: {
+        userId: "user-plus-prod",
+        orgId: "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
+        isActiveMember: true,
+        entitlements: ["weather", "weather_plus"],
+        authorizedParcelIds: [],
+      },
+      parcelId: "parcel-lima-norte-prod-001",
+      indexId: "ndre",
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.grid.features.length).toBeGreaterThan(0);
+    }
+  });
 });
