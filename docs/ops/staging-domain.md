@@ -28,3 +28,12 @@
 ## Clerk
 
 Staging (Preview) sigue en instancia Clerk **Development** (`pk_test_`). Production apex usa **Production** (`pk_live_`, FAPI `clerk.geoagro.ai`). Ver [clerk-production-keys.md](clerk-production-keys.md).
+
+**Invitaciones org:** el enlace de aceptación debe apuntar al dominio correcto, no al alias Vercel genérico.
+
+| Vercel env | `NEXT_PUBLIC_APP_URL` |
+|------------|------------------------|
+| Preview (`stg`) | `https://stg.geoagro.ai` |
+| Production | `https://geoagro.ai` |
+
+La app envía invitaciones vía `POST /api/org/invitations` con `redirectUrl` → `{APP_URL}/app`. Opcional en Dashboard Development: **Configure → Paths → Home URL** = `https://stg.geoagro.ai`.

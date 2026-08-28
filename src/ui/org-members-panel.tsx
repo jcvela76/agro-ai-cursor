@@ -1,7 +1,9 @@
 "use client";
 
-import { InviteMembersButton, useOrganization } from "@clerk/nextjs";
+import { useOrganization } from "@clerk/nextjs";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { memberSeatUsage } from "@/domain/billing/plan-limits";
 import { planDisplayLabel } from "@/domain/billing/plan-display";
 import { Button } from "@/ui/button";
@@ -25,10 +27,14 @@ function billingPlanSlugFromOrg(
 }
 
 export function OrgMembersPanel() {
+  const router = useRouter();
   const { isLoaded, organization, memberships, invitations } = useOrganization({
     memberships: { infinite: true, pageSize: 20 },
     invitations: { infinite: true, pageSize: 20 },
   });
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteStatus, setInviteStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   if (!isLoaded) {
     return <p className={styles.muted}>Cargando miembros…</p>;
@@ -44,6 +50,36 @@ export function OrgMembersPanel() {
     pendingInvites: pending.length,
     planSlug,
   });
+
+  async function sendInvite(event: React.FormEvent) {
+    event.preventDefault();
+    const email = inviteEmail.trim();
+    if (!email) {
+      return;
+    }
+    setInviteStatus("sending");
+    setInviteError(null);
+    try {
+      const response = await fetch("/api/org/invitations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailAddress: email }),
+      });
+      const payload = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        setInviteStatus("error");
+        setInviteError(payload.message ?? "No se pudo enviar la invitación");
+        return;
+      }
+      setInviteStatus("sent");
+      setInviteEmail("");
+      await organization?.reload();
+      router.refresh();
+    } catch {
+      setInviteStatus("error");
+      setInviteError("Error de red al enviar la invitación");
+    }
+  }
 
   return (
     <div className={styles.panel}>
@@ -69,9 +105,40 @@ export function OrgMembersPanel() {
             </Button>
           </div>
         ) : (
-          <InviteMembersButton>
-            <Button type="button">Invitar miembro</Button>
-          </InviteMembersButton>
+          <form className={styles.inviteForm} onSubmit={sendInvite}>
+            <label className={styles.inviteLabel} htmlFor="invite-email">
+              Email
+            </label>
+            <div className={styles.inviteRow}>
+              <input
+                id="invite-email"
+                className={styles.inviteInput}
+                type="email"
+                name="email"
+                autoComplete="off"
+                placeholder="colega@empresa.com"
+                value={inviteEmail}
+                onChange={(event) => {
+                  setInviteEmail(event.target.value);
+                  if (inviteStatus !== "idle") {
+                    setInviteStatus("idle");
+                    setInviteError(null);
+                  }
+                }}
+                disabled={inviteStatus === "sending"}
+                required
+              />
+              <Button type="submit" disabled={inviteStatus === "sending" || inviteEmail.trim() === ""}>
+                {inviteStatus === "sending" ? "Enviando…" : "Invitar miembro"}
+              </Button>
+            </div>
+            {inviteStatus === "sent" ? (
+              <p className={styles.inviteSuccess}>Invitación enviada. El enlace lleva a este workspace.</p>
+            ) : null}
+            {inviteStatus === "error" && inviteError ? (
+              <p className={styles.inviteError}>{inviteError}</p>
+            ) : null}
+          </form>
         )}
       </div>
 
@@ -129,8 +196,8 @@ export function OrgMembersPanel() {
       ) : null}
 
       <p className={styles.hint}>
-        Solo <strong>org:admin</strong> puede invitar. Cambios de rol avanzados vía modal de Clerk
-        al invitar o en el dashboard Development.
+        Solo <strong>org:admin</strong> puede invitar. El enlace de aceptación redirige a{" "}
+        <strong>/app</strong> en este dominio (stg o prod).
       </p>
     </div>
   );
