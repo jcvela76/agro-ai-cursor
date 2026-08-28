@@ -34,7 +34,10 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": contentDispositionHeader(result.report.title, inline),
+      "Content-Disposition": contentDispositionHeader(result.report.title, {
+        inline,
+        createdAt: result.report.createdAt,
+      }),
       "Cache-Control": "private, max-age=3600",
     },
   });
