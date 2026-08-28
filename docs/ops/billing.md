@@ -167,7 +167,7 @@ Tarjeta de prueba Stripe (development gateway): usar números de test de Stripe 
 
 - [x] Términos / política de privacidad / facturación publicados en `/legal/*` (Legal-1, 2026-08-28) — **revisión abogado pendiente**
 - [x] Precios LP con aviso legal explícito + enlaces a `/legal/subscription`, `/legal/terms`, `/legal/privacy`
-- [ ] Revisión por abogado (Perú) antes de cobro live — ver `docs/ops/legal.md`
+- [ ] Revisión y **aprobación** por abogado (Perú) — paquete en `/legal/*` es **DRAFT**; ver `docs/ops/legal.md`
 - [ ] Stripe account Production conectada en Clerk Production (no reusar gateway dev)
 - [ ] Webhook Production + `CLERK_WEBHOOK_SIGNING_SECRET` en Vercel Production
 - [ ] Smoke cobro real con monto mínimo controlado y reverso/cancelación documentados

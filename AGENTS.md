@@ -70,6 +70,7 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 
 ## Pendientes conocidos
 
+- **Legal DRAFT → abogado:** `/legal/*` publicado como borrador; aprobación counsel pendiente (`docs/ops/legal.md`)
 - eve init (diferido post UI-5; ADR-014)
 - Re-evaluar model path (ADR-015): Gateway vs OpenAI key directa vs Bedrock / eve
 - Cobro Billing **live** en Production (checklist `docs/ops/billing.md`; sandbox Billing-1 hecho)

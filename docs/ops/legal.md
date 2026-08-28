@@ -2,7 +2,30 @@
 
 **ADR:** ADR-032  
 **Alcance:** Documentos públicos en `/legal/*`, avisos en LP y billing.  
-**No sustituye:** revisión por abogado antes de **cobro live** en Perú.
+**Estado vigente:** **DRAFT** — publicado en producción como borrador orientativo; **no sustituye** revisión ni aprobación de abogado en Perú.
+
+## Pendiente — handoff abogado
+
+**Uso actual:** las páginas en `/legal/*` están live en `geoagro.ai` como **draft interno/publicable** (piloto, waitlist, sandbox billing). Válidas para operar sin cobro live; **no** como paquete legal final.
+
+**Pendiente explícito (Julio → counsel Perú):**
+
+- [ ] Enviar paquete legal a abogado para **revisión y aprobación** antes de cobro live
+- [ ] Completar identidad del operador: razón social, RUC, domicilio fiscal (`src/content/legal/types.ts` → `LEGAL_OPERATOR_*`)
+- [ ] Incorporar observaciones del abogado en `documents.ts` + actualizar `LEGAL_LAST_UPDATED`
+- [ ] Confirmar en session-log cuando counsel apruebe el texto (desbloquea checklist billing §2)
+
+**Qué enviar al abogado:**
+
+| Entregable | Ubicación |
+|------------|-----------|
+| Texto legal (4 docs) | `src/content/legal/documents.ts` o URLs live `/legal/*` |
+| Runbook ops | Este archivo (`docs/ops/legal.md`) |
+| Checklist cobro | `docs/ops/billing.md` → sección checklist legal |
+| Contexto producto | LP `geoagro.ai`, billing sandbox en stg, planes USD en suscripción §1 |
+| Foco sugerido | Ley 29733, IGV/facturación electrónica, transferencias internacionales (Clerk/Vercel/Neon/Stripe), B2B, reembolsos, EUDR disclaimer |
+
+**Hasta aprobación:** mantener banner orientativo en `LegalDocumentView`; no habilitar cobro live en apex.
 
 ## Documentos publicados
 
@@ -25,8 +48,8 @@ Fuente en código: `src/content/legal/documents.ts`
 
 Marcar en `docs/ops/billing.md` cuando aplique:
 
-1. **Publicación** — documentos en `/legal/*` ✅ (Legal-1)
-2. **Revisión abogado** — Julio / asesor externo (pendiente)
+1. **Publicación** — documentos en `/legal/*` ✅ (Legal-1) — **estado DRAFT** hasta aprobación abogado
+2. **Revisión y aprobación abogado** — pendiente; handoff en sección «Pendiente — handoff abogado» arriba
 3. **LP** — avisos no vinculantes + enlaces legal ✅
 4. **Stripe Production** + Clerk Billing live en instancia Production
 5. **Webhook Production** + secret en Vercel
