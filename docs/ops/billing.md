@@ -160,7 +160,9 @@ Tarjeta de prueba Stripe (development gateway): usar números de test de Stripe 
 | Paso | Estado |
 |------|--------|
 | Código webhook + mapper + `/app/billing` | ✅ en `main` |
-| Webhook Production `https://geoagro.ai/api/webhooks/clerk` | **Ops manual** — `scripts/clerk-webhook-prod.sh` + `docs/ops/clerk-webhook-production.md` |
+| Webhook Production `https://geoagro.ai/api/webhooks/clerk` | ✅ Ops 2026-08-28 — `docs/ops/clerk-webhook-production.md` |
+| `CLERK_WEBHOOK_SIGNING_SECRET` Vercel Production | ✅ 2026-08-28 |
+| Smoke member limits Production (Lima Coffee) | ✅ 2026-08-28 |
 | `NEXT_PUBLIC_APP_URL` en Vercel Production | **Verificar** `https://geoagro.ai` |
 | Billing enabled + Stripe **account propia** en instancia Production | Bloqueado hasta checklist legal |
 | Montos vinculantes / cobro live en Perú | Bloqueado hasta aprobación abogado |
@@ -173,7 +175,7 @@ El webhook Production puede configurarse **antes** de cobro live (org member lim
 - [x] Precios LP con aviso legal explícito + enlaces a `/legal/subscription`, `/legal/terms`, `/legal/privacy`
 - [ ] Revisión y **aprobación** por abogado (Perú) — paquete en `/legal/*` es **DRAFT**; ver `docs/ops/legal.md`
 - [ ] Stripe account Production conectada en Clerk Production (no reusar gateway dev)
-- [ ] Webhook Production + `CLERK_WEBHOOK_SIGNING_SECRET` en Vercel Production
+- [x] Webhook Production + `CLERK_WEBHOOK_SIGNING_SECRET` en Vercel Production (Billing-ops-prod, 2026-08-28; smoke member limits OK)
 - [ ] Smoke cobro real con monto mínimo controlado y reverso/cancelación documentados
 - [ ] Confirmación explícita de Julio en session-log / ops
 
