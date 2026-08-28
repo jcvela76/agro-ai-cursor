@@ -113,8 +113,9 @@ export function SpectralPanel({
   return (
     <div className={styles.content}>
       <p className={styles.intro}>
-        Índices de vegetación derivados de reflectancia multiespectral. El mapa
-        usa una grilla indicativa (no pixel satelital real). Requiere Intelligence Plus.
+        Índices de vegetación derivados de reflectancia Sentinel-2 L2A. El mapa
+        muestra raster CDSE cuando hay escena live; si no, grilla indicativa. Requiere
+        Intelligence Plus.
       </p>
       <p className={styles.muted}>
         Escena {data.acquisitionDate}

@@ -1,9 +1,12 @@
-import type { ExpressionSpecification, Map as MapLibreMap, GeoJSONSource } from "maplibre-gl";
+import type { Map as MapLibreMap, GeoJSONSource, RasterSourceSpecification } from "maplibre-gl";
+import type { ExpressionSpecification } from "maplibre-gl";
 import type { SpectralLegend } from "@/domain/spectral/types";
 import type { ParcelSpectralOverlay } from "@/domain/spectral/types";
 
 export const SPECTRAL_OVERLAY_SOURCE = "agro-spectral-overlay";
 export const SPECTRAL_OVERLAY_LAYER = "agro-spectral-overlay-circles";
+export const SPECTRAL_RASTER_SOURCE = "agro-spectral-raster";
+export const SPECTRAL_RASTER_LAYER = "agro-spectral-raster-layer";
 
 function colorExpression(legend: SpectralLegend): ExpressionSpecification {
   const expression: unknown[] = ["interpolate", ["linear"], ["get", "value"]];
@@ -20,9 +23,76 @@ export function clearSpectralMapOverlay(map: MapLibreMap) {
   if (map.getSource(SPECTRAL_OVERLAY_SOURCE)) {
     map.removeSource(SPECTRAL_OVERLAY_SOURCE);
   }
+  if (map.getLayer(SPECTRAL_RASTER_LAYER)) {
+    map.removeLayer(SPECTRAL_RASTER_LAYER);
+  }
+  if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
+    map.removeSource(SPECTRAL_RASTER_SOURCE);
+  }
 }
 
-export function applySpectralMapOverlay(
+function applyRasterOverlay(
+  map: MapLibreMap,
+  overlay: ParcelSpectralOverlay,
+  opacity: number,
+  beforeLayerId?: string,
+) {
+  const raster = overlay.raster;
+  if (!raster) {
+    return;
+  }
+
+  const existing = map.getSource(SPECTRAL_RASTER_SOURCE) as
+    | (RasterSourceSpecification & { updateImage?: (opts: {
+        url: string;
+        coordinates: SpectralRasterCoordinates;
+      }) => void })
+    | undefined;
+
+  type SpectralRasterCoordinates = [
+    [number, number],
+    [number, number],
+    [number, number],
+    [number, number],
+  ];
+
+  if (existing && "updateImage" in existing && typeof existing.updateImage === "function") {
+    existing.updateImage({
+      url: raster.imageDataUrl,
+      coordinates: raster.coordinates,
+    });
+  } else {
+    if (map.getLayer(SPECTRAL_RASTER_LAYER)) {
+      map.removeLayer(SPECTRAL_RASTER_LAYER);
+    }
+    if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
+      map.removeSource(SPECTRAL_RASTER_SOURCE);
+    }
+    map.addSource(SPECTRAL_RASTER_SOURCE, {
+      type: "image",
+      url: raster.imageDataUrl,
+      coordinates: raster.coordinates,
+    });
+    map.addLayer(
+      {
+        id: SPECTRAL_RASTER_LAYER,
+        type: "raster",
+        source: SPECTRAL_RASTER_SOURCE,
+        paint: {
+          "raster-opacity": opacity * 0.85,
+          "raster-fade-duration": 0,
+        },
+      },
+      beforeLayerId,
+    );
+  }
+
+  if (map.getLayer(SPECTRAL_RASTER_LAYER)) {
+    map.setPaintProperty(SPECTRAL_RASTER_LAYER, "raster-opacity", opacity * 0.85);
+  }
+}
+
+function applySyntheticGridOverlay(
   map: MapLibreMap,
   overlay: ParcelSpectralOverlay,
   opacity: number,
@@ -66,6 +136,41 @@ export function applySpectralMapOverlay(
 
   if (map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
     map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-color", colorExpression(overlay.legend));
+    map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-opacity", opacity * 0.72);
+  }
+}
+
+export function applySpectralMapOverlay(
+  map: MapLibreMap,
+  overlay: ParcelSpectralOverlay,
+  opacity: number,
+  beforeLayerId?: string,
+) {
+  if (overlay.rendering === "sentinel_raster" && overlay.raster) {
+    if (map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
+      map.removeLayer(SPECTRAL_OVERLAY_LAYER);
+    }
+    if (map.getSource(SPECTRAL_OVERLAY_SOURCE)) {
+      map.removeSource(SPECTRAL_OVERLAY_SOURCE);
+    }
+    applyRasterOverlay(map, overlay, opacity, beforeLayerId);
+    return;
+  }
+
+  if (map.getLayer(SPECTRAL_RASTER_LAYER)) {
+    map.removeLayer(SPECTRAL_RASTER_LAYER);
+  }
+  if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
+    map.removeSource(SPECTRAL_RASTER_SOURCE);
+  }
+  applySyntheticGridOverlay(map, overlay, opacity, beforeLayerId);
+}
+
+export function setSpectralOverlayOpacity(map: MapLibreMap, opacity: number) {
+  if (map.getLayer(SPECTRAL_RASTER_LAYER)) {
+    map.setPaintProperty(SPECTRAL_RASTER_LAYER, "raster-opacity", opacity * 0.85);
+  }
+  if (map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
     map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-opacity", opacity * 0.72);
   }
 }

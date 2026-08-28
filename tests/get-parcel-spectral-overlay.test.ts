@@ -31,6 +31,7 @@ describe("Spectral-2: parcel spectral overlay (Plus)", () => {
       expect(result.data.value).toBeCloseTo(0.2857, 3);
       expect(result.data.legend.minLabel).toBe("Estrés");
       expect(result.data.grid.features.length).toBeGreaterThan(0);
+      expect(result.data.rendering).toBe("synthetic_grid");
     }
   });
 

@@ -76,6 +76,7 @@ async function runOfflineSmoke() {
   assert(ov.data.kind === "spectral_overlay", "offline: overlay kind");
   assert(ov.data.grid.features.length > 0, "offline: overlay grid empty");
   assert(ov.data.legend.minLabel === "Estrés", "offline: legend");
+  assert(ov.data.rendering === "synthetic_grid", "offline: synthetic rendering");
   steps.push(`overlay ${ov.data.grid.features.length} cells`);
 
   console.log(`PASS [offline] ${steps.join(" → ")}`);
@@ -124,6 +125,17 @@ async function runSentinelLiveSmoke() {
   steps.push(
     `indices live (${allowed.data.acquisitionDate} ${allowed.data.evidence.freshnessStatus})`,
   );
+
+  const overlay = new GetParcelSpectralOverlay(parcels, source);
+  const ov = await overlay.execute({
+    authority: weatherPlus,
+    parcelId,
+    indexId: "ndwi",
+  });
+  assert(ov.ok, `live: overlay failed (${!ov.ok ? ov.message : ""})`);
+  assert(ov.data.rendering === "sentinel_raster", "live: expected sentinel_raster overlay");
+  assert(Boolean(ov.data.raster?.imageDataUrl), "live: missing raster data URL");
+  steps.push(`overlay raster ${ov.data.raster?.width}x${ov.data.raster?.height}`);
 
   console.log(`PASS [sentinel_hub] ${steps.join(" → ")}`);
 }

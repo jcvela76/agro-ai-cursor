@@ -2,13 +2,21 @@ import type { ParcelGeometry } from "@/domain/parcel/types";
 import { computeVegetationIndices } from "@/domain/spectral/vegetation-indices";
 import type {
   ParcelVegetationIndices,
+  SpectralIndexOverlayRequest,
   SpectralLocationHint,
+  SpectralRasterOverlay,
   SpectralReflectanceBands,
   SpectralResult,
   SpectralSource,
 } from "@/domain/spectral/types";
 import { CdseTokenProvider, type FetchFn } from "@/infrastructure/spectral/cdse-auth";
 import { SENTINEL2_L2A_BAND_MEAN_EVALSCRIPT } from "@/infrastructure/spectral/sentinel-hub-evalscript";
+import {
+  bboxImageCoordinates,
+  buildIndexRasterEvalscript,
+  geometryBbox,
+  rasterOutputSize,
+} from "@/infrastructure/spectral/sentinel-hub-index-evalscript";
 import { TtlCache } from "@/infrastructure/spectral/ttl-cache";
 
 export const SENTINEL_HUB_SOURCE_ID = "sentinel-hub-cdse";
@@ -16,6 +24,8 @@ export const SENTINEL_HUB_SOURCE_LABEL = "Sentinel Hub (CDSE) — Sentinel-2 L2A
 
 export const DEFAULT_CDSE_STATISTICS_URL =
   "https://sh.dataspace.copernicus.eu/api/v1/statistics";
+export const DEFAULT_CDSE_PROCESS_URL =
+  "https://sh.dataspace.copernicus.eu/api/v1/process";
 
 /** Default 1h — CDSE scenes change slowly; avoids re-hitting stats on every index/overlay click. */
 export const DEFAULT_SPECTRAL_CACHE_TTL_MS = 60 * 60 * 1000;
@@ -24,9 +34,11 @@ const BAND_KEYS = ["blue", "green", "red", "redEdge", "nir", "swir", "swir2"] as
 
 /** Process-local cache shared across SentinelHubSpectralSource instances. */
 const sharedIndicesCache = new TtlCache<SpectralResult<ParcelVegetationIndices>>();
+const sharedRasterCache = new TtlCache<SpectralResult<SpectralRasterOverlay>>();
 
 export function clearSentinelHubSpectralCache(): void {
   sharedIndicesCache.clear();
+  sharedRasterCache.clear();
 }
 
 interface BandStats {
@@ -55,6 +67,7 @@ export interface SentinelHubSpectralSourceOptions {
   fetchFn?: FetchFn;
   tokenProvider?: CdseTokenProvider;
   statisticsUrl?: string;
+  processUrl?: string;
   /** Search window for scenes (days). Coastal fog may need >14. */
   lookbackDays?: number;
   /** Age threshold for evidence.freshnessStatus === "fresh". */
@@ -63,6 +76,7 @@ export interface SentinelHubSpectralSourceOptions {
   /** Cache successful CDSE results (ms). 0 disables. Default 1h. */
   cacheTtlMs?: number;
   cache?: TtlCache<SpectralResult<ParcelVegetationIndices>>;
+  rasterCache?: TtlCache<SpectralResult<SpectralRasterOverlay>>;
   now?: () => Date;
 }
 
@@ -164,11 +178,13 @@ export class SentinelHubSpectralSource implements SpectralSource {
   private readonly tokenProvider: CdseTokenProvider;
   private readonly fetchFn: FetchFn;
   private readonly statisticsUrl: string;
+  private readonly processUrl: string;
   private readonly lookbackDays: number;
   private readonly freshnessMaxDays: number;
   private readonly maxCloudCoverage: number;
   private readonly cacheTtlMs: number;
   private readonly cache: TtlCache<SpectralResult<ParcelVegetationIndices>>;
+  private readonly rasterCache: TtlCache<SpectralResult<SpectralRasterOverlay>>;
   private readonly now: () => Date;
 
   constructor(options: SentinelHubSpectralSourceOptions = {}) {
@@ -182,6 +198,8 @@ export class SentinelHubSpectralSource implements SpectralSource {
       options.statisticsUrl ??
       process.env.CDSE_STATISTICS_URL ??
       DEFAULT_CDSE_STATISTICS_URL;
+    this.processUrl =
+      options.processUrl ?? process.env.CDSE_PROCESS_URL ?? DEFAULT_CDSE_PROCESS_URL;
     this.lookbackDays = options.lookbackDays ?? readEnvInt("SPECTRAL_LOOKBACK_DAYS", 30);
     this.freshnessMaxDays =
       options.freshnessMaxDays ?? readEnvInt("SPECTRAL_FRESHNESS_DAYS", 14);
@@ -190,6 +208,7 @@ export class SentinelHubSpectralSource implements SpectralSource {
     this.cacheTtlMs =
       options.cacheTtlMs ?? readEnvInt("SPECTRAL_CACHE_TTL_MS", DEFAULT_SPECTRAL_CACHE_TTL_MS);
     this.cache = options.cache ?? sharedIndicesCache;
+    this.rasterCache = options.rasterCache ?? sharedRasterCache;
     this.now = options.now ?? (() => new Date());
   }
 
@@ -332,5 +351,115 @@ export class SentinelHubSpectralSource implements SpectralSource {
     }
 
     return result;
+  }
+
+  async getIndexOverlay(
+    request: SpectralIndexOverlayRequest,
+  ): Promise<SpectralResult<SpectralRasterOverlay>> {
+    const day = request.acquiredAt.slice(0, 10);
+    const cacheKey = `${request.parcelId}|${request.indexId}|${day}|${JSON.stringify(request.geometry)}`;
+    if (this.cacheTtlMs > 0) {
+      const cached = this.rasterCache.get(cacheKey);
+      if (cached) {
+        return cached;
+      }
+    }
+
+    const bbox = geometryBbox(request.geometry);
+    if (!Number.isFinite(bbox.minLng) || bbox.maxLng <= bbox.minLng) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Parcel geometry is invalid for spectral overlay.",
+      };
+    }
+
+    const { width, height } = rasterOutputSize(bbox);
+    const timeFrom = `${day}T00:00:00Z`;
+    const timeTo = `${day}T23:59:59Z`;
+    const maxCloud = request.maxCloudCoverage ?? this.maxCloudCoverage;
+
+    const body = {
+      input: {
+        bounds: {
+          geometry: request.geometry,
+          properties: {
+            crs: "http://www.opengis.net/def/crs/EPSG/0/4326",
+          },
+        },
+        data: [
+          {
+            type: "sentinel-2-l2a",
+            dataFilter: {
+              timeRange: { from: timeFrom, to: timeTo },
+              maxCloudCoverage: maxCloud,
+              mosaickingOrder: "mostRecent",
+            },
+          },
+        ],
+      },
+      output: {
+        width,
+        height,
+        responses: [
+          {
+            identifier: "default",
+            format: { type: "image/png" },
+          },
+        ],
+      },
+      evalscript: buildIndexRasterEvalscript(request.indexId),
+    };
+
+    try {
+      const token = await this.tokenProvider.getAccessToken();
+      const response = await this.fetchFn(this.processUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "image/png",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        return {
+          ok: false,
+          reason: "internal_error",
+          message: "Spectral overlay provider request failed.",
+        };
+      }
+
+      const buffer = Buffer.from(await response.arrayBuffer());
+      if (buffer.byteLength < 32) {
+        return {
+          ok: false,
+          reason: "unavailable",
+          message: "Spectral overlay returned an empty image.",
+        };
+      }
+
+      const result: SpectralResult<SpectralRasterOverlay> = {
+        ok: true,
+        data: {
+          imageDataUrl: `data:image/png;base64,${buffer.toString("base64")}`,
+          coordinates: bboxImageCoordinates(bbox),
+          width,
+          height,
+        },
+      };
+
+      if (this.cacheTtlMs > 0) {
+        this.rasterCache.set(cacheKey, result, this.cacheTtlMs);
+      }
+      return result;
+    } catch {
+      return {
+        ok: false,
+        reason: "internal_error",
+        message: "Spectral overlay provider request failed.",
+      };
+    }
   }
 }

@@ -74,16 +74,34 @@ export interface SpectralLegend {
   stops: SpectralLegendStop[];
 }
 
+export interface SpectralRasterOverlay {
+  imageDataUrl: string;
+  /** MapLibre image corners: NW, NE, SE, SW (lng, lat). */
+  coordinates: [
+    [number, number],
+    [number, number],
+    [number, number],
+    [number, number],
+  ];
+  width: number;
+  height: number;
+}
+
 export interface ParcelSpectralOverlay {
   kind: "spectral_overlay";
   indexId: VegetationIndexId;
   label: string;
   value: number | null;
   legend: SpectralLegend;
+  /** Synthetic point grid (offline / fallback). Empty when raster is present. */
   grid: import("geojson").FeatureCollection<
     import("geojson").Point,
     { value: number }
   >;
+  /** Live CDSE Process API PNG when available. */
+  raster?: SpectralRasterOverlay;
+  rendering: "synthetic_grid" | "sentinel_raster";
+  evidence?: SpectralEvidence;
 }
 
 export type SpectralResult<T> =
@@ -98,9 +116,22 @@ export interface SpectralLocationHint {
   timezone?: string;
 }
 
+export interface SpectralIndexOverlayRequest {
+  parcelId: string;
+  indexId: VegetationIndexId;
+  geometry: import("@/domain/parcel/types").ParcelGeometry;
+  /** Prefer scene day from indices evidence (YYYY-MM-DD or ISO). */
+  acquiredAt: string;
+  maxCloudCoverage?: number;
+}
+
 export interface SpectralSource {
   getVegetationIndices(
     parcelId: string,
     location?: SpectralLocationHint,
   ): Promise<SpectralResult<ParcelVegetationIndices>>;
+  /** Optional live raster overlay (CDSE Process API). */
+  getIndexOverlay?(
+    request: SpectralIndexOverlayRequest,
+  ): Promise<SpectralResult<SpectralRasterOverlay>>;
 }

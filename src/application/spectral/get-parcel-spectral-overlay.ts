@@ -35,6 +35,11 @@ export interface GetParcelSpectralOverlayInput {
   indexId: VegetationIndexId;
 }
 
+const EMPTY_GRID: ParcelSpectralOverlay["grid"] = {
+  type: "FeatureCollection",
+  features: [],
+};
+
 export class GetParcelSpectralOverlay {
   constructor(
     private readonly parcels: ParcelRegistry,
@@ -89,15 +94,40 @@ export class GetParcelSpectralOverlay {
 
     const legend = getSpectralLegend(input.indexId);
     const meanValue = reading.value ?? legend.min;
+    const base = {
+      kind: "spectral_overlay" as const,
+      indexId: input.indexId,
+      label: VEGETATION_INDEX_CATALOG[input.indexId].label,
+      value: reading.value,
+      legend,
+      evidence: indicesResult.data.evidence,
+    };
+
+    if (this.spectralSource.getIndexOverlay) {
+      const raster = await this.spectralSource.getIndexOverlay({
+        parcelId: parcel.id,
+        indexId: input.indexId,
+        geometry: parcel.geometry,
+        acquiredAt: indicesResult.data.evidence.acquiredAt,
+      });
+      if (raster.ok) {
+        return {
+          ok: true,
+          data: {
+            ...base,
+            grid: EMPTY_GRID,
+            raster: raster.data,
+            rendering: "sentinel_raster",
+          },
+        };
+      }
+      // Fall through to synthetic if Process API fails but indices succeeded.
+    }
 
     return {
       ok: true,
       data: {
-        kind: "spectral_overlay",
-        indexId: input.indexId,
-        label: VEGETATION_INDEX_CATALOG[input.indexId].label,
-        value: reading.value,
-        legend,
+        ...base,
         grid: buildSyntheticOverlayGrid({
           geometry: parcel.geometry,
           parcelId: parcel.id,
@@ -105,6 +135,7 @@ export class GetParcelSpectralOverlay {
           legend,
           indexId: input.indexId,
         }),
+        rendering: "synthetic_grid",
       },
     };
   }

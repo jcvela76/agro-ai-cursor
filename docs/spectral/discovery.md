@@ -60,6 +60,11 @@ Ya definido en `src/domain/spectral/types.ts`:
 ## Diferido
 
 - Series temporales / compositing multi-fecha.
-- Overlay mapa desde tiles reales (sigue grilla sintética).
 - Persistencia Neon de escenas e índices históricos.
 - Máscara SCL agresiva (puede vaciar AOIs bare-soil).
+
+## Slice Spectral-5 (raster overlay)
+
+- Process API PNG por índice + capa MapLibre `image`/`raster`.
+- Fallback a grilla sintética si Process falla.
+- Smoke live valida `rendering=sentinel_raster`.

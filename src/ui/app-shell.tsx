@@ -36,7 +36,7 @@ import { SpectralPanel } from "@/ui/spectral-panel";
 import {
   applySpectralMapOverlay,
   clearSpectralMapOverlay,
-  SPECTRAL_OVERLAY_LAYER,
+  setSpectralOverlayOpacity,
 } from "@/ui/spectral-map-overlay";
 import { WeatherPanel } from "@/ui/weather-panel";
 import styles from "./app-shell.module.css";
@@ -599,10 +599,10 @@ export function AppShell({
   useEffect(() => {
     spectralOpacityRef.current = spectralOpacity;
     const map = mapRef.current;
-    if (!map || !map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
+    if (!map) {
       return;
     }
-    map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-opacity", spectralOpacity * 0.72);
+    setSpectralOverlayOpacity(map, spectralOpacity);
   }, [spectralOpacity]);
 
   const spectralActive =
