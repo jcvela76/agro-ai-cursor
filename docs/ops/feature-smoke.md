@@ -43,7 +43,14 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Factory modes | `tests/spectral-source-factory.test.ts` |
 | Sentinel Hub stub | `SMOKE_SENTINEL_STUB=1 npm run smoke:spectral` |
 
-## QA-4 — Agente (pendiente)
+## QA-4 — Agente
+
+| Check | Cómo |
+|-------|------|
+| Plus gate + 8 tools con parcelId fijo | `npm run smoke:agent` |
+| Cross-org tool blocked | smoke → cross-org |
+| API GET plusEnabled | `tests/api-agent-route.test.ts` |
+| API POST gates (403/503/400) | `tests/api-agent-route.test.ts` |
 
 ## QA-5 — Trazabilidad (pendiente)
 
