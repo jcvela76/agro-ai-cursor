@@ -74,6 +74,13 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Registry factory | `tests/review-registry-factory.test.ts` |
 | Neon persistence | `SMOKE_NEON=1 npm run smoke:review` |
 
-## QA-7 — Admin / billing (pendiente)
+## QA-7 — Admin / billing
+
+| Check | Cómo |
+|-------|------|
+| Billing sync + member limits + workspace | `npm run smoke:admin` |
+| Workspace settings API | `tests/api-workspace-settings-route.test.ts` |
+| Org invitations API | `tests/api-org-invitations-route.test.ts` |
+| Billing/member unit tests | `tests/billing-entitlements.test.ts`, `tests/member-limit-enforcement.test.ts` |
 
 ## QA-8 — Regresión stg (pendiente)
