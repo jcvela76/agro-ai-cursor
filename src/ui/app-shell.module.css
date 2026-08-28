@@ -170,14 +170,16 @@
   font-size: 0.8125rem;
 }
 
-.panelFooterDanger {
+.panelFooter .panelFooterDanger {
   width: 100%;
-  color: var(--color-status-error) !important;
-  border-color: rgba(163, 59, 43, 0.22) !important;
+  color: var(--color-status-error);
+  border-color: rgba(163, 59, 43, 0.22);
 }
 
-.panelFooterDanger:hover:not(:disabled) {
-  background: rgba(163, 59, 43, 0.06) !important;
+.panelFooter .panelFooterDanger:hover:not(:disabled) {
+  background: rgba(163, 59, 43, 0.06);
+  border-color: rgba(163, 59, 43, 0.32);
+  color: var(--color-status-error);
 }
 
 .panelFooter :global(button) {

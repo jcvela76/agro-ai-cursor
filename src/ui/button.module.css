@@ -10,22 +10,25 @@
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 120ms ease, opacity 120ms ease;
-}
-
-.button:hover {
-  transform: translateY(-1px);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease,
+    opacity 120ms ease;
 }
 
 .button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-  transform: none;
 }
 
 .primary {
   background: var(--color-accent-field);
   color: var(--color-fg-on-dark);
+}
+
+.primary:hover:not(:disabled) {
+  background: #456655;
 }
 
 .ghost {
@@ -34,8 +37,18 @@
   border-color: var(--color-border-subtle);
 }
 
+.ghost:hover:not(:disabled) {
+  background: #f8f6f1;
+  border-color: #cfc8b8;
+}
+
 .onDark {
   background: transparent;
   color: var(--color-fg-on-dark);
   border-color: rgba(243, 240, 232, 0.35);
+}
+
+.onDark:hover:not(:disabled) {
+  background: rgba(243, 240, 232, 0.1);
+  border-color: rgba(243, 240, 232, 0.45);
 }
