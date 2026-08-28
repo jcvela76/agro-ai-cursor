@@ -42,6 +42,7 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | API routes | `tests/api-spectral-route.test.ts` |
 | Factory modes | `tests/spectral-source-factory.test.ts` |
 | Sentinel Hub stub | `SMOKE_SENTINEL_STUB=1 npm run smoke:spectral` |
+| Sentinel Hub live (CDSE) | `SMOKE_SENTINEL_LIVE=1 npm run smoke:spectral` (requiere `SENTINEL_CLIENT_*`) |
 
 ## QA-4 — Agente
 

@@ -169,8 +169,9 @@ Ver `docs/reports/discovery.md`.
 | Billing-ops-prod | **Hecho 2026-08-28** — script + runbook webhook Production; smoke member limits OK |
 | Spectral-1 | **Hecho 2026-08-28** — NDRE/EVI/SAVI/MSAVI/GNDVI/NDWI/NDMI/NBR offline + tab Espectral + tool agente (ADR-033) |
 | Spectral-2 | **Hecho 2026-08-28** — overlay sintético en mapa + selector índice + leyenda + opacidad |
-| Spectral-3 stub | **Hecho 2026-08-28** — `SentinelHubStubSpectralSource` + discovery; `SPECTRAL_SOURCE=sentinel_hub_stub`; live post contrato (ADR-034) |
-| **Siguiente** | Legal DRAFT → abogado; Billing live post-aprobación; Spectral live (Sentinel Hub / CDSE) |
+| Spectral-3 stub | **Hecho 2026-08-28** — `SentinelHubStubSpectralSource` + discovery; `SPECTRAL_SOURCE=sentinel_hub_stub` |
+| Spectral-4 live | **Hecho 2026-08-28** — CDSE Statistical API + OAuth; `SPECTRAL_SOURCE=sentinel_hub` (ADR-038) |
+| **Siguiente** | Legal DRAFT → abogado; Billing live post-aprobación; seed demo 4.8 ha / overlay tiles reales |
 
 ## Docs por slice (canónico)
 

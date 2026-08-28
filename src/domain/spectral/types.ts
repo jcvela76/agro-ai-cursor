@@ -93,6 +93,9 @@ export type SpectralResult<T> =
 export interface SpectralLocationHint {
   latitude: number;
   longitude: number;
+  /** Parcel polygon for live AOI; offline adapters ignore this. */
+  geometry?: import("@/domain/parcel/types").ParcelGeometry | null;
+  timezone?: string;
 }
 
 export interface SpectralSource {

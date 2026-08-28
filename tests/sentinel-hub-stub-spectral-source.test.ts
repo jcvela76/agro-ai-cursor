@@ -22,11 +22,10 @@ describe("SentinelHubStubSpectralSource", () => {
     }
   });
 
-  it("factory accepts sentinel_hub_stub and rejects live sentinel_hub", () => {
+  it("factory accepts sentinel_hub_stub", () => {
     expect(createSpectralSource("sentinel_hub_stub")).toBeInstanceOf(
       SentinelHubStubSpectralSource,
     );
-    expect(() => createSpectralSource("sentinel_hub")).toThrow(/disabled until contract/);
   });
 });
 

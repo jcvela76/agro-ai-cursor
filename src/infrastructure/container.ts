@@ -71,6 +71,7 @@ import { OpenMeteoWeatherSource } from "@/infrastructure/weather/open-meteo-weat
 import { SenamhiStubWeatherSource } from "@/infrastructure/weather/senamhi-stub-weather-source";
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { SentinelHubStubSpectralSource } from "@/infrastructure/spectral/sentinel-hub-stub-spectral-source";
+import { SentinelHubSpectralSource } from "@/infrastructure/spectral/sentinel-hub-spectral-source";
 import { NeonTraceLotRegistry } from "@/infrastructure/traceability/neon-trace-lot-registry";
 import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
 import { NeonReportRegistry } from "@/infrastructure/report/neon-report-registry";
@@ -250,10 +251,16 @@ export function createSpectralSource(
   switch (mode) {
     case "sentinel_hub_stub":
       return new SentinelHubStubSpectralSource();
-    case "sentinel_hub":
-      throw new Error(
-        "SPECTRAL_SOURCE=sentinel_hub (live) is disabled until contract/legal; use sentinel_hub_stub.",
-      );
+    case "sentinel_hub": {
+      const clientId = process.env.SENTINEL_CLIENT_ID;
+      const clientSecret = process.env.SENTINEL_CLIENT_SECRET;
+      if (!clientId || !clientSecret) {
+        throw new Error(
+          "SPECTRAL_SOURCE=sentinel_hub requires SENTINEL_CLIENT_ID and SENTINEL_CLIENT_SECRET.",
+        );
+      }
+      return new SentinelHubSpectralSource({ clientId, clientSecret });
+    }
     case "offline":
     default:
       return new OfflineSpectralSource();

@@ -71,6 +71,8 @@ export class GetParcelSpectralOverlay {
     const indicesResult = await this.spectralSource.getVegetationIndices(input.parcelId, {
       latitude: parcel.latitude,
       longitude: parcel.longitude,
+      geometry: parcel.geometry,
+      timezone: parcel.timezone,
     });
     if (!indicesResult.ok) {
       return indicesResult;

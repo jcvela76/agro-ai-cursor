@@ -1,59 +1,64 @@
 # Spectral — discovery (proveedor satélite live)
 
-Estado: **stub en código** (`SPECTRAL_SOURCE=sentinel_hub_stub`). Live diferido hasta contrato/legal.
+Estado: **live CDSE en código** (`SPECTRAL_SOURCE=sentinel_hub` + OAuth). Stub/offline siguen disponibles.
 
 ## Objetivo
 
 Sustituir fixtures offline por reflectancia Sentinel-2 L2A real por parcela (polígono), con evidencia explícita (misión, nivel, fecha adquisición, frescura) y el mismo gate **Weather Intelligence Plus** que Spectral-1.
 
-## Candidatos (evaluación preliminar)
+## Proveedor v1 (ADR-038)
 
-| Proveedor | Pros | Contras / riesgo |
-|-----------|------|------------------|
-| **Sentinel Hub** | API Process/Statistical, AOI polígono, índices derivados, documentación madura | Coste por request; contrato comercial; keys en Vercel |
-| **Copernicus Data Space (CDSE)** | Datos oficiales ESA; OAuth; sin vendor lock-in de índice | Integración más verbosa; cuotas; latencia |
-| **Microsoft Planetary Computer** | STAC + xarray; bueno para prototipos | Menos control SLA Perú; dependencia Azure |
-| **Google Earth Engine** | Potente para series | Términos/ToS restrictivos para SaaS multi-tenant; no MVP |
+| Proveedor | Rol |
+|-----------|-----|
+| **CDSE Sentinel Hub Statistical API** | Live: media de bandas B02/B03/B04/B05/B08/B11/B12 sobre AOI |
+| Sentinel Hub stub | Offline Plus con provenance stub |
+| Offline fixtures | Dev/tests sin red |
 
-**Recomendación para slice live:** priorizar **Sentinel Hub** o **CDSE** según pricing y legal; no mezclar dos proveedores en v1.
+Endpoints:
+
+- Token: `https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token`
+- Stats: `https://sh.dataspace.copernicus.eu/api/v1/statistics`
+
+Env: `SENTINEL_CLIENT_ID`, `SENTINEL_CLIENT_SECRET` (OAuth client credentials). Opcional: `SPECTRAL_LOOKBACK_DAYS` (default 30), `SPECTRAL_FRESHNESS_DAYS` (default 14), `SPECTRAL_MAX_CLOUD_COVERAGE` (default 80).
 
 ## Contrato de adapter (`SpectralSource`)
 
 Ya definido en `src/domain/spectral/types.ts`:
 
-- Entrada: `parcelId` + hint `latitude`/`longitude` (centroide para lookup offline; polígono completo en live).
+- Entrada: `parcelId` + hint `latitude`/`longitude` + `geometry` (live AOI) + `timezone`.
 - Salida: `ParcelVegetationIndices` con `SpectralReflectanceBands` → índices calculados en dominio.
 - Errores cerrados: `unavailable`, `stale`, `unsupported_range`, `internal_error`.
 
-Live adapter adicional (Spectral-2+):
+## Política de escena
 
-- Overlay real: muestreo de grilla dentro del polígono o tile render — hoy overlay es **sintético** derivado del índice puntual.
-
-## Requisitos live (checklist)
-
-1. **AOI:** geometría `Polygon` de parcela (ya en Neon).
-2. **Escena:** última L2A &lt;14 días, cobertura nubosa &lt;80% (política producto Make).
-3. **Bandas:** B02, B03, B04, B05, B08, B11, B12 (reflectancia 0–1).
-4. **Evidencia:** `sourceId`, `sourceLabel`, `acquiredAt`, `satelliteMission`, `processingLevel`, `freshnessPolicy`.
-5. **Autorización:** evaluar antes de llamar proveedor (`authorizeWeatherPlusAccess` + parcela).
-6. **Secretos:** API key / OAuth solo en env Vercel; nunca en fixtures ni tests.
+1. **AOI:** polígono de parcela (fallback buffer ~110 m si solo hay punto).
+2. **Ventana de búsqueda:** últimos N días (`SPECTRAL_LOOKBACK_DAYS`, default 30 — niebla costera Lima).
+3. **Frescura badge:** ≤ `SPECTRAL_FRESHNESS_DAYS` (default 14) → `fresh`; si no → `stale` (datos se devuelven).
+4. **Nubes catálogo:** `maxCloudCoverage` default 80.
+5. **Evidencia:** `sourceId=sentinel-hub-cdse`, misión Sentinel-2, L2A.
+6. **Autorización:** `authorizeWeatherPlusAccess` + parcela antes del proveedor.
+7. **Secretos:** solo env / Vercel; nunca fixtures ni git.
 
 ## Gates transversales
 
 | Gate | Cuándo |
 |------|--------|
-| Legal / privacy | Antes de procesar imágenes satelitales de clientes en producción |
+| Legal / privacy | **stg OK** (cuenta CDSE general); Production → revalidar ToS/uso comercial |
 | Billing Plus | Ya activo (`weather_plus`) |
-| `SPECTRAL_SOURCE=sentinel_hub` (live) | Rechazado en factory hasta ADR + ops checklist |
+| `SPECTRAL_SOURCE=sentinel_hub` | Requiere `SENTINEL_CLIENT_*` |
 
-## Slice Spectral-3 (hecho en código)
+## Slice Spectral-3 (stub)
 
-- `SentinelHubStubSpectralSource`: fixtures offline con provenance Sentinel Hub stub.
-- `SPECTRAL_SOURCE=sentinel_hub_stub` en factory; `sentinel_hub` lanza error.
-- Tests stub + factory.
+- `SentinelHubStubSpectralSource` + `SPECTRAL_SOURCE=sentinel_hub_stub`.
+
+## Slice Spectral-4 (live)
+
+- `SentinelHubSpectralSource` + factory `sentinel_hub`.
+- Smoke: `SMOKE_SENTINEL_LIVE=1 npm run smoke:spectral`.
 
 ## Diferido
 
 - Series temporales / compositing multi-fecha.
-- Overlay mapa desde tiles reales (no grilla sintética).
+- Overlay mapa desde tiles reales (sigue grilla sintética).
 - Persistencia Neon de escenas e índices históricos.
+- Máscara SCL agresiva (puede vaciar AOIs bare-soil).

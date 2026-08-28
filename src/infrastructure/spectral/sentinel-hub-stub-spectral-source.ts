@@ -24,7 +24,7 @@ function remapEvidence(evidence: SpectralEvidence): SpectralEvidence {
 
 /**
  * Offline Plus spectral stub. Uses synthetic fixtures with Sentinel Hub provenance labels.
- * Does not call Sentinel Hub or any network. Live `SPECTRAL_SOURCE=sentinel_hub` is rejected in the factory.
+ * Does not call Sentinel Hub or any network. Live path: `SPECTRAL_SOURCE=sentinel_hub` (CDSE).
  */
 export class SentinelHubStubSpectralSource implements SpectralSource {
   constructor(private readonly inner: SpectralSource = new OfflineSpectralSource()) {}

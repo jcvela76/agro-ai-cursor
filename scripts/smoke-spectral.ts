@@ -4,6 +4,7 @@
  * Usage:
  *   npm run smoke:spectral
  *   SMOKE_SENTINEL_STUB=1 npm run smoke:spectral   # also exercises sentinel_hub_stub source
+ *   SMOKE_SENTINEL_LIVE=1 npm run smoke:spectral   # CDSE live (needs SENTINEL_CLIENT_* in env)
  */
 import { GetParcelSpectralOverlay } from "../src/application/spectral/get-parcel-spectral-overlay";
 import { GetParcelVegetationIndices } from "../src/application/spectral/get-parcel-vegetation-indices";
@@ -14,6 +15,10 @@ import {
   SENTINEL_HUB_STUB_SOURCE_ID,
   SentinelHubStubSpectralSource,
 } from "../src/infrastructure/spectral/sentinel-hub-stub-spectral-source";
+import {
+  SENTINEL_HUB_SOURCE_ID,
+  SentinelHubSpectralSource,
+} from "../src/infrastructure/spectral/sentinel-hub-spectral-source";
 
 const parcelId = "parcel-lima-norte-001";
 const weatherOnly = defaultSyntheticSnapshots.find(
@@ -98,6 +103,31 @@ async function runSentinelStubSmoke() {
   console.log(`PASS [sentinel_hub_stub] ${steps.join(" → ")}`);
 }
 
+async function runSentinelLiveSmoke() {
+  const clientId = process.env.SENTINEL_CLIENT_ID;
+  const clientSecret = process.env.SENTINEL_CLIENT_SECRET;
+  assert(clientId && clientSecret, "live: SENTINEL_CLIENT_ID/SECRET required");
+
+  const parcels = new SyntheticParcelRegistry();
+  const source = new SentinelHubSpectralSource({ clientId, clientSecret });
+  const indices = new GetParcelVegetationIndices(parcels, source);
+  const steps: string[] = [];
+
+  const denied = await indices.execute({ authority: weatherOnly, parcelId });
+  assert(!denied.ok && denied.message.includes("Plus"), "live: weather-only denied");
+  steps.push("gate weather-only");
+
+  const allowed = await indices.execute({ authority: weatherPlus, parcelId });
+  assert(allowed.ok, `live: indices failed (${!allowed.ok ? allowed.message : ""})`);
+  assert(allowed.data.evidence.sourceId === SENTINEL_HUB_SOURCE_ID, "live: source id");
+  assert(allowed.data.indices.length === 8, "live: index count");
+  steps.push(
+    `indices live (${allowed.data.acquisitionDate} ${allowed.data.evidence.freshnessStatus})`,
+  );
+
+  console.log(`PASS [sentinel_hub] ${steps.join(" → ")}`);
+}
+
 async function main() {
   console.log("QA-3 spectral smoke");
   await runOfflineSmoke();
@@ -106,6 +136,12 @@ async function main() {
     await runSentinelStubSmoke();
   } else {
     console.log("SKIP [sentinel_hub_stub] set SMOKE_SENTINEL_STUB=1 to include stub source");
+  }
+
+  if (process.env.SMOKE_SENTINEL_LIVE === "1") {
+    await runSentinelLiveSmoke();
+  } else {
+    console.log("SKIP [sentinel_hub] set SMOKE_SENTINEL_LIVE=1 for CDSE live smoke");
   }
 }
 

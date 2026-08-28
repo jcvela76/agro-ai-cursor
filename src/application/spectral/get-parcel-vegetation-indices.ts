@@ -47,6 +47,8 @@ export class GetParcelVegetationIndices {
     return this.spectralSource.getVegetationIndices(input.parcelId, {
       latitude: parcel.latitude,
       longitude: parcel.longitude,
+      geometry: parcel.geometry,
+      timezone: parcel.timezone,
     });
   }
 }
