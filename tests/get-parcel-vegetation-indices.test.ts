@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
+import { demoParcelSquare } from "@/domain/parcel/geometry";
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
@@ -63,18 +64,7 @@ describe("Spectral-1: parcel vegetation indices (Plus)", () => {
         latitude: -11.95,
         longitude: -77.05,
         timezone: "America/Lima",
-        geometry: {
-          type: "Polygon",
-          coordinates: [
-            [
-              [-77.06, -11.96],
-              [-77.04, -11.96],
-              [-77.04, -11.94],
-              [-77.06, -11.94],
-              [-77.06, -11.96],
-            ],
-          ],
-        },
+        geometry: demoParcelSquare(-77.05, -11.95),
       },
     ]);
     const neonUseCase = new GetParcelVegetationIndices(registryWithNeonLike, source);

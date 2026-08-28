@@ -96,7 +96,7 @@ export function isValidPolygon(geometry: unknown): geometry is ParcelPolygon {
   );
 }
 
-/** Small square around a point for synthetic seeds (~1.1 km). */
+/** Small square around a point for synthetic seeds (side length ≈ 4 × delta in degrees). */
 export function squareAround(
   longitude: number,
   latitude: number,
@@ -114,4 +114,15 @@ export function squareAround(
       ],
     ],
   };
+}
+
+/** Half-side in degrees for ~4.8 ha square fields near Lima demo latitude. */
+export const DEMO_PARCEL_DELTA_DEG = 0.000995;
+
+/** Demo seed polygon (~4.8 ha) aligned with Figma Make Lima Coffee. */
+export function demoParcelSquare(
+  longitude: number,
+  latitude: number,
+): ParcelPolygon {
+  return squareAround(longitude, latitude, DEMO_PARCEL_DELTA_DEG);
 }

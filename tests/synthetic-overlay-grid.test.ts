@@ -1,19 +1,14 @@
 import { describe, expect, it } from "vitest";
+import { demoParcelSquare } from "@/domain/parcel/geometry";
 import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import { buildSyntheticOverlayGrid } from "@/domain/spectral/synthetic-overlay-grid";
 
-const parcelGeometry = {
-  type: "Polygon" as const,
-  coordinates: [
-    [
-      [-77.06, -11.96],
-      [-77.04, -11.96],
-      [-77.04, -11.94],
-      [-77.06, -11.94],
-      [-77.06, -11.96],
-    ],
-  ],
-};
+const parcelGeometry = demoParcelSquare(-77.05, -11.95);
+const ring = parcelGeometry.coordinates[0]!;
+const lngMin = Math.min(...ring.map((p) => p[0]));
+const lngMax = Math.max(...ring.map((p) => p[0]));
+const latMin = Math.min(...ring.map((p) => p[1]));
+const latMax = Math.max(...ring.map((p) => p[1]));
 
 describe("Spectral-2: synthetic overlay grid", () => {
   it("returns points only inside the parcel polygon", () => {
@@ -28,10 +23,10 @@ describe("Spectral-2: synthetic overlay grid", () => {
     expect(grid.features.length).toBeGreaterThan(120);
     for (const feature of grid.features) {
       const [lng, lat] = feature.geometry.coordinates;
-      expect(lng).toBeGreaterThanOrEqual(-77.06);
-      expect(lng).toBeLessThanOrEqual(-77.04);
-      expect(lat).toBeGreaterThanOrEqual(-11.96);
-      expect(lat).toBeLessThanOrEqual(-11.94);
+      expect(lng).toBeGreaterThanOrEqual(lngMin);
+      expect(lng).toBeLessThanOrEqual(lngMax);
+      expect(lat).toBeGreaterThanOrEqual(latMin);
+      expect(lat).toBeLessThanOrEqual(latMax);
       expect(feature.properties!.value).toBeGreaterThanOrEqual(legend.min);
       expect(feature.properties!.value).toBeLessThanOrEqual(legend.max);
     }
