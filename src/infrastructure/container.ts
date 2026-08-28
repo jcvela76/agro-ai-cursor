@@ -5,6 +5,8 @@ import {
   UpdateOrgParcel,
 } from "@/application/parcel/mutate-org-parcels";
 import { SyncOrgBillingEntitlements } from "@/application/billing/sync-org-billing-entitlements";
+import { SyncOrgMemberLimit } from "@/application/billing/sync-org-member-limit";
+import { EnforceOrgMemberLimitOnInvite } from "@/application/billing/enforce-org-member-limit-on-invite";
 import {
   GetWorkspaceSettings,
   UpdateWorkspaceSettings,
@@ -35,6 +37,10 @@ import {
   ClerkOrgMetadataStore,
   MemoryOrgMetadataStore,
 } from "@/infrastructure/auth/clerk-org-metadata-store";
+import {
+  ClerkOrgMemberLimitGateway,
+  MemoryOrgMemberLimitGateway,
+} from "@/infrastructure/auth/clerk-org-member-limit-gateway";
 import { createDb } from "@/infrastructure/db/client";
 import { NeonParcelRegistry } from "@/infrastructure/parcel/neon-parcel-registry";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
@@ -94,9 +100,24 @@ export function createOrgMetadataStore(): OrgMetadataStore {
 }
 
 const orgMetadataStore = createOrgMetadataStore();
+
+function createOrgMemberLimitGateway() {
+  if (process.env.CLERK_SECRET_KEY) {
+    return new ClerkOrgMemberLimitGateway();
+  }
+  return new MemoryOrgMemberLimitGateway();
+}
+
+const orgMemberLimitGateway = createOrgMemberLimitGateway();
+
 export const getWorkspaceSettings = new GetWorkspaceSettings(orgMetadataStore);
 export const updateWorkspaceSettings = new UpdateWorkspaceSettings(orgMetadataStore);
 export const syncOrgBillingEntitlements = new SyncOrgBillingEntitlements(orgMetadataStore);
+export const syncOrgMemberLimit = new SyncOrgMemberLimit(orgMetadataStore, orgMemberLimitGateway);
+export const enforceOrgMemberLimitOnInvite = new EnforceOrgMemberLimitOnInvite(
+  orgMetadataStore,
+  orgMemberLimitGateway,
+);
 
 export function createWeatherSource(
   mode = process.env.WEATHER_SOURCE ?? "offline",

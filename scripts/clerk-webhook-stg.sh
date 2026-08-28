@@ -25,7 +25,9 @@ EVENTS='[
   "subscriptionItem.ended",
   "subscriptionItem.canceled",
   "subscriptionItem.expired",
-  "subscriptionItem.abandoned"
+  "subscriptionItem.abandoned",
+  "organization.created",
+  "organizationInvitation.created"
 ]'
 
 echo "→ Listing existing webhooks…"

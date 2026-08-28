@@ -53,6 +53,12 @@ Tope de **miembros activos + invitaciones pendientes** por plan (UI en `/app/adm
 | `operations` | 15 |
 | `full` | 25 |
 
+**Enforcement (Billing-3):**
+
+1. **Clerk `maxAllowedMemberships`** — sincronizado al cambiar plan (webhook billing) y al abrir `/app/admin` (backfill). Clerk bloquea membresías por encima del tope nativo.
+2. **Webhook `organizationInvitation.created`** — si activos + pendientes superan el tope del plan, revoca la invitación recién creada (cubre invitaciones pendientes y bypass vía Dashboard).
+3. Eventos extra en webhook stg: `organization.created`, `organizationInvitation.created` (ver `scripts/clerk-webhook-stg.sh`).
+
 Mapper: `src/domain/billing/plan-limits.ts`. Sin cobro per-seat en Clerk por ahora; al llegar al tope, CTA a `/app/billing`.
 
 Si Clerk emite `org:weather_plus`, el mapper normaliza quitando el prefijo `org:`.
