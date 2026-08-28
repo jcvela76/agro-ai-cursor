@@ -1,9 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createAccessResolver, getOrgReport } from "@/infrastructure/container";
+import { contentDispositionHeader } from "@/lib/pdf-filename";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ reportId: string }> },
 ) {
   const { reportId } = await context.params;
@@ -27,13 +28,13 @@ export async function GET(
   }
 
   const pdf = Buffer.from(result.report.pdfBase64, "base64");
-  const filename = `${result.report.title.replace(/\s+/g, "-").toLowerCase()}.pdf`;
+  const inline = new URL(request.url).searchParams.get("inline") === "1";
 
   return new NextResponse(pdf, {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${filename}"`,
+      "Content-Disposition": contentDispositionHeader(result.report.title, inline),
       "Cache-Control": "private, max-age=3600",
     },
   });

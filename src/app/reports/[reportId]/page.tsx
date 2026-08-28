@@ -40,9 +40,14 @@ export default async function ReportPreviewPage({
             {result.report.reportType} · {new Date(result.report.createdAt).toLocaleString("es-PE")}
           </p>
         </div>
-        <a className={styles.download} href={`/api/reports/${reportId}/pdf`}>
-          Descargar PDF
-        </a>
+        <div className={styles.toolbarActions}>
+          <a className={styles.viewPdf} href={`/api/reports/${reportId}/pdf?inline=1`} target="_blank" rel="noopener noreferrer">
+            Ver PDF
+          </a>
+          <a className={styles.download} href={`/api/reports/${reportId}/pdf`}>
+            Descargar PDF
+          </a>
+        </div>
       </header>
       <iframe
         className={styles.frame}
