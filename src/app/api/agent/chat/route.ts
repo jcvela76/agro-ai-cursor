@@ -121,7 +121,7 @@ export async function POST(request: Request) {
 
   const result = streamText({
     model,
-    system: `${loadAgroAgentInstructions()}\n\nParcela activa (fija): ${parcelId}. Usa solo tools; no inventes valores. Si preguntan riego o humedad: invoca el playbook hídrico completo en el mismo turno (observation, forecast, rainfall30d, et0, vegetationIndices) antes de responder.`,
+    system: `${loadAgroAgentInstructions()}\n\nParcela activa (fija): ${parcelId}. Usa solo tools; no inventes valores. Formato: resumen breve visible + tabla completa dentro de <details><summary>Ver evidencia consultada</summary>. Si preguntan riego/humedad: playbook hídrico completo antes de responder.`,
     messages: modelMessages,
     tools,
     stopWhen: stepCountIs(10),

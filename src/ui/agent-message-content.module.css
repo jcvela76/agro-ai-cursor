@@ -1,0 +1,85 @@
+.markdown {
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.markdown :global(h2) {
+  margin: 0 0 var(--space-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.markdown :global(h2:not(:first-child)) {
+  margin-top: var(--space-3);
+}
+
+.markdown :global(p) {
+  margin: 0 0 var(--space-2);
+}
+
+.markdown :global(p:last-child) {
+  margin-bottom: 0;
+}
+
+.markdown :global(ul) {
+  margin: 0 0 var(--space-2);
+  padding-left: 1.25rem;
+}
+
+.markdown :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  margin: var(--space-2) 0;
+}
+
+.markdown :global(th),
+.markdown :global(td) {
+  border: 1px solid var(--color-border-subtle);
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown :global(th) {
+  background: rgba(28, 42, 31, 0.06);
+  font-weight: 600;
+}
+
+.markdown :global(details) {
+  margin-top: var(--space-2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+}
+
+.markdown :global(summary) {
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-accent-field);
+  list-style: none;
+}
+
+.markdown :global(summary::-webkit-details-marker) {
+  display: none;
+}
+
+.markdown :global(details[open] summary) {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.markdown :global(details > *) {
+  padding: 0 0.75rem 0.75rem;
+}
+
+.markdown :global(details > summary) {
+  padding: 0.5rem 0.75rem;
+}
+
+.markdown :global(em) {
+  color: var(--color-fg-muted);
+  font-size: 0.8125rem;
+}

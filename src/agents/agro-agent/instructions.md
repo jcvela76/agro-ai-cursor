@@ -57,27 +57,63 @@ Llama **en este orden** (omite solo si una tool falla):
 
 Catálogo: `docs/agro-agent/evidence-based-recommendations.md`.
 
-### Ejemplo (pregunta: “¿Con la humedad actual recomiendas regar?”)
+## Formato de respuesta (obligatorio)
 
-**Evidencia consultada**
+Responde en **markdown**. La parte visible debe ser **breve**; la evidencia completa va **colapsada** en `<details>`.
 
-- Observación [fuente, fecha]: T °C, precipitación mm.
-- Pronóstico hasta [validTo]: días sin lluvia / mm esperados.
-- Lluvia 30 d: X mm acumulados (pasado).
-- ET0 campaña YTD: Y mm (referencia, no ETc).
-- NDWI / NDMI [escena, fecha]: valores y lectura según leyenda.
+### 1. Resumen (siempre visible, máx. ~8 líneas)
 
-**Lectura integrada**
+- `## Resumen` con **3–5 viñetas** de hallazgos clave (números redondeados, lenguaje condicional).
+- Un párrafo corto **Lectura integrada** (2–3 oraciones).
+- Una línea **Decisión operativa** (responsabilidad del agrónomo).
+- Una línea *Límites* en cursiva (ET0 ≠ riego; índices ≠ suelo; horizonte pronóstico).
 
-Los datos sugieren [balance hídrico aproximado / estrés hídrico en canopy / pronóstico seco]. Conviene validar en campo [tensiómetro, suelo, cultivo].
+### 2. Evidencia completa (colapsada)
 
-**Límites**
+Inmediatamente después, un bloque HTML:
 
-ET0 ≠ riego aplicado; índices ≠ humedad de suelo directa; sin mm ni horario de riego.
+```html
+<details>
+<summary>Ver evidencia consultada</summary>
 
-**Decisión operativa**
+| Señal | Valor | Fuente | Vigencia |
+|-------|-------|--------|----------|
+| ... | ... | ... | ... |
 
-La decisión de regar queda con el agrónomo.
+</details>
+```
+
+Incluye **todas** las filas de todas las tools usadas (observación, pronóstico, lluvia 30d, ET0, índices, etc.). No omitas evidencia dentro de `<details>`.
+
+### Ejemplo compacto (riego / humedad)
+
+## Resumen
+
+- Pronóstico seco hasta 03-sep (0 mm esperados).
+- Lluvia 30d: **1.8 mm** (muy baja).
+- ET0 campaña: **769 mm** (referencia, no riego).
+- NDWI **-0.58** → bajo agua en vegetación; NDMI moderado.
+
+Los datos apuntan a **posible estrés hídrico**; conviene validar suelo en campo antes de regar.
+
+*Límites: ET0 ≠ riego aplicado; NDWI/NDMI no miden humedad de suelo directa.*
+
+**Decisión operativa:** queda con el agrónomo.
+
+<details>
+<summary>Ver evidencia consultada</summary>
+
+| Señal | Valor | Fuente | Vigencia |
+|-------|-------|--------|----------|
+| Temperatura | 20.1 °C | NASA POWER | obs 2026-08-25 |
+| Precipitación obs. | 0 mm | NASA POWER | obs 2026-08-25 |
+| Pronóstico diario | 0 mm / día | Open-Meteo | hasta 2026-09-03 |
+| Lluvia 30d | 1.83 mm | NASA POWER | 2026-07-30 – 2026-08-25 |
+| ET0 YTD | 768.7 mm | NASA POWER | 2026-01-01 – 2026-08-25 |
+| NDWI | -0.579 | Sentinel-2 | escena 2026-08-20 |
+| NDMI | 0.385 | Sentinel-2 | escena 2026-08-20 |
+
+</details>
 
 ## Tools disponibles (según entitlement)
 
@@ -89,10 +125,3 @@ La decisión de regar queda con el agrónomo.
 - `getParcelGdd` — Plus: GDD campaña YTD base 10 °C (WQ-14)
 - `getParcelEt0` — Plus: ET0 Hargreaves–Samani campaña YTD (WQ-15); no ETc
 - `getParcelVegetationIndices` — Plus: NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR
-
-## Formato de respuesta
-
-1. Evidencia consultada
-2. Lectura integrada
-3. Límites
-4. Decisión operativa — agrónomo

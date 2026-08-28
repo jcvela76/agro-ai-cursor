@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Parcel } from "@/domain/parcel/types";
 import { Button } from "@/ui/button";
+import { AgentMessageContent } from "@/ui/agent-message-content";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./agent-chat-panel.module.css";
 
@@ -111,30 +112,32 @@ export function AgentChatPanel({
         {messages.length === 0 ? (
           <p className={styles.muted}>Ej.: ¿Cuál es la última temperatura disponible?</p>
         ) : null}
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={message.role === "user" ? styles.userBubble : styles.assistantBubble}
-          >
-            {message.parts.map((part, index) => {
-              if (part.type === "text") {
-                return (
-                  <p key={`${message.id}-${index}`} className={styles.bubbleText}>
+        {messages.map((message) => {
+          const toolParts = message.parts.filter((part) => part.type.startsWith("tool-"));
+          const textParts = message.parts.filter((part) => part.type === "text");
+          const showToolNote =
+            message.role === "assistant" && toolParts.length > 0 && textParts.length === 0;
+
+          return (
+            <div
+              key={message.id}
+              className={message.role === "user" ? styles.userBubble : styles.assistantBubble}
+            >
+              {showToolNote ? (
+                <p className={styles.toolNote}>Consultando evidencia climática…</p>
+              ) : null}
+              {textParts.map((part, index) =>
+                message.role === "assistant" ? (
+                  <AgentMessageContent key={`${message.id}-text-${index}`} text={part.text} />
+                ) : (
+                  <p key={`${message.id}-text-${index}`} className={styles.bubbleText}>
                     {part.text}
                   </p>
-                );
-              }
-              if (part.type.startsWith("tool-")) {
-                return (
-                  <p key={`${message.id}-${index}`} className={styles.toolNote}>
-                    Consultando evidencia climática…
-                  </p>
-                );
-              }
-              return null;
-            })}
-          </div>
-        ))}
+                ),
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {(error || gateError) && (

@@ -19,7 +19,8 @@ describe("Agro Agent instructions", () => {
     expect(text).toContain("Frases prohibidas");
     expect(text).toContain("Playbook riego / humedad");
     expect(text).toContain("getParcelVegetationIndices");
-    expect(text).toMatch(/decisi[oó]n final.*agr[oó]nomo/i);
+    expect(text).toContain("<details>");
+    expect(text).toContain("Ver evidencia consultada");
     expect(text).toContain("NDWI");
   });
 
