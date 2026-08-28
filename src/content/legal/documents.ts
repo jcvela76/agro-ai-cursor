@@ -25,6 +25,10 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
           },
           {
             type: "paragraph",
+            text: "El servicio está dirigido a organizaciones y uso profesional B2B. Al contratar, usted declara actuar en nombre de una persona jurídica o negocio con capacidad legal para contratar.",
+          },
+          {
+            type: "paragraph",
             text: "Si no está de acuerdo, no use el servicio.",
           },
         ],
@@ -47,7 +51,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
           },
           {
             type: "paragraph",
-            text: "Funciones marcadas como piloto o beta pueden cambiar, interrumpirse o retirarse sin compensación. No garantizamos disponibilidad continua ni SLA salvo acuerdo escrito aparte.",
+            text: "Funciones marcadas como piloto o beta pueden cambiar, interrumpirse o retirarse sin compensación. No garantizamos disponibilidad continua ni SLA salvo acuerdo escrito aparte. Cualquier referencia comercial a SLA o soporte prioritario solo rige si existe acuerdo escrito aparte.",
           },
         ],
       },
@@ -228,7 +232,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
           },
           {
             type: "paragraph",
-            text: "Algunos proveedores pueden procesar datos en Estados Unidos u otros países. Adoptamos medidas contractuales y técnicas razonables (p. ej. cláusulas estándar y acuerdos de tratamiento con proveedores) para proteger la información.",
+            text: "Algunos proveedores pueden procesar datos en Estados Unidos u otros países. Las transferencias internacionales se realizan con las salvaguardas previstas en la Ley N.° 29733 y su reglamento, incluyendo contratos con encargados y medidas técnicas razonables.",
           },
         ],
       },
@@ -238,7 +242,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
         blocks: [
           {
             type: "paragraph",
-            text: "Usted puede acceder, rectificar, cancelar u oponerse al tratamiento, así como revocar consentimientos cuando aplique, escribiendo a hola@geoagro.ai. Responderemos en un plazo de hasta diez (10) días hábiles, prorrogable de forma justificada conforme a la normativa vigente.",
+            text: `Usted puede acceder, rectificar, cancelar u oponerse al tratamiento, así como revocar consentimientos cuando aplique, escribiendo a ${LEGAL_CONTACT_EMAIL}. Responderemos en un plazo de hasta diez (10) días hábiles, prorrogable de forma justificada conforme a la normativa vigente.`,
           },
         ],
       },
@@ -296,7 +300,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
             items: [
               "Salvo obligación legal imperativa, las cuotas ya facturadas por un período en curso no son reembolsables de forma prorrateada.",
               "Evaluaremos reembolsos por cobro duplicado, error manifiesto de facturación o falla prolongada del servicio atribuible a Agro AI.",
-              "Las solicitudes deben enviarse a hola@geoagro.ai dentro de los quince (15) días calendario del cargo, con identificación del workspace y comprobante.",
+              `Las solicitudes deben enviarse a ${LEGAL_CONTACT_EMAIL} dentro de los quince (15) días calendario del cargo, con identificación del workspace y comprobante.`,
             ],
           },
         ],
@@ -321,6 +325,16 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
           },
         ],
       },
+      {
+        id: "contacto",
+        heading: "6. Contacto",
+        blocks: [
+          {
+            type: "paragraph",
+            text: OPERATOR_LINE,
+          },
+        ],
+      },
     ],
   },
   subscription: {
@@ -342,7 +356,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
               "free_org (Básico / Weather Intelligence base): sin cargo de suscripción · hasta 2 miembros · entitlement weather.",
               "weather_plus (Profesional / Weather Intelligence Plus): USD 29/mes · hasta 5 miembros · weather + weather_plus.",
               "operations (Empresa / Operations): USD 79/mes · hasta 15 miembros · weather, weather_plus, traceability, agronomic_review.",
-              "full: USD 99/mes · hasta 25 miembros · mismos entitlements que operations (alias comercial).",
+              "full: USD 99/mes · hasta 25 miembros · mismos entitlements que operations (alias comercial; no añade productos adicionales).",
             ],
           },
           {
@@ -361,7 +375,9 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
               "Ciclo mensual salvo que se indique otro período en el checkout.",
               "Renovación automática hasta cancelación.",
               "Período de prueba gratuito cuando se indique en checkout (p. ej. 14 días en sandbox).",
-              "Impuestos aplicables (p. ej. IGV) se mostrarán o aplicarán según configuración de facturación y normativa vigente.",
+              "Impuestos aplicables (p. ej. IGV) se mostrarán o aplicarán según configuración de facturación y normativa vigente en Perú.",
+              "Para clientes en Perú, las facturas electrónicas se emitirán con los datos de facturación del checkout cuando el cobro live esté habilitado.",
+              "Los planes se facturan en USD salvo indicación distinta en checkout. El cliente es responsable de obligaciones tributarias locales derivadas del pago.",
               "El procesador de pago es Stripe a través de Clerk Billing.",
             ],
           },
@@ -408,6 +424,16 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
           {
             type: "paragraph",
             text: "Al habilitar cobro live, estos términos regirán junto con los Términos de servicio y la Política de reembolsos.",
+          },
+        ],
+      },
+      {
+        id: "contacto",
+        heading: "7. Contacto",
+        blocks: [
+          {
+            type: "paragraph",
+            text: OPERATOR_LINE,
           },
         ],
       },

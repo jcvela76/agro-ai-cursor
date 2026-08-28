@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { isBillingSandboxHost } from "@/domain/billing/plan-display";
 import { BillingWorkspaceNav } from "@/ui/billing-workspace-nav";
+import { LegalFooterLinks } from "@/ui/legal-footer-links";
 import { Button } from "@/ui/button";
 import styles from "./billing-panel.module.css";
 
@@ -53,7 +54,8 @@ export function BillingCancelPanel() {
             </li>
             <li>
               Si estás en periodo de prueba, el acceso puede terminar según las reglas de Clerk
-              (no mostramos fechas aquí).
+              (no mostramos fechas aquí). Ver{" "}
+              <Link href="/legal/refunds">Política de reembolsos</Link>.
             </li>
           </ul>
           <div className={styles.portalActions}>
@@ -67,6 +69,10 @@ export function BillingCancelPanel() {
             </Link>
           </div>
         </section>
+
+        <footer className={styles.footer}>
+          <LegalFooterLinks />
+        </footer>
       </div>
     </div>
   );

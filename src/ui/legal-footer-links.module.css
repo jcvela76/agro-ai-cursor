@@ -1,0 +1,21 @@
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.link {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--color-fg-primary);
+  text-decoration: underline;
+  outline: 2px solid var(--color-fg-primary);
+  outline-offset: 2px;
+}
