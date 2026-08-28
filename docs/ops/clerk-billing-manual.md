@@ -54,12 +54,16 @@ npx clerk@latest enable billing --for orgs \
 
 ## Webhook stg (solo sk_test, sin CLI Platform)
 
+Clerk **no expone** `GET/POST /v1/webhooks` en Backend API (404). Los endpoints se gestionan en **Dashboard → Webhooks** (Svix).
+
 ```bash
 chmod +x scripts/clerk-webhook-stg.sh
 ./scripts/clerk-webhook-stg.sh
 ```
 
-Copia el `whsec_…` a Vercel Preview → `CLERK_WEBHOOK_SIGNING_SECRET`.
+El script valida `CLERK_SECRET_KEY`, imprime la checklist de eventos y abre el dashboard Svix (link temporal).
+
+Copia el `whsec_…` del endpoint a Vercel Preview → `CLERK_WEBHOOK_SIGNING_SECRET`.
 
 ## Invitar jcvela@gmail.com (opcional)
 

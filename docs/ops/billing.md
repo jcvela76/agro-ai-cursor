@@ -130,6 +130,10 @@ Eventos mínimos:
 - `subscriptionItem.canceled`
 - `subscriptionItem.expired`
 - `subscriptionItem.abandoned`
+- `organization.created` (Billing-3: sync `maxAllowedMemberships`)
+- `organizationInvitation.created` (Billing-3: revoca invitación sobre tope)
+
+Helper: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
 
 Copiar **Signing Secret** (`whsec_…`) → env:
 
