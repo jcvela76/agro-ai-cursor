@@ -357,7 +357,7 @@ export class SentinelHubSpectralSource implements SpectralSource {
     request: SpectralIndexOverlayRequest,
   ): Promise<SpectralResult<SpectralRasterOverlay>> {
     const day = request.acquiredAt.slice(0, 10);
-    const cacheKey = `${request.parcelId}|${request.indexId}|${day}|${JSON.stringify(request.geometry)}`;
+    const cacheKey = `raster-v2|${request.parcelId}|${request.indexId}|${day}|${JSON.stringify(request.geometry)}`;
     if (this.cacheTtlMs > 0) {
       const cached = this.rasterCache.get(cacheKey);
       if (cached) {
@@ -375,8 +375,15 @@ export class SentinelHubSpectralSource implements SpectralSource {
     }
 
     const { width, height } = rasterOutputSize(bbox);
-    const timeFrom = `${day}T00:00:00Z`;
-    const timeTo = `${day}T23:59:59Z`;
+    // Statistical intervals are P5D buckets; pinning Process to a single calendar day
+    // often yields an empty (fully transparent) PNG. Cover the bucket + slack.
+    const startMs = Date.parse(`${day}T00:00:00Z`);
+    const timeFrom = Number.isFinite(startMs)
+      ? new Date(startMs).toISOString().slice(0, 19) + "Z"
+      : `${day}T00:00:00Z`;
+    const timeTo = Number.isFinite(startMs)
+      ? new Date(startMs + 6 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10) + "T23:59:59Z"
+      : `${day}T23:59:59Z`;
     const maxCloud = request.maxCloudCoverage ?? this.maxCloudCoverage;
 
     const body = {

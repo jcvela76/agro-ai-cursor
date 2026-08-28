@@ -85,11 +85,12 @@ function colorize(v) {
 }
 function evaluatePixel(s) {
   ${setup.compute}
-  if (!s.dataMask) return [0,0,0,0];
+  var mask = s.dataMask;
+  if (!(mask > 0)) return [0,0,0,0];
   if (v<VMIN) v=VMIN;
   if (v>VMAX) v=VMAX;
   var c=colorize(v);
-  return [c[0],c[1],c[2],s.dataMask];
+  return [c[0],c[1],c[2],mask];
 }
 `;
 }

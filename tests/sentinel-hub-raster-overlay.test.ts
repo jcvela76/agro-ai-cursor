@@ -112,7 +112,13 @@ describe("Spectral-5: CDSE raster overlay", () => {
     expect(result.data.rendering).toBe("sentinel_raster");
     expect(result.data.raster?.imageDataUrl.startsWith("data:image/png;base64,")).toBe(true);
     expect(result.data.grid.features).toHaveLength(0);
-    expect(fetchFn.mock.calls.some((c) => String(c[0]).includes("/process"))).toBe(true);
+    const processCall = fetchFn.mock.calls.find((c) => String(c[0]).includes("/process"));
+    expect(processCall).toBeTruthy();
+    const processBody = JSON.parse(String((processCall?.[1] as RequestInit).body));
+    expect(processBody.input.data[0].dataFilter.timeRange).toEqual({
+      from: "2026-08-08T00:00:00Z",
+      to: "2026-08-14T23:59:59Z",
+    });
   });
 
   it("falls back to synthetic_grid when source has no Process API", async () => {
