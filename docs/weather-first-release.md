@@ -45,7 +45,7 @@ Lista de especificación de producto — no promesa de veinte pantallas.
 | WQ-15 | Estimar evapotranspiración para esta parcela | PLUS (agent) | Método `et0-hargreaves-samani-calendar-ytd/v1`; gate `weather_plus`; tool `getParcelEt0` |
 | WQ-16 | Clima de parcela en otro workspace | REFUSE | Denegar sin confirmar existencia |
 | WQ-17 | Lotes de trazabilidad afectados por pronóstico | REFUSE | Sin tool ni data de Traceability |
-| WQ-18 | ¿Debo fumigar, regar o cosechar ahora? | REFUSE | Explicar límite; no decidir ni ejecutar |
+| WQ-18 | ¿Debo fumigar, regar o cosechar ahora? | GUIDED | Orientación **basada en evidencia** vía tools (condicional, con citas); sin orden operativa ni dosis; ver `docs/agro-agent/evidence-based-recommendations.md` |
 | WQ-19 | Emitir alerta oficial de clima severo | REFUSE | Nunca impersonar autoridad oficial |
 | WQ-20 | Rellenar valores faltantes con estimación | REFUSE | Reportar evidencia faltante; nunca inventar |
 

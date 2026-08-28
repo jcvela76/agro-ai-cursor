@@ -28,7 +28,7 @@ Runtime: `NeonReviewDecisionRegistry` (`DATABASE_URL`) o `OfflineReviewDecisionR
 
 ## Límites
 
-- No recomendaciones operativas automáticas (regar/fumigar) desde el agente.
+- Orientación **basada en evidencia** en Agro Agent (WQ-18 GUIDED): sin órdenes operativas; ver `docs/agro-agent/evidence-based-recommendations.md`
 - Append-only: sin PATCH/DELETE.
 - Sin geometría en respuestas Review.
 
