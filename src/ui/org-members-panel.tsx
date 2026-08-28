@@ -1,6 +1,6 @@
 "use client";
 
-import { useOrganization } from "@clerk/nextjs";
+import { useAuth, useOrganization } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -28,6 +28,7 @@ function billingPlanSlugFromOrg(
 
 export function OrgMembersPanel() {
   const router = useRouter();
+  const { userId: currentUserId } = useAuth();
   const { isLoaded, organization, memberships, invitations } = useOrganization({
     memberships: { infinite: true, pageSize: 20 },
     invitations: { infinite: true, pageSize: 20 },
@@ -36,6 +37,7 @@ export function OrgMembersPanel() {
   const [inviteStatus, setInviteStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [revokingId, setRevokingId] = useState<string | null>(null);
+  const [removingUserId, setRemovingUserId] = useState<string | null>(null);
 
   if (!isLoaded) {
     return <p className={styles.muted}>Cargando miembros…</p>;
@@ -51,6 +53,29 @@ export function OrgMembersPanel() {
     pendingInvites: pending.length,
     planSlug,
   });
+
+  async function removeMember(userId: string) {
+    setRemovingUserId(userId);
+    setInviteError(null);
+    try {
+      const response = await fetch(`/api/org/members/${userId}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        setInviteStatus("error");
+        setInviteError(payload.message ?? "No se pudo quitar al miembro");
+        return;
+      }
+      await organization?.reload();
+      router.refresh();
+    } catch {
+      setInviteStatus("error");
+      setInviteError("Error de red al quitar al miembro");
+    } finally {
+      setRemovingUserId(null);
+    }
+  }
 
   async function revokeInvite(invitationId: string) {
     setRevokingId(invitationId);
@@ -171,22 +196,30 @@ export function OrgMembersPanel() {
             <tr>
               <th scope="col">Usuario</th>
               <th scope="col">Rol</th>
+              <th scope="col" className={styles.actionsCol}>
+                <span className={styles.srOnly}>Acciones</span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {members.length === 0 ? (
               <tr>
-                <td colSpan={2} className={styles.empty}>
+                <td colSpan={3} className={styles.empty}>
                   No hay miembros en este workspace.
                 </td>
               </tr>
             ) : (
               members.map((member) => {
                 const user = member.publicUserData;
+                const memberUserId = user?.userId ?? null;
                 const name =
                   [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
                   user?.identifier ||
                   "Usuario";
+                const canRemove =
+                  memberUserId !== null &&
+                  memberUserId !== currentUserId &&
+                  member.role !== "org:admin";
                 return (
                   <tr key={member.id}>
                     <td>
@@ -196,6 +229,19 @@ export function OrgMembersPanel() {
                       ) : null}
                     </td>
                     <td>{formatRole(member.role)}</td>
+                    <td className={styles.actionsCol}>
+                      {canRemove ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className={styles.revokeButton}
+                          disabled={removingUserId === memberUserId}
+                          onClick={() => void removeMember(memberUserId)}
+                        >
+                          {removingUserId === memberUserId ? "Quitando…" : "Quitar"}
+                        </Button>
+                      ) : null}
+                    </td>
                   </tr>
                 );
               })
@@ -230,9 +276,9 @@ export function OrgMembersPanel() {
       ) : null}
 
       <p className={styles.hint}>
-        Solo <strong>org:admin</strong> puede invitar. Revoca invitaciones vencidas o erróneas y
-        vuelve a enviar. El enlace de aceptación lleva a <strong>/accept-invitation</strong> en este
-        dominio.
+        Solo <strong>org:admin</strong> puede invitar o quitar miembros. Usa <strong>Quitar</strong> para
+        sacar a alguien del workspace y volver a invitarlo. <strong>Revocar</strong> aplica solo a
+        invitaciones pendientes.
       </p>
     </div>
   );
