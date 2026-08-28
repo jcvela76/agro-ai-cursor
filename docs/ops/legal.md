@@ -18,8 +18,8 @@ Fuente en código: `src/content/legal/documents.ts`
 
 ## Avisos en producto
 
-- **LP** (`/`): sección Precios con enlaces a legal; footer con Términos / Privacidad / Suscripción.
-- **Billing** (`/app/billing`): banner sandbox enlaza a suscripción y reembolsos; footer legal existente.
+- **LP** (`/`): sección Precios con enlaces a `LEGAL_NAV_LINKS`; footer legal compartido
+- **Auth** (sign-in/sign-up) y **billing/cancel**: footer `LegalFooterLinks`
 
 ## Checklist antes de cobro live (geoagro.ai)
 
@@ -51,3 +51,16 @@ Hasta completar 2–7: **ningún cobro live** en apex.
 - Waitlist: consentimiento → `/legal/privacy`
 - Placeholders operador (razón social / RUC) pendientes de abogado
 - SEO: canonical/OG por doc, sitemap, `dynamicParams = false`
+
+## Legal-1.2 (2026-08-28)
+
+- `LEGAL_NAV_LINKS` compartido; `LegalFooterLinks` en LP, auth, billing-cancel
+- Twitter metadata por doc; tests nav ↔ slugs
+- Operador en refunds/subscription; B2B, IGV/USD, transferencias 29733
+- Email vía constante en derechos/reembolsos
+
+## LP-claims (2026-08-28)
+
+- Claims suavizados: API/CSV roadmap, EUDR apoyo documental, sin SLA/firma digital
+- Matriz planes alineada con entitlements; disclaimer en card Trazabilidad
+- Waitlist: términos + privacidad; JSON-LD USD

@@ -1,6 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
+import { LEGAL_NAV_LINKS } from "@/content/legal/types";
 import { LandingHeader } from "./landing-header";
 import { LandingJsonLd } from "./landing-json-ld";
+import { LegalFooterLinks } from "@/ui/legal-footer-links";
 import { WaitlistForm } from "./waitlist-form";
 import styles from "./landing.module.css";
 
@@ -56,12 +59,13 @@ const PRODUCTS = [
   {
     title: "Intelligence Plus",
     subtitle: null as string | null,
+    disclaimer: null as string | null,
     body: "Inteligencia climática a nivel parcela. Alertas configurables por cultivo, umbrales personalizados y análisis de riesgo agronómico integrado.",
     features: [
       "Alertas por temperatura y precipitación",
       "Índices ETo y balance hídrico estimado",
       "Mapa de parcelas con historial climático",
-      "Exportación CSV · API REST",
+      "Exportación de datos (API y CSV en roadmap)",
     ],
     coffee: false,
     skyDots: false,
@@ -69,12 +73,14 @@ const PRODUCTS = [
   {
     title: "Trazabilidad",
     subtitle: "Café · EUDR",
-    body: "Registro georreferenciado de origen para cumplimiento EUDR. Combina datos de campo, clima y cadena de custodia en un expediente exportable.",
+    disclaimer:
+      "Herramienta de apoyo documental; no constituye certificación EUDR ni due diligence legal.",
+    body: "Registro georreferenciado de origen y apoyo documental para exportadores. Combina datos de campo, clima y cadena de custodia en el workspace.",
     features: [
-      "Polígonos de parcela verificados",
-      "Cadena de custodia por lote",
-      "Informe EUDR exportable (PDF + JSON)",
-      "Orientado al Reglamento EU 2023/1115",
+      "Polígonos de parcela en workspace",
+      "Cadena de custodia por lote (piloto)",
+      "Exportables orientados a EUDR (en desarrollo)",
+      "Referencia al Reglamento EU 2023/1115",
     ],
     coffee: true,
     skyDots: true,
@@ -82,12 +88,13 @@ const PRODUCTS = [
   {
     title: "Revisión Agronómica",
     subtitle: null,
-    body: "Bitácora de campo con firma digital. Cada registro es append-only: no se modifica ni se elimina. Trazabilidad completa de intervenciones agronómicas.",
+    disclaimer: null,
+    body: "Bitácora de campo con registro identificado del agrónomo. Cada decisión es append-only: no se modifica ni se elimina.",
     features: [
       "Registro inmutable de intervenciones",
-      "Firma digital por agrónomo",
-      "Historial auditable exportable",
-      "Integración con Intelligence Plus",
+      "Identificación del agrónomo (sin firma criptográfica)",
+      "Historial auditable en workspace",
+      "Disponible en planes Operations y superiores",
     ],
     coffee: false,
     skyDots: false,
@@ -116,10 +123,9 @@ const PRICING = [
     period: "en piloto · sin costo",
     features: [
       "Todo en Básico",
-      "Intelligence Plus completo",
-      "API de datos + exportación CSV",
-      "Revisión Agronómica",
-      "Soporte por correo",
+      "Weather Intelligence Plus",
+      "Hasta 5 miembros (plan weather_plus)",
+      "Soporte por correo durante piloto",
     ],
     highlight: true,
     cta: "Lista de espera →",
@@ -130,11 +136,10 @@ const PRICING = [
     price: "Consultar",
     period: "volumen + soporte dedicado",
     features: [
-      "Todo en Profesional",
-      "Trazabilidad EUDR completa",
-      "Integración personalizada",
-      "SLA y soporte prioritario",
-      "Capacitación en campo",
+      "Trazabilidad y Revisión Agronómica",
+      "Hasta 15–25 miembros según plan",
+      "Soporte y onboarding (sin SLA salvo contrato)",
+      "Capacitación sujeta a disponibilidad",
     ],
     highlight: false,
     cta: "Contactar",
@@ -145,8 +150,8 @@ const ROADMAP = [
   { done: true, label: "Integración Open-Meteo + NASA POWER" },
   { done: true, label: "Motor de alertas agronómicas" },
   { done: true, label: "Piloto con productores en Junín" },
-  { done: false, label: "Módulo Trazabilidad EUDR (beta)" },
-  { done: false, label: "API pública v1" },
+  { done: true, label: "Trazabilidad piloto en workspace" },
+  { done: false, label: "Export EUDR y API pública v1" },
   { done: false, label: "Lanzamiento comercial" },
 ] as const;
 
@@ -160,7 +165,7 @@ export default function Home() {
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>geoagro.ai · Perú</p>
           <h1 className={styles.heroTitle}>
-            El clima exacto <em>de tu parcela.</em>
+            El clima de tu parcela —<em>con fuente y contexto.</em>
             <br />
             No del aeropuerto.
           </h1>
@@ -321,11 +326,11 @@ export default function Home() {
           <div className={styles.productsHead}>
             <div>
               <p className={styles.eyebrowTight}>Productos</p>
-              <h2 className={styles.sectionTitle}>En piloto activo.</h2>
+              <h2 className={styles.sectionTitle}>En piloto y desarrollo activo.</h2>
             </div>
             <p className={styles.productsAside}>
-              Acceso disponible para productores y técnicos en Perú durante la fase
-              piloto.
+              Módulos en evolución para productores y técnicos en Perú. Las capacidades
+              dependen del plan y entitlements del workspace.
             </p>
           </div>
 
@@ -352,6 +357,9 @@ export default function Home() {
                     <p className={styles.productSubtitle}>{product.subtitle}</p>
                   ) : null}
                   <p className={styles.productBody}>{product.body}</p>
+                  {product.disclaimer ? (
+                    <p className={styles.productDisclaimer}>{product.disclaimer}</p>
+                  ) : null}
                   <ul className={styles.featureList}>
                     {product.features.map((feature) => (
                       <li key={feature}>
@@ -385,11 +393,14 @@ export default function Home() {
             </p>
             <p className={styles.pricingNotice}>
               Consulte{" "}
-              <a href="/legal/subscription">Términos de suscripción</a>,{" "}
-              <a href="/legal/terms">Términos de servicio</a>,{" "}
-              <a href="/legal/privacy">Privacidad</a> y{" "}
-              <a href="/legal/refunds">Reembolsos</a>. Sandbox (stg): admins pueden probar{" "}
-              <a href="/app/billing">planes de prueba</a> sin cobro live en Perú.
+              {LEGAL_NAV_LINKS.map((link, index) => (
+                <span key={link.slug}>
+                  {index > 0 ? (index === LEGAL_NAV_LINKS.length - 1 ? " y " : ", ") : null}
+                  <Link href={link.href}>{link.label}</Link>
+                </span>
+              ))}
+              . Sandbox (stg): admins pueden probar{" "}
+              <Link href="/app/billing">planes de prueba</Link> sin cobro live en Perú.
             </p>
           </div>
 
@@ -438,9 +449,8 @@ export default function Home() {
                 Pronto en <em>producción.</em>
               </h2>
               <p className={styles.closingBody}>
-                Productores y técnicos en Perú que participen en el piloto recibirán
-                condiciones preferenciales de acceso al lanzamiento. Sin costo durante
-                la fase piloto.
+                Productores y técnicos en Perú que participen en el piloto recibirán aviso
+                prioritario al lanzamiento comercial. Sin costo durante la fase piloto.
               </p>
               <p className={styles.closingHint}>
                 Te avisamos cuando abra el piloto
@@ -481,13 +491,7 @@ export default function Home() {
           <span className={styles.footerCopy}>
             © 2026 Agro AI. Todos los derechos reservados. Perú.
           </span>
-          <div className={styles.footerLinks}>
-            <a href="mailto:hola@geoagro.ai">hola@geoagro.ai</a>
-            <a href="/legal/terms">Términos</a>
-            <a href="/legal/privacy">Privacidad</a>
-            <a href="/legal/subscription">Suscripción</a>
-            <a href="/legal/refunds">Reembolsos</a>
-          </div>
+          <LegalFooterLinks showContact className={styles.footerLinks} />
         </div>
       </footer>
     </div>

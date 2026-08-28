@@ -60,7 +60,7 @@ export function LandingJsonLd() {
         offers: {
           "@type": "Offer",
           price: "0",
-          priceCurrency: "PEN",
+          priceCurrency: "USD",
           description: "Lista de espera del piloto; sin cobro en esta fase",
         },
         provider: { "@id": `${SITE_URL}/#organization` },

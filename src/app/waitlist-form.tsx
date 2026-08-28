@@ -88,7 +88,8 @@ export function WaitlistForm({
       )}
       <p className={styles.waitlistConsent}>
         Al inscribirte aceptas nuestra{" "}
-        <Link href="/legal/privacy">Política de privacidad</Link>.
+        <Link href="/legal/privacy">Política de privacidad</Link> y los{" "}
+        <Link href="/legal/terms">Términos de servicio</Link>.
       </p>
     </form>
   );

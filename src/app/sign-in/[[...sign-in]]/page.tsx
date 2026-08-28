@@ -1,16 +1,12 @@
 import { SignIn } from "@clerk/nextjs";
+import { LegalFooterLinks } from "@/ui/legal-footer-links";
+import styles from "../../auth-legal.module.css";
 
 export default function SignInPage() {
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: "2rem",
-      }}
-    >
+    <main className={styles.main}>
       <SignIn />
+      <LegalFooterLinks />
     </main>
   );
 }
