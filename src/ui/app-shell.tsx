@@ -4,6 +4,7 @@ import { OrganizationSwitcher, UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createRoot, type Root } from "react-dom/client";
 import {
   LngLatBounds,
   Map as MapLibreMap,
@@ -20,8 +21,10 @@ import {
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
+import { approximateAreaHectares, polygonCentroid } from "@/domain/parcel/geometry";
 import type { VegetationIndexId } from "@/domain/spectral/types";
 import { MapChip } from "@/ui/map-chip";
+import { MapParcelLabel } from "@/ui/map-parcel-label";
 import { AgentChatPanel } from "@/ui/agent-chat-panel";
 import { Button } from "@/ui/button";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
@@ -142,7 +145,7 @@ function syncParcelLayers(
         "fill-opacity": [
           "case",
           ["boolean", ["feature-state", "spectralDim"], false],
-          0.1,
+          0,
           ["case", ["boolean", ["feature-state", "selected"], false], 0.62, 0.38],
         ],
       },
@@ -152,12 +155,17 @@ function syncParcelLayers(
       type: "line",
       source: PARCELS_SOURCE,
       paint: {
-        "line-color": "#1C2A1F",
+        "line-color": [
+          "case",
+          ["boolean", ["feature-state", "spectralDim"], false],
+          "#FFFDF8",
+          "#1C2A1F",
+        ],
         "line-width": [
           "case",
-          ["boolean", ["feature-state", "selected"], false],
-          3.5,
-          2,
+          ["boolean", ["feature-state", "spectralDim"], false],
+          2.5,
+          ["case", ["boolean", ["feature-state", "selected"], false], 3.5, 2],
         ],
       },
     });
@@ -191,6 +199,8 @@ export function AppShell({
   const mapRef = useRef<MapLibreMap | null>(null);
   const drawRef = useRef<TerraDraw | null>(null);
   const markersRef = useRef<Marker[]>([]);
+  const parcelLabelMarkerRef = useRef<Marker | null>(null);
+  const parcelLabelRootRef = useRef<Root | null>(null);
   const draftFeatureIdRef = useRef<string | number | null>(null);
   const editingParcelIdRef = useRef<string | null>(null);
   const drawModeRef = useRef<DrawMode>("idle");
@@ -538,7 +548,7 @@ export function AppShell({
 
       const paint = () => {
         if (cancelled) return;
-        applySpectralMapOverlay(map, json.data!, spectralOpacity);
+        applySpectralMapOverlay(map, json.data!, spectralOpacity, PARCELS_LINE);
       };
       if (map.isStyleLoaded()) {
         paint();
@@ -552,6 +562,44 @@ export function AppShell({
       clearSpectralMapOverlay(map);
     };
   }, [drawMode, selected, selectedId, sideTab, spectralIndexId, spectralOpacity]);
+
+  const spectralActive =
+    drawMode === "idle" && sideTab === "spectral" && Boolean(selected?.geometry);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    parcelLabelMarkerRef.current?.remove();
+    parcelLabelMarkerRef.current = null;
+    parcelLabelRootRef.current?.unmount();
+    parcelLabelRootRef.current = null;
+
+    if (!map || !spectralActive || !selected?.geometry || selected.geometry.type !== "Polygon") {
+      return;
+    }
+
+    const centroid = polygonCentroid(selected.geometry);
+    const el = document.createElement("div");
+    const root = createRoot(el);
+    root.render(
+      <MapParcelLabel
+        name={selected.name}
+        areaHectares={approximateAreaHectares(selected.geometry)}
+      />,
+    );
+    parcelLabelRootRef.current = root;
+
+    const marker = new Marker({ element: el, anchor: "center" })
+      .setLngLat([centroid.longitude, centroid.latitude])
+      .addTo(map);
+    parcelLabelMarkerRef.current = marker;
+
+    return () => {
+      marker.remove();
+      root.unmount();
+      parcelLabelMarkerRef.current = null;
+      parcelLabelRootRef.current = null;
+    };
+  }, [selected, spectralActive]);
 
   const resetDrawState = (opts?: { restoreSelection?: boolean }) => {
     const editingId = editingParcelIdRef.current;
@@ -769,7 +817,7 @@ export function AppShell({
     <div className={styles.shell}>
       <div ref={mapContainerRef} className={styles.map} />
 
-      <header className={styles.chrome}>
+      <header className={`${styles.chrome} ${spectralActive ? styles.chromeSpectral : ""}`}>
         <p className={styles.brand}>Agro AI</p>
         <div className={styles.chromeRight}>
           {isAdmin ? (
@@ -801,14 +849,10 @@ export function AppShell({
         </div>
       ) : null}
 
-      {drawMode === "idle" && sideTab === "spectral" && selected?.geometry ? (
-        <div className={styles.mapChipSlot}>
-          <MapChip label={`${spectralIndexId.toUpperCase()} activo`} />
-        </div>
-      ) : null}
-
       {drawMode === "idle" ? (
-        <div className={styles.mapToolbar}>
+        <div
+          className={`${styles.mapToolbar} ${spectralActive ? styles.mapToolbarSpectral : ""}`}
+        >
           {!drawReady ? (
             <Button type="button" disabled>
               Cargando mapa…
@@ -831,6 +875,9 @@ export function AppShell({
               Nueva parcela
             </Button>
           )}
+          {spectralActive ? (
+            <MapChip label={`${spectralIndexId.toUpperCase()} activo`} />
+          ) : null}
         </div>
       ) : drawMode === "draw" && !draftGeometry ? (
         <div className={styles.mapToolbar}>

@@ -3,7 +3,7 @@ import type { ParcelGeometry } from "@/domain/parcel/types";
 import { clampLegendValue } from "@/domain/spectral/overlay-legends";
 import type { SpectralLegend } from "@/domain/spectral/types";
 
-const GRID_SIZE = 14;
+const GRID_SIZE = 42;
 
 function outerRing(geometry: ParcelGeometry): number[][] {
   if (geometry.type === "Polygon") {
@@ -64,7 +64,7 @@ export function buildSyntheticOverlayGrid(input: {
   const { minLng, minLat, maxLng, maxLat } = bbox(ring);
   const lngStep = (maxLng - minLng) / (GRID_SIZE + 1);
   const latStep = (maxLat - minLat) / (GRID_SIZE + 1);
-  const spread = Math.max(0.12, (input.legend.max - input.legend.min) * 0.45);
+  const spread = Math.max(0.1, (input.legend.max - input.legend.min) * 0.38);
   const features: FeatureCollection<Point, { value: number }>["features"] = [];
 
   for (let i = 1; i <= GRID_SIZE; i += 1) {

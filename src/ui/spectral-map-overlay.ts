@@ -26,6 +26,7 @@ export function applySpectralMapOverlay(
   map: MapLibreMap,
   overlay: ParcelSpectralOverlay,
   opacity: number,
+  beforeLayerId?: string,
 ) {
   const source = map.getSource(SPECTRAL_OVERLAY_SOURCE) as GeoJSONSource | undefined;
   if (source) {
@@ -35,21 +36,36 @@ export function applySpectralMapOverlay(
       type: "geojson",
       data: overlay.grid,
     });
-    map.addLayer({
-      id: SPECTRAL_OVERLAY_LAYER,
-      type: "circle",
-      source: SPECTRAL_OVERLAY_SOURCE,
-      paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 5, 14, 11, 16, 18],
-        "circle-color": colorExpression(overlay.legend),
-        "circle-opacity": opacity,
-        "circle-blur": 0.55,
+    map.addLayer(
+      {
+        id: SPECTRAL_OVERLAY_LAYER,
+        type: "circle",
+        source: SPECTRAL_OVERLAY_SOURCE,
+        paint: {
+          "circle-radius": [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            10,
+            10,
+            12,
+            14,
+            14,
+            22,
+            16,
+            32,
+          ],
+          "circle-color": colorExpression(overlay.legend),
+          "circle-opacity": opacity * 0.72,
+          "circle-blur": 1,
+        },
       },
-    });
+      beforeLayerId,
+    );
   }
 
   if (map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
     map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-color", colorExpression(overlay.legend));
-    map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-opacity", opacity);
+    map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-opacity", opacity * 0.72);
   }
 }

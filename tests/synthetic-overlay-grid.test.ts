@@ -25,7 +25,7 @@ describe("Spectral-2: synthetic overlay grid", () => {
       legend,
     });
 
-    expect(grid.features.length).toBeGreaterThan(20);
+    expect(grid.features.length).toBeGreaterThan(120);
     for (const feature of grid.features) {
       const [lng, lat] = feature.geometry.coordinates;
       expect(lng).toBeGreaterThanOrEqual(-77.06);

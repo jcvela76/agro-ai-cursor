@@ -32,6 +32,33 @@ function ringCentroid(ring: number[][]): { longitude: number; latitude: number }
   };
 }
 
+/** Planar shoelace in meters — fine for small field polygons and map labels. */
+export function approximateAreaHectares(geometry: ParcelGeometry): number {
+  const ring =
+    geometry.type === "Polygon" ? geometry.coordinates[0] : geometry.coordinates[0]?.[0];
+  if (!ring || ring.length < 4) {
+    return 0;
+  }
+
+  const { latitude } = polygonCentroid(geometry);
+  const latRad = (latitude * Math.PI) / 180;
+  const mPerDegLat = 111_320;
+  const mPerDegLng = 111_320 * Math.cos(latRad);
+  let areaM2 = 0;
+
+  for (let i = 0; i < ring.length - 1; i += 1) {
+    const [lng0, lat0] = ring[i];
+    const [lng1, lat1] = ring[i + 1];
+    const x0 = lng0 * mPerDegLng;
+    const y0 = lat0 * mPerDegLat;
+    const x1 = lng1 * mPerDegLng;
+    const y1 = lat1 * mPerDegLat;
+    areaM2 += x0 * y1 - x1 * y0;
+  }
+
+  return Math.abs(areaM2 / 2) / 10_000;
+}
+
 export function polygonCentroid(geometry: ParcelGeometry): {
   longitude: number;
   latitude: number;
