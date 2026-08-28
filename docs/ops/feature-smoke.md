@@ -23,7 +23,15 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | API routes | `tests/api-parcels-route.test.ts` |
 | Neon persistence | `SMOKE_NEON=1 npm run smoke:parcels` |
 
-## QA-2 — Weather (pendiente)
+## QA-2 — Weather
+
+| Check | Cómo |
+|-------|------|
+| Auth gates (unauth, entitlement, parcel, cross-org) | `npm run smoke:weather` |
+| Observation + forecast offline | smoke → obs 22.4°C + forecast days |
+| API routes | `tests/api-weather-route.test.ts` |
+| Factory modes | `tests/weather-source-factory.test.ts` |
+| SENAMHI paid gate | `SMOKE_SENAMHI=1 npm run smoke:weather` |
 
 ## QA-3 — Espectral (pendiente)
 
