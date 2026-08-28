@@ -1,0 +1,38 @@
+# Feature smoke — plan QA
+
+Checklist de estabilización funcional (antes de polish visual). Cada fase cierra con tests + smoke script + commit en `stg`.
+
+## Fase 0 — Baseline
+
+| Paso | Comando / acción | OK |
+|------|------------------|-----|
+| Unit tests | `npm test` | ☐ |
+| Seed fixtures Neon | `npm run db:seed` (requiere `DATABASE_URL`) | ☐ |
+| Env QA local/stg | `WEATHER_SOURCE=free`, `SPECTRAL_SOURCE=offline`, Clerk + Neon | ☐ |
+| Org demo | Lima Coffee con `weather`, `weather_plus`, `traceability`, `agronomic_review` | ☐ |
+
+## QA-1 — Parcel Core
+
+| Check | Cómo |
+|-------|------|
+| List org parcels | `npm run smoke:parcels` → list |
+| Create + geometry | smoke → create |
+| Update name + geometry | smoke → patch |
+| Delete | smoke → delete |
+| Demo area ~4.8 ha | smoke → seed parcel area |
+| API routes | `tests/api-parcels-route.test.ts` |
+| Neon persistence | `SMOKE_NEON=1 npm run smoke:parcels` |
+
+## QA-2 — Weather (pendiente)
+
+## QA-3 — Espectral (pendiente)
+
+## QA-4 — Agente (pendiente)
+
+## QA-5 — Trazabilidad (pendiente)
+
+## QA-6 — Revisión (pendiente)
+
+## QA-7 — Admin / billing (pendiente)
+
+## QA-8 — Regresión stg (pendiente)
