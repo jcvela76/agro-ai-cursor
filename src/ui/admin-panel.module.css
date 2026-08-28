@@ -153,15 +153,3 @@
   color: var(--color-status-fresh);
   font-weight: 600;
 }
-
-.clerkEmbed {
-  margin-top: var(--space-4);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-bg-panel);
-}
-
-.orgProfileRoot {
-  width: 100%;
-}

@@ -1,6 +1,5 @@
 "use client";
 
-import { OrganizationProfile } from "@clerk/nextjs";
 import { useOrganization } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -10,6 +9,7 @@ import type { Parcel } from "@/domain/parcel/types";
 import type { WorkspaceSettings } from "@/domain/workspace/types";
 import { BillingWorkspaceNav } from "@/ui/billing-workspace-nav";
 import { Button } from "@/ui/button";
+import { OrgMembersPanel } from "@/ui/org-members-panel";
 import styles from "./admin-panel.module.css";
 
 const ENTITLEMENT_OPTIONS: { id: ProductEntitlement; label: string; hint: string }[] = [
@@ -263,17 +263,14 @@ export function AdminPanel() {
 
         <section className={styles.section}>
           <h2>Miembros</h2>
-          <p className={styles.muted}>Invitaciones y roles vía Clerk Organization Profile.</p>
-          <div className={styles.clerkEmbed}>
-            <OrganizationProfile
-              routing="hash"
-              appearance={{
-                elements: {
-                  rootBox: styles.orgProfileRoot,
-                },
-              }}
-            />
-          </div>
+          <p className={styles.muted}>
+            Invitaciones y roles. La facturación vive en{" "}
+            <Link className={styles.inlineLink} href="/app/billing">
+              Suscripción
+            </Link>
+            .
+          </p>
+          <OrgMembersPanel />
         </section>
       </div>
     </div>
