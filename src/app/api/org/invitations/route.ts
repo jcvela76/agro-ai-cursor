@@ -1,21 +1,10 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { memberSeatUsage } from "@/domain/billing/plan-limits";
 import { orgInvitationRedirectUrl } from "@/lib/app-url";
+import { requireOrgAdmin } from "@/lib/require-org-admin";
 import { createOrgMetadataStore } from "@/infrastructure/container";
 import { ClerkOrgMemberLimitGateway } from "@/infrastructure/auth/clerk-org-member-limit-gateway";
-
-async function requireOrgAdmin() {
-  const session = await auth();
-  const { userId, orgId, has } = session;
-  if (!userId || !orgId) {
-    return { ok: false as const, status: 401, message: "Authentication and active organization required" };
-  }
-  if (!has({ role: "org:admin" })) {
-    return { ok: false as const, status: 403, message: "Organization admin role required" };
-  }
-  return { ok: true as const, userId, orgId };
-}
 
 export async function POST(request: Request) {
   const gate = await requireOrgAdmin();

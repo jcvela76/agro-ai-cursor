@@ -110,11 +110,24 @@
 .pendingList li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: var(--space-3);
   padding: 0.65rem 0.75rem;
   border-radius: var(--radius-md);
   background: rgba(79, 111, 82, 0.06);
   font-size: 0.9375rem;
+}
+
+.pendingMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.revokeButton {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
 }
 
 .pendingRole {

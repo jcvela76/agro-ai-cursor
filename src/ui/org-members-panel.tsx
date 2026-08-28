@@ -35,6 +35,7 @@ export function OrgMembersPanel() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteStatus, setInviteStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [inviteError, setInviteError] = useState<string | null>(null);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
 
   if (!isLoaded) {
     return <p className={styles.muted}>Cargando miembros…</p>;
@@ -50,6 +51,28 @@ export function OrgMembersPanel() {
     pendingInvites: pending.length,
     planSlug,
   });
+
+  async function revokeInvite(invitationId: string) {
+    setRevokingId(invitationId);
+    try {
+      const response = await fetch(`/api/org/invitations/${invitationId}`, {
+        method: "DELETE",
+      });
+      const payload = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        setInviteStatus("error");
+        setInviteError(payload.message ?? "No se pudo revocar la invitación");
+        return;
+      }
+      await organization?.reload();
+      router.refresh();
+    } catch {
+      setInviteStatus("error");
+      setInviteError("Error de red al revocar la invitación");
+    } finally {
+      setRevokingId(null);
+    }
+  }
 
   async function sendInvite(event: React.FormEvent) {
     event.preventDefault();
@@ -187,8 +210,19 @@ export function OrgMembersPanel() {
           <ul className={styles.pendingList}>
             {pending.map((invite) => (
               <li key={invite.id}>
-                <span>{invite.emailAddress}</span>
-                <span className={styles.pendingRole}>{formatRole(invite.role)}</span>
+                <div className={styles.pendingMain}>
+                  <span>{invite.emailAddress}</span>
+                  <span className={styles.pendingRole}>{formatRole(invite.role)}</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={styles.revokeButton}
+                  disabled={revokingId === invite.id}
+                  onClick={() => void revokeInvite(invite.id)}
+                >
+                  {revokingId === invite.id ? "Revocando…" : "Revocar"}
+                </Button>
               </li>
             ))}
           </ul>
@@ -196,8 +230,9 @@ export function OrgMembersPanel() {
       ) : null}
 
       <p className={styles.hint}>
-        Solo <strong>org:admin</strong> puede invitar. El enlace de aceptación redirige a{" "}
-        <strong>/app</strong> en este dominio (stg o prod).
+        Solo <strong>org:admin</strong> puede invitar. Revoca invitaciones vencidas o erróneas y
+        vuelve a enviar. El enlace de aceptación lleva a <strong>/accept-invitation</strong> en este
+        dominio.
       </p>
     </div>
   );
