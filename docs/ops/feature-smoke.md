@@ -64,7 +64,15 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Neon persistence | `SMOKE_NEON=1 npm run smoke:trace` |
 | EUDR-only (legacy) | `npm run smoke:trace-eudr` |
 
-## QA-6 — Revisión (pendiente)
+## QA-6 — Revisión
+
+| Check | Cómo |
+|-------|------|
+| Gates (unauth, no entitlement) + list/append | `npm run smoke:review` |
+| Cross-org parcel blocked | smoke → cross-org |
+| API routes | `tests/api-review-route.test.ts` |
+| Registry factory | `tests/review-registry-factory.test.ts` |
+| Neon persistence | `SMOKE_NEON=1 npm run smoke:review` |
 
 ## QA-7 — Admin / billing (pendiente)
 

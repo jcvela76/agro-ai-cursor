@@ -1,5 +1,5 @@
 /**
- * Review-2 smoke — application-level (offline always; Neon optional).
+ * QA-6 smoke — agronomic review list + append (offline always; Neon optional).
  *
  * Usage:
  *   npm run smoke:review
@@ -33,6 +33,10 @@ async function runAgainst(label: string, registry: ReviewDecisionRegistry) {
     new SyntheticParcelRegistry(),
   );
   const steps: string[] = [];
+
+  const unauth = await list.execute({ authority: null, orgId: null });
+  assert(!unauth.ok && unauth.reason === "unauthenticated", `${label}: list unauth`);
+  steps.push("gate unauth");
 
   const deniedList = await list.execute({ authority: denied, orgId });
   assert(
@@ -99,7 +103,7 @@ async function runAgainst(label: string, registry: ReviewDecisionRegistry) {
 }
 
 async function main() {
-  console.log("Review-2 smoke");
+  console.log("QA-6 review smoke");
   await runAgainst("offline", new OfflineReviewDecisionRegistry());
 
   if (process.env.SMOKE_NEON === "1") {
