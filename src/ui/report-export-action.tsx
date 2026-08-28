@@ -71,11 +71,17 @@ export function ReportExportAction({
           agentAnswerMarkdown,
         }),
       });
-      const json = (await res.json()) as {
+      let json: {
         status: string;
         message?: string;
         data?: { previewUrl: string; quota: Quota };
       };
+      try {
+        json = (await res.json()) as typeof json;
+      } catch {
+        setError(`Error del servidor (${res.status}). Reintenta o revisa los logs.`);
+        return;
+      }
       if (!res.ok || json.status !== "OK" || !json.data) {
         setError(json.message ?? "No se pudo generar el informe.");
         await loadQuota();

@@ -47,42 +47,56 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = await generateOrgReport.execute({
-    authority,
-    reportType: body.reportType as ReportType,
-    parcelId: body.parcelId,
-    lotId: body.lotId,
-    agentQuestion: body.agentQuestion,
-    agentAnswerMarkdown: body.agentAnswerMarkdown,
-  });
+  try {
+    const result = await generateOrgReport.execute({
+      authority,
+      reportType: body.reportType as ReportType,
+      parcelId: body.parcelId,
+      lotId: body.lotId,
+      agentQuestion: body.agentQuestion,
+      agentAnswerMarkdown: body.agentAnswerMarkdown,
+    });
 
-  if (!result.ok) {
-    const status =
-      result.reason === "missing_plus_entitlement"
-        ? 403
-        : result.reason === "quota_exceeded"
-          ? 429
-          : 400;
+    if (!result.ok) {
+      const status =
+        result.reason === "missing_plus_entitlement"
+          ? 403
+          : result.reason === "quota_exceeded"
+            ? 429
+            : 400;
+      return NextResponse.json(
+        {
+          status: "REPORT_UNAVAILABLE",
+          reason: result.reason,
+          message: result.message,
+          quota: "quota" in result ? result.quota : undefined,
+        },
+        { status },
+      );
+    }
+
+    return NextResponse.json({
+      status: "OK",
+      data: {
+        id: result.report.id,
+        title: result.report.title,
+        reportType: result.report.reportType,
+        previewUrl: `/reports/${result.report.id}`,
+        pdfUrl: `/api/reports/${result.report.id}/pdf`,
+        quota: result.quota,
+      },
+    });
+  } catch (error) {
+    console.error("report generate failed", error);
     return NextResponse.json(
       {
         status: "REPORT_UNAVAILABLE",
-        reason: result.reason,
-        message: result.message,
-        quota: "quota" in result ? result.quota : undefined,
+        message:
+          error instanceof Error
+            ? error.message
+            : "No se pudo generar el PDF del informe.",
       },
-      { status },
+      { status: 500 },
     );
   }
-
-  return NextResponse.json({
-    status: "OK",
-    data: {
-      id: result.report.id,
-      title: result.report.title,
-      reportType: result.report.reportType,
-      previewUrl: `/reports/${result.report.id}`,
-      pdfUrl: `/api/reports/${result.report.id}/pdf`,
-      quota: result.quota,
-    },
-  });
 }
