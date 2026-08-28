@@ -830,7 +830,7 @@ export function AppShell({
           ) : null}
           <Button
             type="button"
-            variant="onDark"
+            variant="primary"
             onClick={startDraw}
             disabled={busy || !drawReady}
             className={styles.chromeAction}
