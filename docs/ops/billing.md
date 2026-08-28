@@ -135,6 +135,8 @@ Eventos mínimos:
 
 Helper: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
 
+Production: `./scripts/clerk-webhook-prod.sh` — ver `docs/ops/clerk-webhook-production.md`.
+
 Copiar **Signing Secret** (`whsec_…`) → env:
 
 ```bash
@@ -153,15 +155,17 @@ Vercel: set en **Preview** (y Development local vía `.env.local`). No commitear
 
 Tarjeta de prueba Stripe (development gateway): usar números de test de Stripe (p. ej. `4242…`).
 
-## Production (`geoagro.ai`) — diferido
+## Production (`geoagro.ai`)
 
 | Paso | Estado |
 |------|--------|
-| Código webhook + mapper + `/app/billing` | Puede estar en `main` (no cobra solo) |
+| Código webhook + mapper + `/app/billing` | ✅ en `main` |
+| Webhook Production `https://geoagro.ai/api/webhooks/clerk` | **Ops manual** — `scripts/clerk-webhook-prod.sh` + `docs/ops/clerk-webhook-production.md` |
+| `NEXT_PUBLIC_APP_URL` en Vercel Production | **Verificar** `https://geoagro.ai` |
 | Billing enabled + Stripe **account propia** en instancia Production | Bloqueado hasta checklist legal |
-| Montos vinculantes en LP | Bloqueado |
-| Webhook prod `https://geoagro.ai/api/webhooks/clerk` | Solo tras gateway live + secret Production |
-| Cobrar clientes en Perú | Bloqueado |
+| Montos vinculantes / cobro live en Perú | Bloqueado hasta aprobación abogado |
+
+El webhook Production puede configurarse **antes** de cobro live (org member limits + futuros `subscriptionItem.*`).
 
 ### Checklist legal (antes de cobro live)
 
@@ -190,7 +194,7 @@ Ver también: `docs/ops/legal.md`.
 
 - Ops manual (Dashboard): `docs/ops/clerk-billing-manual.md`
 - Planes JSON (CLI): `docs/ops/clerk-billing-plans.json`
-- Scripts: `scripts/clerk-billing-bootstrap.sh`, `scripts/clerk-webhook-stg.sh`
+- Scripts: `scripts/clerk-billing-bootstrap.sh`, `scripts/clerk-webhook-stg.sh`, `scripts/clerk-webhook-prod.sh`
 - Mapper: `src/domain/billing/plan-entitlements.ts`
 - Límites miembros: `src/domain/billing/plan-limits.ts`
 - Parse webhook: `src/application/billing/parse-subscription-item-event.ts`

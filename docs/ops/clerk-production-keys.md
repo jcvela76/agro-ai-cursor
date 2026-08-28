@@ -64,6 +64,11 @@ Tras editar fixtures: `npm run db:seed && npm run db:seed:trace && npm run db:se
 - Poner `pk_live_` en `.env.local` sin subdomain HTTPS (Clerk lo bloquea en localhost).
 - Borrar DNS TXT/CNAME de Clerk o el TXT de Search Console.
 - Billing live / SENAMHI live (sandbox Billing-1 + SENAMHI stub: ver `docs/ops/billing.md`).
+- Mezclar `CLERK_WEBHOOK_SIGNING_SECRET` de stg y Production en el mismo env.
+
+## Webhook Production
+
+Runbook: [clerk-webhook-production.md](clerk-webhook-production.md). Script: `./scripts/clerk-webhook-prod.sh` (requiere `sk_live_` temporal).
 
 ## Staging
 
