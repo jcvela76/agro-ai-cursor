@@ -175,6 +175,9 @@ Hasta entonces: **ningún cobro live** en apex.
 
 ## Archivos ancla
 
+- Ops manual (Dashboard): `docs/ops/clerk-billing-manual.md`
+- Planes JSON (CLI): `docs/ops/clerk-billing-plans.json`
+- Scripts: `scripts/clerk-billing-bootstrap.sh`, `scripts/clerk-webhook-stg.sh`
 - Mapper: `src/domain/billing/plan-entitlements.ts`
 - Límites miembros: `src/domain/billing/plan-limits.ts`
 - Parse webhook: `src/application/billing/parse-subscription-item-event.ts`

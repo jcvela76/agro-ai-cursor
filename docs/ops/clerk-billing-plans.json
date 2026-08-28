@@ -1,0 +1,39 @@
+{
+  "billing": {
+    "plans": [
+      {
+        "slug": "weather_plus",
+        "name": "Weather Intelligence Plus",
+        "amount": 2900,
+        "currency": "usd",
+        "payer_type": "org",
+        "is_recurring": true,
+        "publicly_available": true
+      },
+      {
+        "slug": "operations",
+        "name": "Operations",
+        "amount": 7900,
+        "currency": "usd",
+        "payer_type": "org",
+        "is_recurring": true,
+        "publicly_available": true
+      },
+      {
+        "slug": "full",
+        "name": "Full Platform",
+        "amount": 9900,
+        "currency": "usd",
+        "payer_type": "org",
+        "is_recurring": true,
+        "publicly_available": true
+      }
+    ],
+    "features": [
+      { "slug": "weather", "name": "Weather" },
+      { "slug": "weather_plus", "name": "Weather Intelligence Plus" },
+      { "slug": "traceability", "name": "Traceability" },
+      { "slug": "agronomic_review", "name": "Agronomic Review" }
+    ]
+  }
+}

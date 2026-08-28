@@ -8,9 +8,11 @@ Archivo design canónico. UI-1 consolidó tokens + atoms + frames high-fi (2026-
 |---------|-----|
 | **Design file** | https://www.figma.com/design/oTT6PqFOAijVxYZb5wztEP |
 | fileKey | `oTT6PqFOAijVxYZb5wztEP` |
+| **Billing & Admin (design)** | https://www.figma.com/design/ldp78z2wK0gyUlrxv3S9nw |
+| billing design fileKey | `ldp78z2wK0gyUlrxv3S9nw` |
+| **Figma Make (catálogo)** | [figma-make.md](./figma-make.md) — LP + Billing & Admin |
 | Página wireframes | `Weather wireframes` |
 | Página UI-1 | `UI-1 Design System` |
-| Figma Make | https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page — LP waitlist (stg); port fiel en `/` con assets en `public/landing/` |
 
 ## Tokens (variables `Agro UI-1`)
 
@@ -43,6 +45,9 @@ Código espejo: CSS variables en `src/app/globals.css` + atoms en `src/ui/`.
 | `app/map-shell/default` | Mapa fullscreen + chrome | UI-1 high-fi |
 | `app/map-shell/draw` | Dibujar/guardar polígono | UI-2 high-fi |
 | `app/admin/default` | Entitlements + allowlist | UI-4 high-fi |
+| `app/admin/subscription` | Admin + plan + miembros | **Portado** `stg` (Billing-2) |
+| `app/billing/manage` | Gestión suscripción + tiers | **Portado** `stg` |
+| `app/billing/cancel-confirm` | Cancelación → portal Clerk | **Portado** `stg` |
 | `weather/panel-observation` | WA-01 | UI-1 high-fi |
 | `parcel/list/default` | WA-03, WA-05 | wireframe |
 | `weather/observation/default` | WQ-01, WA-01 | wireframe |
@@ -52,6 +57,6 @@ Código espejo: CSS variables en `src/app/globals.css` + atoms en `src/ui/`.
 
 ## Workflow
 
-1. **Make** — explorar layout
-2. **Design file** — consolidar variables + frames en `UI-1 Design System`
-3. **Code** — `src/ui` + `/` + `/app` (UI-1 hecho)
+1. **Make** — explorar en proyecto dedicado → ver [figma-make.md](./figma-make.md)
+2. **Design file** — consolidar variables + frames (`oTT6PqFOAijVxYZb5wztEP`; billing en `ldp78z2wK0gyUlrxv3S9nw`)
+3. **Code** — `src/ui` + `/` + `/app`

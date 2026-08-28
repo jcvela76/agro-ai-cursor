@@ -139,7 +139,11 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 | LP marketing | **Live** en `geoagro.ai` (`main`); staging `stg.geoagro.ai` |
 | Clerk prod keys | **Hecho 2026-08-27** — apex `pk_live_` / FAPI `clerk.geoagro.ai`; Preview/stg siguen `pk_test_`. Ver [ops/clerk-production-keys.md](ops/clerk-production-keys.md) |
 | Billing-1 | **Hecho 2026-08-27** — Clerk Billing sandbox + webhook → entitlements; ops `docs/ops/billing.md` (ADR-030). Cobro live Production diferido |
+| Billing-2 | **Hecho 2026-08-27** — UI admin/billing/cancel + smoke stg; Make `gQ0ta5…` portado |
+| Billing-ops-docs | **Hecho 2026-08-27** — runbook CLI/webhook, `clerk-billing-manual.md`, scripts bootstrap |
+| Miembros (piloto) | **Hecho 2026-08-27** — panel propio + límites por plan (UI); `plan-limits.ts` |
 | SENAMHI-1 stub | **Hecho 2026-08-27** — `SenamhiStubWeatherSource` + gate `weather_plus`; `WEATHER_SOURCE=senamhi_stub`; live post contrato (ADR-031) |
+| **Siguiente** | Promote `stg` → `main` + smoke apex; luego Billing-3 (enforcement miembros server) o Legal-1 |
 
 ## Docs por slice (canónico)
 
