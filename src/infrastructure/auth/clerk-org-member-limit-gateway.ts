@@ -84,7 +84,8 @@ export class MemoryOrgMemberLimitGateway implements OrgMemberLimitGateway {
     this.snapshots.set(orgId, { ...current, maxAllowedMemberships: limit });
   }
 
-  async resolveRevokeActorUserId(_orgId: string): Promise<string | null> {
+  async resolveRevokeActorUserId(orgId: string): Promise<string | null> {
+    void orgId;
     return this.revokeActorUserId;
   }
 

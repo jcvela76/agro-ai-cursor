@@ -646,7 +646,8 @@ export class NasaPowerWeatherSource implements WeatherSource {
     return { ok: true, data: { tmax, tmin, validDates } };
   }
 
-  async getLowRainDays(_parcelId: string): Promise<WeatherResult<WeatherLowRainDays>> {
+  async getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>> {
+    void parcelId;
     return {
       ok: false,
       reason: "unavailable",

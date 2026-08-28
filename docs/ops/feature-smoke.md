@@ -6,10 +6,10 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 
 | Paso | Comando / acción | OK |
 |------|------------------|-----|
-| Unit tests | `npm test` | ☐ |
-| Seed fixtures Neon | `npm run db:seed` (requiere `DATABASE_URL`) | ☐ |
-| Env QA local/stg | `WEATHER_SOURCE=free`, `SPECTRAL_SOURCE=offline`, Clerk + Neon | ☐ |
-| Org demo | Lima Coffee con `weather`, `weather_plus`, `traceability`, `agronomic_review` | ☐ |
+| Unit tests | `npm test` | ☑ |
+| Seed fixtures Neon | `npm run db:seed` (requiere `DATABASE_URL`) | ☐ manual |
+| Env QA local/stg | `WEATHER_SOURCE=free`, `SPECTRAL_SOURCE=offline`, Clerk + Neon | ☑ ref |
+| Org demo | Lima Coffee con `weather`, `weather_plus`, `traceability`, `agronomic_review` | ☑ fixtures |
 
 ## QA-1 — Parcel Core
 
@@ -83,4 +83,27 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Org invitations API | `tests/api-org-invitations-route.test.ts` |
 | Billing/member unit tests | `tests/billing-entitlements.test.ts`, `tests/member-limit-enforcement.test.ts` |
 
-## QA-8 — Regresión stg (pendiente)
+## QA-8 — Regresión stg
+
+| Check | Comando | OK |
+|-------|---------|-----|
+| Unit tests (197+) | `npm test` | ☑ |
+| Lint | `npm run lint` | ☑ |
+| Build producción | `npm run build` | ☑ |
+| Smoke offline (8 scripts) | `npm run smoke:all` | ☑ |
+| Smoke + stubs opcionales | `SMOKE_SENAMHI=1 SMOKE_SENTINEL_STUB=1 npm run smoke:all` | ☑ |
+| Regresión one-shot | `npm run qa:regression` | ☑ |
+| Neon persistence | `SMOKE_NEON=1 npm run smoke:all` (requiere `DATABASE_URL`) | ☐ manual |
+| Seed Neon | `npm run db:seed` (+ trace/review seeds) | ☐ manual |
+| E2E visual `/app` | Browser smoke Lima Coffee (post-polygon fix) | ☐ manual |
+| Promote `stg` → `main` | Tras veredicto + billing/legal checklist | ☐ pendiente |
+
+**Veredicto QA-8 (2026-08-28, rama `stg`, commit post-QA-7):** PASS offline — listo para polish visual y smoke manual en stg/Vercel antes de `main`.
+
+### Comandos útiles
+
+```bash
+npm run qa:regression          # test + lint + smoke:all (con stubs)
+npm run smoke:all              # solo smokes offline
+SMOKE_NEON=1 npm run smoke:all # incluye Neon si DATABASE_URL está configurado
+```

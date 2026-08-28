@@ -26,6 +26,8 @@
     "smoke:spectral": "npx tsx scripts/smoke-spectral.ts",
     "smoke:agent": "npx tsx scripts/smoke-agent.ts",
     "smoke:admin": "npx tsx scripts/smoke-admin.ts",
+    "smoke:all": "npx tsx scripts/smoke-all.ts",
+    "qa:regression": "npm test && npm run lint && SMOKE_SENAMHI=1 SMOKE_SENTINEL_STUB=1 npm run smoke:all",
     "db:cleanup:lima-smoke": "npx tsx scripts/cleanup-lima-coffee-smoke.ts",
     "db:cleanup:review-smoke": "npx tsx scripts/cleanup-review-smoke.ts"
   },
