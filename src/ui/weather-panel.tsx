@@ -70,10 +70,12 @@ export function WeatherPanel({ parcel }: { parcel: Parcel }) {
   }, [parcel.id]);
 
   return (
-    <div className={styles.content}>
-      <div className={styles.tabs}>
+    <div className={styles.root}>
+      <div className={styles.tabs} role="tablist" aria-label="Clima">
         <button
           type="button"
+          role="tab"
+          aria-selected={tab === "observation"}
           className={tab === "observation" ? styles.tabActive : styles.tab}
           onClick={() => setTab("observation")}
         >
@@ -81,6 +83,8 @@ export function WeatherPanel({ parcel }: { parcel: Parcel }) {
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={tab === "forecast"}
           className={tab === "forecast" ? styles.tabActive : styles.tab}
           onClick={() => setTab("forecast")}
         >
@@ -88,13 +92,15 @@ export function WeatherPanel({ parcel }: { parcel: Parcel }) {
         </button>
       </div>
 
-      {loading ? <p className={styles.muted}>Cargando evidencia…</p> : null}
+      <div className={styles.tabContent}>
+        {loading ? <p className={styles.muted}>Cargando evidencia…</p> : null}
 
-      {!loading && tab === "observation" && observation ? (
-        <ObservationView payload={observation} />
-      ) : null}
+        {!loading && tab === "observation" && observation ? (
+          <ObservationView payload={observation} />
+        ) : null}
 
-      {!loading && tab === "forecast" && forecast ? <ForecastView payload={forecast} /> : null}
+        {!loading && tab === "forecast" && forecast ? <ForecastView payload={forecast} /> : null}
+      </div>
     </div>
   );
 }
