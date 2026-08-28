@@ -1,8 +1,19 @@
 "use client";
 
-import { SignIn, SignUp, useAuth, useOrganization, useSignIn, useSignUp } from "@clerk/nextjs";
+import {
+  SignIn,
+  SignUp,
+  useAuth,
+  useClerk,
+  useOrganization,
+  useOrganizationList,
+  useSignIn,
+  useSignUp,
+} from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
+import { parseInvitationOrgId } from "@/lib/clerk-invitation-ticket";
+import { Button } from "@/ui/button";
 
 const shellStyle: CSSProperties = {
   minHeight: "100vh",
@@ -27,20 +38,25 @@ function navigateToApp(router: ReturnType<typeof useRouter>) {
 function AcceptInvitationContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const clerk = useClerk();
   const { isSignedIn, isLoaded: authLoaded } = useAuth();
   const { organization, isLoaded: orgLoaded } = useOrganization();
+  const { setActive, userMemberships, isLoaded: orgListLoaded } = useOrganizationList({
+    userMemberships: { infinite: true },
+  });
   const { signUp, fetchStatus: signUpFetch } = useSignUp();
   const { signIn, fetchStatus: signInFetch } = useSignIn();
 
   const ticket = searchParams.get("__clerk_ticket");
   const accountStatus = searchParams.get("__clerk_status");
+  const invitedOrgId = ticket ? parseInvitationOrgId(ticket) : null;
 
   const [phase, setPhase] = useState<Phase>("processing");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const attempted = useRef(false);
 
   useEffect(() => {
-    if (!ticket || !authLoaded || !orgLoaded) {
+    if (!ticket || !authLoaded || !orgLoaded || !orgListLoaded) {
       return;
     }
     if (organization) {
@@ -51,7 +67,7 @@ function AcceptInvitationContent() {
       router.replace("/app");
       return;
     }
-    if (attempted.current || !signUp || !signIn) {
+    if (attempted.current || !signUp || !signIn || !setActive) {
       return;
     }
     if (signUpFetch === "fetching" || signInFetch === "fetching") {
@@ -60,52 +76,99 @@ function AcceptInvitationContent() {
 
     attempted.current = true;
 
+    async function activateExistingMembership() {
+      if (!invitedOrgId) {
+        return false;
+      }
+      const membership = userMemberships.data?.find(
+        (item) => item.organization.id === invitedOrgId,
+      );
+      if (!membership) {
+        return false;
+      }
+      await setActive!({ organization: invitedOrgId });
+      router.replace("/app");
+      return true;
+    }
+
     async function finalizeSignIn() {
       if (signIn?.status !== "complete") {
         setPhase("sign_in_ui");
-        return;
+        return true;
       }
       await signIn.finalize({ navigate: navigateToApp(router) });
+      return true;
     }
 
     async function finalizeSignUp() {
       if (signUp?.status !== "complete") {
         setPhase("sign_up_ui");
-        return;
+        return true;
       }
       await signUp.finalize({ navigate: navigateToApp(router) });
+      return true;
     }
 
-    async function consumeWithSignIn() {
+    async function consumeWithSignIn(requireSignOut: boolean) {
+      if (requireSignOut && isSignedIn) {
+        await clerk.signOut();
+      }
       const { error } = await signIn!.ticket({ ticket: ticket! });
       if (error) {
-        setErrorMessage("No se pudo aceptar la invitación con esta cuenta.");
-        setPhase("error");
-        return;
+        return false;
       }
-      await finalizeSignIn();
+      return finalizeSignIn();
     }
 
     async function consumeWithSignUp() {
+      if (isSignedIn) {
+        return false;
+      }
       const { error } = await signUp!.ticket({ ticket: ticket! });
       if (error) {
-        await consumeWithSignIn();
-        return;
+        return false;
       }
       if (signUp!.status === "missing_requirements") {
         setPhase("sign_up_ui");
-        return;
+        return true;
       }
-      await finalizeSignUp();
+      return finalizeSignUp();
     }
 
     async function consumeTicket() {
       try {
-        if (isSignedIn || accountStatus === "sign_in") {
-          await consumeWithSignIn();
+        if (await activateExistingMembership()) {
           return;
         }
-        await consumeWithSignUp();
+
+        // After Account Portal sign-up, URL may still say sign_up while user exists.
+        const preferSignIn =
+          accountStatus === "sign_in" || (accountStatus === "sign_up" && isSignedIn);
+
+        if (preferSignIn) {
+          if (await consumeWithSignIn(true)) {
+            return;
+          }
+          if (await consumeWithSignUp()) {
+            return;
+          }
+        } else {
+          if (await consumeWithSignUp()) {
+            return;
+          }
+          if (await consumeWithSignIn(true)) {
+            return;
+          }
+        }
+
+        if (await activateExistingMembership()) {
+          return;
+        }
+
+        setErrorMessage(
+          "No se pudo aceptar la invitación. Cierra sesión, abre el enlace de nuevo o pide una invitación nueva.",
+        );
+        setPhase("error");
       } catch {
         setErrorMessage("No se pudo aceptar la invitación. Pide una nueva invitación al administrador.");
         setPhase("error");
@@ -118,6 +181,7 @@ function AcceptInvitationContent() {
     accountStatus,
     authLoaded,
     orgLoaded,
+    orgListLoaded,
     organization,
     isSignedIn,
     signUp,
@@ -125,6 +189,10 @@ function AcceptInvitationContent() {
     signUpFetch,
     signInFetch,
     router,
+    clerk,
+    invitedOrgId,
+    setActive,
+    userMemberships.data,
   ]);
 
   if (!ticket) {
@@ -138,7 +206,12 @@ function AcceptInvitationContent() {
   if (phase === "error") {
     return (
       <main style={shellStyle}>
-        <p>{errorMessage ?? "No se pudo procesar la invitación."}</p>
+        <div style={{ display: "grid", gap: "1rem", maxWidth: "28rem", textAlign: "center" }}>
+          <p>{errorMessage ?? "No se pudo procesar la invitación."}</p>
+          <Button type="button" onClick={() => void clerk.signOut(() => router.refresh())}>
+            Cerrar sesión e intentar de nuevo
+          </Button>
+        </div>
       </main>
     );
   }
