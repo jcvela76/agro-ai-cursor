@@ -144,8 +144,8 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 | Miembros (piloto) | **Hecho 2026-08-27** — panel propio + límites por plan (UI); `plan-limits.ts` |
 | SENAMHI-1 stub | **Hecho 2026-08-27** — `SenamhiStubWeatherSource` + gate `weather_plus`; `WEATHER_SOURCE=senamhi_stub`; live post contrato (ADR-031) |
 | Billing-3 | **Hecho 2026-08-28** — `maxAllowedMemberships` sync + webhook revoca invitaciones sobre tope |
-| Promote apex | **Hecho 2026-08-28** — `main` = `stg` @ `684bbd8`; deploy Production READY; smoke público OK |
-| **Siguiente** | Legal-1; smoke autenticado prod opcional; Billing live Production (checklist) |
+| Promote apex | **Hecho 2026-08-28** — `main` = `stg` @ `d6f31de`; deploy Production READY; smoke público OK |
+| **Siguiente** | Legal-1; webhook org events en Production (opcional); Billing live Production (checklist) |
 
 ## Docs por slice (canónico)
 
