@@ -29,13 +29,18 @@ Crear **Features** con slugs idénticos a nuestros entitlements:
 
 ## Planes para Organizations (slugs)
 
-| Plan slug       | Features incluidas                                      | Uso |
-|-----------------|---------------------------------------------------------|-----|
-| `free`          | (default Clerk; mín. weather vía metadata ops)          | Base |
-| `weather_base`  | `weather`                                               | Weather |
-| `weather_plus`  | `weather`, `weather_plus`                               | Plus |
-| `operations`    | las cuatro                                              | Trace + Review |
-| `full`          | las cuatro                                              | Alias comercial |
+**Modelo producto:** el tier **free no requiere suscripción** — org en `free_org` (Clerk) con `weather` vía metadata default / mapper `free`. Los planes de pago en `<PricingTable />` llevan **free trial** (sandbox: p. ej. 14 días) antes del cobro.
+
+**Moneda:** precios en **USD** (internacional). Clerk Billing Development gateway cobra en USD; montos en Dashboard: $29 / $79 / $99 mensuales.
+
+| Plan slug       | Precio (USD/mes) | Features incluidas                                      | Uso |
+|-----------------|------------------|---------------------------------------------------------|-----|
+| `free` / `free_org` | — (sin suscripción) | `weather`                                          | Base |
+| `weather_plus`  | $29              | `weather`, `weather_plus`                               | Plus (+ trial) |
+| `operations`    | $79              | las cuatro                                              | Trace + Review (+ trial) |
+| `full`          | $99              | las cuatro                                              | Alias comercial (+ trial) |
+
+No crear `weather_base` en Dashboard: Clerk exige mín. $1 en planes custom; el tier weather-only queda cubierto por `free_org`.
 
 Si Clerk emite `org:weather_plus`, el mapper normaliza quitando el prefijo `org:`.
 
@@ -43,24 +48,57 @@ Fallback si el payload no trae features: `PLAN_SLUG_ENTITLEMENTS` en `src/domain
 
 ## Setup Development (stg / Preview / local)
 
-### 1. Habilitar Billing
+### 0. Si Billing → Settings da 404
 
-Dashboard → instancia **Development** → [Billing Settings](https://dashboard.clerk.com/last-active?path=billing/settings):
+**Normal antes de habilitar Billing.** Las rutas `~/billing/*` y `last-active?path=billing/*` no existen hasta que Billing está ON en la instancia **Development** de `agro-ai-auth`.
+
+**Opción recomendada (CLI, sin Dashboard):**
+
+```bash
+cd ~/Projects/agro-ai
+chmod +x scripts/clerk-billing-bootstrap.sh
+./scripts/clerk-billing-bootstrap.sh
+```
+
+O paso a paso (sin `clerk link`; usa `--app`):
+
+```bash
+npx clerk@latest auth login          # cuenta con acceso a agro-ai-auth (me@juliovela.com)
+npx clerk@latest apps list           # debe listar agro-ai-auth
+npx clerk@latest enable billing --for orgs --app app_3IThUPXYe9TeXFToApdAlaB3OC2 --instance dev --yes
+npx clerk@latest config patch --app app_3IThUPXYe9TeXFToApdAlaB3OC2 --instance dev \
+  --file docs/ops/clerk-billing-plans.json --dry-run
+npx clerk@latest config patch --app app_3IThUPXYe9TeXFToApdAlaB3OC2 --instance dev \
+  --file docs/ops/clerk-billing-plans.json --yes
+```
+
+Si `clerk link` o `apps list` da **403 Missing authorization scopes**: cerrá sesión CLI y entrá con la cuenta del workspace **Raw Code's projects** (no solo jcvela@gmail.com si esa cuenta no es admin del app):
+
+```bash
+npx clerk auth logout
+npx clerk auth login -y
+```
+
+Tras `enable billing`, el menú **Billing** aparece en el Dashboard (app → **Development**).
+
+### 1. Habilitar Billing (Dashboard, alternativa)
+
+Dashboard → app **agro-ai-auth** → selector **Development** → menú lateral **Billing** → **Settings**:
 
 - Enable Billing for **Organizations**.
 - Payment gateway: **Clerk development gateway** (Stripe test compartido; no cuenta Stripe propia).
 
 ### 2. Planes y Features
 
-Dashboard → [Subscription plans](https://dashboard.clerk.com/~/billing/plans) → **Plans for Organizations**:
+Dashboard → **Billing** → **Plans** → **Plans for Organizations** (o usar `docs/ops/clerk-billing-plans.json` vía CLI arriba):
 
-1. Crear Features con los slugs de la tabla.
-2. Crear planes `weather_base`, `weather_plus`, `operations`, `full` y adjuntar Features.
+1. Crear Features con los slugs de la tabla (o adjuntarlas a cada plan en la UI).
+2. Crear planes de pago `weather_plus`, `operations`, `full` (mín. **$1**/mes en UI; free = `free_org` sin suscripción).
 3. Marcar planes **Publicly available** si deben verse en `<PricingTable />`.
 
 ### 3. Webhook
 
-Dashboard → Webhooks → endpoint:
+Dashboard → **Configure** → **Webhooks** → Add endpoint:
 
 - URL stg: `https://stg.geoagro.ai/api/webhooks/clerk`
 - URL local (tunnel): `https://<ngrok>/api/webhooks/clerk`
@@ -128,4 +166,4 @@ Hasta entonces: **ningún cobro live** en apex.
 - Parse webhook: `src/application/billing/parse-subscription-item-event.ts`
 - Sync: `src/application/billing/sync-org-billing-entitlements.ts`
 - Route: `src/app/api/webhooks/clerk/route.ts`
-- UI: `src/ui/billing-panel.tsx`, `src/app/app/billing/page.tsx`
+- UI: `src/ui/billing-panel.tsx`, `src/ui/billing-cancel-panel.tsx`, `src/ui/billing-workspace-nav.tsx`, `src/app/app/billing/page.tsx`, `src/app/app/billing/cancel/page.tsx`

@@ -1,11 +1,14 @@
 "use client";
 
 import { OrganizationProfile } from "@clerk/nextjs";
+import { useOrganization } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ProductEntitlement } from "@/domain/auth/authorize-weather-access";
+import { planDisplayLabel } from "@/domain/billing/plan-display";
 import type { Parcel } from "@/domain/parcel/types";
 import type { WorkspaceSettings } from "@/domain/workspace/types";
+import { BillingWorkspaceNav } from "@/ui/billing-workspace-nav";
 import { Button } from "@/ui/button";
 import styles from "./admin-panel.module.css";
 
@@ -21,6 +24,7 @@ const ENTITLEMENT_OPTIONS: { id: ProductEntitlement; label: string; hint: string
 ];
 
 export function AdminPanel() {
+  const { organization } = useOrganization();
   const [settings, setSettings] = useState<WorkspaceSettings | null>(null);
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [allowAll, setAllowAll] = useState(true);
@@ -131,141 +135,147 @@ export function AdminPanel() {
     }
   };
 
+  const planSlug = settings?.billingPlanSlug ?? null;
+
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Workspace</p>
-          <h1 className={styles.title}>Admin</h1>
-        </div>
-        <Link className={styles.back} href="/app">
-          ← Mapa
-        </Link>
-      </header>
+    <div className={styles.shell}>
+      <BillingWorkspaceNav active="admin" orgName={organization?.name} />
 
-      {error ? (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      ) : null}
-      {message ? <p className={styles.ok}>{message}</p> : null}
-
-      {!settings && !error ? <p className={styles.muted}>Cargando…</p> : null}
-
-      {settings ? (
-        <>
-          <section className={styles.section}>
-            <h2>Suscripción</h2>
-            <p className={styles.muted}>
-              Plan sincronizado por Clerk Billing (webhook). Override manual de entitlements
-              sigue disponible abajo (ops).
-            </p>
-            <p className={styles.muted}>
-              Plan actual:{" "}
-              <strong>{settings.billingPlanSlug ?? "— (sin sync aún)"}</strong>
-            </p>
-            <p>
-              <Link className={styles.back} href="/app/billing">
-                Gestionar suscripción →
-              </Link>
-            </p>
-          </section>
-
-          <section className={styles.section}>
-            <h2>Entitlements</h2>
-            <p className={styles.muted}>
-              Productos activos en el metadata público de la organización Clerk.
-            </p>
-            <ul className={styles.checkList}>
-              {ENTITLEMENT_OPTIONS.map((opt) => (
-                <li key={opt.id}>
-                  <label className={styles.check}>
-                    <input
-                      type="checkbox"
-                      checked={entitlements.includes(opt.id)}
-                      onChange={() => toggleEntitlement(opt.id)}
-                    />
-                    <span>
-                      <strong>{opt.label}</strong>
-                      <small>{opt.hint}</small>
-                    </span>
-                  </label>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className={styles.section}>
-            <h2>Allowlist de parcelas</h2>
-            <p className={styles.muted}>
-              Vacío / “Todas” = cualquier parcela del org con Weather (ADR-011). Lista no vacía =
-              restrictiva.
-            </p>
-            <label className={styles.check}>
-              <input
-                type="radio"
-                name="allow"
-                checked={allowAll}
-                onChange={() => setAllowAll(true)}
-              />
-              <span>Todas las parcelas del workspace</span>
-            </label>
-            <label className={styles.check}>
-              <input
-                type="radio"
-                name="allow"
-                checked={!allowAll}
-                onChange={() => setAllowAll(false)}
-              />
-              <span>Solo parcelas seleccionadas</span>
-            </label>
-            {!allowAll ? (
-              <ul className={styles.checkList}>
-                {parcels.length === 0 ? (
-                  <li className={styles.muted}>No hay parcelas en este workspace</li>
-                ) : (
-                  parcels.map((p) => (
-                    <li key={p.id}>
-                      <label className={styles.check}>
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(p.id)}
-                          onChange={() => toggleParcel(p.id)}
-                        />
-                        <span>
-                          <strong>{p.name}</strong>
-                          <small>{p.id}</small>
-                        </span>
-                      </label>
-                    </li>
-                  ))
-                )}
-              </ul>
-            ) : null}
-          </section>
-
-          <div className={styles.actions}>
-            <Button type="button" onClick={() => void save()} disabled={busy}>
-              Guardar settings
-            </Button>
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <div>
+            <p className={styles.eyebrow}>Workspace</p>
+            <h1 className={styles.title}>Admin</h1>
           </div>
-        </>
-      ) : null}
+        </header>
 
-      <section className={styles.section}>
-        <h2>Miembros</h2>
-        <p className={styles.muted}>Invitaciones y roles vía Clerk Organization Profile.</p>
-        <div className={styles.clerkEmbed}>
-          <OrganizationProfile
-            routing="hash"
-            appearance={{
-              elements: {
-                rootBox: styles.orgProfileRoot,
-              },
-            }}
-          />
-        </div>
-      </section>
+        {error ? (
+          <p className={styles.error} role="alert">
+            {error}
+          </p>
+        ) : null}
+        {message ? <p className={styles.ok}>{message}</p> : null}
+
+        {!settings && !error ? <p className={styles.muted}>Cargando…</p> : null}
+
+        {settings ? (
+          <>
+            <section className={styles.card}>
+              <h2 className={styles.cardTitle}>Suscripción</h2>
+              <p className={styles.planName}>{planDisplayLabel(planSlug)}</p>
+              <p className={styles.planSlug}>
+                Slug: <code>{planSlug ?? "— (sin sync aún)"}</code>
+              </p>
+              <p className={styles.muted}>
+                Sincronizado por Clerk Billing (webhook). Fechas y facturas en el portal de Clerk.
+              </p>
+              <p>
+                <Link className={styles.inlineLink} href="/app/billing">
+                  Gestionar suscripción →
+                </Link>
+              </p>
+            </section>
+
+            <section className={styles.section}>
+              <div className={styles.sectionHeading}>
+                <h2>Entitlements</h2>
+                <span className={styles.badge}>Override ops</span>
+              </div>
+              <p className={styles.muted}>
+                Productos en metadata público de la organización. El webhook de billing puede
+                sobrescribir al cambiar de plan; este formulario es para operaciones manuales.
+              </p>
+              <ul className={styles.checkList}>
+                {ENTITLEMENT_OPTIONS.map((opt) => (
+                  <li key={opt.id}>
+                    <label className={styles.check}>
+                      <input
+                        type="checkbox"
+                        checked={entitlements.includes(opt.id)}
+                        onChange={() => toggleEntitlement(opt.id)}
+                      />
+                      <span>
+                        <strong>{opt.label}</strong>
+                        <small>{opt.hint}</small>
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className={styles.section}>
+              <h2>Allowlist de parcelas</h2>
+              <p className={styles.muted}>
+                Vacío / “Todas” = cualquier parcela del org con Weather (ADR-011). Lista no vacía =
+                restrictiva (no es exclusiva de Plus).
+              </p>
+              <label className={styles.check}>
+                <input
+                  type="radio"
+                  name="allow"
+                  checked={allowAll}
+                  onChange={() => setAllowAll(true)}
+                />
+                <span>Todas las parcelas del workspace</span>
+              </label>
+              <label className={styles.check}>
+                <input
+                  type="radio"
+                  name="allow"
+                  checked={!allowAll}
+                  onChange={() => setAllowAll(false)}
+                />
+                <span>Solo parcelas seleccionadas</span>
+              </label>
+              {!allowAll ? (
+                <ul className={styles.checkList}>
+                  {parcels.length === 0 ? (
+                    <li className={styles.muted}>No hay parcelas en este workspace</li>
+                  ) : (
+                    parcels.map((p) => (
+                      <li key={p.id}>
+                        <label className={styles.check}>
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.includes(p.id)}
+                            onChange={() => toggleParcel(p.id)}
+                          />
+                          <span>
+                            <strong>{p.name}</strong>
+                            <small>{p.id}</small>
+                          </span>
+                        </label>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              ) : null}
+            </section>
+
+            <div className={styles.actions}>
+              <Button type="button" onClick={() => void save()} disabled={busy}>
+                Guardar settings
+              </Button>
+            </div>
+          </>
+        ) : null}
+
+        <section className={styles.section}>
+          <h2>Miembros</h2>
+          <p className={styles.muted}>Invitaciones y roles vía Clerk Organization Profile.</p>
+          <div className={styles.clerkEmbed}>
+            <OrganizationProfile
+              routing="hash"
+              appearance={{
+                elements: {
+                  rootBox: styles.orgProfileRoot,
+                },
+              }}
+            />
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

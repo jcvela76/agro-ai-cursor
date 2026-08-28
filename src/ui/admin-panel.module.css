@@ -1,3 +1,8 @@
+.shell {
+  min-height: 100vh;
+  background: var(--color-bg-canvas);
+}
+
 .page {
   max-width: 52rem;
   margin: 0 auto;
@@ -5,10 +10,6 @@
 }
 
 .header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
   margin-bottom: var(--space-6);
 }
 
@@ -27,10 +28,46 @@
   font-size: clamp(1.75rem, 3vw, 2.25rem);
 }
 
-.back {
-  color: var(--color-fg-primary);
+.card {
+  margin-bottom: var(--space-6);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-panel);
+  box-shadow: var(--shadow-panel);
+}
+
+.cardTitle {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.planName {
+  margin: 0 0 var(--space-1);
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.planSlug {
+  margin: 0 0 var(--space-3);
+  font-size: 0.875rem;
+  color: var(--color-fg-muted);
+}
+
+.planSlug code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8125rem;
+}
+
+.inlineLink {
   font-weight: 600;
+  color: var(--color-fg-primary);
   text-decoration: none;
+}
+
+.inlineLink:hover {
+  text-decoration: underline;
 }
 
 .section {
@@ -39,10 +76,32 @@
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
+.sectionHeading h2,
 .section h2 {
-  margin: 0 0 var(--space-2);
+  margin: 0;
   font-family: var(--font-display);
   font-size: 1.25rem;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(79, 111, 82, 0.12);
+  color: var(--color-accent-field);
+  border: 1px solid rgba(79, 111, 82, 0.25);
 }
 
 .muted {

@@ -1,0 +1,80 @@
+.bar {
+  background: var(--color-bg-map-chrome);
+  color: var(--color-fg-on-dark);
+  border-bottom: 1px solid rgba(243, 240, 232, 0.12);
+}
+
+.inner {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.brandMark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.orgName {
+  font-size: 0.8125rem;
+  color: rgba(243, 240, 232, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 12rem;
+}
+
+.links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.link,
+.linkActive {
+  display: inline-flex;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: rgba(243, 240, 232, 0.78);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.link:hover {
+  color: var(--color-fg-on-dark);
+  background: rgba(243, 240, 232, 0.08);
+}
+
+.linkActive {
+  color: var(--color-fg-on-dark);
+  background: rgba(243, 240, 232, 0.14);
+}
+
+.mapLink {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(243, 240, 232, 0.78);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.mapLink:hover {
+  color: var(--color-fg-on-dark);
+}
