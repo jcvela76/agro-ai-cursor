@@ -1,0 +1,33 @@
+.card {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: min(16rem, 42vw);
+  padding: 0.375rem 0.5rem 0.375rem 0.625rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-panel);
+  color: var(--color-fg-primary);
+  box-shadow: 0 1px 0 rgba(28, 42, 31, 0.06);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.area {
+  flex-shrink: 0;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: #e8e4dc;
+  color: #5c6358;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  line-height: 1.2;
+}
