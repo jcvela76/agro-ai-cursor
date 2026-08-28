@@ -61,6 +61,31 @@ export interface ParcelVegetationIndices {
   evidence: SpectralEvidence;
 }
 
+export interface SpectralLegendStop {
+  value: number;
+  color: string;
+}
+
+export interface SpectralLegend {
+  min: number;
+  max: number;
+  minLabel: string;
+  maxLabel: string;
+  stops: SpectralLegendStop[];
+}
+
+export interface ParcelSpectralOverlay {
+  kind: "spectral_overlay";
+  indexId: VegetationIndexId;
+  label: string;
+  value: number | null;
+  legend: SpectralLegend;
+  grid: import("geojson").FeatureCollection<
+    import("geojson").Point,
+    { value: number }
+  >;
+}
+
 export type SpectralResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: SpectralLimitationReason; message: string };

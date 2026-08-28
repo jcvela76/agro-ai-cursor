@@ -22,7 +22,80 @@
   line-height: 1.45;
 }
 
-.list {
+.freshnessInline {
+  margin-left: var(--space-1);
+}
+
+.indexGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.indexChip,
+.indexChipActive {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 650;
+  background: var(--color-bg-panel);
+  color: var(--color-fg-primary);
+  cursor: pointer;
+}
+
+.indexChipActive {
+  background: var(--color-bg-map-chrome);
+  border-color: var(--color-bg-map-chrome);
+  color: var(--color-fg-on-dark);
+}
+
+.legendBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.legendTitle {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-fg-muted);
+}
+
+.legendBar {
+  display: flex;
+  height: 0.65rem;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.legendStop {
+  flex: 1;
+}
+
+.legendLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  color: var(--color-fg-muted);
+}
+
+.opacityField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--color-fg-muted);
+}
+
+.opacityField input {
+  width: 100%;
+}
+
+.compactList {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -31,40 +104,35 @@
   list-style: none;
 }
 
-.card {
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.cardHeader {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+.compactRow {
+  display: grid;
+  grid-template-columns: 3rem 1fr 2.5rem;
   gap: var(--space-2);
+  align-items: center;
 }
 
-.indexLabel {
-  margin: 0;
-  font-weight: 650;
-  font-size: 0.9375rem;
-}
-
-.indexValue {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 650;
-}
-
-.indexDescription {
-  margin: 0;
-  color: var(--color-fg-muted);
+.compactLabel {
   font-size: 0.75rem;
-  line-height: 1.4;
+  font-weight: 650;
+}
+
+.compactTrack {
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--color-border-subtle);
+  overflow: hidden;
+}
+
+.compactFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.compactValue {
+  font-size: 0.75rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .evidence {
@@ -72,8 +140,4 @@
   flex-direction: column;
   gap: var(--space-1);
   margin-top: var(--space-2);
-}
-
-.freshnessInline {
-  margin-left: var(--space-1);
 }

@@ -46,6 +46,13 @@
   box-shadow: var(--shadow-panel);
 }
 
+.mapChipSlot {
+  position: absolute;
+  top: 8.75rem;
+  left: 1rem;
+  z-index: 3;
+}
+
 .panelFooter {
   margin-top: auto;
   padding-top: var(--space-4);

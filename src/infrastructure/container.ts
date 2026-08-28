@@ -18,6 +18,7 @@ import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-lo
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
 import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
+import { GetParcelSpectralOverlay } from "@/application/spectral/get-parcel-spectral-overlay";
 import { AppendOrgReviewDecision } from "@/application/review/append-org-review-decision";
 import { ListOrgReviewDecisions } from "@/application/review/list-org-review-decisions";
 import { ListOrgTraceLots } from "@/application/traceability/list-org-trace-lots";
@@ -195,6 +196,11 @@ export function createSpectralSource(
 const spectralSource = createSpectralSource(process.env.SPECTRAL_SOURCE ?? "offline");
 
 export const getParcelVegetationIndices = new GetParcelVegetationIndices(
+  parcelRegistry,
+  spectralSource,
+);
+
+export const getParcelSpectralOverlay = new GetParcelSpectralOverlay(
   parcelRegistry,
   spectralSource,
 );

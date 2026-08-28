@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import type { Parcel } from "@/domain/parcel/types";
+import { colorForLegendValue, getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import type {
   ParcelVegetationIndices,
   SpectralLimitationReason,
+  VegetationIndexId,
 } from "@/domain/spectral/types";
 import { Badge } from "@/ui/badge";
 import { EvidenceRow } from "@/ui/evidence-row";
@@ -35,7 +37,19 @@ async function fetchSpectral<T>(url: string): Promise<SpectralOk<T> | SpectralLi
   return (await res.json()) as SpectralOk<T> | SpectralLimited;
 }
 
-export function SpectralPanel({ parcel }: { parcel: Parcel }) {
+export function SpectralPanel({
+  parcel,
+  selectedIndexId,
+  overlayOpacity,
+  onIndexChange,
+  onOpacityChange,
+}: {
+  parcel: Parcel;
+  selectedIndexId: VegetationIndexId;
+  overlayOpacity: number;
+  onIndexChange: (indexId: VegetationIndexId) => void;
+  onOpacityChange: (opacity: number) => void;
+}) {
   const [payload, setPayload] = useState<SpectralOk<ParcelVegetationIndices> | SpectralLimited | null>(
     null,
   );
@@ -80,11 +94,13 @@ export function SpectralPanel({ parcel }: { parcel: Parcel }) {
   }
 
   const { data } = payload;
+  const legend = getSpectralLegend(selectedIndexId);
+  const activeReading = data.indices.find((index) => index.id === selectedIndexId);
+
   return (
     <div className={styles.content}>
       <p className={styles.intro}>
         Índices de vegetación derivados de reflectancia multiespectral. Requiere Intelligence Plus.
-        Valores entre −1 y 1 salvo indicación del método.
       </p>
       <p className={styles.muted}>
         Escena {data.acquisitionDate}
@@ -94,19 +110,77 @@ export function SpectralPanel({ parcel }: { parcel: Parcel }) {
           </Badge>
         </span>
       </p>
-      <ul className={styles.list}>
+
+      <div className={styles.indexGrid}>
         {data.indices.map((index) => (
-          <li key={index.id} className={styles.card}>
-            <div className={styles.cardHeader}>
-              <p className={styles.indexLabel}>{index.label}</p>
-              <p className={styles.indexValue}>
-                {index.value === null ? "—" : index.value.toFixed(3)}
-              </p>
-            </div>
-            <p className={styles.indexDescription}>{index.description}</p>
-          </li>
+          <button
+            key={index.id}
+            type="button"
+            className={index.id === selectedIndexId ? styles.indexChipActive : styles.indexChip}
+            onClick={() => onIndexChange(index.id)}
+          >
+            {index.label}
+          </button>
         ))}
+      </div>
+
+      <div className={styles.legendBlock}>
+        <p className={styles.legendTitle}>Leyenda {legend.minLabel === "Estrés" ? selectedIndexId.toUpperCase() : activeReading?.label}</p>
+        <div className={styles.legendBar}>
+          {legend.stops.map((stop) => (
+            <span
+              key={stop.value}
+              className={styles.legendStop}
+              style={{ backgroundColor: stop.color }}
+            />
+          ))}
+        </div>
+        <div className={styles.legendLabels}>
+          <span>
+            {legend.min} {legend.minLabel}
+          </span>
+          <span>
+            {legend.max}+ {legend.maxLabel}
+          </span>
+        </div>
+      </div>
+
+      <label className={styles.opacityField}>
+        <span>Opacidad overlay ({Math.round(overlayOpacity * 100)}%)</span>
+        <input
+          type="range"
+          min={0.2}
+          max={1}
+          step={0.02}
+          value={overlayOpacity}
+          onChange={(event) => onOpacityChange(Number(event.target.value))}
+        />
+      </label>
+
+      <ul className={styles.compactList}>
+        {data.indices.map((index) => {
+          const barColor =
+            index.value === null ? "var(--color-border-subtle)" : colorForLegendValue(index.value, getSpectralLegend(index.id));
+          return (
+            <li key={index.id} className={styles.compactRow}>
+              <span className={styles.compactLabel}>{index.label}</span>
+              <div className={styles.compactTrack}>
+                <span
+                  className={styles.compactFill}
+                  style={{
+                    width: `${index.value === null ? 0 : Math.min(100, Math.max(8, index.value * 100))}%`,
+                    backgroundColor: barColor,
+                  }}
+                />
+              </div>
+              <span className={styles.compactValue}>
+                {index.value === null ? "—" : index.value.toFixed(2)}
+              </span>
+            </li>
+          );
+        })}
       </ul>
+
       <div className={styles.evidence}>
         <EvidenceRow label="Fuente" value={data.evidence.sourceLabel} />
         <EvidenceRow label="Adquirido" value={data.evidence.acquiredAt} />

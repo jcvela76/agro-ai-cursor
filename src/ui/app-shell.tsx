@@ -20,6 +20,8 @@ import {
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
+import type { VegetationIndexId } from "@/domain/spectral/types";
+import { MapChip } from "@/ui/map-chip";
 import { AgentChatPanel } from "@/ui/agent-chat-panel";
 import { Button } from "@/ui/button";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
@@ -27,6 +29,10 @@ import { Panel } from "@/ui/panel";
 import { ReviewPanel } from "@/ui/review-panel";
 import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { SpectralPanel } from "@/ui/spectral-panel";
+import {
+  applySpectralMapOverlay,
+  clearSpectralMapOverlay,
+} from "@/ui/spectral-map-overlay";
 import { WeatherPanel } from "@/ui/weather-panel";
 import styles from "./app-shell.module.css";
 
@@ -105,7 +111,12 @@ function parcelsToFeatureCollection(parcels: Parcel[]) {
 function syncParcelLayers(
   map: MapLibreMap,
   parcels: Parcel[],
-  options?: { hide?: boolean; excludeId?: string | null; selectedId?: string | null },
+  options?: {
+    hide?: boolean;
+    excludeId?: string | null;
+    selectedId?: string | null;
+    spectralDimParcelId?: string | null;
+  },
 ) {
   const visible = options?.hide
     ? []
@@ -130,9 +141,9 @@ function syncParcelLayers(
         "fill-color": "#4F6F52",
         "fill-opacity": [
           "case",
-          ["boolean", ["feature-state", "selected"], false],
-          0.62,
-          0.38,
+          ["boolean", ["feature-state", "spectralDim"], false],
+          0.1,
+          ["case", ["boolean", ["feature-state", "selected"], false], 0.62, 0.38],
         ],
       },
     });
@@ -157,7 +168,10 @@ function syncParcelLayers(
     try {
       map.setFeatureState(
         { source: PARCELS_SOURCE, id: parcel.id },
-        { selected: parcel.id === options?.selectedId },
+        {
+          selected: parcel.id === options?.selectedId,
+          spectralDim: parcel.id === options?.spectralDimParcelId,
+        },
       );
     } catch {
       // Source may not be ready yet on first paint.
@@ -193,6 +207,8 @@ export function AppShell({
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [drawReady, setDrawReady] = useState(false);
+  const [spectralIndexId, setSpectralIndexId] = useState<VegetationIndexId>("ndre");
+  const [spectralOpacity, setSpectralOpacity] = useState(0.62);
 
   drawModeRef.current = drawMode;
 
@@ -446,6 +462,8 @@ export function AppShell({
         hide: drawMode === "draw",
         excludeId: drawMode === "edit" ? editingId : null,
         selectedId: drawMode === "idle" ? selectedId : null,
+        spectralDimParcelId:
+          drawMode === "idle" && sideTab === "spectral" && selectedId ? selectedId : null,
       });
     if (map.getStyle()) {
       apply();
@@ -491,7 +509,49 @@ export function AppShell({
     } else {
       map.fitBounds(bounds, { padding: 80, maxZoom: 11, duration: 0 });
     }
-  }, [parcels, selectParcel, drawMode, selectedId]);
+  }, [parcels, selectParcel, drawMode, selectedId, sideTab]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || drawMode !== "idle" || sideTab !== "spectral" || !selectedId || !selected?.geometry) {
+      if (map) {
+        clearSpectralMapOverlay(map);
+      }
+      return;
+    }
+
+    let cancelled = false;
+    void (async () => {
+      const res = await fetch(
+        `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?index=${encodeURIComponent(spectralIndexId)}`,
+      );
+      const json = (await res.json()) as {
+        status: string;
+        data?: Parameters<typeof applySpectralMapOverlay>[1];
+      };
+      if (cancelled || json.status !== "OK" || !json.data) {
+        if (!cancelled) {
+          clearSpectralMapOverlay(map);
+        }
+        return;
+      }
+
+      const paint = () => {
+        if (cancelled) return;
+        applySpectralMapOverlay(map, json.data!, spectralOpacity);
+      };
+      if (map.isStyleLoaded()) {
+        paint();
+      } else {
+        map.once("style.load", paint);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      clearSpectralMapOverlay(map);
+    };
+  }, [drawMode, selected, selectedId, sideTab, spectralIndexId, spectralOpacity]);
 
   const resetDrawState = (opts?: { restoreSelection?: boolean }) => {
     const editingId = editingParcelIdRef.current;
@@ -741,6 +801,12 @@ export function AppShell({
         </div>
       ) : null}
 
+      {drawMode === "idle" && sideTab === "spectral" && selected?.geometry ? (
+        <div className={styles.mapChipSlot}>
+          <MapChip label={`${spectralIndexId.toUpperCase()} activo`} />
+        </div>
+      ) : null}
+
       {drawMode === "idle" ? (
         <div className={styles.mapToolbar}>
           {!drawReady ? (
@@ -894,7 +960,15 @@ export function AppShell({
               </button>
             </div>
             {sideTab === "weather" ? <WeatherPanel parcel={selected} /> : null}
-            {sideTab === "spectral" ? <SpectralPanel parcel={selected} /> : null}
+            {sideTab === "spectral" ? (
+              <SpectralPanel
+                parcel={selected}
+                selectedIndexId={spectralIndexId}
+                overlayOpacity={spectralOpacity}
+                onIndexChange={setSpectralIndexId}
+                onOpacityChange={setSpectralOpacity}
+              />
+            ) : null}
             {sideTab === "agent" ? (
               <AgentChatPanel parcel={selected} isAdmin={isAdmin} />
             ) : null}

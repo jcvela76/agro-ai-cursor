@@ -148,6 +148,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 | Promote apex | **Hecho 2026-08-28** — `main` = `stg` @ `42c2061`; Legal-1 + LP-claims en Production |
 | Billing-ops-prod | **Hecho 2026-08-28** — script + runbook webhook Production; smoke member limits OK |
 | Spectral-1 | **Hecho 2026-08-28** — NDRE/EVI/SAVI/MSAVI/GNDVI/NDWI/NDMI/NBR offline + tab Espectral + tool agente (ADR-033) |
+| Spectral-2 | **Hecho 2026-08-28** — overlay sintético en mapa + selector índice + leyenda + opacidad |
 | **Siguiente** | Legal DRAFT → abogado; Billing live post-aprobación; Spectral live (proveedor satélite) |
 
 ## Docs por slice (canónico)
