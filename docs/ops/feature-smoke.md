@@ -52,7 +52,17 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | API GET plusEnabled | `tests/api-agent-route.test.ts` |
 | API POST gates (403/503/400) | `tests/api-agent-route.test.ts` |
 
-## QA-5 — Trazabilidad (pendiente)
+## QA-5 — Trazabilidad
+
+| Check | Cómo |
+|-------|------|
+| List + gates (unauth, no entitlement) | `npm run smoke:trace` |
+| Create + PATCH EUDR + events + export | smoke → lifecycle |
+| EUDR export blocked/ok | smoke → eudr_incomplete / export |
+| API routes | `tests/api-trace-route.test.ts` |
+| Registry factory | `tests/trace-lot-registry-factory.test.ts` |
+| Neon persistence | `SMOKE_NEON=1 npm run smoke:trace` |
+| EUDR-only (legacy) | `npm run smoke:trace-eudr` |
 
 ## QA-6 — Revisión (pendiente)
 

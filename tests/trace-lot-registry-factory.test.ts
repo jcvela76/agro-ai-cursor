@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createTraceLotRegistry } from "@/infrastructure/container";
 import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
 
-describe("Trace-3: trace lot registry factory", () => {
+describe("QA-5: trace lot registry factory", () => {
   it("uses offline registry when DATABASE_URL is unset", () => {
     const previous = process.env.DATABASE_URL;
     delete process.env.DATABASE_URL;

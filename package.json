@@ -19,6 +19,7 @@
     "db:seed:trace": "npx tsx scripts/seed-trace-lots.ts",
     "db:seed:review": "npx tsx scripts/seed-review-decisions.ts",
     "smoke:trace-eudr": "npx tsx scripts/smoke-trace-eudr.ts",
+    "smoke:trace": "npx tsx scripts/smoke-trace.ts",
     "smoke:review": "npx tsx scripts/smoke-review.ts",
     "smoke:parcels": "npx tsx scripts/smoke-parcels.ts",
     "smoke:weather": "npx tsx scripts/smoke-weather.ts",
