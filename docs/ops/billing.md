@@ -61,6 +61,19 @@ Tope de **miembros activos + invitaciones pendientes** por plan (UI en `/app/adm
 
 Mapper: `src/domain/billing/plan-limits.ts`. Sin cobro per-seat en Clerk por ahora; al llegar al tope, CTA a `/app/billing`.
 
+### Cuota de informes (Plus — ADR-035)
+
+Informes HTML/PDF generados por mes calendario (`America/Lima`), gate `weather_plus`:
+
+| Plan slug | Informes / mes |
+|-----------|----------------|
+| `free` / `free_org` | 0 (upsell) |
+| `weather_plus` | 10 |
+| `operations` | 30 |
+| `full` | 50 |
+
+Acciones en tabs Clima / Agente / Trace; persistencia `generated_reports` en Neon.
+
 Si Clerk emite `org:weather_plus`, el mapper normaliza quitando el prefijo `org:`.
 
 Fallback si el payload no trae features: `PLAN_SLUG_ENTITLEMENTS` en `src/domain/billing/plan-entitlements.ts`.

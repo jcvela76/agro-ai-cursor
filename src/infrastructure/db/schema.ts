@@ -104,3 +104,24 @@ export const waitlistSignups = pgTable(
   },
   (table) => [index("waitlist_signups_email_idx").on(table.email)],
 );
+
+export const generatedReports = pgTable(
+  "generated_reports",
+  {
+    id: text("id").primaryKey(),
+    orgId: text("org_id").notNull(),
+    createdByUserId: text("created_by_user_id").notNull(),
+    reportType: text("report_type").notNull(),
+    title: text("title").notNull(),
+    parcelId: text("parcel_id"),
+    lotId: text("lot_id"),
+    billingMonth: text("billing_month").notNull(),
+    htmlContent: text("html_content").notNull(),
+    pdfBase64: text("pdf_base64").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("generated_reports_org_id_idx").on(table.orgId),
+    index("generated_reports_org_month_idx").on(table.orgId, table.billingMonth),
+  ],
+);

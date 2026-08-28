@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Parcel } from "@/domain/parcel/types";
 import { Button } from "@/ui/button";
 import { AgentMessageContent } from "@/ui/agent-message-content";
+import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./agent-chat-panel.module.css";
 
@@ -65,6 +66,25 @@ export function AgentChatPanel({
   }, [parcel.id, setMessages]);
 
   const busy = status === "submitted" || status === "streaming";
+
+  const lastBriefing = useMemo(() => {
+    let question = "";
+    let answer = "";
+    for (const message of messages) {
+      if (message.role === "user") {
+        const text = message.parts.find((part) => part.type === "text")?.text;
+        if (text) question = text;
+      }
+      if (message.role === "assistant") {
+        answer = message.parts
+          .filter((part) => part.type === "text")
+          .map((part) => part.text)
+          .join("\n");
+      }
+    }
+    if (!question || !answer) return null;
+    return { question, answer };
+  }, [messages]);
 
   const onSend = async () => {
     const text = input.trim();
@@ -139,6 +159,17 @@ export function AgentChatPanel({
           );
         })}
       </div>
+
+      {lastBriefing && !busy ? (
+        <ReportExportAction
+          reportType="agent_briefing"
+          label="Exportar respuesta como informe (PDF)"
+          parcelId={parcel.id}
+          agentQuestion={lastBriefing.question}
+          agentAnswerMarkdown={lastBriefing.answer}
+          isAdmin={isAdmin}
+        />
+      ) : null}
 
       {(error || gateError) && (
         <StateBanner

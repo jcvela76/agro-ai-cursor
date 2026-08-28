@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   clearAgroAgentInstructionsCache,
   loadAgroAgentInstructions,
@@ -26,8 +26,7 @@ describe("Agro Agent instructions", () => {
 
   it("reloads instructions in non-production after file change", () => {
     const original = readFileSync(instructionsPath, "utf8");
-    const previousEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     try {
       const first = loadAgroAgentInstructions();
       writeFileSync(instructionsPath, `${original}\n<!-- test-marker -->\n`, "utf8");
@@ -36,7 +35,7 @@ describe("Agro Agent instructions", () => {
       expect(second).not.toBe(first);
     } finally {
       writeFileSync(instructionsPath, original, "utf8");
-      process.env.NODE_ENV = previousEnv;
+      vi.unstubAllEnvs();
       clearAgroAgentInstructionsCache();
     }
   });

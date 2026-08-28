@@ -9,6 +9,7 @@ import {
   type TraceLotView,
 } from "@/domain/traceability/types";
 import { Button } from "@/ui/button";
+import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./trace-lots-panel.module.css";
 
@@ -395,6 +396,15 @@ export function TraceLotsPanel({
                 ) : (
                   <p className={styles.muted}>Sin eventos</p>
                 )}
+
+                <ReportExportAction
+                  reportType="trace_lot_dossier"
+                  label="Generar dossier EUDR (PDF)"
+                  lotId={view.lot.id}
+                  parcelId={parcelId}
+                  isAdmin={isAdmin}
+                  disabled={busy}
+                />
 
                 {editingEudr ? (
                   <form className={styles.eventForm} onSubmit={saveEudr}>

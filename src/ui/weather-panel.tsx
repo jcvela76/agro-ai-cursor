@@ -10,6 +10,7 @@ import type {
 import { Badge } from "@/ui/badge";
 import { EvidenceRow } from "@/ui/evidence-row";
 import { StateBanner } from "@/ui/state-banner";
+import { ReportExportAction } from "@/ui/report-export-action";
 import styles from "./weather-panel.module.css";
 
 type WeatherOk<T> = { status: "OK"; data: T };
@@ -38,7 +39,7 @@ async function fetchWeather<T>(url: string): Promise<WeatherOk<T> | WeatherLimit
   return (await res.json()) as WeatherOk<T> | WeatherLimited;
 }
 
-export function WeatherPanel({ parcel }: { parcel: Parcel }) {
+export function WeatherPanel({ parcel, isAdmin }: { parcel: Parcel; isAdmin: boolean }) {
   const [tab, setTab] = useState<Tab>("observation");
   const [observation, setObservation] = useState<WeatherOk<WeatherObservation> | WeatherLimited | null>(
     null,
@@ -101,6 +102,21 @@ export function WeatherPanel({ parcel }: { parcel: Parcel }) {
 
         {!loading && tab === "forecast" && forecast ? <ForecastView payload={forecast} /> : null}
       </div>
+
+      <ReportExportAction
+        reportType="weather_climate"
+        label="Generar informe climático (PDF)"
+        parcelId={parcel.id}
+        isAdmin={isAdmin}
+        disabled={loading}
+      />
+      <ReportExportAction
+        reportType="water_balance"
+        label="Generar informe hídrico (PDF)"
+        parcelId={parcel.id}
+        isAdmin={isAdmin}
+        disabled={loading}
+      />
     </div>
   );
 }

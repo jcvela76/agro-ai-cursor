@@ -1,0 +1,37 @@
+.block {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.quota {
+  font-size: 0.75rem;
+  color: var(--color-fg-muted);
+}
+
+.muted {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-fg-muted);
+}
+
+.error {
+  margin: var(--space-2) 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-danger, #b42318);
+}
+
+.billingLink {
+  display: inline-block;
+  margin-top: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-accent-field);
+}

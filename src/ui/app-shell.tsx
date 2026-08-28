@@ -1020,7 +1020,7 @@ export function AppShell({
                 Revisión
               </button>
             </div>
-            {sideTab === "weather" ? <WeatherPanel parcel={selected} /> : null}
+            {sideTab === "weather" ? <WeatherPanel parcel={selected} isAdmin={isAdmin} /> : null}
             {sideTab === "spectral" ? (
               <SpectralPanel
                 parcel={selected}

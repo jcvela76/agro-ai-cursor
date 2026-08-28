@@ -66,7 +66,15 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - Tool agent `getParcelEt0`; ADR-020; método `et0-hargreaves-samani-calendar-ytd/v1`
 - Tests 57 total
 
-## Fase 6 — Traceability discovery
+## Fase 5k — Report-1 Informes Plus (HTML + PDF)
+
+**Estado:** completada (2026-08-28)
+
+- ADR-035: acciones en Clima / Agente / Trace; gate `weather_plus`; cuota mensual por plan
+- Neon `generated_reports`; PDF server-side (Chromium); stub en test
+- API `POST /api/reports/generate`, `GET /api/reports/quota`, `GET /api/reports/[id]/pdf`
+- Preview `/reports/[id]`; UI `ReportExportAction`
+
 
 **Estado:** Fase 6e (hygiene) completada (2026-08-27)
 

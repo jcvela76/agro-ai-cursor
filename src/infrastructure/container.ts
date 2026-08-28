@@ -21,6 +21,12 @@ import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-ve
 import { GetParcelSpectralOverlay } from "@/application/spectral/get-parcel-spectral-overlay";
 import { AppendOrgReviewDecision } from "@/application/review/append-org-review-decision";
 import { ListOrgReviewDecisions } from "@/application/review/list-org-review-decisions";
+import { BuildReportContent } from "@/application/report/build-report-content";
+import {
+  GenerateOrgReport,
+  GetOrgReport,
+  GetReportQuota,
+} from "@/application/report/report-use-cases";
 import { ListOrgTraceLots } from "@/application/traceability/list-org-trace-lots";
 import {
   AppendOrgTraceEvent,
@@ -58,6 +64,9 @@ import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectra
 import { SentinelHubStubSpectralSource } from "@/infrastructure/spectral/sentinel-hub-stub-spectral-source";
 import { NeonTraceLotRegistry } from "@/infrastructure/traceability/neon-trace-lot-registry";
 import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
+import { NeonReportRegistry } from "@/infrastructure/report/neon-report-registry";
+import { OfflineReportRegistry } from "@/infrastructure/report/offline-report-registry";
+import { createPdfRenderer } from "@/infrastructure/report/create-pdf-renderer";
 import {
   isPaidWeatherSourceMode,
 } from "@/application/weather/weather-use-case-options";
@@ -83,9 +92,17 @@ export function createReviewDecisionRegistry(): ReviewDecisionRegistry {
   return new OfflineReviewDecisionRegistry();
 }
 
+export function createReportRegistry() {
+  if (process.env.DATABASE_URL) {
+    return new NeonReportRegistry(createDb());
+  }
+  return new OfflineReportRegistry();
+}
+
 const parcelRegistry = createParcelRegistry();
 const traceLotRegistry = createTraceLotRegistry();
 const reviewDecisionRegistry = createReviewDecisionRegistry();
+const reportRegistry = createReportRegistry();
 
 export const listOrgParcels = new ListOrgParcels(parcelRegistry);
 export const createOrgParcel = new CreateOrgParcel(parcelRegistry);
@@ -227,6 +244,26 @@ export const appendOrgReviewDecision = new AppendOrgReviewDecision(
   reviewDecisionRegistry,
   parcelRegistry,
 );
+
+export const buildReportContent = new BuildReportContent(
+  parcelRegistry,
+  traceLotRegistry,
+  getParcelWeatherObservation,
+  getParcelWeatherForecast,
+  getParcelWeatherRainfall30d,
+  getParcelWeatherGdd,
+  getParcelWeatherEt0,
+  getParcelVegetationIndices,
+);
+
+export const getReportQuota = new GetReportQuota(reportRegistry, orgMetadataStore);
+export const generateOrgReport = new GenerateOrgReport(
+  reportRegistry,
+  buildReportContent,
+  createPdfRenderer(),
+  orgMetadataStore,
+);
+export const getOrgReport = new GetOrgReport(reportRegistry);
 
 export function createAccessResolver(): AccessResolver {
   if (process.env.CLERK_SECRET_KEY) {
