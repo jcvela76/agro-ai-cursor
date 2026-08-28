@@ -68,7 +68,10 @@ export class GetParcelSpectralOverlay {
       };
     }
 
-    const indicesResult = await this.spectralSource.getVegetationIndices(input.parcelId);
+    const indicesResult = await this.spectralSource.getVegetationIndices(input.parcelId, {
+      latitude: parcel.latitude,
+      longitude: parcel.longitude,
+    });
     if (!indicesResult.ok) {
       return indicesResult;
     }

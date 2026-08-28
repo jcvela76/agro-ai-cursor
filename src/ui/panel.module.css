@@ -7,6 +7,7 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+  height: 100%;
 }
 
 .header {
@@ -37,4 +38,19 @@
 .body {
   padding: var(--space-2) var(--space-5) var(--space-5);
   overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.compact .header {
+  padding: var(--space-3) var(--space-4) var(--space-1);
+}
+
+.compact .title {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+.compact .body {
+  padding: var(--space-2) var(--space-4) var(--space-4);
 }

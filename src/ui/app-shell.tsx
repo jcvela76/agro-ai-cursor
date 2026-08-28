@@ -904,7 +904,12 @@ export function AppShell({
 
       {drawMode === "idle" && selected ? (
         <div className={styles.panelSlot}>
-          <Panel title={selected.name} onClose={() => selectParcel(null)} className={styles.panelFill}>
+          <Panel
+            title={selected.name}
+            onClose={() => selectParcel(null)}
+            className={styles.panelFill}
+            density="compact"
+          >
             <label className={styles.field}>
               <span>Nombre</span>
               <input

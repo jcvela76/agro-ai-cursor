@@ -6,14 +6,18 @@ export function Panel({
   title,
   onClose,
   className = "",
+  density = "default",
 }: {
   children: ReactNode;
   title?: string;
   onClose?: () => void;
   className?: string;
+  density?: "default" | "compact";
 }) {
   return (
-    <aside className={`${styles.panel} ${className}`}>
+    <aside
+      className={`${styles.panel} ${density === "compact" ? styles.compact : ""} ${className}`}
+    >
       {(title || onClose) && (
         <header className={styles.header}>
           {title ? <h2 className={styles.title}>{title}</h2> : <span />}

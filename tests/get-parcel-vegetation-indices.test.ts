@@ -52,4 +52,42 @@ describe("Spectral-1: parcel vegetation indices (Plus)", () => {
       expect(result.data.indices[0]?.value).toBeCloseTo(0.2857, 3);
     }
   });
+
+  it("resolves Neon-style parcel ids by coordinates", async () => {
+    const neonLikeId = "parcel-a1b2c3d4-e5f6-7890-abcd-ef1234567890";
+    const registryWithNeonLike = new SyntheticParcelRegistry([
+      {
+        id: neonLikeId,
+        orgId: "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+        name: "Parcela Norte — Lima (sintética)",
+        latitude: -11.95,
+        longitude: -77.05,
+        timezone: "America/Lima",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [-77.06, -11.96],
+              [-77.04, -11.96],
+              [-77.04, -11.94],
+              [-77.06, -11.94],
+              [-77.06, -11.96],
+            ],
+          ],
+        },
+      },
+    ]);
+    const neonUseCase = new GetParcelVegetationIndices(registryWithNeonLike, source);
+    const result = await neonUseCase.execute({
+      authority: {
+        ...defaultSyntheticSnapshots[4],
+        authorizedParcelIds: [],
+      },
+      parcelId: neonLikeId,
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.indices[0]?.value).toBeCloseTo(0.2857, 3);
+    }
+  });
 });

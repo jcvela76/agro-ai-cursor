@@ -90,6 +90,14 @@ export type SpectralResult<T> =
   | { ok: true; data: T }
   | { ok: false; reason: SpectralLimitationReason; message: string };
 
+export interface SpectralLocationHint {
+  latitude: number;
+  longitude: number;
+}
+
 export interface SpectralSource {
-  getVegetationIndices(parcelId: string): Promise<SpectralResult<ParcelVegetationIndices>>;
+  getVegetationIndices(
+    parcelId: string,
+    location?: SpectralLocationHint,
+  ): Promise<SpectralResult<ParcelVegetationIndices>>;
 }
