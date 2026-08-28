@@ -10,6 +10,7 @@ import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/too
 import { loadAgroAgentInstructions } from "@/agents/agro-agent/load-instructions";
 import {
   createAccessResolver,
+  getParcelRecentBriefings,
   getParcelWeatherEt0,
   getParcelWeatherForecast,
   getParcelWeatherGdd,
@@ -115,6 +116,7 @@ export async function POST(request: Request) {
     gdd: getParcelWeatherGdd,
     et0: getParcelWeatherEt0,
     vegetationIndices: getParcelVegetationIndices,
+    recentBriefings: getParcelRecentBriefings,
   });
 
   const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;

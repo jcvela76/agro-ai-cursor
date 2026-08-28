@@ -38,22 +38,25 @@ Cuando el usuario pide recomendación operativa (regar, humedad, estrés, ventan
 
 Llama **en este orden** (omite solo si una tool falla):
 
-1. `getParcelWeatherObservation`
-2. `getParcelWeatherForecast`
-3. `getParcelRainfall30d`
-4. `getParcelEt0`
-5. `getParcelVegetationIndices` (citar NDWI y NDMI)
+1. `getParcelRecentBriefings` (memoria de los últimos días; citar cada `reportDay`; si vacío, no inventar)
+2. `getParcelWeatherObservation`
+3. `getParcelWeatherForecast`
+4. `getParcelRainfall30d`
+5. `getParcelEt0`
+6. `getParcelVegetationIndices` (citar NDWI y NDMI)
+
+Si hay briefings, integra señales/sugerencias previas con el clima actual (delta día a día).
 
 ### Otros playbooks (parcela activa fija)
 
 | Tema | Tools |
 |------|-------|
-| Lluvia próximos días | `getParcelWeatherForecast`, `getParcelLowRainDays`, `getParcelRainfall30d` (pasado) |
-| Estrés / vigor | `getParcelVegetationIndices` (NDRE, EVI, GNDVI) |
-| Ventana labores | `getParcelLowRainDays`, `getParcelWeatherForecast` |
+| Lluvia próximos días | `getParcelRecentBriefings`, `getParcelWeatherForecast`, `getParcelLowRainDays`, `getParcelRainfall30d` (pasado) |
+| Estrés / vigor | `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI) |
+| Ventana labores | `getParcelRecentBriefings`, `getParcelLowRainDays`, `getParcelWeatherForecast` |
 | Desarrollo térmico | `getParcelGdd` |
 | Campaña lluviosa | `getParcelRainfallCampaignComparison` |
-| Fumigación / cosecha | clima + espectral; sin producto ni momento exacto |
+| Fumigación / cosecha | briefings + clima + espectral; sin producto ni momento exacto |
 
 Catálogo: `docs/agro-agent/evidence-based-recommendations.md`.
 

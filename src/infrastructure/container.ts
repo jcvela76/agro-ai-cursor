@@ -24,6 +24,7 @@ import { ListOrgReviewDecisions } from "@/application/review/list-org-review-dec
 import { BuildReportContent } from "@/application/report/build-report-content";
 import { BuildDailyBriefing } from "@/application/report/build-daily-briefing";
 import { CollectParcelSignals } from "@/application/report/collect-parcel-signals";
+import { GetParcelRecentBriefings } from "@/application/report/get-parcel-recent-briefings";
 import {
   GenerateOrgReport,
   GetOrgReport,
@@ -298,6 +299,11 @@ export const generateOrgReport = new GenerateOrgReport(
   orgMetadataStore,
 );
 export const getOrgReport = new GetOrgReport(reportRegistry);
+
+export const getParcelRecentBriefings = new GetParcelRecentBriefings(
+  parcelRegistry,
+  reportRegistry,
+);
 
 export const getDailyBriefingDeliveryPrefs = new GetDailyBriefingDeliveryPrefs(
   dailyBriefingDeliveryPrefsRegistry,

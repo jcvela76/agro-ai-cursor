@@ -135,6 +135,27 @@ export class NeonReportRegistry implements ReportRegistry {
     return row ? this.toReport(row) : null;
   }
 
+  async listReadyDailyBriefings(
+    orgId: string,
+    parcelId: string,
+    fromReportDay: string,
+  ): Promise<GeneratedReport[]> {
+    const rows = await this.db
+      .select()
+      .from(generatedReports)
+      .where(
+        and(
+          eq(generatedReports.orgId, orgId),
+          eq(generatedReports.parcelId, parcelId),
+          eq(generatedReports.reportType, "daily_briefing"),
+          eq(generatedReports.status, "ready"),
+          gte(generatedReports.reportDay, fromReportDay),
+        ),
+      )
+      .orderBy(desc(generatedReports.reportDay));
+    return rows.map((row) => this.toReport(row));
+  }
+
   private toReport(row: typeof generatedReports.$inferSelect): GeneratedReport {
     return {
       id: row.id,

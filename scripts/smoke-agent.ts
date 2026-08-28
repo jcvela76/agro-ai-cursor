@@ -9,6 +9,7 @@ import {
   createAgroAgentTools,
   isPlusToolAllowed,
 } from "../src/agents/agro-agent/tools";
+import { GetParcelRecentBriefings } from "../src/application/report/get-parcel-recent-briefings";
 import { GetParcelVegetationIndices } from "../src/application/spectral/get-parcel-vegetation-indices";
 import { GetParcelWeatherEt0 } from "../src/application/weather/get-parcel-et0";
 import { GetParcelWeatherGdd } from "../src/application/weather/get-parcel-gdd";
@@ -21,6 +22,7 @@ import {
 } from "../src/application/weather/get-parcel-weather";
 import { defaultSyntheticSnapshots } from "../src/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "../src/infrastructure/parcel/synthetic-parcel-registry";
+import { OfflineReportRegistry } from "../src/infrastructure/report/offline-report-registry";
 import { OfflineSpectralSource } from "../src/infrastructure/spectral/offline-spectral-source";
 import { OfflineWeatherSource } from "../src/infrastructure/weather/offline-weather-source";
 
@@ -45,6 +47,7 @@ function buildDeps() {
   const registry = new SyntheticParcelRegistry();
   const weather = new OfflineWeatherSource();
   const spectral = new OfflineSpectralSource();
+  const reports = new OfflineReportRegistry();
   return {
     observation: new GetParcelWeatherObservation(registry, weather),
     forecast: new GetParcelWeatherForecast(registry, weather),
@@ -57,6 +60,7 @@ function buildDeps() {
     gdd: new GetParcelWeatherGdd(registry, weather),
     et0: new GetParcelWeatherEt0(registry, weather),
     vegetationIndices: new GetParcelVegetationIndices(registry, spectral),
+    recentBriefings: new GetParcelRecentBriefings(registry, reports),
   };
 }
 
@@ -100,6 +104,14 @@ async function main() {
     assert(result.data?.kind === kind, `tool ${name} kind mismatch`);
     steps.push(name);
   }
+
+  const briefings = (await tools.getParcelRecentBriefings.execute!(
+    {},
+    toolCtx,
+  )) as { ok: boolean; data?: { briefings: unknown[] } };
+  assert(briefings.ok, "tool getParcelRecentBriefings failed");
+  assert(Array.isArray(briefings.data?.briefings), "briefings list missing");
+  steps.push(agroAgentToolNames.recentBriefings);
 
   const crossTools = createAgroAgentTools({
     authority: crossOrg,

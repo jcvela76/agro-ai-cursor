@@ -122,4 +122,27 @@ export class OfflineReportRegistry implements ReportRegistry {
 
     return latest;
   }
+
+  async listReadyDailyBriefings(
+    orgId: string,
+    parcelId: string,
+    fromReportDay: string,
+  ): Promise<GeneratedReport[]> {
+    const matched: GeneratedReport[] = [];
+    for (const report of this.reports.values()) {
+      if (
+        report.orgId !== orgId ||
+        report.parcelId !== parcelId ||
+        report.reportType !== "daily_briefing" ||
+        report.status !== "ready" ||
+        !report.reportDay ||
+        report.reportDay < fromReportDay
+      ) {
+        continue;
+      }
+      matched.push(report);
+    }
+    matched.sort((a, b) => (b.reportDay ?? "").localeCompare(a.reportDay ?? ""));
+    return matched;
+  }
 }

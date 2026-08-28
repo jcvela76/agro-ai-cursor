@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import { authorizeWeatherPlusAccess } from "@/domain/auth/authorize-weather-access";
+import type { GetParcelRecentBriefings } from "@/application/report/get-parcel-recent-briefings";
 import type { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import type { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import type { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
@@ -27,6 +28,7 @@ export const agroAgentToolNames = {
   gdd: "getParcelGdd",
   et0: "getParcelEt0",
   vegetationIndices: "getParcelVegetationIndices",
+  recentBriefings: "getParcelRecentBriefings",
 } as const;
 
 export const plusToolNames = [
@@ -36,6 +38,7 @@ export const plusToolNames = [
   agroAgentToolNames.gdd,
   agroAgentToolNames.et0,
   agroAgentToolNames.vegetationIndices,
+  agroAgentToolNames.recentBriefings,
 ] as const;
 
 export function createAgroAgentTools(input: {
@@ -49,6 +52,7 @@ export function createAgroAgentTools(input: {
   gdd: GetParcelWeatherGdd;
   et0: GetParcelWeatherEt0;
   vegetationIndices: GetParcelVegetationIndices;
+  recentBriefings: GetParcelRecentBriefings;
 }) {
   const {
     authority,
@@ -61,6 +65,7 @@ export function createAgroAgentTools(input: {
     gdd,
     et0,
     vegetationIndices,
+    recentBriefings,
   } = input;
 
   return {
@@ -154,6 +159,20 @@ export function createAgroAgentTools(input: {
       inputSchema: z.object({}),
       execute: async () => {
         const result = await vegetationIndices.execute({ authority, parcelId });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelRecentBriefings: tool({
+      description:
+        "Lee briefings diarios recientes de la parcela activa (snapshots de señales/sugerencias por reportDay). Memoria día-a-día para riego/labores/clima. Citar reportDay; si la lista está vacía, no inventar memoria. Requiere Plus. Parámetro opcional days (1–14, default 3).",
+      inputSchema: z.object({
+        days: z.number().int().min(1).max(14).optional(),
+      }),
+      execute: async ({ days }) => {
+        const result = await recentBriefings.execute({ authority, parcelId, days });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }

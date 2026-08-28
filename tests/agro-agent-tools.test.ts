@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/tools";
+import { GetParcelRecentBriefings } from "@/application/report/get-parcel-recent-briefings";
 import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
@@ -9,6 +10,7 @@ import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weathe
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
+import { OfflineReportRegistry } from "@/infrastructure/report/offline-report-registry";
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 
@@ -36,6 +38,7 @@ describe("Agro Agent weather tools", () => {
   const gdd = new GetParcelWeatherGdd(registry, source);
   const et0 = new GetParcelWeatherEt0(registry, source);
   const vegetationIndices = new GetParcelVegetationIndices(registry, new OfflineSpectralSource());
+  const recentBriefings = new GetParcelRecentBriefings(registry, new OfflineReportRegistry());
   const authority = defaultSyntheticSnapshots[4];
 
   function toolsFor(parcelId: string) {
@@ -50,6 +53,7 @@ describe("Agro Agent weather tools", () => {
       gdd,
       et0,
       vegetationIndices,
+      recentBriefings,
     });
   }
 
@@ -165,6 +169,19 @@ describe("Agro Agent weather tools", () => {
       expect(result.data.kind).toBe("vegetation_indices");
       expect(result.data.indices).toHaveLength(8);
       expect(result.data.indices[0]?.id).toBe("ndre");
+    }
+  });
+
+  it("returns empty recent briefings when none saved", async () => {
+    const tools = toolsFor("parcel-lima-norte-001");
+    const result = (await tools.getParcelRecentBriefings.execute!(
+      {},
+      { toolCallId: "t9", messages: [] },
+    )) as Awaited<ReturnType<NonNullable<typeof tools.getParcelRecentBriefings.execute>>>;
+    expect(result).toMatchObject({ ok: true });
+    if ("ok" in result && result.ok) {
+      expect(result.data.briefings).toEqual([]);
+      expect(result.data.days).toBe(3);
     }
   });
 });

@@ -74,6 +74,11 @@ export interface ReportRegistry {
     beforeReportDay: string,
     withinDays?: number,
   ): Promise<GeneratedReport | null>;
+  listReadyDailyBriefings(
+    orgId: string,
+    parcelId: string,
+    fromReportDay: string,
+  ): Promise<GeneratedReport[]>;
 }
 
 export type ReportDenyReason =
