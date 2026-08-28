@@ -22,6 +22,7 @@
     "smoke:review": "npx tsx scripts/smoke-review.ts",
     "smoke:parcels": "npx tsx scripts/smoke-parcels.ts",
     "smoke:weather": "npx tsx scripts/smoke-weather.ts",
+    "smoke:spectral": "npx tsx scripts/smoke-spectral.ts",
     "db:cleanup:lima-smoke": "npx tsx scripts/cleanup-lima-coffee-smoke.ts",
     "db:cleanup:review-smoke": "npx tsx scripts/cleanup-review-smoke.ts"
   },

@@ -33,7 +33,15 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Factory modes | `tests/weather-source-factory.test.ts` |
 | SENAMHI paid gate | `SMOKE_SENAMHI=1 npm run smoke:weather` |
 
-## QA-3 — Espectral (pendiente)
+## QA-3 — Espectral
+
+| Check | Cómo |
+|-------|------|
+| Plus gate (unauth, weather-only, cross-org) | `npm run smoke:spectral` |
+| Indices 8 + NDRE + overlay grid | smoke → indices + overlay |
+| API routes | `tests/api-spectral-route.test.ts` |
+| Factory modes | `tests/spectral-source-factory.test.ts` |
+| Sentinel Hub stub | `SMOKE_SENTINEL_STUB=1 npm run smoke:spectral` |
 
 ## QA-4 — Agente (pendiente)
 
