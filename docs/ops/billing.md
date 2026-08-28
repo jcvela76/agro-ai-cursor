@@ -61,9 +61,9 @@ Tope de **miembros activos + invitaciones pendientes** por plan (UI en `/app/adm
 
 Mapper: `src/domain/billing/plan-limits.ts`. Sin cobro per-seat en Clerk por ahora; al llegar al tope, CTA a `/app/billing`.
 
-### Cuota de informes (Plus — ADR-035)
+### Cuota de informes (Plus — ADR-035 / ADR-036)
 
-Informes HTML/PDF generados por mes calendario (`America/Lima`), gate `weather_plus`:
+**Puntuales** (`PLAN_REPORT_LIMITS`) — Clima / Agente / Trace on-demand:
 
 | Plan slug | Informes / mes |
 |-----------|----------------|
@@ -71,6 +71,17 @@ Informes HTML/PDF generados por mes calendario (`America/Lima`), gate `weather_p
 | `weather_plus` | 10 |
 | `operations` | 30 |
 | `full` | 50 |
+
+**Briefings diarios** (`PLAN_DAILY_BRIEFING_LIMITS`, ADR-036 — pendiente código Report-2a):
+
+| Plan slug | Briefings / mes |
+|-----------|-----------------|
+| `free` / `free_org` | 0 |
+| `weather_plus` | 20 |
+| `operations` | 60 |
+| `full` | 120 |
+
+Además: máx. **1 briefing ready / día Lima / (org + parcela)**. Fallos no consumen cupo.
 
 Acciones en tabs Clima / Agente / Trace; persistencia `generated_reports` en Neon.
 

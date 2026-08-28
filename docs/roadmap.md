@@ -75,6 +75,18 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - API `POST /api/reports/generate`, `GET /api/reports/quota`, `GET /api/reports/[id]/pdf`
 - Preview `/reports/[id]`; UI `ReportExportAction`
 
+## Fase 5l — Report-2 Briefing diario (ADR-036)
+
+**Estado:** diseño aceptado (2026-08-28); implementación pendiente
+
+- **2a:** `daily_briefing` parcela activa; 1/día org+parcela; cupo mensual aparte; snapshot + parent; UI Clima
+- **2b:** programación diaria → email / WhatsApp
+- **2c:** tool agente `getParcelRecentBriefings`
+- **Report-3 (backlog):** perfil agronómico de parcela vía preguntas del chat
+
+Ver `docs/reports/discovery.md`.
+
+## Fase 6 — Traceability discovery
 
 **Estado:** Fase 6e (hygiene) completada (2026-08-27)
 
