@@ -12,7 +12,7 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
 |--------|-------|---------|--------|---------|-------------------------|
 | [Agro AI Landing Page](https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page) | LP / waitlist (SEO-1) | `2SYf8DOtblK84RC6oaNql7` | **Congelado** — Version 2 = waitlist stg | **No editar** (solo lectura / version history) | `/` · `public/landing/` · frame `marketing/lp/full` en `oTT6PqFOAijVxYZb5wztEP` |
 | [Agro AI — Billing & Admin](https://www.figma.com/make/gQ0ta5hxC4FNd5EKaHY5nX/Agro-AI-%E2%80%94-Billing---Admin) | Billing-2 UX | `gQ0ta5hxC4FNd5EKaHY5nX` | **Portado** — código en `stg` (2026-08-27) | **Congelado** (solo lectura) | `/app/admin` · `/app/billing` · `/app/billing/cancel` |
-| [Agro AI — Map & Spectral](https://www.figma.com/make/nusU2o1IuN6xOwgxEqgOv7/Agro-AI-Map---Spectral) | Spectral-2 UX | `nusU2o1IuN6xOwgxEqgOv7` | **Portado** — código en `stg` (2026-08-28) | **Congelado** (solo lectura) | `/app` · `spectral-panel` · `spectral-map-overlay` |
+| [Agro AI — Map & Spectral](https://www.figma.com/make/nusU2o1IuN6xOwgxEqgOv7/Agro-AI-Map---Spectral) | Spectral-2 UX | `nusU2o1IuN6xOwgxEqgOv7` | **Portado** — código en `stg` (2026-08-28) · **Make V4** alineado (2026-08-28) | **Congelado** (solo lectura) | `/app` · `spectral-panel` · `spectral-map-overlay` |
 
 ### Detalle por Make
 
@@ -40,9 +40,11 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
 - **Qué cubre:** overlay espectral en mapa + panel Espectral (Spectral-2 UX)
 - **Pantallas:** `app/map-shell/spectral-overlay-active` · `spectral-index-picker` · `spectral-states`
 - **Selector superior:** Overlay activo / Selector de índice / Estados espectrales (solo prototipo Make)
-- **Version history:** V1 preview fix · V2 ajustes audit · V3 build errors
+- **Version history:** V1 preview fix · V2 ajustes audit · V3 build errors · **V4 chrome claro + tabs underline + footer acciones** (alineado stg 2026-08-28)
 - **Audit 2026-08-28:** leyenda NDRE (−1 estrés → 0.8+ saludable), sin badges por índice, gate Plus a nivel tab, demo Lima Coffee (sintética) / LC-01 / 2026-08-20
-- **Al portar a código:** mapa claro OpenFreeMap Liberty (no satélite oscuro del Make); chrome de dos filas + selector de parcela; **actualizar Make V4** con fondo de mapa claro para alineación visual
+- **V4 verificado vs código:** chrome crema 2 filas (`rgba(255,253,248,0.94)`), selector parcela + chip NDRE en sub-fila, tabs compactos con subrayado, footer `Guardar datos` / `Editar geometría` / `Eliminar parcela`, hover solo color, mapa claro OSM-style
+- **Deltas intencionales Make ↔ código:** dots de navegación entre pantallas prototipo (overlay / picker / estados); chip flotante en mapa además del sub-chrome; fecha escena `S2 · 20 ago` en sub-fila del Make (no en chrome de código)
+- **Al portar a código:** mapa claro OpenFreeMap Liberty (no satélite oscuro del Make); chrome de dos filas + selector de parcela
 
 ---
 
