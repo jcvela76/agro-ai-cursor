@@ -386,8 +386,9 @@ export default function Home() {
             <p className={styles.pricingNotice}>
               Consulte{" "}
               <a href="/legal/subscription">Términos de suscripción</a>,{" "}
-              <a href="/legal/terms">Términos de servicio</a> y{" "}
-              <a href="/legal/privacy">Privacidad</a>. Sandbox (stg): admins pueden probar{" "}
+              <a href="/legal/terms">Términos de servicio</a>,{" "}
+              <a href="/legal/privacy">Privacidad</a> y{" "}
+              <a href="/legal/refunds">Reembolsos</a>. Sandbox (stg): admins pueden probar{" "}
               <a href="/app/billing">planes de prueba</a> sin cobro live en Perú.
             </p>
           </div>
@@ -478,13 +479,14 @@ export default function Home() {
         <div className={styles.footerInner}>
           <span className={styles.footerBrand}>Agro AI · geoagro.ai</span>
           <span className={styles.footerCopy}>
-            © 2025 Agro AI. Todos los derechos reservados. Perú.
+            © 2026 Agro AI. Todos los derechos reservados. Perú.
           </span>
           <div className={styles.footerLinks}>
             <a href="mailto:hola@geoagro.ai">hola@geoagro.ai</a>
             <a href="/legal/terms">Términos</a>
             <a href="/legal/privacy">Privacidad</a>
             <a href="/legal/subscription">Suscripción</a>
+            <a href="/legal/refunds">Reembolsos</a>
           </div>
         </div>
       </footer>

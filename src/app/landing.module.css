@@ -1278,6 +1278,24 @@
   color: rgba(255, 253, 248, 0.4);
 }
 
+.waitlistConsent {
+  margin: 0;
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: rgba(28, 42, 31, 0.55);
+}
+
+.waitlistConsent a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.waitlistDark .waitlistConsent {
+  color: rgba(255, 253, 248, 0.55);
+}
+
 .waitlistOk {
   margin: 0;
   font-size: 0.875rem;

@@ -37,7 +37,17 @@ Hasta completar 2–7: **ningún cobro live** en apex.
 
 ## Cambiar contenido legal
 
-1. Editar `src/content/legal/documents.ts`
-2. Actualizar `LEGAL_LAST_UPDATED`
+1. Editar `src/content/legal/documents.ts` (modelo `blocks` por sección)
+2. Actualizar `LEGAL_LAST_UPDATED` y, cuando aplique, `LEGAL_OPERATOR_*` en `types.ts`
 3. Commit slice Legal-1.x si es cambio sustantivo
 4. Tras cambios materiales de precios/cobro, re-validar con asesor legal
+
+## Legal-1.1 (2026-08-28)
+
+- Modelo `blocks` para orden párrafos/listas
+- Tabla planes alineada con `billing.md` (USD + miembros + slugs Clerk)
+- Glosario LP (Básico/Profesional/Empresa) ↔ slugs
+- Disclaimer EUDR, piloto/beta, API/CSV en términos
+- Waitlist: consentimiento → `/legal/privacy`
+- Placeholders operador (razón social / RUC) pendientes de abogado
+- SEO: canonical/OG por doc, sitemap, `dynamicParams = false`

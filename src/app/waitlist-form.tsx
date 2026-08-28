@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import styles from "./landing.module.css";
 
@@ -85,6 +86,10 @@ export function WaitlistForm({
       ) : (
         <span className={styles.waitlistHintMobile}>{hint}</span>
       )}
+      <p className={styles.waitlistConsent}>
+        Al inscribirte aceptas nuestra{" "}
+        <Link href="/legal/privacy">Política de privacidad</Link>.
+      </p>
     </form>
   );
 }

@@ -6,17 +6,11 @@ import { useOrganization } from "@clerk/nextjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { isBillingSandboxHost, planDisplayLabel, planDisplayPrice } from "@/domain/billing/plan-display";
+import { LEGAL_NAV_LINKS } from "@/content/legal/types";
 import type { WorkspaceSettings } from "@/domain/workspace/types";
 import { BillingWorkspaceNav } from "@/ui/billing-workspace-nav";
 import { Button } from "@/ui/button";
 import styles from "./billing-panel.module.css";
-
-const LEGAL_LINKS = [
-  { href: "/legal/terms", label: "Términos" },
-  { href: "/legal/privacy", label: "Privacidad" },
-  { href: "/legal/refunds", label: "Reembolsos" },
-  { href: "/legal/subscription", label: "Suscripción" },
-] as const;
 
 export function BillingPanel() {
   const { organization } = useOrganization();
@@ -138,7 +132,7 @@ export function BillingPanel() {
 
         <footer className={styles.footer}>
           <nav className={styles.legalNav} aria-label="Legal">
-            {LEGAL_LINKS.map((link) => (
+            {LEGAL_NAV_LINKS.map((link) => (
               <Link key={link.href} className={styles.legalLink} href={link.href}>
                 {link.label}
               </Link>

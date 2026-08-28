@@ -6,20 +6,40 @@ describe("legal documents", () => {
     expect(LEGAL_SLUGS.sort()).toEqual(["privacy", "refunds", "subscription", "terms"]);
   });
 
-  it("each document has sections with content", () => {
+  it("each document slug matches record key and has blocks with content", () => {
     for (const slug of LEGAL_SLUGS) {
       const doc = getLegalDocument(slug);
       expect(doc).toBeDefined();
+      expect(doc!.slug).toBe(slug);
       expect(doc!.sections.length).toBeGreaterThanOrEqual(4);
+
+      const sectionIds = doc!.sections.map((s) => s.id);
+      expect(new Set(sectionIds).size).toBe(sectionIds.length);
+
       for (const section of doc!.sections) {
-        const hasText =
-          (section.paragraphs?.length ?? 0) > 0 || (section.bullets?.length ?? 0) > 0;
-        expect(hasText).toBe(true);
+        expect(section.blocks.length).toBeGreaterThan(0);
+        for (const block of section.blocks) {
+          if (block.type === "paragraph") {
+            expect(block.text.trim().length).toBeGreaterThan(0);
+          } else {
+            expect(block.items.length).toBeGreaterThan(0);
+            for (const item of block.items) {
+              expect(item.trim().length).toBeGreaterThan(0);
+            }
+          }
+        }
       }
     }
   });
 
   it("matches LEGAL_DOCUMENTS record keys", () => {
     expect(Object.keys(LEGAL_DOCUMENTS).sort()).toEqual(LEGAL_SLUGS.sort());
+  });
+
+  it("privacy terceros section lists encargados before transfer paragraph", () => {
+    const terceros = getLegalDocument("privacy")!.sections.find((s) => s.id === "terceros");
+    expect(terceros).toBeDefined();
+    expect(terceros!.blocks[0]?.type).toBe("bullets");
+    expect(terceros!.blocks[1]?.type).toBe("paragraph");
   });
 });

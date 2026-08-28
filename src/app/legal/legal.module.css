@@ -92,9 +92,12 @@
   text-decoration: none;
 }
 
-.legalNavLink:hover {
+.legalNavLink:hover,
+.legalNavLink:focus-visible {
   color: var(--color-fg-primary);
   text-decoration: underline;
+  outline: 2px solid var(--color-fg-primary);
+  outline-offset: 2px;
 }
 
 .legalNavActive {
@@ -111,6 +114,9 @@
   text-decoration: none;
 }
 
-.back:hover {
+.back:hover,
+.back:focus-visible {
   text-decoration: underline;
+  outline: 2px solid var(--color-fg-primary);
+  outline-offset: 2px;
 }
