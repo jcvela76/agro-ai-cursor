@@ -8,7 +8,9 @@ import type {
   UpdateParcelAgronomicProfile,
 } from "@/application/parcel/parcel-agronomic-profile";
 import type { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
+import type { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
 import type { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
+import { isVegetationIndexId } from "@/application/spectral/get-parcel-spectral-overlay";
 import type { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import type { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import type { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
@@ -33,6 +35,7 @@ export const agroAgentToolNames = {
   gdd: "getParcelGdd",
   et0: "getParcelEt0",
   vegetationIndices: "getParcelVegetationIndices",
+  spectralZones: "getParcelSpectralZones",
   recentBriefings: "getParcelRecentBriefings",
   getProfile: "getParcelProfile",
   updateProfile: "updateParcelProfile",
@@ -45,6 +48,7 @@ export const plusToolNames = [
   agroAgentToolNames.gdd,
   agroAgentToolNames.et0,
   agroAgentToolNames.vegetationIndices,
+  agroAgentToolNames.spectralZones,
   agroAgentToolNames.recentBriefings,
   agroAgentToolNames.getProfile,
   agroAgentToolNames.updateProfile,
@@ -63,6 +67,7 @@ export function createAgroAgentTools(input: {
   gdd: GetParcelWeatherGdd;
   et0: GetParcelWeatherEt0;
   vegetationIndices: GetParcelVegetationIndices;
+  spectralZones: GetParcelSpectralZones;
   recentBriefings: GetParcelRecentBriefings;
   getProfile: GetParcelAgronomicProfile;
   updateProfile: UpdateParcelAgronomicProfile;
@@ -78,6 +83,7 @@ export function createAgroAgentTools(input: {
     gdd,
     et0,
     vegetationIndices,
+    spectralZones,
     recentBriefings,
     getProfile,
     updateProfile,
@@ -174,6 +180,21 @@ export function createAgroAgentTools(input: {
       inputSchema: z.object({}),
       execute: async () => {
         const result = await vegetationIndices.execute({ authority, parcelId });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelSpectralZones: tool({
+      description:
+        "Analiza heterogeneidad dentro de la parcela: media del índice por zonas (fishnet) con tier relativo bajo/medio/alto y brújula (N/S/E/O). Usar cuando pregunten por zonas, manchas, dónde está peor/mejor el cultivo, o variabilidad espacial. Requiere Plus. Parámetro index (ndre|evi|savi|msavi|gndvi|ndwi|ndmi|nbr), default ndre.",
+      inputSchema: z.object({
+        index: z.string().optional(),
+      }),
+      execute: async ({ index }) => {
+        const indexId = index && isVegetationIndexId(index) ? index : "ndre";
+        const result = await spectralZones.execute({ authority, parcelId, indexId });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }

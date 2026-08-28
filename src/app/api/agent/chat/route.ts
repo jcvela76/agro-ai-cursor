@@ -20,6 +20,7 @@ import {
   getParcelWeatherRainfall30d,
   getParcelWeatherRainfallCampaignComparison,
   getParcelVegetationIndices,
+  getParcelSpectralZones,
   updateParcelAgronomicProfile,
 } from "@/infrastructure/container";
 
@@ -118,6 +119,7 @@ export async function POST(request: Request) {
     gdd: getParcelWeatherGdd,
     et0: getParcelWeatherEt0,
     vegetationIndices: getParcelVegetationIndices,
+    spectralZones: getParcelSpectralZones,
     recentBriefings: getParcelRecentBriefings,
     getProfile: getParcelAgronomicProfile,
     updateProfile: updateParcelAgronomicProfile,

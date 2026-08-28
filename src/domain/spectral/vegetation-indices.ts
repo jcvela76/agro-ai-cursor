@@ -126,6 +126,13 @@ export const VEGETATION_INDEX_ORDER: VegetationIndexId[] = [
   "nbr",
 ];
 
+export function computeVegetationIndex(
+  id: VegetationIndexId,
+  bands: SpectralReflectanceBands,
+): number | null {
+  return COMPUTERS[id](bands);
+}
+
 export function computeVegetationIndices(
   bands: SpectralReflectanceBands,
 ): VegetationIndexReading[] {

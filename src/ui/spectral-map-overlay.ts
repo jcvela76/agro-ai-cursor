@@ -1,12 +1,17 @@
 import type { Map as MapLibreMap, GeoJSONSource, RasterSourceSpecification } from "maplibre-gl";
 import type { ExpressionSpecification } from "maplibre-gl";
-import type { SpectralLegend } from "@/domain/spectral/types";
+import type { FeatureCollection, Polygon, MultiPolygon } from "geojson";
+import type { SpectralLegend, SpectralZone } from "@/domain/spectral/types";
 import type { ParcelSpectralOverlay } from "@/domain/spectral/types";
+import { colorForLegendValue } from "@/domain/spectral/overlay-legends";
 
 export const SPECTRAL_OVERLAY_SOURCE = "agro-spectral-overlay";
 export const SPECTRAL_OVERLAY_LAYER = "agro-spectral-overlay-circles";
 export const SPECTRAL_RASTER_SOURCE = "agro-spectral-raster";
 export const SPECTRAL_RASTER_LAYER = "agro-spectral-raster-layer";
+export const SPECTRAL_ZONES_SOURCE = "agro-spectral-zones";
+export const SPECTRAL_ZONES_FILL_LAYER = "agro-spectral-zones-fill";
+export const SPECTRAL_ZONES_LINE_LAYER = "agro-spectral-zones-line";
 
 function colorExpression(legend: SpectralLegend): ExpressionSpecification {
   const expression: unknown[] = ["interpolate", ["linear"], ["get", "value"]];
@@ -28,6 +33,115 @@ export function clearSpectralMapOverlay(map: MapLibreMap) {
   }
   if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
     map.removeSource(SPECTRAL_RASTER_SOURCE);
+  }
+  clearSpectralZoneOutlines(map);
+}
+
+export function clearSpectralZoneOutlines(map: MapLibreMap) {
+  if (map.getLayer(SPECTRAL_ZONES_LINE_LAYER)) {
+    map.removeLayer(SPECTRAL_ZONES_LINE_LAYER);
+  }
+  if (map.getLayer(SPECTRAL_ZONES_FILL_LAYER)) {
+    map.removeLayer(SPECTRAL_ZONES_FILL_LAYER);
+  }
+  if (map.getSource(SPECTRAL_ZONES_SOURCE)) {
+    map.removeSource(SPECTRAL_ZONES_SOURCE);
+  }
+}
+
+function zonesToGeoJson(
+  zones: SpectralZone[],
+  legend: SpectralLegend,
+  activeZoneId: string | null,
+): FeatureCollection<Polygon | MultiPolygon, { id: string; value: number | null; color: string; active: boolean }> {
+  return {
+    type: "FeatureCollection",
+    features: zones.map((zone) => ({
+      type: "Feature",
+      properties: {
+        id: zone.id,
+        value: zone.value,
+        color:
+          zone.value === null
+            ? "#94a3b8"
+            : colorForLegendValue(zone.value, legend),
+        active: zone.id === activeZoneId,
+      },
+      geometry: zone.geometry,
+    })),
+  };
+}
+
+export function applySpectralZoneOutlines(
+  map: MapLibreMap,
+  zones: SpectralZone[],
+  legend: SpectralLegend,
+  activeZoneId: string | null,
+  beforeLayerId?: string,
+) {
+  const data = zonesToGeoJson(zones, legend, activeZoneId);
+  const existing = map.getSource(SPECTRAL_ZONES_SOURCE) as GeoJSONSource | undefined;
+  if (existing) {
+    existing.setData(data);
+  } else {
+    map.addSource(SPECTRAL_ZONES_SOURCE, { type: "geojson", data });
+    map.addLayer(
+      {
+        id: SPECTRAL_ZONES_FILL_LAYER,
+        type: "fill",
+        source: SPECTRAL_ZONES_SOURCE,
+        paint: {
+          "fill-color": ["get", "color"],
+          "fill-opacity": [
+            "case",
+            ["get", "active"],
+            0.28,
+            0.1,
+          ],
+        },
+      },
+      beforeLayerId,
+    );
+    map.addLayer(
+      {
+        id: SPECTRAL_ZONES_LINE_LAYER,
+        type: "line",
+        source: SPECTRAL_ZONES_SOURCE,
+        paint: {
+          "line-color": [
+            "case",
+            ["get", "active"],
+            "#0f172a",
+            ["get", "color"],
+          ],
+          "line-width": [
+            "case",
+            ["get", "active"],
+            2.5,
+            1.25,
+          ],
+          "line-opacity": 0.9,
+        },
+      },
+      beforeLayerId,
+    );
+  }
+
+  if (map.getLayer(SPECTRAL_ZONES_FILL_LAYER)) {
+    map.setPaintProperty(SPECTRAL_ZONES_FILL_LAYER, "fill-opacity", [
+      "case",
+      ["get", "active"],
+      0.28,
+      0.1,
+    ]);
+  }
+  if (map.getLayer(SPECTRAL_ZONES_LINE_LAYER)) {
+    map.setPaintProperty(SPECTRAL_ZONES_LINE_LAYER, "line-width", [
+      "case",
+      ["get", "active"],
+      2.5,
+      1.25,
+    ]);
   }
 }
 

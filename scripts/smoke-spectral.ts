@@ -7,6 +7,7 @@
  *   SMOKE_SENTINEL_LIVE=1 npm run smoke:spectral   # CDSE live (needs SENTINEL_CLIENT_* in env)
  */
 import { GetParcelSpectralOverlay } from "../src/application/spectral/get-parcel-spectral-overlay";
+import { GetParcelSpectralZones } from "../src/application/spectral/get-parcel-spectral-zones";
 import { GetParcelVegetationIndices } from "../src/application/spectral/get-parcel-vegetation-indices";
 import { defaultSyntheticSnapshots } from "../src/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "../src/infrastructure/parcel/synthetic-parcel-registry";
@@ -79,6 +80,17 @@ async function runOfflineSmoke() {
   assert(ov.data.rendering === "synthetic_grid", "offline: synthetic rendering");
   steps.push(`overlay ${ov.data.grid.features.length} cells`);
 
+  const zonesUc = new GetParcelSpectralZones(parcels, source);
+  const zones = await zonesUc.execute({
+    authority: weatherPlus,
+    parcelId,
+    indexId: "ndre",
+  });
+  assert(zones.ok, "offline: zones failed");
+  assert(zones.data.kind === "spectral_zones", "offline: zones kind");
+  assert(zones.data.zones.length >= 1, "offline: zones empty");
+  steps.push(`zones ${zones.data.zones.length}`);
+
   console.log(`PASS [offline] ${steps.join(" → ")}`);
 }
 
@@ -136,6 +148,16 @@ async function runSentinelLiveSmoke() {
   assert(ov.data.rendering === "sentinel_raster", "live: expected sentinel_raster overlay");
   assert(Boolean(ov.data.raster?.imageDataUrl), "live: missing raster data URL");
   steps.push(`overlay raster ${ov.data.raster?.width}x${ov.data.raster?.height}`);
+
+  const zonesUc = new GetParcelSpectralZones(parcels, source);
+  const zones = await zonesUc.execute({
+    authority: weatherPlus,
+    parcelId,
+    indexId: "ndwi",
+  });
+  assert(zones.ok, `live: zones failed (${!zones.ok ? zones.message : ""})`);
+  assert(zones.data.zones.length >= 1, "live: zones empty");
+  steps.push(`zones ${zones.data.zones.length} (${zones.data.methodId})`);
 
   console.log(`PASS [sentinel_hub] ${steps.join(" → ")}`);
 }

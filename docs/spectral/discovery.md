@@ -68,3 +68,12 @@ Ya definido en `src/domain/spectral/types.ts`:
 - Process API PNG por índice + capa MapLibre `image`/`raster`.
 - Fallback a grilla sintética si Process falla.
 - Smoke live valida `rendering=sentinel_raster`.
+
+## Slice Spectral-6 (análisis por zonas)
+
+- Fishnet 3×3 (celdas con centro dentro del polígono, máx. 9).
+- Live: Statistical API por celda con la misma ventana de escena que el raster (`acquiredAt` + 6d).
+- Offline/fallback: valores sintéticos alrededor de la media parcelaria.
+- Tiers **relativos** bajo/medio/alto (terciles intra-parcela, no umbrales agronómicos absolutos).
+- API `GET /api/parcels/[id]/spectral/zones?index=`; panel + contornos MapLibre; tool agente `getParcelSpectralZones`.
+- ADR-040.

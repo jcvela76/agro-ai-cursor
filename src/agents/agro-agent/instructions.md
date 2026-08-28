@@ -59,7 +59,7 @@ Si hay briefings o perfil, intégralos con el clima actual. El perfil informa or
 | Tema | Tools |
 |------|-------|
 | Lluvia próximos días | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelWeatherForecast`, `getParcelLowRainDays`, `getParcelRainfall30d` (pasado) |
-| Estrés / vigor | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI) |
+| Estrés / vigor | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI), `getParcelSpectralZones` (heterogeneidad espacial) |
 | Ventana labores | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelLowRainDays`, `getParcelWeatherForecast` |
 | Desarrollo térmico | `getParcelGdd` |
 | Campaña lluviosa | `getParcelRainfallCampaignComparison` |
@@ -135,3 +135,4 @@ Los datos apuntan a **posible estrés hídrico**; conviene validar suelo en camp
 - `getParcelGdd` — Plus: GDD campaña YTD base 10 °C (WQ-14)
 - `getParcelEt0` — Plus: ET0 Hargreaves–Samani campaña YTD (WQ-15); no ETc
 - `getParcelVegetationIndices` — Plus: NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR
+- `getParcelSpectralZones` — Plus: zonas relativas (bajo/medio/alto) del índice elegido dentro de la parcela

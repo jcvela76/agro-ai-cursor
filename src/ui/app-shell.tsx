@@ -21,7 +21,8 @@ import {
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
 import { approximateAreaHectares } from "@/domain/parcel/geometry";
-import type { ParcelSpectralOverlay, VegetationIndexId } from "@/domain/spectral/types";
+import type { ParcelSpectralOverlay, SpectralZone, VegetationIndexId } from "@/domain/spectral/types";
+import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import { MapChip } from "@/ui/map-chip";
 import { ParcelSelector } from "@/ui/parcel-selector";
 import { SpectralParcelSummary } from "@/ui/spectral-parcel-summary";
@@ -35,7 +36,9 @@ import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { SpectralPanel } from "@/ui/spectral-panel";
 import {
   applySpectralMapOverlay,
+  applySpectralZoneOutlines,
   clearSpectralMapOverlay,
+  clearSpectralZoneOutlines,
   setSpectralOverlayOpacity,
 } from "@/ui/spectral-map-overlay";
 import { WeatherPanel } from "@/ui/weather-panel";
@@ -228,6 +231,8 @@ export function AppShell({
   const [drawReady, setDrawReady] = useState(false);
   const [spectralIndexId, setSpectralIndexId] = useState<VegetationIndexId>("ndre");
   const [spectralOpacity, setSpectralOpacity] = useState(0.62);
+  const [spectralZones, setSpectralZones] = useState<SpectralZone[] | null>(null);
+  const [activeSpectralZoneId, setActiveSpectralZoneId] = useState<string | null>(null);
 
   drawModeRef.current = drawMode;
 
@@ -554,6 +559,8 @@ export function AppShell({
         clearSpectralMapOverlay(map);
       }
       spectralOverlayCacheRef.current.clear();
+      setSpectralZones(null);
+      setActiveSpectralZoneId(null);
       return;
     }
 
@@ -595,6 +602,25 @@ export function AppShell({
       cancelled = true;
     };
   }, [drawMode, selected, selectedId, sideTab, spectralIndexId]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || sideTab !== "spectral" || !spectralZones?.length) {
+      if (map) {
+        clearSpectralZoneOutlines(map);
+      }
+      return;
+    }
+    const legend = getSpectralLegend(spectralIndexId);
+    const paint = () => {
+      applySpectralZoneOutlines(map, spectralZones, legend, activeSpectralZoneId, PARCELS_LINE);
+    };
+    if (map.isStyleLoaded()) {
+      paint();
+    } else {
+      map.once("style.load", paint);
+    }
+  }, [activeSpectralZoneId, sideTab, spectralIndexId, spectralZones]);
 
   useEffect(() => {
     spectralOpacityRef.current = spectralOpacity;
@@ -1057,8 +1083,11 @@ export function AppShell({
                 parcel={selected}
                 selectedIndexId={spectralIndexId}
                 overlayOpacity={spectralOpacity}
+                activeZoneId={activeSpectralZoneId}
                 onIndexChange={setSpectralIndexId}
                 onOpacityChange={setSpectralOpacity}
+                onZonesChange={(zones) => setSpectralZones(zones)}
+                onActiveZoneChange={setActiveSpectralZoneId}
               />
             ) : null}
             {sideTab === "agent" ? (

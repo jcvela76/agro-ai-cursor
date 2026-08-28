@@ -14,6 +14,7 @@ vi.mock("@/infrastructure/container", async () => {
 
 import { GET as getIndices } from "@/app/api/parcels/[parcelId]/spectral/indices/route";
 import { GET as getOverlay } from "@/app/api/parcels/[parcelId]/spectral/overlay/route";
+import { GET as getZones } from "@/app/api/parcels/[parcelId]/spectral/zones/route";
 
 const parcelId = "parcel-lima-norte-001";
 const weatherOnly = defaultSyntheticSnapshots.find(
@@ -88,6 +89,21 @@ describe("API /api/parcels/[parcelId]/spectral", () => {
     expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.message).toBe("Invalid vegetation index.");
+  });
+
+  it("zones returns 200 with relative tiers for Plus user", async () => {
+    mockAuth(weatherPlus.userId, weatherPlus.orgId);
+    const res = await getZones(
+      new Request(`http://localhost/api/parcels/${parcelId}/spectral/zones?index=evi`),
+      params,
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe("OK");
+    expect(body.data.kind).toBe("spectral_zones");
+    expect(body.data.indexId).toBe("evi");
+    expect(body.data.zones.length).toBeGreaterThanOrEqual(1);
+    expect(["low", "mid", "high"]).toContain(body.data.zones[0].tier);
   });
 
   it("indices returns 404 for cross-org parcel", async () => {

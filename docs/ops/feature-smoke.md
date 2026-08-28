@@ -39,6 +39,7 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 |-------|------|
 | Plus gate (unauth, weather-only, cross-org) | `npm run smoke:spectral` |
 | Indices 8 + NDRE + overlay grid | smoke → indices + overlay |
+| Zonas fishnet (Spectral-6) | smoke → zones; `tests/spectral-zones.test.ts` |
 | API routes | `tests/api-spectral-route.test.ts` |
 | Factory modes | `tests/spectral-source-factory.test.ts` |
 | Sentinel Hub stub | `SMOKE_SENTINEL_STUB=1 npm run smoke:spectral` |

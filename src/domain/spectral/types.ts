@@ -125,6 +125,44 @@ export interface SpectralIndexOverlayRequest {
   maxCloudCoverage?: number;
 }
 
+export type SpectralZoneTier = "low" | "mid" | "high";
+
+export interface SpectralZone {
+  id: string;
+  label: string;
+  tier: SpectralZoneTier;
+  value: number | null;
+  areaShare: number;
+  geometry: import("@/domain/parcel/types").ParcelGeometry;
+  centroid: { longitude: number; latitude: number };
+}
+
+export interface ParcelSpectralZones {
+  kind: "spectral_zones";
+  indexId: VegetationIndexId;
+  label: string;
+  parcelMean: number | null;
+  methodId: string;
+  zones: SpectralZone[];
+  evidence: SpectralEvidence;
+}
+
+export interface SpectralIndexZonesRequest {
+  parcelId: string;
+  indexId: VegetationIndexId;
+  geometry: import("@/domain/parcel/types").ParcelGeometry;
+  acquiredAt: string;
+  /** Parcel-level mean for the selected index (offline synthetic spread). */
+  parcelMean: number | null;
+  maxCloudCoverage?: number;
+}
+
+export interface SpectralIndexZonesPayload {
+  indexId: VegetationIndexId;
+  parcelMean: number | null;
+  zones: SpectralZone[];
+}
+
 export interface SpectralSource {
   getVegetationIndices(
     parcelId: string,
@@ -134,4 +172,8 @@ export interface SpectralSource {
   getIndexOverlay?(
     request: SpectralIndexOverlayRequest,
   ): Promise<SpectralResult<SpectralRasterOverlay>>;
+  /** Optional within-parcel zone means for one index. */
+  getIndexZones?(
+    request: SpectralIndexZonesRequest,
+  ): Promise<SpectralResult<SpectralIndexZonesPayload>>;
 }

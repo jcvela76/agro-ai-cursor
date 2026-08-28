@@ -141,3 +141,65 @@
   gap: var(--space-1);
   margin-top: var(--space-2);
 }
+
+.zonesBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.zoneList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.zoneRow,
+.zoneRowActive {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto auto;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-panel);
+  color: var(--color-fg-primary);
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.8125rem;
+}
+
+.zoneRowActive {
+  border-color: var(--color-fg-primary);
+  background: var(--color-bg-map-chrome);
+  color: var(--color-fg-on-dark);
+}
+
+.zoneLabel {
+  font-weight: 700;
+}
+
+.zoneMeta {
+  color: inherit;
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+.zoneValue {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+.zoneHint {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}

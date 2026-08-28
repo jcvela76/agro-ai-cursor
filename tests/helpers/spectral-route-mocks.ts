@@ -1,4 +1,5 @@
 import { GetParcelSpectralOverlay } from "@/application/spectral/get-parcel-spectral-overlay";
+import { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
 import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import {
   defaultSyntheticSnapshots,
@@ -14,6 +15,7 @@ export const spectralRouteContainerMock = {
   createAccessResolver: () => new SyntheticAccessResolver(defaultSyntheticSnapshots),
   getParcelVegetationIndices: new GetParcelVegetationIndices(parcels, source),
   getParcelSpectralOverlay: new GetParcelSpectralOverlay(parcels, source),
+  getParcelSpectralZones: new GetParcelSpectralZones(parcels, source),
 };
 
 export { defaultSyntheticSnapshots };

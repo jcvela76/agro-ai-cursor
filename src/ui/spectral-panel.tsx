@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Parcel } from "@/domain/parcel/types";
 import { colorForLegendValue, getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import type {
+  ParcelSpectralZones,
   ParcelVegetationIndices,
   SpectralLimitationReason,
+  SpectralZone,
   VegetationIndexId,
 } from "@/domain/spectral/types";
 import { Badge } from "@/ui/badge";
@@ -45,6 +47,18 @@ function freshnessTone(status: string): "fresh" | "stale" | "unknown" {
   return "unknown";
 }
 
+function tierLabel(tier: SpectralZone["tier"]): string {
+  if (tier === "low") return "bajo";
+  if (tier === "high") return "alto";
+  return "medio";
+}
+
+function tierTone(tier: SpectralZone["tier"]): "stale" | "fresh" | "unknown" {
+  if (tier === "low") return "stale";
+  if (tier === "high") return "fresh";
+  return "unknown";
+}
+
 async function fetchSpectral<T>(url: string): Promise<SpectralOk<T> | SpectralLimited> {
   const res = await fetch(url);
   return (await res.json()) as SpectralOk<T> | SpectralLimited;
@@ -54,19 +68,33 @@ export function SpectralPanel({
   parcel,
   selectedIndexId,
   overlayOpacity,
+  activeZoneId,
   onIndexChange,
   onOpacityChange,
+  onZonesChange,
+  onActiveZoneChange,
 }: {
   parcel: Parcel;
   selectedIndexId: VegetationIndexId;
   overlayOpacity: number;
+  activeZoneId: string | null;
   onIndexChange: (indexId: VegetationIndexId) => void;
   onOpacityChange: (opacity: number) => void;
+  onZonesChange: (zones: SpectralZone[] | null, legendIndexId: VegetationIndexId) => void;
+  onActiveZoneChange: (zoneId: string | null) => void;
 }) {
   const [payload, setPayload] = useState<SpectralOk<ParcelVegetationIndices> | SpectralLimited | null>(
     null,
   );
+  const [zonesPayload, setZonesPayload] = useState<
+    SpectralOk<ParcelSpectralZones> | SpectralLimited | null
+  >(null);
   const [loading, setLoading] = useState(true);
+  const [zonesLoading, setZonesLoading] = useState(false);
+  const onZonesChangeRef = useRef(onZonesChange);
+  const onActiveZoneChangeRef = useRef(onActiveZoneChange);
+  onZonesChangeRef.current = onZonesChange;
+  onActiveZoneChangeRef.current = onActiveZoneChange;
 
   useEffect(() => {
     let cancelled = false;
@@ -87,6 +115,32 @@ export function SpectralPanel({
       cancelled = true;
     };
   }, [parcel.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setZonesLoading(true);
+    setZonesPayload(null);
+    onZonesChangeRef.current(null, selectedIndexId);
+    onActiveZoneChangeRef.current(null);
+
+    void (async () => {
+      const result = await fetchSpectral<ParcelSpectralZones>(
+        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/zones?index=${encodeURIComponent(selectedIndexId)}`,
+      );
+      if (cancelled) return;
+      setZonesPayload(result);
+      setZonesLoading(false);
+      if (result.status === "OK") {
+        onZonesChangeRef.current(result.data.zones, selectedIndexId);
+      } else {
+        onZonesChangeRef.current(null, selectedIndexId);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [parcel.id, selectedIndexId]);
 
   if (loading) {
     return <p className={styles.muted}>Cargando índices espectrales…</p>;
@@ -109,12 +163,14 @@ export function SpectralPanel({
   const { data } = payload;
   const legend = getSpectralLegend(selectedIndexId);
   const activeReading = data.indices.find((index) => index.id === selectedIndexId);
+  const zonesOk = zonesPayload?.status === "OK" ? zonesPayload.data : null;
 
   return (
     <div className={styles.content}>
       <p className={styles.intro}>
         Índices de vegetación derivados de reflectancia Sentinel-2 L2A. El mapa
-        muestra raster CDSE cuando hay escena live; si no, grilla indicativa. Requiere
+        muestra raster CDSE cuando hay escena live; si no, grilla indicativa. Las
+        zonas son medias relativas dentro de la parcela (fishnet). Requiere
         Intelligence Plus.
       </p>
       <p className={styles.muted}>
@@ -195,6 +251,47 @@ export function SpectralPanel({
           );
         })}
       </ul>
+
+      <div className={styles.zonesBlock}>
+        <p className={styles.legendTitle}>Zonas · {selectedIndexId.toUpperCase()}</p>
+        {zonesLoading ? (
+          <p className={styles.muted}>Calculando zonas…</p>
+        ) : null}
+        {!zonesLoading && zonesPayload && zonesPayload.status !== "OK" ? (
+          <p className={styles.muted}>{zonesPayload.message}</p>
+        ) : null}
+        {!zonesLoading && zonesOk ? (
+          <ul className={styles.zoneList}>
+            {zonesOk.zones.map((zone) => {
+              const active = zone.id === activeZoneId;
+              return (
+                <li key={zone.id}>
+                  <button
+                    type="button"
+                    className={active ? styles.zoneRowActive : styles.zoneRow}
+                    onClick={() => onActiveZoneChange(active ? null : zone.id)}
+                  >
+                    <span className={styles.zoneLabel}>{zone.label}</span>
+                    <Badge tone={tierTone(zone.tier)}>{tierLabel(zone.tier)}</Badge>
+                    <span className={styles.zoneMeta}>
+                      {Math.round(zone.areaShare * 100)}%
+                    </span>
+                    <span className={styles.zoneValue}>
+                      {zone.value === null ? "—" : zone.value.toFixed(2)}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+        {!zonesLoading && zonesOk ? (
+          <p className={styles.zoneHint}>
+            Media parcela {zonesOk.parcelMean === null ? "—" : zonesOk.parcelMean.toFixed(2)} ·
+            tiers relativos (no umbrales agronómicos absolutos)
+          </p>
+        ) : null}
+      </div>
 
       <div className={styles.evidence}>
         <EvidenceRow label="Fuente" value={data.evidence.sourceLabel} />

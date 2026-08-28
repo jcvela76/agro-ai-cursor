@@ -172,6 +172,7 @@ Ver `docs/reports/discovery.md`.
 | Spectral-3 stub | **Hecho 2026-08-28** — `SentinelHubStubSpectralSource` + discovery; `SPECTRAL_SOURCE=sentinel_hub_stub` |
 | Spectral-4 live | **Hecho 2026-08-28** — CDSE Statistical API + OAuth; `SPECTRAL_SOURCE=sentinel_hub` (ADR-038) |
 | Spectral-5 raster | **Hecho 2026-08-28** — Process API PNG overlay en mapa (ADR-039) |
+| Spectral-6 zonas | **Hecho 2026-08-28** — fishnet + stats por zona + panel/mapa/tool (ADR-040) |
 | **Siguiente** | Legal DRAFT → abogado; Billing live; Production CDSE post ToS |
 
 ## Docs por slice (canónico)
