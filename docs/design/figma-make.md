@@ -12,6 +12,7 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
 |--------|-------|---------|--------|---------|-------------------------|
 | [Agro AI Landing Page](https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page) | LP / waitlist (SEO-1) | `2SYf8DOtblK84RC6oaNql7` | **Congelado** — Version 2 = waitlist stg | **No editar** (solo lectura / version history) | `/` · `public/landing/` · frame `marketing/lp/full` en `oTT6PqFOAijVxYZb5wztEP` |
 | [Agro AI — Billing & Admin](https://www.figma.com/make/gQ0ta5hxC4FNd5EKaHY5nX/Agro-AI-%E2%80%94-Billing---Admin) | Billing-2 UX | `gQ0ta5hxC4FNd5EKaHY5nX` | **Portado** — código en `stg` (2026-08-27) | **Congelado** (solo lectura) | `/app/admin` · `/app/billing` · `/app/billing/cancel` |
+| [Agro AI — Map & Spectral](https://www.figma.com/make/nusU2o1IuN6xOwgxEqgOv7/Agro-AI-Map---Spectral) | Spectral-2 UX | `nusU2o1IuN6xOwgxEqgOv7` | **Aprobado** — V3 audit OK (2026-08-28) | **Congelado** (referencia Spectral-2) | `/app` map overlay · panel Espectral · `app/map-shell/spectral-*` |
 
 ### Detalle por Make
 
@@ -33,6 +34,15 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
   - `app/billing/manage` — plan actual + tiers + legal footer
   - `app/billing/cancel-confirm` — modal trial / fin de período
 - **Nota al portar a código:** suavizar claims inventados del Make (ML, SENASA, etc.) — alinear con `failure-lessons` y producto real
+
+#### Agro AI — Map & Spectral (`nusU2o1IuN6xOwgxEqgOv7`)
+
+- **Qué cubre:** overlay espectral en mapa + panel Espectral (Spectral-2 UX)
+- **Pantallas:** `app/map-shell/spectral-overlay-active` · `spectral-index-picker` · `spectral-states`
+- **Selector superior:** Overlay activo / Selector de índice / Estados espectrales (solo prototipo Make)
+- **Version history:** V1 preview fix · V2 ajustes audit · V3 build errors
+- **Audit 2026-08-28:** leyenda NDRE (−1 estrés → 0.8+ saludable), sin badges por índice, gate Plus a nivel tab, demo Lima Coffee (sintética) / LC-01 / 2026-08-20
+- **Al portar a código:** mapa claro (OpenFreeMap Liberty), no nav demo superior; evidencia desde API real
 
 ---
 
