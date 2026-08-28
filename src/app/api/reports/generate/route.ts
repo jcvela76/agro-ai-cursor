@@ -10,6 +10,7 @@ const REPORT_TYPES = new Set<ReportType>([
   "water_balance",
   "agent_briefing",
   "trace_lot_dossier",
+  "daily_briefing",
 ]);
 
 export async function POST(request: Request) {
@@ -61,14 +62,19 @@ export async function POST(request: Request) {
       const status =
         result.reason === "missing_plus_entitlement"
           ? 403
-          : result.reason === "quota_exceeded"
+          : result.reason === "quota_exceeded" || result.reason === "daily_quota_exceeded"
             ? 429
-            : 400;
+            : result.reason === "daily_already_generated"
+              ? 409
+              : 400;
       return NextResponse.json(
         {
           status: "REPORT_UNAVAILABLE",
           reason: result.reason,
           message: result.message,
+          existingReportId:
+            "existingReportId" in result ? result.existingReportId : undefined,
+          previewUrl: "previewUrl" in result ? result.previewUrl : undefined,
           quota: "quota" in result ? result.quota : undefined,
         },
         { status },

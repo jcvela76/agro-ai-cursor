@@ -23,12 +23,28 @@ export const PLAN_REPORT_LIMITS: Record<string, number> = {
   full: 50,
 };
 
+/** Max daily briefings per org per calendar month (America/Lima). ADR-036. */
+export const PLAN_DAILY_BRIEFING_LIMITS: Record<string, number> = {
+  free: 0,
+  free_org: 0,
+  weather_base: 0,
+  weather_plus: 20,
+  operations: 60,
+  full: 120,
+};
+
 const DEFAULT_MEMBER_LIMIT = PLAN_MEMBER_LIMITS.free;
 const DEFAULT_REPORT_LIMIT = PLAN_REPORT_LIMITS.free;
+const DEFAULT_DAILY_BRIEFING_LIMIT = PLAN_DAILY_BRIEFING_LIMITS.free;
 
 export function reportLimitForPlan(slug: string | null | undefined): number {
   const normalized = normalizePlanSlug(slug) ?? "free";
   return PLAN_REPORT_LIMITS[normalized] ?? DEFAULT_REPORT_LIMIT;
+}
+
+export function dailyBriefingLimitForPlan(slug: string | null | undefined): number {
+  const normalized = normalizePlanSlug(slug) ?? "free";
+  return PLAN_DAILY_BRIEFING_LIMITS[normalized] ?? DEFAULT_DAILY_BRIEFING_LIMIT;
 }
 
 export function reportQuotaUsage(input: {
@@ -50,6 +66,25 @@ export function reportQuotaUsage(input: {
   };
 }
 
+export function dailyBriefingQuotaUsage(input: {
+  used: number;
+  planSlug: string | null | undefined;
+}): {
+  limit: number;
+  used: number;
+  remaining: number;
+  blocked: boolean;
+} {
+  const limit = dailyBriefingLimitForPlan(input.planSlug);
+  const used = input.used;
+  return {
+    limit,
+    used,
+    remaining: Math.max(0, limit - used),
+    blocked: used >= limit,
+  };
+}
+
 /** YYYY-MM in America/Lima for monthly report quotas. */
 export function currentBillingMonthKey(date = new Date()): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -60,6 +95,20 @@ export function currentBillingMonthKey(date = new Date()): string {
   const year = parts.find((p) => p.type === "year")?.value ?? "1970";
   const month = parts.find((p) => p.type === "month")?.value ?? "01";
   return `${year}-${month}`;
+}
+
+/** YYYY-MM-DD in America/Lima for daily briefing cadence. */
+export function currentReportDayKey(date = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Lima",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const year = parts.find((p) => p.type === "year")?.value ?? "1970";
+  const month = parts.find((p) => p.type === "month")?.value ?? "01";
+  const day = parts.find((p) => p.type === "day")?.value ?? "01";
+  return `${year}-${month}-${day}`;
 }
 
 export function inferPlanSlugForQuota(input: {

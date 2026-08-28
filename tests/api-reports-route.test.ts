@@ -30,17 +30,16 @@ describe("reports API", () => {
 
   it("GET quota returns usage", async () => {
     mockGetQuota.mockResolvedValue({
-      limit: 10,
-      used: 2,
-      remaining: 8,
+      point: { limit: 10, used: 2, remaining: 8 },
+      daily: { limit: 20, used: 1, remaining: 19 },
       billingMonth: "2026-08",
       planSlug: "weather_plus",
       plusEnabled: true,
     });
-    const res = await quotaGet();
+    const res = await quotaGet(new Request("http://localhost/api/reports/quota"));
     const json = await res.json();
     expect(json.status).toBe("OK");
-    expect(json.data.remaining).toBe(8);
+    expect(json.data.point.remaining).toBe(8);
   });
 
   it("POST generate returns preview and pdf urls", async () => {
@@ -51,7 +50,13 @@ describe("reports API", () => {
         title: "Clima · Demo",
         reportType: "weather_climate",
       },
-      quota: { limit: 10, used: 3, remaining: 7 },
+      quota: {
+        point: { limit: 10, used: 3, remaining: 7 },
+        daily: { limit: 20, used: 1, remaining: 19 },
+        billingMonth: "2026-08",
+        planSlug: "weather_plus",
+        plusEnabled: true,
+      },
     });
 
     const req = new Request("http://localhost/api/reports/generate", {

@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { createAccessResolver, getReportQuota } from "@/infrastructure/container";
 
-export async function GET() {
+export async function GET(request: Request) {
   const { userId, orgId } = await auth();
   const accessResolver = createAccessResolver();
   const authority = await accessResolver.resolve(userId, orgId ?? null);
@@ -14,6 +14,7 @@ export async function GET() {
     );
   }
 
-  const quota = await getReportQuota.execute(authority);
+  const parcelId = new URL(request.url).searchParams.get("parcelId") ?? undefined;
+  const quota = await getReportQuota.execute(authority, { parcelId });
   return NextResponse.json({ status: "OK", data: quota });
 }

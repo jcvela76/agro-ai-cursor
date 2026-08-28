@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import type { ReportType } from "@/domain/report/types";
-import { REPORT_TYPE_LABELS } from "@/domain/report/types";
 import { Button } from "@/ui/button";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./report-export-action.module.css";
@@ -14,30 +12,28 @@ type QuotaBucket = {
   remaining: number;
 };
 
+type DailyBriefingStatus = {
+  reportDay: string;
+  alreadyGenerated: boolean;
+  existingReportId: string | null;
+  previewUrl: string | null;
+};
+
 type Quota = {
   point: QuotaBucket;
   daily: QuotaBucket;
   billingMonth: string;
   planSlug: string;
   plusEnabled: boolean;
+  dailyBriefing?: DailyBriefingStatus;
 };
 
-export function ReportExportAction({
-  reportType,
-  label,
+export function DailyBriefingAction({
   parcelId,
-  lotId,
-  agentQuestion,
-  agentAnswerMarkdown,
   isAdmin,
   disabled,
 }: {
-  reportType: Exclude<ReportType, "daily_briefing">;
-  label?: string;
-  parcelId?: string;
-  lotId?: string;
-  agentQuestion?: string;
-  agentAnswerMarkdown?: string;
+  parcelId: string;
   isAdmin: boolean;
   disabled?: boolean;
 }) {
@@ -47,7 +43,7 @@ export function ReportExportAction({
 
   const loadQuota = useCallback(async () => {
     try {
-      const res = await fetch("/api/reports/quota");
+      const res = await fetch(`/api/reports/quota?parcelId=${encodeURIComponent(parcelId)}`);
       const json = (await res.json()) as { status: string; data?: Quota };
       if (json.status === "OK" && json.data) {
         setQuota(json.data);
@@ -55,7 +51,7 @@ export function ReportExportAction({
     } catch {
       setQuota(null);
     }
-  }, []);
+  }, [parcelId]);
 
   useEffect(() => {
     void loadQuota();
@@ -69,16 +65,14 @@ export function ReportExportAction({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          reportType,
+          reportType: "daily_briefing",
           parcelId,
-          lotId,
-          agentQuestion,
-          agentAnswerMarkdown,
         }),
       });
       let json: {
         status: string;
         message?: string;
+        previewUrl?: string;
         data?: { previewUrl: string; quota: Quota };
       };
       try {
@@ -88,29 +82,32 @@ export function ReportExportAction({
         return;
       }
       if (!res.ok || json.status !== "OK" || !json.data) {
-        setError(json.message ?? "No se pudo generar el informe.");
+        if (res.status === 409 && json.previewUrl) {
+          window.open(json.previewUrl, "_blank", "noopener,noreferrer");
+        }
+        setError(json.message ?? "No se pudo generar el briefing diario.");
         await loadQuota();
         return;
       }
       setQuota(json.data.quota);
       window.open(json.data.previewUrl, "_blank", "noopener,noreferrer");
     } catch {
-      setError("Error de red al generar informe.");
+      setError("Error de red al generar briefing.");
     } finally {
       setBusy(false);
     }
   };
 
   if (quota === null) {
-    return <p className={styles.muted}>Informes…</p>;
+    return <p className={styles.muted}>Briefing diario…</p>;
   }
 
   if (!quota.plusEnabled) {
     return (
       <div className={styles.block}>
         <StateBanner
-          title="Informes requieren Weather Intelligence Plus"
-          detail="Genera informes HTML/PDF con evidencia completa y cuota mensual según tu plan."
+          title="Briefing diario requiere Weather Intelligence Plus"
+          detail="Un resumen diario por parcela con delta vs el día anterior y evidencia consultada."
           tone="unavailable"
         />
         {isAdmin ? (
@@ -124,7 +121,23 @@ export function ReportExportAction({
     );
   }
 
-  const point = quota.point;
+  const daily = quota.daily;
+  const briefing = quota.dailyBriefing;
+
+  if (briefing?.alreadyGenerated && briefing.previewUrl) {
+    return (
+      <div className={styles.block}>
+        <StateBanner
+          title="Briefing de hoy ya generado"
+          detail={`${briefing.reportDay} · abre el informe o vuelve mañana para uno nuevo.`}
+          tone="stale"
+        />
+        <Link className={styles.billingLink} href={briefing.previewUrl} target="_blank" rel="noopener noreferrer">
+          Ver briefing de hoy →
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.block}>
@@ -132,18 +145,18 @@ export function ReportExportAction({
         <Button
           type="button"
           onClick={() => void onGenerate()}
-          disabled={busy || disabled || point.remaining <= 0}
+          disabled={busy || disabled || daily.remaining <= 0}
         >
-          {busy ? "Generando…" : label ?? `Generar ${REPORT_TYPE_LABELS[reportType]}`}
+          {busy ? "Generando…" : "Generar briefing diario (PDF)"}
         </Button>
         <span className={styles.quota}>
-          {point.used}/{point.limit} informes · {quota.billingMonth}
+          {daily.used}/{daily.limit} briefings · {quota.billingMonth}
         </span>
       </div>
-      {point.remaining <= 0 ? (
+      {daily.remaining <= 0 ? (
         <StateBanner
-          title="Cuota mensual agotada"
-          detail={`Plan ${quota.planSlug}: ${point.limit} informes/mes. Actualiza en billing o espera el próximo mes.`}
+          title="Cuota mensual de briefings agotada"
+          detail={`Plan ${quota.planSlug}: ${daily.limit} briefings/mes.`}
           tone="stale"
         />
       ) : null}

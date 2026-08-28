@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   currentBillingMonthKey,
+  currentReportDayKey,
+  dailyBriefingLimitForPlan,
+  dailyBriefingQuotaUsage,
   inferPlanSlugForQuota,
   reportLimitForPlan,
   reportQuotaUsage,
@@ -31,5 +34,17 @@ describe("report plan limits", () => {
   it("formats billing month in Lima timezone", () => {
     const key = currentBillingMonthKey(new Date("2026-08-28T12:00:00Z"));
     expect(key).toMatch(/^\d{4}-\d{2}$/);
+  });
+
+  it("formats report day in Lima timezone", () => {
+    const key = currentReportDayKey(new Date("2026-08-28T12:00:00Z"));
+    expect(key).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it("maps daily briefing quotas by plan", () => {
+    expect(dailyBriefingLimitForPlan("weather_plus")).toBe(20);
+    expect(dailyBriefingLimitForPlan("operations")).toBe(60);
+    const quota = dailyBriefingQuotaUsage({ used: 20, planSlug: "weather_plus" });
+    expect(quota.blocked).toBe(true);
   });
 });

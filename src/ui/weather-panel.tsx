@@ -11,6 +11,7 @@ import { Badge } from "@/ui/badge";
 import { EvidenceRow } from "@/ui/evidence-row";
 import { StateBanner } from "@/ui/state-banner";
 import { ReportExportAction } from "@/ui/report-export-action";
+import { DailyBriefingAction } from "@/ui/daily-briefing-action";
 import styles from "./weather-panel.module.css";
 
 type WeatherOk<T> = { status: "OK"; data: T };
@@ -103,6 +104,7 @@ export function WeatherPanel({ parcel, isAdmin }: { parcel: Parcel; isAdmin: boo
         {!loading && tab === "forecast" && forecast ? <ForecastView payload={forecast} /> : null}
       </div>
 
+      <DailyBriefingAction parcelId={parcel.id} isAdmin={isAdmin} disabled={loading} />
       <ReportExportAction
         reportType="weather_climate"
         label="Generar informe climático (PDF)"

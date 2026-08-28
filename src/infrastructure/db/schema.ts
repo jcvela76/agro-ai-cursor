@@ -112,10 +112,14 @@ export const generatedReports = pgTable(
     orgId: text("org_id").notNull(),
     createdByUserId: text("created_by_user_id").notNull(),
     reportType: text("report_type").notNull(),
+    status: text("status").notNull().default("ready"),
     title: text("title").notNull(),
     parcelId: text("parcel_id"),
     lotId: text("lot_id"),
+    reportDay: text("report_day"),
     billingMonth: text("billing_month").notNull(),
+    parentReportId: text("parent_report_id"),
+    contextSnapshot: jsonb("context_snapshot").$type<Record<string, unknown> | null>(),
     htmlContent: text("html_content").notNull(),
     pdfBase64: text("pdf_base64").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -123,5 +127,6 @@ export const generatedReports = pgTable(
   (table) => [
     index("generated_reports_org_id_idx").on(table.orgId),
     index("generated_reports_org_month_idx").on(table.orgId, table.billingMonth),
+    index("generated_reports_parcel_day_idx").on(table.orgId, table.parcelId, table.reportDay),
   ],
 );

@@ -22,6 +22,8 @@ import { GetParcelSpectralOverlay } from "@/application/spectral/get-parcel-spec
 import { AppendOrgReviewDecision } from "@/application/review/append-org-review-decision";
 import { ListOrgReviewDecisions } from "@/application/review/list-org-review-decisions";
 import { BuildReportContent } from "@/application/report/build-report-content";
+import { BuildDailyBriefing } from "@/application/report/build-daily-briefing";
+import { CollectParcelSignals } from "@/application/report/collect-parcel-signals";
 import {
   GenerateOrgReport,
   GetOrgReport,
@@ -256,10 +258,25 @@ export const buildReportContent = new BuildReportContent(
   getParcelVegetationIndices,
 );
 
+export const collectParcelSignals = new CollectParcelSignals(
+  parcelRegistry,
+  getParcelWeatherObservation,
+  getParcelWeatherForecast,
+  getParcelWeatherRainfall30d,
+  getParcelWeatherEt0,
+  getParcelVegetationIndices,
+);
+
+export const buildDailyBriefing = new BuildDailyBriefing(
+  reportRegistry,
+  collectParcelSignals,
+);
+
 export const getReportQuota = new GetReportQuota(reportRegistry, orgMetadataStore);
 export const generateOrgReport = new GenerateOrgReport(
   reportRegistry,
   buildReportContent,
+  buildDailyBriefing,
   createPdfRenderer(),
   orgMetadataStore,
 );

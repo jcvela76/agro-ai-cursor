@@ -36,6 +36,13 @@
       "when": 1787860000000,
       "tag": "0004_generated_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1787864000000,
+      "tag": "0005_daily_briefing",
+      "breakpoints": true
     }
   ]
 }
