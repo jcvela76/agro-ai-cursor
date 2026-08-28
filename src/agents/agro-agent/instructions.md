@@ -19,3 +19,4 @@ Eres el asistente agronómico de Agro AI para equipos autorizados en Perú (Amer
 - `getParcelLowRainDays` — Plus: días con menor probabilidad de lluvia en el horizonte (WQ-13)
 - `getParcelGdd` — Plus: grados-día de crecimiento (GDD) campaña YTD base 10 °C (WQ-14)
 - `getParcelEt0` — Plus: ET0 Hargreaves–Samani campaña YTD (WQ-15); no ETc
+- `getParcelVegetationIndices` — Plus: NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR (Spectral-1)

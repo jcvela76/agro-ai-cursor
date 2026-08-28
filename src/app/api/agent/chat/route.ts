@@ -17,6 +17,7 @@ import {
   getParcelWeatherObservation,
   getParcelWeatherRainfall30d,
   getParcelWeatherRainfallCampaignComparison,
+  getParcelVegetationIndices,
 } from "@/infrastructure/container";
 
 export const maxDuration = 60;
@@ -113,6 +114,7 @@ export async function POST(request: Request) {
     lowRainDays: getParcelWeatherLowRainDays,
     gdd: getParcelWeatherGdd,
     et0: getParcelWeatherEt0,
+    vegetationIndices: getParcelVegetationIndices,
   });
 
   const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;

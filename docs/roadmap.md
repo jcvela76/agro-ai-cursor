@@ -146,8 +146,9 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 | Billing-3 | **Hecho 2026-08-28** — `maxAllowedMemberships` sync + webhook revoca invitaciones sobre tope |
 | Promote apex | **Hecho 2026-08-28** — `main` = `stg` @ `d6f31de`; deploy Production READY; smoke público OK |
 | Promote apex | **Hecho 2026-08-28** — `main` = `stg` @ `42c2061`; Legal-1 + LP-claims en Production |
-| **Siguiente** | Ejecutar webhook Production (ops manual); Legal DRAFT → abogado; Billing live post-aprobación |
-| Billing-ops-prod | **Hecho 2026-08-28** — script + runbook webhook Production; env checklist (`docs/ops/clerk-webhook-production.md`) |
+| Billing-ops-prod | **Hecho 2026-08-28** — script + runbook webhook Production; smoke member limits OK |
+| Spectral-1 | **Hecho 2026-08-28** — NDRE/EVI/SAVI/MSAVI/GNDVI/NDWI/NDMI/NBR offline + tab Espectral + tool agente (ADR-033) |
+| **Siguiente** | Legal DRAFT → abogado; Billing live post-aprobación; Spectral live (proveedor satélite) |
 
 ## Docs por slice (canónico)
 

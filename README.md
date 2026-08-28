@@ -52,6 +52,7 @@ npm run dev
 |--------|------|------|
 | GET | `/api/parcels/[parcelId]/weather/observation` | Clerk + weather entitlement |
 | GET | `/api/parcels/[parcelId]/weather/forecast` | Clerk + weather entitlement |
+| GET | `/api/parcels/[parcelId]/spectral/indices` | Clerk + `weather_plus` |
 | POST | `/api/agent/chat` | Clerk + weather_plus |
 
 Clerk org `publicMetadata`:

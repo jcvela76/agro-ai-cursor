@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/tools";
+import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
@@ -8,6 +9,7 @@ import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weathe
 import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
+import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 
 describe("WA-07 Plus gate for Agro Agent", () => {
@@ -33,6 +35,7 @@ describe("Agro Agent weather tools", () => {
   const lowRainDays = new GetParcelWeatherLowRainDays(registry, source);
   const gdd = new GetParcelWeatherGdd(registry, source);
   const et0 = new GetParcelWeatherEt0(registry, source);
+  const vegetationIndices = new GetParcelVegetationIndices(registry, new OfflineSpectralSource());
   const authority = defaultSyntheticSnapshots[4];
 
   function toolsFor(parcelId: string) {
@@ -46,6 +49,7 @@ describe("Agro Agent weather tools", () => {
       lowRainDays,
       gdd,
       et0,
+      vegetationIndices,
     });
   }
 
@@ -147,6 +151,20 @@ describe("Agro Agent weather tools", () => {
         "et0-hargreaves-samani-calendar-ytd/v1",
       );
       expect(result.data.totalEt0Mm).toBe(912.4);
+    }
+  });
+
+  it("returns vegetation indices for Plus parcel", async () => {
+    const tools = toolsFor("parcel-lima-norte-001");
+    const result = (await tools.getParcelVegetationIndices.execute!(
+      {},
+      { toolCallId: "t8", messages: [] },
+    )) as Awaited<ReturnType<NonNullable<typeof tools.getParcelVegetationIndices.execute>>>;
+    expect(result).toMatchObject({ ok: true });
+    if ("ok" in result && result.ok) {
+      expect(result.data.kind).toBe("vegetation_indices");
+      expect(result.data.indices).toHaveLength(8);
+      expect(result.data.indices[0]?.id).toBe("ndre");
     }
   });
 });

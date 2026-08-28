@@ -17,6 +17,7 @@ import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
+import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import { AppendOrgReviewDecision } from "@/application/review/append-org-review-decision";
 import { ListOrgReviewDecisions } from "@/application/review/list-org-review-decisions";
 import { ListOrgTraceLots } from "@/application/traceability/list-org-trace-lots";
@@ -30,6 +31,7 @@ import type { ParcelRegistry } from "@/domain/parcel/types";
 import type { ReviewDecisionRegistry } from "@/domain/review/types";
 import type { TraceLotRegistry } from "@/domain/traceability/types";
 import type { OrgMetadataStore } from "@/domain/workspace/types";
+import type { SpectralSource } from "@/domain/spectral/types";
 import type { WeatherSource } from "@/domain/weather/types";
 import { SyntheticAccessResolver } from "@/infrastructure/auth/synthetic-access-resolver";
 import { ClerkMetadataAccessResolver } from "@/infrastructure/auth/clerk-metadata-access-resolver";
@@ -51,6 +53,7 @@ import { NasaPowerWeatherSource } from "@/infrastructure/weather/nasa-power-weat
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 import { OpenMeteoWeatherSource } from "@/infrastructure/weather/open-meteo-weather-source";
 import { SenamhiStubWeatherSource } from "@/infrastructure/weather/senamhi-stub-weather-source";
+import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { NeonTraceLotRegistry } from "@/infrastructure/traceability/neon-trace-lot-registry";
 import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
 import {
@@ -178,6 +181,23 @@ export const getParcelWeatherLowRainDays = new GetParcelWeatherLowRainDays(
 export const getParcelWeatherGdd = new GetParcelWeatherGdd(parcelRegistry, weatherSource);
 
 export const getParcelWeatherEt0 = new GetParcelWeatherEt0(parcelRegistry, weatherSource);
+
+export function createSpectralSource(
+  mode = process.env.SPECTRAL_SOURCE ?? "offline",
+): SpectralSource {
+  switch (mode) {
+    case "offline":
+    default:
+      return new OfflineSpectralSource();
+  }
+}
+
+const spectralSource = createSpectralSource(process.env.SPECTRAL_SOURCE ?? "offline");
+
+export const getParcelVegetationIndices = new GetParcelVegetationIndices(
+  parcelRegistry,
+  spectralSource,
+);
 
 export const listOrgTraceLots = new ListOrgTraceLots(traceLotRegistry);
 export const createOrgTraceLot = new CreateOrgTraceLot(

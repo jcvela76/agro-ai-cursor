@@ -26,6 +26,7 @@ import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { Panel } from "@/ui/panel";
 import { ReviewPanel } from "@/ui/review-panel";
 import { TraceLotsPanel } from "@/ui/trace-lots-panel";
+import { SpectralPanel } from "@/ui/spectral-panel";
 import { WeatherPanel } from "@/ui/weather-panel";
 import styles from "./app-shell.module.css";
 
@@ -36,7 +37,7 @@ const PARCELS_LINE = "agro-parcels-line";
 const PARCEL_DETAIL_MAX_ZOOM = 16;
 
 type DrawMode = "idle" | "draw" | "edit";
-type SideTab = "weather" | "agent" | "trace" | "review";
+type SideTab = "weather" | "spectral" | "agent" | "trace" | "review";
 
 function extendBoundsWithGeometry(bounds: LngLatBounds, geometry: ParcelGeometry) {
   const rings =
@@ -865,6 +866,13 @@ export function AppShell({
               </button>
               <button
                 type="button"
+                className={sideTab === "spectral" ? styles.tabActive : styles.tab}
+                onClick={() => setSideTab("spectral")}
+              >
+                Espectral
+              </button>
+              <button
+                type="button"
                 className={sideTab === "agent" ? styles.tabActive : styles.tab}
                 onClick={() => setSideTab("agent")}
               >
@@ -886,6 +894,7 @@ export function AppShell({
               </button>
             </div>
             {sideTab === "weather" ? <WeatherPanel parcel={selected} /> : null}
+            {sideTab === "spectral" ? <SpectralPanel parcel={selected} /> : null}
             {sideTab === "agent" ? (
               <AgentChatPanel parcel={selected} isAdmin={isAdmin} />
             ) : null}

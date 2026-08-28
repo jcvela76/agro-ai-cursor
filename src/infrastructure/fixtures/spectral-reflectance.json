@@ -1,0 +1,31 @@
+[
+  {
+    "parcelId": "parcel-lima-norte-001",
+    "acquisitionDate": "2026-08-20",
+    "bands": {
+      "blue": 0.05,
+      "green": 0.12,
+      "red": 0.08,
+      "redEdge": 0.25,
+      "nir": 0.45,
+      "swir": 0.2,
+      "swir2": 0.1
+    },
+    "evidence": {
+      "sourceId": "offline-sentinel-2-synthetic",
+      "sourceLabel": "Sentinel-2 L2A (offline fixture)",
+      "acquiredAt": "2026-08-20T10:30:00-05:00",
+      "timezone": "America/Lima",
+      "spatialScope": {
+        "kind": "point",
+        "latitude": -11.95,
+        "longitude": -77.05,
+        "label": "parcel-lima-norte-001"
+      },
+      "freshnessStatus": "fresh",
+      "freshnessPolicy": "scene_max_age_14d",
+      "satelliteMission": "Sentinel-2",
+      "processingLevel": "L2A"
+    }
+  }
+]

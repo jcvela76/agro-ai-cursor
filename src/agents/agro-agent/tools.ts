@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import { authorizeWeatherPlusAccess } from "@/domain/auth/authorize-weather-access";
+import type { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import type { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import type { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import type { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
@@ -25,6 +26,7 @@ export const agroAgentToolNames = {
   lowRainDays: "getParcelLowRainDays",
   gdd: "getParcelGdd",
   et0: "getParcelEt0",
+  vegetationIndices: "getParcelVegetationIndices",
 } as const;
 
 export const plusToolNames = [
@@ -33,6 +35,7 @@ export const plusToolNames = [
   agroAgentToolNames.lowRainDays,
   agroAgentToolNames.gdd,
   agroAgentToolNames.et0,
+  agroAgentToolNames.vegetationIndices,
 ] as const;
 
 export function createAgroAgentTools(input: {
@@ -45,6 +48,7 @@ export function createAgroAgentTools(input: {
   lowRainDays: GetParcelWeatherLowRainDays;
   gdd: GetParcelWeatherGdd;
   et0: GetParcelWeatherEt0;
+  vegetationIndices: GetParcelVegetationIndices;
 }) {
   const {
     authority,
@@ -56,6 +60,7 @@ export function createAgroAgentTools(input: {
     lowRainDays,
     gdd,
     et0,
+    vegetationIndices,
   } = input;
 
   return {
@@ -137,6 +142,18 @@ export function createAgroAgentTools(input: {
       inputSchema: z.object({}),
       execute: async () => {
         const result = await et0.execute({ authority, parcelId });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelVegetationIndices: tool({
+      description:
+        "Obtiene índices de vegetación (NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR) derivados de reflectancia multiespectral con evidencia de escena. Requiere Plus.",
+      inputSchema: z.object({}),
+      execute: async () => {
+        const result = await vegetationIndices.execute({ authority, parcelId });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }
