@@ -10,6 +10,7 @@ import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/too
 import { loadAgroAgentInstructions } from "@/agents/agro-agent/load-instructions";
 import {
   createAccessResolver,
+  getParcelAgronomicProfile,
   getParcelRecentBriefings,
   getParcelWeatherEt0,
   getParcelWeatherForecast,
@@ -19,6 +20,7 @@ import {
   getParcelWeatherRainfall30d,
   getParcelWeatherRainfallCampaignComparison,
   getParcelVegetationIndices,
+  updateParcelAgronomicProfile,
 } from "@/infrastructure/container";
 
 export const maxDuration = 60;
@@ -117,6 +119,8 @@ export async function POST(request: Request) {
     et0: getParcelWeatherEt0,
     vegetationIndices: getParcelVegetationIndices,
     recentBriefings: getParcelRecentBriefings,
+    getProfile: getParcelAgronomicProfile,
+    updateProfile: updateParcelAgronomicProfile,
   });
 
   const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;

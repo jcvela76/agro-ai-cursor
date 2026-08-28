@@ -3,6 +3,10 @@ import { z } from "zod";
 import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import { authorizeWeatherPlusAccess } from "@/domain/auth/authorize-weather-access";
 import type { GetParcelRecentBriefings } from "@/application/report/get-parcel-recent-briefings";
+import type {
+  GetParcelAgronomicProfile,
+  UpdateParcelAgronomicProfile,
+} from "@/application/parcel/parcel-agronomic-profile";
 import type { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import type { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import type { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
@@ -10,6 +14,7 @@ import type { GetParcelWeatherLowRainDays } from "@/application/weather/get-parc
 import type { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import type { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
 import type { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
+import { parseProfileFields } from "@/domain/parcel/agronomic-profile";
 
 export interface AgroAgentToolContext {
   authority: AccessSnapshot | null;
@@ -29,6 +34,8 @@ export const agroAgentToolNames = {
   et0: "getParcelEt0",
   vegetationIndices: "getParcelVegetationIndices",
   recentBriefings: "getParcelRecentBriefings",
+  getProfile: "getParcelProfile",
+  updateProfile: "updateParcelProfile",
 } as const;
 
 export const plusToolNames = [
@@ -39,7 +46,11 @@ export const plusToolNames = [
   agroAgentToolNames.et0,
   agroAgentToolNames.vegetationIndices,
   agroAgentToolNames.recentBriefings,
+  agroAgentToolNames.getProfile,
+  agroAgentToolNames.updateProfile,
 ] as const;
+
+const optionalProfileText = z.string().max(500).nullable().optional();
 
 export function createAgroAgentTools(input: {
   authority: AccessSnapshot;
@@ -53,6 +64,8 @@ export function createAgroAgentTools(input: {
   et0: GetParcelWeatherEt0;
   vegetationIndices: GetParcelVegetationIndices;
   recentBriefings: GetParcelRecentBriefings;
+  getProfile: GetParcelAgronomicProfile;
+  updateProfile: UpdateParcelAgronomicProfile;
 }) {
   const {
     authority,
@@ -66,6 +79,8 @@ export function createAgroAgentTools(input: {
     et0,
     vegetationIndices,
     recentBriefings,
+    getProfile,
+    updateProfile,
   } = input;
 
   return {
@@ -173,6 +188,40 @@ export function createAgroAgentTools(input: {
       }),
       execute: async ({ days }) => {
         const result = await recentBriefings.execute({ authority, parcelId, days });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelProfile: tool({
+      description:
+        "Lee el perfil agronómico persistido de la parcela activa (cultivo, siembra, riego, fenología, etc.). Usar antes de orientar riego/labores. Campos null = desconocidos. Requiere Plus.",
+      inputSchema: z.object({}),
+      execute: async () => {
+        const result = await getProfile.execute({ authority, parcelId });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    updateParcelProfile: tool({
+      description:
+        "Guarda de inmediato campos del perfil agronómico de la parcela activa (sin pedir confirmación extra). Solo envía campos que el usuario acaba de indicar; null borra un campo. Resume lo guardado. Requiere Plus.",
+      inputSchema: z.object({
+        crop: optionalProfileText,
+        sowingDate: optionalProfileText,
+        phenologyStage: optionalProfileText,
+        irrigationSystem: optionalProfileText,
+        irrigationFrequency: optionalProfileText,
+        lastApplication: optionalProfileText,
+        expectedHarvest: optionalProfileText,
+        notes: optionalProfileText,
+      }),
+      execute: async (raw) => {
+        const fields = parseProfileFields(raw);
+        const result = await updateProfile.execute({ authority, parcelId, fields });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }

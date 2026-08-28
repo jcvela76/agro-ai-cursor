@@ -29,6 +29,7 @@ import { AgentChatPanel } from "@/ui/agent-chat-panel";
 import { Button } from "@/ui/button";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { Panel } from "@/ui/panel";
+import { ParcelProfilePanel } from "@/ui/parcel-profile-panel";
 import { ReviewPanel } from "@/ui/review-panel";
 import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { SpectralPanel } from "@/ui/spectral-panel";
@@ -46,7 +47,7 @@ const PARCELS_LINE = "agro-parcels-line";
 const PARCEL_DETAIL_MAX_ZOOM = 16;
 
 type DrawMode = "idle" | "draw" | "edit";
-type SideTab = "weather" | "spectral" | "agent" | "trace" | "review";
+type SideTab = "weather" | "spectral" | "agent" | "profile" | "trace" | "review";
 
 function shortOrgDisplayName(name: string): string {
   return name.replace(/\s*\(sint[eé]tica\)\s*/gi, "").trim();
@@ -1004,6 +1005,15 @@ export function AppShell({
               <button
                 type="button"
                 role="tab"
+                aria-selected={sideTab === "profile"}
+                className={sideTab === "profile" ? styles.tabActive : styles.tab}
+                onClick={() => setSideTab("profile")}
+              >
+                Perfil
+              </button>
+              <button
+                type="button"
+                role="tab"
                 aria-selected={sideTab === "trace"}
                 className={sideTab === "trace" ? styles.tabActive : styles.tab}
                 onClick={() => setSideTab("trace")}
@@ -1032,6 +1042,9 @@ export function AppShell({
             ) : null}
             {sideTab === "agent" ? (
               <AgentChatPanel parcel={selected} isAdmin={isAdmin} />
+            ) : null}
+            {sideTab === "profile" ? (
+              <ParcelProfilePanel parcel={selected} isAdmin={isAdmin} />
             ) : null}
             {sideTab === "trace" ? (
               <TraceLotsPanel parcelId={selected.id} isAdmin={isAdmin} />

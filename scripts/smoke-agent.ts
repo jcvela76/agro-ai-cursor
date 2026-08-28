@@ -10,6 +10,10 @@ import {
   isPlusToolAllowed,
 } from "../src/agents/agro-agent/tools";
 import { GetParcelRecentBriefings } from "../src/application/report/get-parcel-recent-briefings";
+import {
+  GetParcelAgronomicProfile,
+  UpdateParcelAgronomicProfile,
+} from "../src/application/parcel/parcel-agronomic-profile";
 import { GetParcelVegetationIndices } from "../src/application/spectral/get-parcel-vegetation-indices";
 import { GetParcelWeatherEt0 } from "../src/application/weather/get-parcel-et0";
 import { GetParcelWeatherGdd } from "../src/application/weather/get-parcel-gdd";
@@ -23,6 +27,7 @@ import {
 import { defaultSyntheticSnapshots } from "../src/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "../src/infrastructure/parcel/synthetic-parcel-registry";
 import { OfflineReportRegistry } from "../src/infrastructure/report/offline-report-registry";
+import { OfflineParcelAgronomicProfileRegistry } from "../src/infrastructure/parcel/offline-parcel-agronomic-profile-registry";
 import { OfflineSpectralSource } from "../src/infrastructure/spectral/offline-spectral-source";
 import { OfflineWeatherSource } from "../src/infrastructure/weather/offline-weather-source";
 
@@ -48,6 +53,7 @@ function buildDeps() {
   const weather = new OfflineWeatherSource();
   const spectral = new OfflineSpectralSource();
   const reports = new OfflineReportRegistry();
+  const profiles = new OfflineParcelAgronomicProfileRegistry();
   return {
     observation: new GetParcelWeatherObservation(registry, weather),
     forecast: new GetParcelWeatherForecast(registry, weather),
@@ -61,6 +67,8 @@ function buildDeps() {
     et0: new GetParcelWeatherEt0(registry, weather),
     vegetationIndices: new GetParcelVegetationIndices(registry, spectral),
     recentBriefings: new GetParcelRecentBriefings(registry, reports),
+    getProfile: new GetParcelAgronomicProfile(registry, profiles),
+    updateProfile: new UpdateParcelAgronomicProfile(registry, profiles),
   };
 }
 
@@ -112,6 +120,21 @@ async function main() {
   assert(briefings.ok, "tool getParcelRecentBriefings failed");
   assert(Array.isArray(briefings.data?.briefings), "briefings list missing");
   steps.push(agroAgentToolNames.recentBriefings);
+
+  const profileGet = (await tools.getParcelProfile.execute!(
+    {},
+    toolCtx,
+  )) as { ok: boolean; data?: { crop: string | null } };
+  assert(profileGet.ok, "tool getParcelProfile failed");
+  steps.push(agroAgentToolNames.getProfile);
+
+  const profilePut = (await tools.updateParcelProfile.execute!(
+    { crop: "café demo" },
+    toolCtx,
+  )) as { ok: boolean; data?: { crop: string | null } };
+  assert(profilePut.ok, "tool updateParcelProfile failed");
+  assert(profilePut.data?.crop === "café demo", "profile crop not saved");
+  steps.push(agroAgentToolNames.updateProfile);
 
   const crossTools = createAgroAgentTools({
     authority: crossOrg,

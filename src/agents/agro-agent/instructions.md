@@ -38,25 +38,32 @@ Cuando el usuario pide recomendación operativa (regar, humedad, estrés, ventan
 
 Llama **en este orden** (omite solo si una tool falla):
 
-1. `getParcelRecentBriefings` (memoria de los últimos días; citar cada `reportDay`; si vacío, no inventar)
-2. `getParcelWeatherObservation`
-3. `getParcelWeatherForecast`
-4. `getParcelRainfall30d`
-5. `getParcelEt0`
-6. `getParcelVegetationIndices` (citar NDWI y NDMI)
+1. `getParcelProfile` (cultivo, riego, siembra; si faltan datos clave, pregunta **una** cosa y guarda con `updateParcelProfile` al responder — sin “¿confirmas?”)
+2. `getParcelRecentBriefings` (memoria de los últimos días; citar cada `reportDay`; si vacío, no inventar)
+3. `getParcelWeatherObservation`
+4. `getParcelWeatherForecast`
+5. `getParcelRainfall30d`
+6. `getParcelEt0`
+7. `getParcelVegetationIndices` (citar NDWI y NDMI)
 
-Si hay briefings, integra señales/sugerencias previas con el clima actual (delta día a día).
+Si hay briefings o perfil, intégralos con el clima actual. El perfil informa orientación; no sustituye visita de campo (WQ-18).
+
+### Perfil agronómico (Report-3)
+
+- `getParcelProfile` / `updateParcelProfile`: contexto persistido de la parcela (no solo sesión).
+- Si faltan frecuencia de riego, cultivo o fecha de siembra: pregunta **una** por turno; al recibir la respuesta, llama `updateParcelProfile` de inmediato y resume lo guardado.
+- No pidas confirmación adicional (“¿lo guardo?”) — el usuario ya aportó el dato.
 
 ### Otros playbooks (parcela activa fija)
 
 | Tema | Tools |
 |------|-------|
-| Lluvia próximos días | `getParcelRecentBriefings`, `getParcelWeatherForecast`, `getParcelLowRainDays`, `getParcelRainfall30d` (pasado) |
-| Estrés / vigor | `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI) |
-| Ventana labores | `getParcelRecentBriefings`, `getParcelLowRainDays`, `getParcelWeatherForecast` |
+| Lluvia próximos días | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelWeatherForecast`, `getParcelLowRainDays`, `getParcelRainfall30d` (pasado) |
+| Estrés / vigor | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI) |
+| Ventana labores | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelLowRainDays`, `getParcelWeatherForecast` |
 | Desarrollo térmico | `getParcelGdd` |
 | Campaña lluviosa | `getParcelRainfallCampaignComparison` |
-| Fumigación / cosecha | briefings + clima + espectral; sin producto ni momento exacto |
+| Fumigación / cosecha | perfil + briefings + clima + espectral; sin producto ni momento exacto |
 
 Catálogo: `docs/agro-agent/evidence-based-recommendations.md`.
 

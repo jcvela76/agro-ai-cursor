@@ -141,3 +141,22 @@ export const dailyBriefingDeliveryPrefs = pgTable("daily_briefing_delivery_prefs
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const parcelAgronomicProfiles = pgTable(
+  "parcel_agronomic_profiles",
+  {
+    parcelId: text("parcel_id").primaryKey(),
+    orgId: text("org_id").notNull(),
+    crop: text("crop"),
+    sowingDate: text("sowing_date"),
+    phenologyStage: text("phenology_stage"),
+    irrigationSystem: text("irrigation_system"),
+    irrigationFrequency: text("irrigation_frequency"),
+    lastApplication: text("last_application"),
+    expectedHarvest: text("expected_harvest"),
+    notes: text("notes"),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedByUserId: text("updated_by_user_id"),
+  },
+  (table) => [index("parcel_agronomic_profiles_org_id_idx").on(table.orgId)],
+);
+

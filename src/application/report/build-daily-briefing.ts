@@ -69,7 +69,9 @@ export class BuildDailyBriefing {
       suggestions: narrative.suggestions,
       openQuestions: [
         "¿Con qué frecuencia se riega esta parcela?",
-        "¿Qué cultivo y fecha de siembra tiene la parcela?",
+        "¿Qué cultivo / variedad tiene la parcela?",
+        "¿Cuál es la fecha de siembra o etapa fenológica?",
+        "¿Qué sistema de riego usa?",
       ],
       limits: [
         "ET0 ≠ riego aplicado",

@@ -122,9 +122,11 @@ Instrucciones: ante riego/labores/clima, consultar briefings de los últimos dí
 
 ---
 
-## Report-3 (backlog) — Perfil agronómico de parcela
+## Report-3 — Perfil agronómico de parcela
 
-El chat sugiere preguntas para enriquecer contexto de parcela (persistido, no solo sesión):
+**Estado:** implementado (ADR-037).
+
+El chat sugiere preguntas para enriquecer contexto de parcela (persistido):
 
 Ejemplos:
 
@@ -134,12 +136,7 @@ Ejemplos:
 - ¿Sistema de riego?  
 - ¿Última aplicación / cosecha esperada?
 
-Almacenar en `parcel_agronomic_profile` (org + parcel scoped). Agent tools: `getParcelProfile` / `updateParcelProfile` (con confirmación humana).
-
-Usar perfil + briefings para ajustar orientación (sigue WQ-18: no órdenes imperativas).
-
-**No implementar en Report-2a.**
-
+Almacenado en `parcel_agronomic_profiles`. Tools: `getParcelProfile` / `updateParcelProfile` (guardado directo). UI: pestaña Perfil.
 ---
 
 ## Slices sugeridos
@@ -149,4 +146,4 @@ Usar perfil + briefings para ajustar orientación (sigue WQ-18: no órdenes impe
 | **Report-2a** | Tipo `daily_briefing`; unique día; cupo mensual aparte; snapshot + parent; UI Clima; PDF |
 | **Report-2b** | Preferencias envío; cron; email (WhatsApp después) — **implementado** (email + cron; WA pendiente) |
 | **Report-2c** | Tool `getParcelRecentBriefings` + prompt — **implementado** |
-| **Report-3** | Perfil parcela + preguntas guiadas en chat |
+| **Report-3** | Perfil parcela + preguntas guiadas en chat — **implementado** |

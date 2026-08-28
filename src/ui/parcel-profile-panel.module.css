@@ -1,0 +1,68 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+}
+
+.intro {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-fg-muted);
+  line-height: 1.45;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-canvas);
+  color: var(--color-fg-primary);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 4rem;
+}
+
+.actions {
+  margin-top: var(--space-1);
+}
+
+.muted {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-fg-muted);
+}
+
+.ok {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-status-fresh);
+  font-weight: 600;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-status-error);
+  font-weight: 600;
+}
+
+.link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-fg-primary);
+}

@@ -54,6 +54,12 @@ import {
   MemoryOrgMemberLimitGateway,
 } from "@/infrastructure/auth/clerk-org-member-limit-gateway";
 import { createDb } from "@/infrastructure/db/client";
+import {
+  GetParcelAgronomicProfile,
+  UpdateParcelAgronomicProfile,
+} from "@/application/parcel/parcel-agronomic-profile";
+import { NeonParcelAgronomicProfileRegistry } from "@/infrastructure/parcel/neon-parcel-agronomic-profile-registry";
+import { OfflineParcelAgronomicProfileRegistry } from "@/infrastructure/parcel/offline-parcel-agronomic-profile-registry";
 import { NeonParcelRegistry } from "@/infrastructure/parcel/neon-parcel-registry";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
 import { OfflineReviewDecisionRegistry } from "@/infrastructure/review/offline-review-registry";
@@ -89,6 +95,13 @@ export function createParcelRegistry(): ParcelRegistry {
   return new SyntheticParcelRegistry();
 }
 
+export function createParcelAgronomicProfileRegistry() {
+  if (process.env.DATABASE_URL) {
+    return new NeonParcelAgronomicProfileRegistry(createDb());
+  }
+  return new OfflineParcelAgronomicProfileRegistry();
+}
+
 export function createTraceLotRegistry(): TraceLotRegistry {
   if (process.env.DATABASE_URL) {
     return new NeonTraceLotRegistry(createDb());
@@ -118,6 +131,7 @@ export function createDailyBriefingDeliveryPrefsRegistry() {
 }
 
 const parcelRegistry = createParcelRegistry();
+const parcelAgronomicProfileRegistry = createParcelAgronomicProfileRegistry();
 const traceLotRegistry = createTraceLotRegistry();
 const reviewDecisionRegistry = createReviewDecisionRegistry();
 const reportRegistry = createReportRegistry();
@@ -128,6 +142,15 @@ export const listOrgParcels = new ListOrgParcels(parcelRegistry);
 export const createOrgParcel = new CreateOrgParcel(parcelRegistry);
 export const updateOrgParcel = new UpdateOrgParcel(parcelRegistry);
 export const deleteOrgParcel = new DeleteOrgParcel(parcelRegistry);
+
+export const getParcelAgronomicProfile = new GetParcelAgronomicProfile(
+  parcelRegistry,
+  parcelAgronomicProfileRegistry,
+);
+export const updateParcelAgronomicProfile = new UpdateParcelAgronomicProfile(
+  parcelRegistry,
+  parcelAgronomicProfileRegistry,
+);
 
 export function createOrgMetadataStore(): OrgMetadataStore {
   if (process.env.CLERK_SECRET_KEY) {

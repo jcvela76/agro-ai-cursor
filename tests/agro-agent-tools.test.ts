@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/tools";
 import { GetParcelRecentBriefings } from "@/application/report/get-parcel-recent-briefings";
+import {
+  GetParcelAgronomicProfile,
+  UpdateParcelAgronomicProfile,
+} from "@/application/parcel/parcel-agronomic-profile";
 import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
@@ -11,6 +15,7 @@ import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/applica
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
 import { OfflineReportRegistry } from "@/infrastructure/report/offline-report-registry";
+import { OfflineParcelAgronomicProfileRegistry } from "@/infrastructure/parcel/offline-parcel-agronomic-profile-registry";
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 
@@ -38,7 +43,10 @@ describe("Agro Agent weather tools", () => {
   const gdd = new GetParcelWeatherGdd(registry, source);
   const et0 = new GetParcelWeatherEt0(registry, source);
   const vegetationIndices = new GetParcelVegetationIndices(registry, new OfflineSpectralSource());
+  const profiles = new OfflineParcelAgronomicProfileRegistry();
   const recentBriefings = new GetParcelRecentBriefings(registry, new OfflineReportRegistry());
+  const getProfile = new GetParcelAgronomicProfile(registry, profiles);
+  const updateProfile = new UpdateParcelAgronomicProfile(registry, profiles);
   const authority = defaultSyntheticSnapshots[4];
 
   function toolsFor(parcelId: string) {
@@ -54,6 +62,8 @@ describe("Agro Agent weather tools", () => {
       et0,
       vegetationIndices,
       recentBriefings,
+      getProfile,
+      updateProfile,
     });
   }
 
@@ -182,6 +192,24 @@ describe("Agro Agent weather tools", () => {
     if ("ok" in result && result.ok) {
       expect(result.data.briefings).toEqual([]);
       expect(result.data.days).toBe(3);
+    }
+  });
+
+  it("reads and updates parcel profile", async () => {
+    const tools = toolsFor("parcel-lima-norte-001");
+    const before = (await tools.getParcelProfile.execute!(
+      {},
+      { toolCallId: "t10", messages: [] },
+    )) as Awaited<ReturnType<NonNullable<typeof tools.getParcelProfile.execute>>>;
+    expect(before).toMatchObject({ ok: true });
+
+    const updated = (await tools.updateParcelProfile.execute!(
+      { irrigationFrequency: "cada 2 días" },
+      { toolCallId: "t11", messages: [] },
+    )) as Awaited<ReturnType<NonNullable<typeof tools.updateParcelProfile.execute>>>;
+    expect(updated).toMatchObject({ ok: true });
+    if ("ok" in updated && updated.ok) {
+      expect(updated.data.irrigationFrequency).toBe("cada 2 días");
     }
   });
 });
