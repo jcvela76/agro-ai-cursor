@@ -375,15 +375,19 @@ export default function Home() {
           <p className={styles.eyebrow}>Precios</p>
           <div className={styles.pricingIntro}>
             <h2 className={styles.sectionTitle}>
-              Informativo. <em>Sin compromiso de pago.</em>
+              Referencia en USD. <em>Sin contratación en la web pública.</em>
             </h2>
             <p className={styles.pricingNotice}>
-              <strong>Aviso:</strong> Estructura de planes referencial, sin tarifas
-              definidas. El acceso piloto es completamente gratuito. No se requiere
-              tarjeta de crédito ni compromiso de contratación.
+              <strong>Aviso legal:</strong> Los montos mostrados son orientativos para
+              comparar planes. No constituyen oferta vinculante hasta completar el checkout en
+              un workspace autenticado. El piloto y la lista de espera no requieren pago ni
+              tarjeta.
             </p>
             <p className={styles.pricingNotice}>
-              Sandbox (stg): admins del workspace pueden abrir{" "}
+              Consulte{" "}
+              <a href="/legal/subscription">Términos de suscripción</a>,{" "}
+              <a href="/legal/terms">Términos de servicio</a> y{" "}
+              <a href="/legal/privacy">Privacidad</a>. Sandbox (stg): admins pueden probar{" "}
               <a href="/app/billing">planes de prueba</a> sin cobro live en Perú.
             </p>
           </div>
@@ -478,6 +482,9 @@ export default function Home() {
           </span>
           <div className={styles.footerLinks}>
             <a href="mailto:hola@geoagro.ai">hola@geoagro.ai</a>
+            <a href="/legal/terms">Términos</a>
+            <a href="/legal/privacy">Privacidad</a>
+            <a href="/legal/subscription">Suscripción</a>
           </div>
         </div>
       </footer>

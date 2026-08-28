@@ -145,7 +145,8 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 | SENAMHI-1 stub | **Hecho 2026-08-27** — `SenamhiStubWeatherSource` + gate `weather_plus`; `WEATHER_SOURCE=senamhi_stub`; live post contrato (ADR-031) |
 | Billing-3 | **Hecho 2026-08-28** — `maxAllowedMemberships` sync + webhook revoca invitaciones sobre tope |
 | Promote apex | **Hecho 2026-08-28** — `main` = `stg` @ `d6f31de`; deploy Production READY; smoke público OK |
-| **Siguiente** | Legal-1; webhook org events en Production (opcional); Billing live Production (checklist) |
+| **Siguiente** | Revisión legal abogado; webhook org events en Production (opcional); Billing live Production (checklist restante) |
+| Legal-1 | **Hecho 2026-08-28** — `/legal/*` con copy ES; LP + billing avisos; `docs/ops/legal.md` (ADR-032). Revisión abogado pendiente |
 
 ## Docs por slice (canónico)
 

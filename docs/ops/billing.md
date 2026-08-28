@@ -165,14 +165,17 @@ Tarjeta de prueba Stripe (development gateway): usar números de test de Stripe 
 
 ### Checklist legal (antes de cobro live)
 
-- [ ] Términos / política de privacidad / facturación aplicables a Perú revisados
-- [ ] Precios LP dejan de ser solo “informativos” con aviso legal explícito
+- [x] Términos / política de privacidad / facturación publicados en `/legal/*` (Legal-1, 2026-08-28) — **revisión abogado pendiente**
+- [x] Precios LP con aviso legal explícito + enlaces a `/legal/subscription`, `/legal/terms`, `/legal/privacy`
+- [ ] Revisión por abogado (Perú) antes de cobro live — ver `docs/ops/legal.md`
 - [ ] Stripe account Production conectada en Clerk Production (no reusar gateway dev)
 - [ ] Webhook Production + `CLERK_WEBHOOK_SIGNING_SECRET` en Vercel Production
 - [ ] Smoke cobro real con monto mínimo controlado y reverso/cancelación documentados
 - [ ] Confirmación explícita de Julio en session-log / ops
 
 Hasta entonces: **ningún cobro live** en apex.
+
+Ver también: `docs/ops/legal.md`.
 
 ## Override ops
 

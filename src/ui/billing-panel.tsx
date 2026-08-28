@@ -82,8 +82,10 @@ export function BillingPanel() {
           <div className={styles.sandboxBanner} role="status">
             <strong>Sandbox</strong>
             <span>
-              Cobros de prueba en Development / stg.geoagro.ai. Production requiere Stripe live y
-              checklist legal — ver docs/ops/billing.md.
+              Cobros de prueba en Development / stg.geoagro.ai. Production requiere Stripe live
+              y revisión legal — ver{" "}
+              <Link href="/legal/subscription">Términos de suscripción</Link> y{" "}
+              <Link href="/legal/refunds">Reembolsos</Link>.
             </span>
           </div>
         ) : null}
