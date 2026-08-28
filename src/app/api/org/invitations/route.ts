@@ -59,13 +59,15 @@ export async function POST(request: Request) {
     );
   }
 
+  const redirectUrl = orgInvitationRedirectUrl({ request });
+
   const client = await clerkClient();
   const invitation = await client.organizations.createOrganizationInvitation({
     organizationId: gate.orgId,
     inviterUserId: gate.userId,
     emailAddress,
     role,
-    redirectUrl: orgInvitationRedirectUrl(),
+    redirectUrl,
   });
 
   return NextResponse.json({
@@ -73,7 +75,7 @@ export async function POST(request: Request) {
     data: {
       id: invitation.id,
       emailAddress: invitation.emailAddress,
-      redirectUrl: orgInvitationRedirectUrl(),
+      redirectUrl,
     },
   });
 }

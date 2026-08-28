@@ -36,4 +36,20 @@ Staging (Preview) sigue en instancia Clerk **Development** (`pk_test_`). Product
 | Preview (`stg`) | `https://stg.geoagro.ai` |
 | Production | `https://geoagro.ai` |
 
-La app envía invitaciones vía `POST /api/org/invitations` con `redirectUrl` → `{APP_URL}/app`. Opcional en Dashboard Development: **Configure → Paths → Home URL** = `https://stg.geoagro.ai`.
+La app envía invitaciones vía `POST /api/org/invitations` con `redirectUrl` → `{APP_URL}/app`.
+
+**Dos causas del redirect a `agro-ai-cursor.vercel.app`:**
+
+1. **`redirectUrl` al crear la invitación** — resuelto en código (`app-url.ts`: host del request, rama `stg`, luego env).
+2. **`__clerk_db_jwt` tras aceptar** — Clerk Development sincroniza sesión contra `development_origin` de la instancia. Debe ser `https://stg.geoagro.ai`, no el alias Vercel.
+
+```bash
+./scripts/clerk-development-origin-stg.sh
+```
+
+| Vercel env | `NEXT_PUBLIC_APP_URL` |
+|------------|------------------------|
+| Preview (`stg`) | `https://stg.geoagro.ai` |
+| Production | `https://geoagro.ai` |
+
+Tras cambiar origen o env: **revocar invitaciones pendientes** y reenviar desde `/app/admin` (el `redirect_url` queda fijado al crear la invitación).
