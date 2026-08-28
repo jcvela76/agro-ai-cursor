@@ -19,7 +19,7 @@ Endpoints:
 - Token: `https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token`
 - Stats: `https://sh.dataspace.copernicus.eu/api/v1/statistics`
 
-Env: `SENTINEL_CLIENT_ID`, `SENTINEL_CLIENT_SECRET` (OAuth client credentials). Opcional: `SPECTRAL_LOOKBACK_DAYS` (default 30), `SPECTRAL_FRESHNESS_DAYS` (default 14), `SPECTRAL_MAX_CLOUD_COVERAGE` (default 80).
+Env: `SENTINEL_CLIENT_ID`, `SENTINEL_CLIENT_SECRET` (OAuth client credentials). Opcional: `SPECTRAL_LOOKBACK_DAYS` (default 30), `SPECTRAL_FRESHNESS_DAYS` (default 14), `SPECTRAL_MAX_CLOUD_COVERAGE` (default 80), `SPECTRAL_CACHE_TTL_MS` (default 3600000 = 1h, cache in-memory de índices CDSE).
 
 ## Contrato de adapter (`SpectralSource`)
 
@@ -54,6 +54,7 @@ Ya definido en `src/domain/spectral/types.ts`:
 ## Slice Spectral-4 (live)
 
 - `SentinelHubSpectralSource` + factory `sentinel_hub`.
+- Cache in-memory TTL (default 1h) + cache de overlay en cliente al cambiar índice/opacidad.
 - Smoke: `SMOKE_SENTINEL_LIVE=1 npm run smoke:spectral`.
 
 ## Diferido

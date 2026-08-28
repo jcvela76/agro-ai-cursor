@@ -55,6 +55,8 @@ export function buildSyntheticOverlayGrid(input: {
   parcelId: string;
   meanValue: number;
   legend: SpectralLegend;
+  /** Differentiates noise field per index so maps are not identical across chips. */
+  indexId?: string;
 }): FeatureCollection<Point, { value: number }> {
   const ring = outerRing(input.geometry);
   if (ring.length < 3 || input.meanValue === null || Number.isNaN(input.meanValue)) {
@@ -64,7 +66,8 @@ export function buildSyntheticOverlayGrid(input: {
   const { minLng, minLat, maxLng, maxLat } = bbox(ring);
   const lngStep = (maxLng - minLng) / (GRID_SIZE + 1);
   const latStep = (maxLat - minLat) / (GRID_SIZE + 1);
-  const spread = Math.max(0.1, (input.legend.max - input.legend.min) * 0.38);
+  const spread = Math.max(0.08, (input.legend.max - input.legend.min) * 0.22);
+  const seed = input.indexId ? `${input.parcelId}:${input.indexId}` : input.parcelId;
   const features: FeatureCollection<Point, { value: number }>["features"] = [];
 
   for (let i = 1; i <= GRID_SIZE; i += 1) {
@@ -74,7 +77,7 @@ export function buildSyntheticOverlayGrid(input: {
       if (!pointInRing(lng, lat, ring)) {
         continue;
       }
-      const noise = deterministicNoise(input.parcelId, i, j) - 0.5;
+      const noise = deterministicNoise(seed, i, j) - 0.5;
       const value = clampLegendValue(input.meanValue + noise * spread, input.legend);
       features.push({
         type: "Feature",

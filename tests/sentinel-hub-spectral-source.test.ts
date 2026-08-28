@@ -64,6 +64,7 @@ describe("SentinelHubSpectralSource (CDSE)", () => {
       clientId: "sh-test",
       clientSecret: "secret",
       fetchFn,
+      cacheTtlMs: 0,
       now: () => new Date("2026-08-28T12:00:00Z"),
       lookbackDays: 30,
       freshnessMaxDays: 14,
@@ -125,6 +126,7 @@ describe("SentinelHubSpectralSource (CDSE)", () => {
       clientId: "sh-test",
       clientSecret: "secret",
       fetchFn,
+      cacheTtlMs: 0,
       now: () => new Date("2026-08-28T12:00:00Z"),
       freshnessMaxDays: 14,
     });
@@ -150,6 +152,7 @@ describe("SentinelHubSpectralSource (CDSE)", () => {
       clientId: "sh-test",
       clientSecret: "secret",
       fetchFn,
+      cacheTtlMs: 0,
     });
 
     const result = await source.getVegetationIndices("p1", {
@@ -161,6 +164,62 @@ describe("SentinelHubSpectralSource (CDSE)", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.reason).toBe("unavailable");
+  });
+
+  it("caches successful CDSE results and skips a second network round-trip", async () => {
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ access_token: "tok", expires_in: 1800 }))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          status: "OK",
+          data: [
+            {
+              interval: { from: "2026-08-20T00:00:00Z", to: "2026-08-25T00:00:00Z" },
+              outputs: {
+                bands: {
+                  bands: {
+                    blue: { stats: { mean: 0.05, sampleCount: 100, noDataCount: 0 } },
+                    green: { stats: { mean: 0.06, sampleCount: 100, noDataCount: 0 } },
+                    red: { stats: { mean: 0.07, sampleCount: 100, noDataCount: 0 } },
+                    redEdge: { stats: { mean: 0.12, sampleCount: 100, noDataCount: 0 } },
+                    nir: { stats: { mean: 0.28, sampleCount: 100, noDataCount: 0 } },
+                    swir: { stats: { mean: 0.15, sampleCount: 100, noDataCount: 0 } },
+                    swir2: { stats: { mean: 0.1, sampleCount: 100, noDataCount: 0 } },
+                  },
+                },
+              },
+            },
+          ],
+        }),
+      );
+
+    const { TtlCache } = await import("@/infrastructure/spectral/ttl-cache");
+    const cache = new TtlCache<
+      import("@/domain/spectral/types").SpectralResult<
+        import("@/domain/spectral/types").ParcelVegetationIndices
+      >
+    >();
+    const source = new SentinelHubSpectralSource({
+      clientId: "sh-test",
+      clientSecret: "secret",
+      fetchFn,
+      cache,
+      cacheTtlMs: 60_000,
+      now: () => new Date("2026-08-28T12:00:00Z"),
+    });
+
+    const location = {
+      latitude: -11.95,
+      longitude: -77.05,
+      geometry: limaGeometry,
+    };
+    const first = await source.getVegetationIndices("parcel-cache-1", location);
+    const second = await source.getVegetationIndices("parcel-cache-1", location);
+
+    expect(first.ok).toBe(true);
+    expect(second.ok).toBe(true);
+    expect(fetchFn).toHaveBeenCalledTimes(2); // token + stats once
   });
 
   it("caches CDSE access tokens", async () => {

@@ -21,7 +21,7 @@ import {
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
 import { approximateAreaHectares } from "@/domain/parcel/geometry";
-import type { VegetationIndexId } from "@/domain/spectral/types";
+import type { ParcelSpectralOverlay, VegetationIndexId } from "@/domain/spectral/types";
 import { MapChip } from "@/ui/map-chip";
 import { ParcelSelector } from "@/ui/parcel-selector";
 import { SpectralParcelSummary } from "@/ui/spectral-parcel-summary";
@@ -36,6 +36,7 @@ import { SpectralPanel } from "@/ui/spectral-panel";
 import {
   applySpectralMapOverlay,
   clearSpectralMapOverlay,
+  SPECTRAL_OVERLAY_LAYER,
 } from "@/ui/spectral-map-overlay";
 import { WeatherPanel } from "@/ui/weather-panel";
 import styles from "./app-shell.module.css";
@@ -205,6 +206,10 @@ export function AppShell({
   const mapRef = useRef<MapLibreMap | null>(null);
   const drawRef = useRef<TerraDraw | null>(null);
   const markersRef = useRef<Marker[]>([]);
+  const spectralOverlayCacheRef = useRef(
+    new Map<string, ParcelSpectralOverlay>(),
+  );
+  const spectralOpacityRef = useRef(0.62);
   const draftFeatureIdRef = useRef<string | number | null>(null);
   const editingParcelIdRef = useRef<string | null>(null);
   const drawModeRef = useRef<DrawMode>("idle");
@@ -548,28 +553,36 @@ export function AppShell({
       if (map) {
         clearSpectralMapOverlay(map);
       }
+      spectralOverlayCacheRef.current.clear();
       return;
     }
 
     let cancelled = false;
+    const cacheKey = `${selectedId}:${spectralIndexId}`;
+
     void (async () => {
-      const res = await fetch(
-        `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?index=${encodeURIComponent(spectralIndexId)}`,
-      );
-      const json = (await res.json()) as {
-        status: string;
-        data?: Parameters<typeof applySpectralMapOverlay>[1];
-      };
-      if (cancelled || json.status !== "OK" || !json.data) {
-        if (!cancelled) {
-          clearSpectralMapOverlay(map);
+      let overlay = spectralOverlayCacheRef.current.get(cacheKey);
+      if (!overlay) {
+        const res = await fetch(
+          `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?index=${encodeURIComponent(spectralIndexId)}`,
+        );
+        const json = (await res.json()) as {
+          status: string;
+          data?: Parameters<typeof applySpectralMapOverlay>[1];
+        };
+        if (cancelled || json.status !== "OK" || !json.data) {
+          if (!cancelled) {
+            clearSpectralMapOverlay(map);
+          }
+          return;
         }
-        return;
+        overlay = json.data;
+        spectralOverlayCacheRef.current.set(cacheKey, overlay);
       }
 
       const paint = () => {
-        if (cancelled) return;
-        applySpectralMapOverlay(map, json.data!, spectralOpacity, PARCELS_LINE);
+        if (cancelled || !overlay) return;
+        applySpectralMapOverlay(map, overlay, spectralOpacityRef.current, PARCELS_LINE);
       };
       if (map.isStyleLoaded()) {
         paint();
@@ -580,9 +593,17 @@ export function AppShell({
 
     return () => {
       cancelled = true;
-      clearSpectralMapOverlay(map);
     };
-  }, [drawMode, selected, selectedId, sideTab, spectralIndexId, spectralOpacity]);
+  }, [drawMode, selected, selectedId, sideTab, spectralIndexId]);
+
+  useEffect(() => {
+    spectralOpacityRef.current = spectralOpacity;
+    const map = mapRef.current;
+    if (!map || !map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
+      return;
+    }
+    map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-opacity", spectralOpacity * 0.72);
+  }, [spectralOpacity]);
 
   const spectralActive =
     drawMode === "idle" && sideTab === "spectral" && Boolean(selected?.geometry);

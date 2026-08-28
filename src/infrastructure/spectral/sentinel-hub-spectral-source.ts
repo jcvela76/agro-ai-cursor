@@ -9,6 +9,7 @@ import type {
 } from "@/domain/spectral/types";
 import { CdseTokenProvider, type FetchFn } from "@/infrastructure/spectral/cdse-auth";
 import { SENTINEL2_L2A_BAND_MEAN_EVALSCRIPT } from "@/infrastructure/spectral/sentinel-hub-evalscript";
+import { TtlCache } from "@/infrastructure/spectral/ttl-cache";
 
 export const SENTINEL_HUB_SOURCE_ID = "sentinel-hub-cdse";
 export const SENTINEL_HUB_SOURCE_LABEL = "Sentinel Hub (CDSE) — Sentinel-2 L2A";
@@ -16,7 +17,17 @@ export const SENTINEL_HUB_SOURCE_LABEL = "Sentinel Hub (CDSE) — Sentinel-2 L2A
 export const DEFAULT_CDSE_STATISTICS_URL =
   "https://sh.dataspace.copernicus.eu/api/v1/statistics";
 
+/** Default 1h — CDSE scenes change slowly; avoids re-hitting stats on every index/overlay click. */
+export const DEFAULT_SPECTRAL_CACHE_TTL_MS = 60 * 60 * 1000;
+
 const BAND_KEYS = ["blue", "green", "red", "redEdge", "nir", "swir", "swir2"] as const;
+
+/** Process-local cache shared across SentinelHubSpectralSource instances. */
+const sharedIndicesCache = new TtlCache<SpectralResult<ParcelVegetationIndices>>();
+
+export function clearSentinelHubSpectralCache(): void {
+  sharedIndicesCache.clear();
+}
 
 interface BandStats {
   mean?: number;
@@ -49,6 +60,9 @@ export interface SentinelHubSpectralSourceOptions {
   /** Age threshold for evidence.freshnessStatus === "fresh". */
   freshnessMaxDays?: number;
   maxCloudCoverage?: number;
+  /** Cache successful CDSE results (ms). 0 disables. Default 1h. */
+  cacheTtlMs?: number;
+  cache?: TtlCache<SpectralResult<ParcelVegetationIndices>>;
   now?: () => Date;
 }
 
@@ -98,6 +112,19 @@ function resolveGeometry(location?: SpectralLocationHint): ParcelGeometry | null
   return null;
 }
 
+function geometryCacheKey(geometry: ParcelGeometry): string {
+  return JSON.stringify(geometry);
+}
+
+function buildCacheKey(
+  parcelId: string,
+  geometry: ParcelGeometry,
+  lookbackDays: number,
+  maxCloudCoverage: number,
+): string {
+  return `${parcelId}|${lookbackDays}|${maxCloudCoverage}|${geometryCacheKey(geometry)}`;
+}
+
 function extractMeans(interval: StatsInterval): SpectralReflectanceBands | null {
   const bandStats = interval.outputs?.bands?.bands;
   if (!bandStats) return null;
@@ -140,6 +167,8 @@ export class SentinelHubSpectralSource implements SpectralSource {
   private readonly lookbackDays: number;
   private readonly freshnessMaxDays: number;
   private readonly maxCloudCoverage: number;
+  private readonly cacheTtlMs: number;
+  private readonly cache: TtlCache<SpectralResult<ParcelVegetationIndices>>;
   private readonly now: () => Date;
 
   constructor(options: SentinelHubSpectralSourceOptions = {}) {
@@ -158,6 +187,9 @@ export class SentinelHubSpectralSource implements SpectralSource {
       options.freshnessMaxDays ?? readEnvInt("SPECTRAL_FRESHNESS_DAYS", 14);
     this.maxCloudCoverage =
       options.maxCloudCoverage ?? readEnvInt("SPECTRAL_MAX_CLOUD_COVERAGE", 80);
+    this.cacheTtlMs =
+      options.cacheTtlMs ?? readEnvInt("SPECTRAL_CACHE_TTL_MS", DEFAULT_SPECTRAL_CACHE_TTL_MS);
+    this.cache = options.cache ?? sharedIndicesCache;
     this.now = options.now ?? (() => new Date());
   }
 
@@ -172,6 +204,19 @@ export class SentinelHubSpectralSource implements SpectralSource {
         reason: "unavailable",
         message: "Spectral live requires parcel coordinates or polygon.",
       };
+    }
+
+    const cacheKey = buildCacheKey(
+      parcelId,
+      geometry,
+      this.lookbackDays,
+      this.maxCloudCoverage,
+    );
+    if (this.cacheTtlMs > 0) {
+      const cached = this.cache.get(cacheKey);
+      if (cached) {
+        return cached;
+      }
     }
 
     const end = this.now();
@@ -257,7 +302,7 @@ export class SentinelHubSpectralSource implements SpectralSource {
     const timezone = location.timezone ?? "America/Lima";
     const acquisitionDate = acquiredAt.slice(0, 10);
 
-    return {
+    const result: SpectralResult<ParcelVegetationIndices> = {
       ok: true,
       data: {
         kind: "vegetation_indices",
@@ -281,5 +326,11 @@ export class SentinelHubSpectralSource implements SpectralSource {
         },
       },
     };
+
+    if (this.cacheTtlMs > 0) {
+      this.cache.set(cacheKey, result, this.cacheTtlMs);
+    }
+
+    return result;
   }
 }

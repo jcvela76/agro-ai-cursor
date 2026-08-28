@@ -103,6 +103,7 @@ export class GetParcelSpectralOverlay {
           parcelId: parcel.id,
           meanValue,
           legend,
+          indexId: input.indexId,
         }),
       },
     };

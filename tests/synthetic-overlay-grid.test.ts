@@ -39,15 +39,38 @@ describe("Spectral-2: synthetic overlay grid", () => {
       parcelId: "parcel-lima-norte-001",
       meanValue: 0.5,
       legend,
+      indexId: "evi",
     });
     const second = buildSyntheticOverlayGrid({
       geometry: parcelGeometry,
       parcelId: "parcel-lima-norte-001",
       meanValue: 0.5,
       legend,
+      indexId: "evi",
     });
     expect(second.features.map((f) => f.properties!.value)).toEqual(
       first.features.map((f) => f.properties!.value),
+    );
+  });
+
+  it("varies noise field by indexId so overlays are not identical", () => {
+    const legend = getSpectralLegend("ndre");
+    const ndre = buildSyntheticOverlayGrid({
+      geometry: parcelGeometry,
+      parcelId: "parcel-lima-norte-001",
+      meanValue: 0.1,
+      legend,
+      indexId: "ndre",
+    });
+    const ndmi = buildSyntheticOverlayGrid({
+      geometry: parcelGeometry,
+      parcelId: "parcel-lima-norte-001",
+      meanValue: 0.1,
+      legend,
+      indexId: "ndmi",
+    });
+    expect(ndmi.features.map((f) => f.properties!.value)).not.toEqual(
+      ndre.features.map((f) => f.properties!.value),
     );
   });
 });

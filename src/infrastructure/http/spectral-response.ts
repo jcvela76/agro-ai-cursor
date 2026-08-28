@@ -13,5 +13,13 @@ export function spectralErrorResponse(result: Extract<SpectralResult<unknown>, {
 }
 
 export function spectralSuccessResponse<T>(data: T) {
-  return NextResponse.json({ status: "OK", data });
+  return NextResponse.json(
+    { status: "OK", data },
+    {
+      headers: {
+        // Authenticated parcel data — browser may reuse briefly while switching indices.
+        "Cache-Control": "private, max-age=300",
+      },
+    },
+  );
 }
