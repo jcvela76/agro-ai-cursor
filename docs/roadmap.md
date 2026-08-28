@@ -149,7 +149,8 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 | Billing-ops-prod | **Hecho 2026-08-28** — script + runbook webhook Production; smoke member limits OK |
 | Spectral-1 | **Hecho 2026-08-28** — NDRE/EVI/SAVI/MSAVI/GNDVI/NDWI/NDMI/NBR offline + tab Espectral + tool agente (ADR-033) |
 | Spectral-2 | **Hecho 2026-08-28** — overlay sintético en mapa + selector índice + leyenda + opacidad |
-| **Siguiente** | Legal DRAFT → abogado; Billing live post-aprobación; Spectral live (proveedor satélite) |
+| Spectral-3 stub | **Hecho 2026-08-28** — `SentinelHubStubSpectralSource` + discovery; `SPECTRAL_SOURCE=sentinel_hub_stub`; live post contrato (ADR-034) |
+| **Siguiente** | Legal DRAFT → abogado; Billing live post-aprobación; Spectral live (Sentinel Hub / CDSE) |
 
 ## Docs por slice (canónico)
 
