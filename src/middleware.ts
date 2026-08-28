@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { hasClerkInvitationParams } from "@/lib/clerk-invitation-ticket";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -19,8 +20,8 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  // Org invites land with __clerk_ticket on redirectUrl; /app cannot consume it.
-  if (req.nextUrl.pathname === "/app" && req.nextUrl.searchParams.has("__clerk_ticket")) {
+  // Org invites append __clerk_* to redirectUrl; /app cannot consume them.
+  if (req.nextUrl.pathname === "/app" && hasClerkInvitationParams(req.nextUrl.searchParams)) {
     const url = req.nextUrl.clone();
     url.pathname = "/accept-invitation";
     return NextResponse.redirect(url);

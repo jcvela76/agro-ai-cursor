@@ -12,7 +12,10 @@ import {
 } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
-import { parseInvitationOrgId } from "@/lib/clerk-invitation-ticket";
+import {
+  invitationContinueUrl,
+  parseInvitationOrgId,
+} from "@/lib/clerk-invitation-ticket";
 import { Button } from "@/ui/button";
 
 const shellStyle: CSSProperties = {
@@ -23,17 +26,6 @@ const shellStyle: CSSProperties = {
 };
 
 type Phase = "processing" | "sign_up_ui" | "sign_in_ui" | "error";
-
-function navigateToApp(router: ReturnType<typeof useRouter>) {
-  return ({ decorateUrl }: { decorateUrl: (path: string) => string }) => {
-    const url = decorateUrl("/app");
-    if (url.startsWith("http")) {
-      window.location.href = url;
-      return;
-    }
-    router.replace(url);
-  };
-}
 
 function AcceptInvitationContent() {
   const searchParams = useSearchParams();
@@ -50,21 +42,86 @@ function AcceptInvitationContent() {
   const ticket = searchParams.get("__clerk_ticket");
   const accountStatus = searchParams.get("__clerk_status");
   const invitedOrgId = ticket ? parseInvitationOrgId(ticket) : null;
+  const continueUrl = invitationContinueUrl(ticket, accountStatus);
 
   const [phase, setPhase] = useState<Phase>("processing");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const attempted = useRef(false);
+  const noTicketAttempted = useRef(false);
+
+  async function goToApp() {
+    router.replace("/app");
+  }
+
+  async function activateMembership(orgId: string) {
+    await setActive!({ organization: orgId });
+    await goToApp();
+    return true;
+  }
+
+  async function activateExistingMembership() {
+    if (invitedOrgId) {
+      const invited = userMemberships.data?.find(
+        (item) => item.organization.id === invitedOrgId,
+      );
+      if (invited) {
+        return activateMembership(invitedOrgId);
+      }
+    }
+
+    const memberships = userMemberships.data ?? [];
+    if (memberships.length === 1) {
+      return activateMembership(memberships[0].organization.id);
+    }
+
+    return false;
+  }
+
+  // Signed in after SignIn, but Clerk dropped __clerk_ticket from the URL.
+  useEffect(() => {
+    if (ticket || !authLoaded || !orgLoaded || !orgListLoaded || !isSignedIn) {
+      return;
+    }
+    if (organization) {
+      void goToApp();
+      return;
+    }
+    if (noTicketAttempted.current) {
+      return;
+    }
+    noTicketAttempted.current = true;
+
+    void (async () => {
+      if (await activateExistingMembership()) {
+        return;
+      }
+      setErrorMessage(
+        "Iniciaste sesión pero no encontramos la organización. Pide una invitación nueva al administrador.",
+      );
+      setPhase("error");
+    })();
+  }, [
+    ticket,
+    authLoaded,
+    orgLoaded,
+    orgListLoaded,
+    isSignedIn,
+    organization,
+    invitedOrgId,
+    userMemberships.data,
+    setActive,
+  ]);
 
   useEffect(() => {
     if (!ticket || !authLoaded || !orgLoaded || !orgListLoaded) {
       return;
     }
     if (organization) {
-      router.replace("/app");
+      void goToApp();
       return;
     }
     if (accountStatus === "complete") {
-      router.replace("/app");
+      void goToApp();
       return;
     }
     if (attempted.current || !signUp || !signIn || !setActive) {
@@ -76,27 +133,16 @@ function AcceptInvitationContent() {
 
     attempted.current = true;
 
-    async function activateExistingMembership() {
-      if (!invitedOrgId) {
-        return false;
-      }
-      const membership = userMemberships.data?.find(
-        (item) => item.organization.id === invitedOrgId,
-      );
-      if (!membership) {
-        return false;
-      }
-      await setActive!({ organization: invitedOrgId });
-      router.replace("/app");
-      return true;
-    }
-
     async function finalizeSignIn() {
       if (signIn?.status !== "complete") {
         setPhase("sign_in_ui");
         return true;
       }
-      await signIn.finalize({ navigate: navigateToApp(router) });
+      await signIn.finalize({
+        navigate: async () => {
+          await goToApp();
+        },
+      });
       return true;
     }
 
@@ -105,7 +151,11 @@ function AcceptInvitationContent() {
         setPhase("sign_up_ui");
         return true;
       }
-      await signUp.finalize({ navigate: navigateToApp(router) });
+      await signUp.finalize({
+        navigate: async () => {
+          await goToApp();
+        },
+      });
       return true;
     }
 
@@ -141,7 +191,6 @@ function AcceptInvitationContent() {
           return;
         }
 
-        // After Account Portal sign-up, URL may still say sign_up while user exists.
         const preferSignIn =
           accountStatus === "sign_in" || (accountStatus === "sign_up" && isSignedIn);
 
@@ -188,17 +237,24 @@ function AcceptInvitationContent() {
     signIn,
     signUpFetch,
     signInFetch,
-    router,
     clerk,
     invitedOrgId,
     setActive,
     userMemberships.data,
   ]);
 
-  if (!ticket) {
+  if (!ticket && !isSignedIn) {
     return (
       <main style={shellStyle}>
         <p>Enlace de invitación inválido o expirado.</p>
+      </main>
+    );
+  }
+
+  if (!ticket && isSignedIn) {
+    return (
+      <main style={shellStyle}>
+        <p>Activando organización…</p>
       </main>
     );
   }
@@ -219,7 +275,7 @@ function AcceptInvitationContent() {
   if (phase === "sign_in_ui") {
     return (
       <main style={shellStyle}>
-        <SignIn fallbackRedirectUrl="/app" />
+        <SignIn fallbackRedirectUrl={continueUrl} forceRedirectUrl={continueUrl} />
       </main>
     );
   }
@@ -227,7 +283,7 @@ function AcceptInvitationContent() {
   if (phase === "sign_up_ui") {
     return (
       <main style={shellStyle}>
-        <SignUp fallbackRedirectUrl="/app" />
+        <SignUp fallbackRedirectUrl={continueUrl} forceRedirectUrl={continueUrl} />
       </main>
     );
   }
