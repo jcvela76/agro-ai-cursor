@@ -23,6 +23,7 @@ import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
 import { approximateAreaHectares } from "@/domain/parcel/geometry";
 import type { VegetationIndexId } from "@/domain/spectral/types";
 import { MapChip } from "@/ui/map-chip";
+import { ParcelSelector } from "@/ui/parcel-selector";
 import { SpectralParcelSummary } from "@/ui/spectral-parcel-summary";
 import { AgentChatPanel } from "@/ui/agent-chat-panel";
 import { Button } from "@/ui/button";
@@ -225,9 +226,11 @@ export function AppShell({
   drawModeRef.current = drawMode;
 
   const selectParcel = useCallback(
-    (parcelId: string | null) => {
+    (parcelId: string | null, options?: { keepTab?: boolean }) => {
       setSelectedId(parcelId);
-      setSideTab("weather");
+      if (!options?.keepTab) {
+        setSideTab("weather");
+      }
       const url = parcelId ? `/app?parcel=${encodeURIComponent(parcelId)}` : "/app";
       router.replace(url, { scroll: false });
     },
@@ -253,6 +256,21 @@ export function AppShell({
   useEffect(() => {
     void reloadParcels();
   }, [reloadParcels]);
+
+  useEffect(() => {
+    if (parcels.length === 0) {
+      return;
+    }
+    const hasSelection = selectedId && parcels.some((parcel) => parcel.id === selectedId);
+    if (hasSelection) {
+      return;
+    }
+    const fallback =
+      initialParcelId && parcels.some((parcel) => parcel.id === initialParcelId)
+        ? initialParcelId
+        : parcels[0].id;
+    selectParcel(fallback, { keepTab: true });
+  }, [parcels, selectedId, initialParcelId, selectParcel]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -567,11 +585,12 @@ export function AppShell({
 
   const spectralActive =
     drawMode === "idle" && sideTab === "spectral" && Boolean(selected?.geometry);
+  const mapChromeActive = drawMode === "idle";
 
-  const spectralParcelTitle = organization?.name
+  const summaryTitle = organization?.name
     ? shortOrgDisplayName(organization.name)
     : (selected?.name ?? "");
-  const spectralAreaHectares =
+  const summaryAreaHectares =
     selected?.geometry?.type === "Polygon" ? approximateAreaHectares(selected.geometry) : 0;
 
   const resetDrawState = (opts?: { restoreSelection?: boolean }) => {
@@ -786,74 +805,70 @@ export function AppShell({
     }
   };
 
+  const mapChromeStack = (
+    <div className={styles.chromeStack}>
+      <header className={`${styles.chrome} ${styles.chromeSpectralRow}`}>
+        <div className={styles.chromeLeft}>
+          <span className={styles.brandMark} aria-hidden />
+          <p className={styles.brand}>Agro AI</p>
+          <OrganizationSwitcher
+            hidePersonal
+            afterSelectOrganizationUrl="/app"
+            appearance={{
+              elements: {
+                rootBox: styles.orgSwitcherInline,
+                organizationSwitcherTrigger: styles.orgSwitcherTrigger,
+              },
+            }}
+          />
+        </div>
+        <div className={styles.chromeRight}>
+          {isAdmin ? (
+            <Link className={styles.adminLink} href="/app/admin">
+              Admin
+            </Link>
+          ) : null}
+          <Button
+            type="button"
+            variant="onDark"
+            onClick={startDraw}
+            disabled={busy || !drawReady}
+            className={styles.chromeAction}
+          >
+            + Nueva parcela
+          </Button>
+          <UserButton />
+        </div>
+      </header>
+      <div className={styles.mapSubChrome}>
+        <div className={styles.mapSubChromeLeft}>
+          <ParcelSelector
+            parcels={parcels}
+            selectedId={selectedId}
+            onSelect={(parcelId) => selectParcel(parcelId, { keepTab: true })}
+            disabled={busy || parcels.length === 0}
+          />
+          {spectralActive ? (
+            <MapChip label={`${spectralIndexId.toUpperCase()} activo`} variant="spectral" />
+          ) : null}
+        </div>
+        {selected ? (
+          <SpectralParcelSummary title={summaryTitle} areaHectares={summaryAreaHectares} />
+        ) : null}
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.shell}>
       <div ref={mapContainerRef} className={styles.map} />
 
-      {spectralActive ? (
-        <div className={styles.chromeStack}>
-          <header className={`${styles.chrome} ${styles.chromeSpectralRow}`}>
-            <div className={styles.chromeLeft}>
-              <span className={styles.brandMark} aria-hidden />
-              <p className={styles.brand}>Agro AI</p>
-              <OrganizationSwitcher
-                hidePersonal
-                afterSelectOrganizationUrl="/app"
-                appearance={{
-                  elements: {
-                    rootBox: styles.orgSwitcherInline,
-                    organizationSwitcherTrigger: styles.orgSwitcherTrigger,
-                  },
-                }}
-              />
-            </div>
-            <div className={styles.chromeRight}>
-              {isAdmin ? (
-                <Link className={styles.adminLink} href="/app/admin">
-                  Admin
-                </Link>
-              ) : null}
-              <Button
-                type="button"
-                variant="onDark"
-                onClick={startDraw}
-                disabled={busy || !drawReady}
-                className={styles.chromeAction}
-              >
-                + Nueva parcela
-              </Button>
-              <UserButton />
-            </div>
-          </header>
-          <div className={styles.spectralSubChrome}>
-            <MapChip
-              label={`${spectralIndexId.toUpperCase()} activo`}
-              variant="spectral"
-            />
-            <SpectralParcelSummary
-              title={spectralParcelTitle}
-              areaHectares={spectralAreaHectares}
-            />
-          </div>
-        </div>
+      {mapChromeActive ? (
+        mapChromeStack
       ) : (
         <header className={styles.chrome}>
           <p className={styles.brand}>Agro AI</p>
           <div className={styles.chromeRight}>
-            {isAdmin ? (
-              <Link className={styles.adminLink} href="/app/admin">
-                Admin
-              </Link>
-            ) : null}
-            <OrganizationSwitcher
-              hidePersonal
-              afterSelectOrganizationUrl="/app"
-              appearance={{
-                elements: {
-                  rootBox: styles.orgSwitcher,
-                },
-              }}
-            />
             <UserButton />
           </div>
         </header>
@@ -870,32 +885,7 @@ export function AppShell({
         </div>
       ) : null}
 
-      {!spectralActive && drawMode === "idle" ? (
-        <div className={styles.mapToolbar}>
-          {!drawReady ? (
-            <Button type="button" disabled>
-              Cargando mapa…
-            </Button>
-          ) : selected?.geometry?.type === "Polygon" ? (
-            <>
-              <Button type="button" onClick={startEditSelected} disabled={busy}>
-                Editar geometría
-              </Button>
-              <Button type="button" variant="ghost" onClick={startDraw} disabled={busy}>
-                Nueva parcela
-              </Button>
-            </>
-          ) : parcels.length === 0 ? (
-            <Button type="button" onClick={startDraw} disabled={busy}>
-              Dibujar parcela
-            </Button>
-          ) : (
-            <Button type="button" variant="ghost" onClick={startDraw} disabled={busy}>
-              Nueva parcela
-            </Button>
-          )}
-        </div>
-      ) : drawMode === "draw" && !draftGeometry ? (
+      {drawMode === "draw" && !draftGeometry ? (
         <div className={styles.mapToolbar}>
           <Button type="button" variant="ghost" onClick={() => resetDrawState({ restoreSelection: false })}>
             Cancelar dibujo
@@ -967,7 +957,7 @@ export function AppShell({
 
       {drawMode === "idle" && selected ? (
         <div
-          className={`${styles.panelSlot} ${spectralActive ? styles.panelSlotSpectral : ""}`}
+          className={`${styles.panelSlot} ${mapChromeActive ? styles.panelSlotMapChrome : ""}`}
         >
           <Panel
             title={selected.name}
@@ -991,6 +981,11 @@ export function AppShell({
               >
                 Guardar datos
               </Button>
+              {selected.geometry?.type === "Polygon" ? (
+                <Button type="button" variant="ghost" onClick={startEditSelected} disabled={busy}>
+                  Editar geometría
+                </Button>
+              ) : null}
             </div>
             <div className={styles.tabs}>
               <button

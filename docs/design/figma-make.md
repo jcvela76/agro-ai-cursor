@@ -42,7 +42,7 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
 - **Selector superior:** Overlay activo / Selector de índice / Estados espectrales (solo prototipo Make)
 - **Version history:** V1 preview fix · V2 ajustes audit · V3 build errors
 - **Audit 2026-08-28:** leyenda NDRE (−1 estrés → 0.8+ saludable), sin badges por índice, gate Plus a nivel tab, demo Lima Coffee (sintética) / LC-01 / 2026-08-20
-- **Al portar a código:** mapa claro (OpenFreeMap Liberty), no nav demo superior; evidencia desde API real
+- **Al portar a código:** mapa claro OpenFreeMap Liberty (no satélite oscuro del Make); chrome de dos filas + selector de parcela; **actualizar Make V4** con fondo de mapa claro para alineación visual
 
 ---
 

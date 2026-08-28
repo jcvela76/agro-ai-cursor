@@ -1,0 +1,42 @@
+.field {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.label {
+  font-size: 0.625rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(243, 240, 232, 0.62);
+}
+
+.select {
+  min-width: min(12rem, 42vw);
+  max-width: 14rem;
+  padding: 0.3125rem 1.75rem 0.3125rem 0.5rem;
+  border: 1px solid rgba(79, 111, 82, 0.9);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 253, 248, 0.06)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F3F0E8' d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E")
+    no-repeat right 0.45rem center;
+  color: var(--color-fg-on-dark);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  appearance: none;
+  cursor: pointer;
+}
+
+.select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.empty {
+  font-size: 0.75rem;
+  color: rgba(243, 240, 232, 0.7);
+}

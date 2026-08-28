@@ -102,6 +102,26 @@
   white-space: nowrap;
 }
 
+.mapSubChrome {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem 0.625rem;
+}
+
+.mapSubChromeLeft {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.panelSlotMapChrome {
+  top: 6.5rem;
+}
+
 .spectralSubChrome {
   display: flex;
   align-items: center;
@@ -289,7 +309,7 @@
 
 .toast {
   position: absolute;
-  top: 4.5rem;
+  top: 6.75rem;
   left: 1rem;
   z-index: 3;
   max-width: 20rem;
@@ -327,10 +347,12 @@
     left: 0.75rem;
   }
 
-  .panelSlotSpectral {
+  .panelSlotSpectral,
+  .panelSlotMapChrome {
     top: 6.25rem;
   }
 
+  .mapSubChrome,
   .spectralSubChrome {
     flex-wrap: wrap;
     padding: 0.5rem 0.75rem 0.625rem;
