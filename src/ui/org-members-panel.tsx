@@ -1,6 +1,9 @@
 "use client";
 
 import { InviteMembersButton, useOrganization } from "@clerk/nextjs";
+import Link from "next/link";
+import { memberSeatUsage } from "@/domain/billing/plan-limits";
+import { planDisplayLabel } from "@/domain/billing/plan-display";
 import { Button } from "@/ui/button";
 import styles from "./org-members-panel.module.css";
 
@@ -14,8 +17,15 @@ function formatRole(role: string): string {
   return role.replace(/^org:/, "");
 }
 
+function billingPlanSlugFromOrg(
+  publicMetadata: Record<string, unknown> | undefined,
+): string | null {
+  const slug = publicMetadata?.billingPlanSlug;
+  return typeof slug === "string" ? slug : null;
+}
+
 export function OrgMembersPanel() {
-  const { isLoaded, memberships, invitations } = useOrganization({
+  const { isLoaded, organization, memberships, invitations } = useOrganization({
     memberships: { infinite: true, pageSize: 20 },
     invitations: { infinite: true, pageSize: 20 },
   });
@@ -26,13 +36,43 @@ export function OrgMembersPanel() {
 
   const members = memberships?.data ?? [];
   const pending = invitations?.data ?? [];
+  const planSlug = billingPlanSlugFromOrg(
+    organization?.publicMetadata as Record<string, unknown> | undefined,
+  );
+  const seats = memberSeatUsage({
+    activeMembers: organization?.membersCount ?? members.length,
+    pendingInvites: pending.length,
+    planSlug,
+  });
 
   return (
     <div className={styles.panel}>
+      <p className={styles.usage}>
+        <strong>
+          {seats.used} / {seats.limit}
+        </strong>{" "}
+        asientos ({planDisplayLabel(planSlug)}) — activos + invitaciones pendientes
+      </p>
+
       <div className={styles.toolbar}>
-        <InviteMembersButton>
-          <Button type="button">Invitar miembro</Button>
-        </InviteMembersButton>
+        {seats.blocked ? (
+          <div className={styles.limitBox}>
+            <p className={styles.limitText}>
+              Límite de miembros alcanzado en este plan. Sube de tier en{" "}
+              <Link className={styles.limitLink} href="/app/billing">
+                Suscripción
+              </Link>{" "}
+              para invitar a más personas.
+            </p>
+            <Button type="button" disabled>
+              Invitar miembro
+            </Button>
+          </div>
+        ) : (
+          <InviteMembersButton>
+            <Button type="button">Invitar miembro</Button>
+          </InviteMembersButton>
+        )}
       </div>
 
       <div className={styles.tableWrap}>
@@ -89,8 +129,8 @@ export function OrgMembersPanel() {
       ) : null}
 
       <p className={styles.hint}>
-        Cambios de rol y revocaciones avanzadas: usa el modal de Clerk al invitar o desde el
-        dashboard de Clerk (Development).
+        Solo <strong>org:admin</strong> puede invitar. Cambios de rol avanzados vía modal de Clerk
+        al invitar o en el dashboard Development.
       </p>
     </div>
   );

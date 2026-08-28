@@ -42,6 +42,19 @@ Crear **Features** con slugs idénticos a nuestros entitlements:
 
 No crear `weather_base` en Dashboard: Clerk exige mín. $1 en planes custom; el tier weather-only queda cubierto por `free_org`.
 
+### Límites de miembros (piloto — flat org, sin per-seat)
+
+Tope de **miembros activos + invitaciones pendientes** por plan (UI en `/app/admin` → Miembros; solo `org:admin` invita):
+
+| Plan slug | Asientos máx. |
+|-----------|---------------|
+| `free` / `free_org` | 2 |
+| `weather_plus` | 5 |
+| `operations` | 15 |
+| `full` | 25 |
+
+Mapper: `src/domain/billing/plan-limits.ts`. Sin cobro per-seat en Clerk por ahora; al llegar al tope, CTA a `/app/billing`.
+
 Si Clerk emite `org:weather_plus`, el mapper normaliza quitando el prefijo `org:`.
 
 Fallback si el payload no trae features: `PLAN_SLUG_ENTITLEMENTS` en `src/domain/billing/plan-entitlements.ts`.
@@ -163,6 +176,7 @@ Hasta entonces: **ningún cobro live** en apex.
 ## Archivos ancla
 
 - Mapper: `src/domain/billing/plan-entitlements.ts`
+- Límites miembros: `src/domain/billing/plan-limits.ts`
 - Parse webhook: `src/application/billing/parse-subscription-item-event.ts`
 - Sync: `src/application/billing/sync-org-billing-entitlements.ts`
 - Route: `src/app/api/webhooks/clerk/route.ts`
