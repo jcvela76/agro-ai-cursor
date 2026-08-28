@@ -255,9 +255,11 @@ export function createSpectralSource(
       const clientId = process.env.SENTINEL_CLIENT_ID;
       const clientSecret = process.env.SENTINEL_CLIENT_SECRET;
       if (!clientId || !clientSecret) {
-        throw new Error(
-          "SPECTRAL_SOURCE=sentinel_hub requires SENTINEL_CLIENT_ID and SENTINEL_CLIENT_SECRET.",
+        // Avoid crashing Next build/import when Preview env is incomplete; fall back offline.
+        console.warn(
+          "SPECTRAL_SOURCE=sentinel_hub missing SENTINEL_CLIENT_*; using offline spectral source.",
         );
+        return new OfflineSpectralSource();
       }
       return new SentinelHubSpectralSource({ clientId, clientSecret });
     }

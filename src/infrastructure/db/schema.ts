@@ -8,6 +8,7 @@ import {
   primaryKey,
   index,
 } from "drizzle-orm/pg-core";
+import type { DailyBriefingContextSnapshot } from "@/domain/report/daily-briefing";
 import type { ParcelGeometry } from "@/domain/parcel/types";
 import type { ReviewDecisionKind } from "@/domain/review/types";
 import type { TraceEventType, TraceLotStatus } from "@/domain/traceability/types";
@@ -119,7 +120,7 @@ export const generatedReports = pgTable(
     reportDay: text("report_day"),
     billingMonth: text("billing_month").notNull(),
     parentReportId: text("parent_report_id"),
-    contextSnapshot: jsonb("context_snapshot").$type<Record<string, unknown> | null>(),
+    contextSnapshot: jsonb("context_snapshot").$type<DailyBriefingContextSnapshot | null>(),
     htmlContent: text("html_content").notNull(),
     pdfBase64: text("pdf_base64").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

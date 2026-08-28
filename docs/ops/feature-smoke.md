@@ -8,7 +8,7 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 |------|------------------|-----|
 | Unit tests | `npm test` | ☑ |
 | Seed fixtures Neon | `npm run db:seed` (requiere `DATABASE_URL`) | ☐ manual |
-| Env QA local/stg | `WEATHER_SOURCE=free`, `SPECTRAL_SOURCE=offline`, Clerk + Neon | ☑ ref |
+| Env QA local/stg | `WEATHER_SOURCE=free`, `SPECTRAL_SOURCE=sentinel_hub` (Preview) / `offline` local default, Clerk + Neon | ☑ ref |
 | Org demo | Lima Coffee con `weather`, `weather_plus`, `traceability`, `agronomic_review` | ☑ fixtures |
 
 ## QA-1 — Parcel Core

@@ -25,6 +25,16 @@
 - Apex registrado en Vercel (team `raw-codes-projects`).
 - Preview público: Vercel Authentication **off**.
 
+## Spectral (CDSE live — Preview only)
+
+| Variable | Preview (`stg`) | Production |
+|----------|-----------------|------------|
+| `SPECTRAL_SOURCE` | `sentinel_hub` | offline / TBD post ToS (ADR-038) |
+| `SENTINEL_CLIENT_ID` | OAuth CDSE (secret) | — |
+| `SENTINEL_CLIENT_SECRET` | OAuth CDSE (secret) | — |
+
+Tras cambiar env: redeploy Preview de `stg` (push o `npx vercel redeploy`).
+
 ## Clerk
 
 Staging (Preview) sigue en instancia Clerk **Development** (`pk_test_`). Production apex usa **Production** (`pk_live_`, FAPI `clerk.geoagro.ai`). Ver [clerk-production-keys.md](clerk-production-keys.md).

@@ -40,13 +40,13 @@ describe("QA-3: spectral source factory", () => {
     }
   });
 
-  it("rejects live mode without credentials", () => {
+  it("falls back to offline when live mode lacks credentials", () => {
     const prevId = process.env.SENTINEL_CLIENT_ID;
     const prevSecret = process.env.SENTINEL_CLIENT_SECRET;
     delete process.env.SENTINEL_CLIENT_ID;
     delete process.env.SENTINEL_CLIENT_SECRET;
     try {
-      expect(() => createSpectralSource("sentinel_hub")).toThrow(/SENTINEL_CLIENT_ID/);
+      expect(createSpectralSource("sentinel_hub")).toBeInstanceOf(OfflineSpectralSource);
     } finally {
       if (prevId === undefined) delete process.env.SENTINEL_CLIENT_ID;
       else process.env.SENTINEL_CLIENT_ID = prevId;
