@@ -9,6 +9,7 @@ import type { Parcel } from "@/domain/parcel/types";
 import type { WorkspaceSettings } from "@/domain/workspace/types";
 import { BillingWorkspaceNav } from "@/ui/billing-workspace-nav";
 import { Button } from "@/ui/button";
+import { DailyBriefingDeliveryPanel } from "@/ui/daily-briefing-delivery-panel";
 import { OrgMembersPanel } from "@/ui/org-members-panel";
 import styles from "./admin-panel.module.css";
 
@@ -258,6 +259,8 @@ export function AdminPanel() {
                 Guardar settings
               </Button>
             </div>
+
+            <DailyBriefingDeliveryPanel parcels={parcels} />
           </>
         ) : null}
 

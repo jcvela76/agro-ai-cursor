@@ -130,3 +130,14 @@ export const generatedReports = pgTable(
     index("generated_reports_parcel_day_idx").on(table.orgId, table.parcelId, table.reportDay),
   ],
 );
+
+export const dailyBriefingDeliveryPrefs = pgTable("daily_briefing_delivery_prefs", {
+  orgId: text("org_id").primaryKey(),
+  enabled: boolean("enabled").notNull().default(false),
+  channels: jsonb("channels").$type<string[]>().notNull().default(["email"]),
+  sendAtLocal: text("send_at_local").notNull().default("06:00"),
+  parcelIds: jsonb("parcel_ids").$type<string[]>().notNull().default([]),
+  emailRecipients: jsonb("email_recipients").$type<string[]>().notNull().default([]),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+

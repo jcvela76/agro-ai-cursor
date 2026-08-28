@@ -80,7 +80,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 **Estado:** diseño aceptado (2026-08-28); implementación pendiente
 
 - **2a:** `daily_briefing` parcela activa; 1/día org+parcela; cupo mensual aparte; snapshot + parent; UI Clima
-- **2b:** programación diaria → email / WhatsApp
+- **2b:** programación diaria → email / WhatsApp — **email + cron hecho**; WhatsApp pendiente
 - **2c:** tool agente `getParcelRecentBriefings`
 - **Report-3 (backlog):** perfil agronómico de parcela vía preguntas del chat
 

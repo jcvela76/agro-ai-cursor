@@ -147,6 +147,6 @@ Usar perfil + briefings para ajustar orientación (sigue WQ-18: no órdenes impe
 | Slice | Entrega |
 |-------|---------|
 | **Report-2a** | Tipo `daily_briefing`; unique día; cupo mensual aparte; snapshot + parent; UI Clima; PDF |
-| **Report-2b** | Preferencias envío; cron; email (WhatsApp después) |
+| **Report-2b** | Preferencias envío; cron; email (WhatsApp después) — **implementado** (email + cron; WA pendiente) |
 | **Report-2c** | Tool `getParcelRecentBriefings` + prompt |
 | **Report-3** | Perfil parcela + preguntas guiadas en chat |

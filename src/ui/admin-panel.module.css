@@ -153,3 +153,25 @@
   color: var(--color-status-fresh);
   font-weight: 600;
 }
+
+.inviteLabel {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.inviteInput {
+  width: 100%;
+  max-width: 28rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-canvas);
+  color: var(--color-fg-primary);
+  font-size: 0.9375rem;
+}
+
+.inviteInput:disabled {
+  opacity: 0.6;
+}

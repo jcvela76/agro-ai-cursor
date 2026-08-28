@@ -70,6 +70,14 @@ import { NeonReportRegistry } from "@/infrastructure/report/neon-report-registry
 import { OfflineReportRegistry } from "@/infrastructure/report/offline-report-registry";
 import { createPdfRenderer } from "@/infrastructure/report/create-pdf-renderer";
 import {
+  GetDailyBriefingDeliveryPrefs,
+  UpdateDailyBriefingDeliveryPrefs,
+} from "@/application/report/daily-briefing-delivery-prefs";
+import { RunDailyBriefingDelivery } from "@/application/report/run-daily-briefing-delivery";
+import { NeonDailyBriefingDeliveryPrefsRegistry } from "@/infrastructure/report/neon-daily-briefing-delivery-prefs";
+import { OfflineDailyBriefingDeliveryPrefsRegistry } from "@/infrastructure/report/offline-daily-briefing-delivery-prefs";
+import { createEmailSender } from "@/infrastructure/email/email-sender";
+import {
   isPaidWeatherSourceMode,
 } from "@/application/weather/weather-use-case-options";
 
@@ -101,10 +109,19 @@ export function createReportRegistry() {
   return new OfflineReportRegistry();
 }
 
+export function createDailyBriefingDeliveryPrefsRegistry() {
+  if (process.env.DATABASE_URL) {
+    return new NeonDailyBriefingDeliveryPrefsRegistry(createDb());
+  }
+  return new OfflineDailyBriefingDeliveryPrefsRegistry();
+}
+
 const parcelRegistry = createParcelRegistry();
 const traceLotRegistry = createTraceLotRegistry();
 const reviewDecisionRegistry = createReviewDecisionRegistry();
 const reportRegistry = createReportRegistry();
+const dailyBriefingDeliveryPrefsRegistry = createDailyBriefingDeliveryPrefsRegistry();
+const emailSender = createEmailSender();
 
 export const listOrgParcels = new ListOrgParcels(parcelRegistry);
 export const createOrgParcel = new CreateOrgParcel(parcelRegistry);
@@ -281,6 +298,21 @@ export const generateOrgReport = new GenerateOrgReport(
   orgMetadataStore,
 );
 export const getOrgReport = new GetOrgReport(reportRegistry);
+
+export const getDailyBriefingDeliveryPrefs = new GetDailyBriefingDeliveryPrefs(
+  dailyBriefingDeliveryPrefsRegistry,
+);
+export const updateDailyBriefingDeliveryPrefs = new UpdateDailyBriefingDeliveryPrefs(
+  dailyBriefingDeliveryPrefsRegistry,
+);
+export const runDailyBriefingDelivery = new RunDailyBriefingDelivery(
+  dailyBriefingDeliveryPrefsRegistry,
+  parcelRegistry,
+  reportRegistry,
+  orgMetadataStore,
+  generateOrgReport,
+  emailSender,
+);
 
 export function createAccessResolver(): AccessResolver {
   if (process.env.CLERK_SECRET_KEY) {
