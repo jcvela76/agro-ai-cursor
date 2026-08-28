@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:baseline": "npx tsx scripts/baseline-drizzle-migrations.ts",
     "db:push": "drizzle-kit push",
     "db:seed": "npx tsx scripts/seed-parcels.ts",
     "db:seed:trace": "npx tsx scripts/seed-trace-lots.ts",
