@@ -73,5 +73,5 @@ export function appBaseUrl(options?: AppBaseUrlOptions): string {
 }
 
 export function orgInvitationRedirectUrl(options?: AppBaseUrlOptions): string {
-  return `${appBaseUrl(options)}/app`;
+  return `${appBaseUrl(options)}/accept-invitation`;
 }

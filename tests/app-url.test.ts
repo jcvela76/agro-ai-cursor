@@ -9,7 +9,7 @@ describe("app-url", () => {
   it("prefers NEXT_PUBLIC_APP_URL", () => {
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "https://stg.geoagro.ai/");
     expect(appBaseUrl()).toBe("https://stg.geoagro.ai");
-    expect(orgInvitationRedirectUrl()).toBe("https://stg.geoagro.ai/app");
+    expect(orgInvitationRedirectUrl()).toBe("https://stg.geoagro.ai/accept-invitation");
   });
 
   it("uses request host when env is unset", () => {
@@ -18,7 +18,7 @@ describe("app-url", () => {
       headers: { host: "stg.geoagro.ai" },
     });
     expect(appBaseUrl({ request })).toBe("https://stg.geoagro.ai");
-    expect(orgInvitationRedirectUrl({ request })).toBe("https://stg.geoagro.ai/app");
+    expect(orgInvitationRedirectUrl({ request })).toBe("https://stg.geoagro.ai/accept-invitation");
   });
 
   it("maps stg branch to staging canonical host", () => {

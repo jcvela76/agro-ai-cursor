@@ -36,7 +36,7 @@ Staging (Preview) sigue en instancia Clerk **Development** (`pk_test_`). Product
 | Preview (`stg`) | `https://stg.geoagro.ai` |
 | Production | `https://geoagro.ai` |
 
-La app envía invitaciones vía `POST /api/org/invitations` con `redirectUrl` → `{APP_URL}/app`.
+La app envía invitaciones vía `POST /api/org/invitations` con `redirectUrl` → `{APP_URL}/accept-invitation`. Esa página consume `__clerk_ticket` y redirige a `/app`.
 
 **Dos causas del redirect a `agro-ai-cursor.vercel.app`:**
 

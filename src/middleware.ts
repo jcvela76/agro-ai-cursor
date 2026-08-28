@@ -6,6 +6,7 @@ const isPublicRoute = createRouteMatcher([
   "/legal(.*)",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/accept-invitation(.*)",
   "/maplibre(.*)",
   "/api/waitlist",
   "/api/webhooks(.*)",
@@ -18,6 +19,13 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Org invites land with __clerk_ticket on redirectUrl; /app cannot consume it.
+  if (req.nextUrl.pathname === "/app" && req.nextUrl.searchParams.has("__clerk_ticket")) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/accept-invitation";
+    return NextResponse.redirect(url);
+  }
+
   // Keep `/` statically cacheable: redirect signed-in users here, not in page.tsx.
   if (req.nextUrl.pathname === "/") {
     const { userId } = await auth();
