@@ -37,7 +37,7 @@ describe("Spectral-5: CDSE raster overlay", () => {
     const script = buildIndexRasterEvalscript("ndre", { colorCenter: -0.0003 });
     expect(script).toContain("USE_STRETCH=true");
     expect(script).toContain("CENTER=-0.000300");
-    expect(script).toContain("HALF=0.1200");
+    expect(script).toContain("HALF=0.0550");
   });
 
   it("maps polygon bbox to MapLibre image corners", () => {

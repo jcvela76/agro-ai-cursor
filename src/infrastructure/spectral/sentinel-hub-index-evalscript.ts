@@ -64,7 +64,8 @@ export function buildIndexRasterEvalscript(
     })
     .join(",");
 
-  const halfRange = options?.halfRange ?? defaultOverlayHalfRange(indexId);
+  const halfRange =
+    options?.halfRange ?? defaultOverlayHalfRange(indexId, options?.colorCenter);
   const center =
     options?.colorCenter !== undefined &&
     options.colorCenter !== null &&
@@ -121,21 +122,31 @@ function evaluatePixel(s) {
 }
 
 /** Half-window (index units) for local contrast stretch around parcel mean. */
-export function defaultOverlayHalfRange(indexId: VegetationIndexId): number {
+export function defaultOverlayHalfRange(
+  indexId: VegetationIndexId,
+  colorCenter?: number | null,
+): number {
+  const arid =
+    colorCenter !== undefined &&
+    colorCenter !== null &&
+    Number.isFinite(colorCenter) &&
+    Math.abs(colorCenter) < 0.08;
+  // Near-zero means (Ica bare soil) need a tighter window or the PNG looks flat mustard.
+  const tight = arid ? 0.055 : null;
   switch (indexId) {
     case "evi":
-      return 0.18;
+      return tight ?? 0.18;
     case "ndwi":
     case "ndmi":
-      return 0.16;
+      return tight ?? 0.16;
     case "nbr":
-      return 0.22;
+      return tight ?? 0.22;
     case "ndre":
     case "savi":
     case "msavi":
     case "gndvi":
     default:
-      return 0.12;
+      return tight ?? 0.12;
   }
 }
 
