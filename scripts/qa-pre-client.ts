@@ -31,6 +31,8 @@ function main(): void {
     ...process.env,
     SMOKE_SENAMHI: "1",
     SMOKE_SENTINEL_STUB: "1",
+    // Keep smoke:all offline-stable. Neon live is covered by spectral-perf when SMOKE_NEON=1.
+    SMOKE_NEON: "0",
   });
 
   const contrastEnv = { ...process.env };

@@ -17,7 +17,8 @@ describe("parseProfileFields", () => {
         irrigationFrequency: "",
       }),
     ).toEqual({
-      crop: "café",
+      crop: "Café",
+      cropKey: "cafe",
       irrigationFrequency: null,
     });
   });

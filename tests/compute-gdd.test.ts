@@ -28,6 +28,6 @@ describe("accumulateGdd", () => {
 
 describe("GDD method constants", () => {
   it("exposes approved calculator id", () => {
-    expect(GDD_CALCULATION_METHOD_ID).toBe("gdd-mean-base10-calendar-ytd/v1");
+    expect(GDD_CALCULATION_METHOD_ID).toBe("gdd-mean-base-campaign/v2");
   });
 });

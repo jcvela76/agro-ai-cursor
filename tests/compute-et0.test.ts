@@ -45,6 +45,6 @@ describe("compute-et0 Hargreaves–Samani", () => {
   });
 
   it("exposes approved calculator id", () => {
-    expect(ET0_CALCULATION_METHOD_ID).toBe("et0-hargreaves-samani-calendar-ytd/v1");
+    expect(ET0_CALCULATION_METHOD_ID).toBe("et0-hargreaves-samani-campaign/v2");
   });
 });

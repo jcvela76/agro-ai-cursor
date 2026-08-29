@@ -4,6 +4,9 @@
  * Usage:
  *   npm run smoke:parcels
  *   SMOKE_NEON=1 npm run smoke:parcels
+ *
+ * Neon path uses Plus entitlements (10 parcels): weather_base (2) is too tight
+ * once Lima Coffee already has demo parcels in the shared DB.
  */
 import { CreateOrgParcel, DeleteOrgParcel, UpdateOrgParcel } from "../src/application/parcel/mutate-org-parcels";
 import { ListOrgParcels } from "../src/application/parcel/list-org-parcels";
@@ -11,6 +14,7 @@ import {
   approximateAreaHectares,
   demoParcelSquare,
 } from "../src/domain/parcel/geometry";
+import type { AccessSnapshot } from "../src/domain/auth/authorize-weather-access";
 import { defaultSyntheticSnapshots } from "../src/infrastructure/auth/synthetic-access-resolver";
 import { createDb } from "../src/infrastructure/db/client";
 import { NeonParcelRegistry } from "../src/infrastructure/parcel/neon-parcel-registry";
@@ -18,9 +22,11 @@ import { SyntheticParcelRegistry } from "../src/infrastructure/parcel/synthetic-
 import type { ParcelRegistry } from "../src/domain/parcel/types";
 
 const orgId = "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G";
-const authority = defaultSyntheticSnapshots.find(
+const offlineAuthority = defaultSyntheticSnapshots.find(
   (s) => s.userId === "user-org-wide-weather-006",
 )!;
+/** Plus quota for shared Neon (weather_base = 2 parcels is already full with demos). */
+const neonAuthority = defaultSyntheticSnapshots.find((s) => s.userId === "user-plus-005")!;
 const demoParcelId = "parcel-lima-norte-001";
 const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
 
@@ -30,7 +36,11 @@ function assert(cond: unknown, msg: string): asserts cond {
   }
 }
 
-async function runAgainst(label: string, registry: ParcelRegistry) {
+async function runAgainst(
+  label: string,
+  registry: ParcelRegistry,
+  authority: AccessSnapshot,
+) {
   const list = new ListOrgParcels(registry);
   const create = new CreateOrgParcel(registry);
   const update = new UpdateOrgParcel(registry);
@@ -61,6 +71,13 @@ async function runAgainst(label: string, registry: ParcelRegistry) {
   }
   steps.push(`demo ${demoHa.toFixed(1)} ha`);
 
+  // Remove leftovers from interrupted prior smokes so quota stays free.
+  for (const p of listed.data) {
+    if (!p.name.startsWith("Smoke parcel ")) continue;
+    const cleaned = await del.execute({ authority, orgId, parcelId: p.id });
+    assert(cleaned.ok, `${label}: cleanup leftover ${p.id} failed`);
+  }
+
   const geometry = demoParcelSquare(-77.04, -11.94);
   const created = await create.execute({
     authority,
@@ -68,7 +85,10 @@ async function runAgainst(label: string, registry: ParcelRegistry) {
     name: `Smoke parcel ${stamp}`,
     geometry,
   });
-  assert(created.ok, `${label}: create failed`);
+  assert(
+    created.ok,
+    `${label}: create failed${created.ok ? "" : ` (${created.reason}: ${created.message})`}`,
+  );
   const parcelId = created.data.id;
   steps.push("create");
 
@@ -116,11 +136,11 @@ async function runAgainst(label: string, registry: ParcelRegistry) {
 
 async function main() {
   console.log("QA-1 parcel smoke");
-  await runAgainst("offline", new SyntheticParcelRegistry());
+  await runAgainst("offline", new SyntheticParcelRegistry(), offlineAuthority);
 
   if (process.env.SMOKE_NEON === "1") {
     assert(process.env.DATABASE_URL, "SMOKE_NEON=1 requires DATABASE_URL");
-    await runAgainst("neon", new NeonParcelRegistry(createDb()));
+    await runAgainst("neon", new NeonParcelRegistry(createDb()), neonAuthority);
   } else {
     console.log("SKIP [neon] set SMOKE_NEON=1 to include Neon persistence");
   }

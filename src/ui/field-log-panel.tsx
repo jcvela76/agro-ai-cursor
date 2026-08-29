@@ -247,7 +247,6 @@ export function FieldLogPanel({
           />
         </label>
         {photoPreview ? (
-          // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
           <img src={photoPreview} alt="Vista previa" className={styles.photoPreview} />
         ) : null}
         <div className={styles.actions}>
@@ -280,7 +279,6 @@ export function FieldLogPanel({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element -- remote blob URL */}
                   <img
                     src={note.photoUrl}
                     alt="Foto de campo"

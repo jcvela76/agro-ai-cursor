@@ -1,7 +1,6 @@
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import { rankLowRainDaysFromForecast } from "@/domain/weather/rank-low-rain-days";
 import type {
-  WeatherCampaignQuery,
   WeatherEt0,
   WeatherForecast,
   WeatherGdd,
@@ -189,10 +188,9 @@ export class OpenMeteoWeatherSource implements WeatherSource {
     };
   }
 
-  async getRainfallCampaignComparison(
-    _parcelId?: string,
-    _query?: WeatherCampaignQuery,
-  ): Promise<WeatherResult<WeatherRainfallCampaignComparison>> {
+  async getRainfallCampaignComparison(): Promise<
+    WeatherResult<WeatherRainfallCampaignComparison>
+  > {
     return {
       ok: false,
       reason: "unavailable",
@@ -209,10 +207,7 @@ export class OpenMeteoWeatherSource implements WeatherSource {
     return rankLowRainDaysFromForecast(forecast.data);
   }
 
-  async getGdd(
-    _parcelId?: string,
-    _query?: WeatherCampaignQuery,
-  ): Promise<WeatherResult<WeatherGdd>> {
+  async getGdd(): Promise<WeatherResult<WeatherGdd>> {
     return {
       ok: false,
       reason: "unavailable",
@@ -221,10 +216,7 @@ export class OpenMeteoWeatherSource implements WeatherSource {
     };
   }
 
-  async getEt0(
-    _parcelId?: string,
-    _query?: WeatherCampaignQuery,
-  ): Promise<WeatherResult<WeatherEt0>> {
+  async getEt0(): Promise<WeatherResult<WeatherEt0>> {
     return {
       ok: false,
       reason: "unavailable",

@@ -35,12 +35,12 @@ Equivale a, en orden:
 
 1. `npm test`
 2. `npm run lint`
-3. `SMOKE_SENAMHI=1 SMOKE_SENTINEL_STUB=1 npm run smoke:all`
+3. `SMOKE_SENAMHI=1 SMOKE_SENTINEL_STUB=1 SMOKE_NEON=0 npm run smoke:all` (stubs offline; Neon no en este paso)
 4. `npm run smoke:report-contrast` (y live/Neon si env)
 5. `npm run smoke:spectral-perf` si `SMOKE_NEON=1` o `SMOKE_SENTINEL_LIVE=1`
 6. Imprime checklist manual (abajo)
 
-Opcional aparte: `npm run audit:env` · `npm run build`
+Opcional aparte: `npm run audit:env` · `npm run build` · `SMOKE_NEON=1 npm run smoke:parcels` (Plus quota)
 
 ---
 
