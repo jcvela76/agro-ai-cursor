@@ -214,7 +214,9 @@ Cada slice cerrado: actualizar filas LP en `docs/feature-inventory.md` + commit 
 ## 6. Siguiente paso inmediato
 
 - [x] Agent: **LP-3a** contraste CSS (`navLink`, leads, evidence bar, productos)
+- [x] Agent: **LP-3c** problema ampliado + métricas obs/fcst
+- [x] Agent: **LP-3e** productos + roadmap + closing copy
 - [ ] Julio: **Copy design** → nuevo Make LP-3 con brief §4  
 - [ ] Capturas stg para assets (o usar Make Spectral como placeholder)  
 
-**Estado audit:** Fase 0 completa · LP-3a hecho · Fase 1 Make pendiente usuario/design
+**Estado audit:** LP-3a/c/e hechos · Fase Make (LP-3b/d) pendiente usuario/design

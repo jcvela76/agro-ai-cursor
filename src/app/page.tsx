@@ -19,10 +19,10 @@ const WEATHER_PILLARS = [
     rows: [
       ["Fuente", "Open-Meteo · NASA POWER"],
       ["Resolución espacial", "~9 km · interpolado a parcela"],
-      ["Variables", "T, HR, precipitación, viento"],
-      ["Historial", "Desde 1940 (ERA5-Land)"],
+      ["Variables", "T (2 m), HR, precip., viento"],
+      ["Historial", "Contexto vía reanálisis (ERA5-Land)"],
     ] as const,
-    note: "Datos públicos verificables",
+    note: "Datos públicos verificables · alturas según fuente",
   },
   {
     icon: "◈",
@@ -44,15 +44,26 @@ const WEATHER_PILLARS = [
       ["Actualización", "Según disponibilidad del modelo"],
       ["Ensamble", "En desarrollo"],
     ] as const,
-    note: "Horizonte de planificación operativa",
+    note: "Horizonte de planificación operativa · ET0 orientativo (Plus)",
+  },
+] as const;
+
+const PAIN_BLOCKS = [
+  {
+    title: "Un índice de hoy no muestra tendencia",
+    body: "Un solo valor NDRE o EVI no dice si el cultivo viene recuperándose o cayendo. Sin historial de escenas y comparación en el tiempo, la decisión queda a ciegas.",
+  },
+  {
+    title: "Decisiones sin bitácora ni fuente citada",
+    body: "Recomendaciones en WhatsApp o en la memoria del técnico no dejan evidencia auditable. Cada lectura en Agro AI puede citar fuente, fecha y parcela.",
   },
 ] as const;
 
 const SAMPLE_METRICS = [
-  ["18.4 °C", "Temperatura"],
+  ["18.4 °C", "Temp. (2 m obs)"],
   ["82 %", "Humedad rel."],
   ["3.1 mm", "Precip. hoy"],
-  ["2.3 m/s NE", "Viento"],
+  ["2.3 m/s NE", "Viento (10 m fcst)"],
 ] as const;
 
 const PRODUCTS = [
@@ -60,11 +71,14 @@ const PRODUCTS = [
     title: "Intelligence Plus",
     subtitle: null as string | null,
     disclaimer: null as string | null,
-    body: "Inteligencia climática a nivel parcela. Alertas configurables por cultivo, umbrales personalizados y análisis de riesgo agronómico integrado.",
+    body: "Clima, vigor satelital y agente en el contorno de tu parcela. Briefings con señales y evidencia citada —sin prometer alertas oficiales ni dosis.",
     features: [
-      "Alertas por temperatura y precipitación",
-      "Índices ETo y balance hídrico estimado",
-      "Mapa de parcelas con historial climático",
+      "Briefing diario con señales climáticas (Plus)",
+      "ET0 orientativo e informe hídrico (no dosis)",
+      "8 índices (NDRE, EVI, …) con overlay Sentinel/CDSE",
+      "Zonas fishnet, historial de escenas y timeline",
+      "Agente con citas a NASA POWER y CDSE",
+      "Bitácora Campo con foto opcional",
       "Exportación de datos (API y CSV en roadmap)",
     ],
     coffee: false,
@@ -89,12 +103,13 @@ const PRODUCTS = [
     title: "Revisión Agronómica",
     subtitle: null,
     disclaimer: null,
-    body: "Bitácora de campo con registro identificado del agrónomo. Cada decisión es append-only: no se modifica ni se elimina.",
+    body: "Decisiones agronómicas formales con trazabilidad en workspace. Complementa la bitácora de Campo con registro identificado del agrónomo —append-only, sin firma criptográfica.",
     features: [
+      "Decisiones formales (entitlement agronomic_review)",
       "Registro inmutable de intervenciones",
-      "Identificación del agrónomo (sin firma criptográfica)",
+      "Identificación del agrónomo responsable",
       "Historial auditable en workspace",
-      "Disponible en planes Operations y superiores",
+      "Plan Operations Intelligence y superiores",
     ],
     coffee: false,
     skyDots: false,
@@ -110,7 +125,7 @@ const PRICING = [
     features: [
       "Datos climáticos por parcela",
       "Pronóstico a varios días",
-      "Alertas por correo electrónico",
+      "Observación y pronóstico con fuente citada",
       "Parcelas limitadas",
     ],
     highlight: false,
@@ -148,8 +163,8 @@ const PRICING = [
 
 const ROADMAP = [
   { done: true, label: "Integración Open-Meteo + NASA POWER" },
-  { done: true, label: "Motor de alertas agronómicas" },
-  { done: true, label: "Piloto con productores en Junín" },
+  { done: true, label: "Índices Sentinel y overlay CDSE (Plus)" },
+  { done: true, label: "Piloto con productores en curso" },
   { done: true, label: "Trazabilidad piloto en workspace" },
   { done: false, label: "Export EUDR y API pública v1" },
   { done: false, label: "Lanzamiento comercial" },
@@ -236,6 +251,14 @@ export default function Home() {
                   Agro AI ancla los datos al contorno exacto de tu campo.
                 </p>
               </div>
+              <div className={styles.painGrid}>
+                {PAIN_BLOCKS.map((block) => (
+                  <article key={block.title} className={styles.painCard}>
+                    <h3 className={styles.painTitle}>{block.title}</h3>
+                    <p className={styles.painBody}>{block.body}</p>
+                  </article>
+                ))}
+              </div>
             </div>
 
             <div className={styles.problemVisual}>
@@ -256,7 +279,7 @@ export default function Home() {
                 <div className={styles.compareParcel}>
                   <p className={styles.compareLabelOnDark}>Tu parcela</p>
                   <p className={styles.compareValueOnDark}>17 °C</p>
-                  <p className={styles.compareMetaOnDark}>Agro AI · parcela #4812</p>
+                  <p className={styles.compareMetaOnDark}>Agro AI · parcela demo</p>
                 </div>
               </div>
             </div>
@@ -304,7 +327,7 @@ export default function Home() {
 
           <div className={styles.sampleBar}>
             <span className={styles.sampleLabel}>
-              Muestra ilustrativa · parcela en Junín
+              Muestra ilustrativa · parcela demo
             </span>
             <div className={styles.sampleMetrics}>
               {SAMPLE_METRICS.map(([value, label]) => (
@@ -446,11 +469,12 @@ export default function Home() {
             <div>
               <p className={styles.eyebrowOnDark}>Estado del producto</p>
               <h2 className={styles.closingTitle}>
-                Pronto en <em>producción.</em>
+                Piloto abierto · <em>producción comercial después.</em>
               </h2>
               <p className={styles.closingBody}>
-                Productores y técnicos en Perú que participen en el piloto recibirán aviso
-                prioritario al lanzamiento comercial. Sin costo durante la fase piloto.
+                Productores y técnicos en Perú pueden solicitar acceso al piloto sin
+                costo. El lanzamiento comercial y el cobro en línea llegarán cuando
+                cerremos la fase piloto.
               </p>
               <p className={styles.closingHint}>
                 Te avisamos cuando abra el piloto

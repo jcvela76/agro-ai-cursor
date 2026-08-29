@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (spectral badge + dual PNG + GIF) |
+| **Última actualización** | 2026-08-29 (LP-3c/e copy piloto) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -50,13 +50,12 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Landing multi-sección | hecho | Hero, plataforma, productos, precios, waitlist |
-| Precios informativos | hecho | No vinculantes (ADR-012) |
+| Landing multi-sección | hecho | Hero, plataforma, productos, precios, waitlist; dolores espectral/bitácora (LP-3c) |
+| Precios informativos | hecho | No vinculantes (ADR-012); Básico sin overclaim alertas email |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
-| LP “alertas por correo” (Básico) | docs | Overclaim; briefing email es Plus |
-| LP “motor de alertas agronómicas” | docs | Roadmap; WQ-19 REFUSE alertas oficiales |
+| LP copy alineado a producto | hecho | Plus/espectral/agente; roadmap sin alertas oficiales (LP-3e) |
 | LP “Export EUDR / API pública v1” | planificado | Roadmap landing `done: false` |
 
 ---
