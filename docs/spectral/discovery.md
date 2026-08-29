@@ -61,7 +61,7 @@ Ya definido en `src/domain/spectral/types.ts`:
 
 - Persistencia de extremos de zona por escena.
 - Máscara SCL agresiva (puede vaciar AOIs bare-soil).
-- Export GIF / dual PNG crossfade / rasters históricos persistidos (Neon/Blob).
+- Rasters históricos persistidos (Neon/Blob).
 
 ## Slice Spectral-5 (raster overlay)
 
@@ -93,6 +93,13 @@ Ya definido en `src/domain/spectral/types.ts`:
 - Botón «Mapa» y «Actual» (live) sincronizados con `timelineSceneId`.
 - Sin GIF, dual-overlay ni persistencia de rasters.
 - ADR-057.
+
+## Slice Spectral-11 (badge sync + dual PNG + GIF)
+
+- Badge «Escena» alineado con `timelineSceneId` (ADR-058).
+- Comparar 2 fechas: mezcla A/B de PNG en mapa (ADR-059).
+- Botón GIF en línea de tiempo: export cliente hasta 15 frames (`gifenc`).
+- Sin persistencia Blob/Neon de rasters.
 
 ## Slice Spectral-8 (cron detección escena nueva)
 

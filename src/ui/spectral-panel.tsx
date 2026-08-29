@@ -16,6 +16,12 @@ import {
   sceneMeansFromRecord,
 } from "@/domain/spectral/compare-scenes";
 import {
+  downloadGif,
+  encodeGifFromRgbaFrames,
+  loadRgbaFromDataUrl,
+  SPECTRAL_GIF_MAX_FRAMES,
+} from "@/domain/spectral/export-timeline-gif";
+import {
   indexOfScene,
   sceneAtIndex,
   sortScenesAsc,
@@ -117,6 +123,9 @@ export function SpectralPanel({
   onActiveZoneChange,
   onSceneHint,
   onPrefetchOverlay,
+  onCompareSceneHint,
+  compareBlend,
+  onCompareBlendChange,
 }: {
   parcel: Parcel;
   selectedIndexId: VegetationIndexId;
@@ -136,6 +145,20 @@ export function SpectralPanel({
     acquiredAt: string;
     means: Partial<Record<VegetationIndexId, number | null>>;
   }) => void;
+  onCompareSceneHint?: (
+    hint: {
+      earlier: {
+        acquiredAt: string;
+        means: Partial<Record<VegetationIndexId, number | null>>;
+      };
+      later: {
+        acquiredAt: string;
+        means: Partial<Record<VegetationIndexId, number | null>>;
+      };
+    } | null,
+  ) => void;
+  compareBlend: number;
+  onCompareBlendChange: (blend: number) => void;
 }) {
   const [payload, setPayload] = useState<SpectralOk<ParcelVegetationIndices> | SpectralLimited | null>(
     null,
@@ -158,14 +181,18 @@ export function SpectralPanel({
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [timelineSceneId, setTimelineSceneId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [gifExporting, setGifExporting] = useState(false);
+  const [gifMessage, setGifMessage] = useState<string | null>(null);
   const onZonesChangeRef = useRef(onZonesChange);
   const onActiveZoneChangeRef = useRef(onActiveZoneChange);
   const onSceneHintRef = useRef(onSceneHint);
   const onPrefetchOverlayRef = useRef(onPrefetchOverlay);
+  const onCompareSceneHintRef = useRef(onCompareSceneHint);
   onZonesChangeRef.current = onZonesChange;
   onActiveZoneChangeRef.current = onActiveZoneChange;
   onSceneHintRef.current = onSceneHint;
   onPrefetchOverlayRef.current = onPrefetchOverlay;
+  onCompareSceneHintRef.current = onCompareSceneHint;
 
   useEffect(() => {
     setCompareIds([]);
@@ -413,6 +440,76 @@ export function SpectralPanel({
           return compareSpectralScenes(a, b, VEGETATION_INDEX_ORDER);
         })()
       : null;
+
+  useEffect(() => {
+    if (!compareScenes) {
+      onCompareSceneHintRef.current?.(null);
+      if (compareIds.length !== 2) {
+        onCompareBlendChange(0.5);
+      }
+      return;
+    }
+    onCompareSceneHintRef.current?.({
+      earlier: {
+        acquiredAt: compareScenes.earlier.acquiredAt,
+        means: sceneMeansFromRecord(compareScenes.earlier),
+      },
+      later: {
+        acquiredAt: compareScenes.later.acquiredAt,
+        means: sceneMeansFromRecord(compareScenes.later),
+      },
+    });
+  }, [compareScenes, compareIds.length, onCompareBlendChange]);
+
+  async function exportTimelineGif() {
+    if (sortedScenes.length < 2) {
+      return;
+    }
+    setGifExporting(true);
+    setGifMessage(null);
+    try {
+      const exportScenes = sortedScenes.slice(-SPECTRAL_GIF_MAX_FRAMES);
+      const frames = [];
+      for (const scene of exportScenes) {
+        const parcelMean =
+          scene.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
+        const params = new URLSearchParams({ index: selectedIndexId });
+        params.set("acquiredAt", scene.acquiredAt);
+        params.set("parcelMean", parcelMean === null ? "null" : String(parcelMean));
+        const res = await fetch(
+          `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/overlay?${params}`,
+          { cache: "no-store" },
+        );
+        const json = (await res.json()) as {
+          status: string;
+          data?: {
+            rendering: string;
+            raster?: { imageDataUrl: string };
+          };
+        };
+        if (
+          json.status !== "OK" ||
+          json.data?.rendering !== "sentinel_raster" ||
+          !json.data.raster?.imageDataUrl
+        ) {
+          continue;
+        }
+        frames.push(await loadRgbaFromDataUrl(json.data.raster.imageDataUrl));
+      }
+      if (frames.length < 2) {
+        setGifMessage("Se necesitan al menos 2 PNG satelitales para el GIF.");
+        return;
+      }
+      const bytes = await encodeGifFromRgbaFrames(frames);
+      const safeName = parcel.name.replace(/[^a-z0-9-_]+/gi, "-").slice(0, 40);
+      downloadGif(bytes, `${safeName}-${selectedIndexId}-timeline.gif`);
+      setGifMessage(`${frames.length} frames exportados.`);
+    } catch {
+      setGifMessage("No se pudo exportar el GIF.");
+    } finally {
+      setGifExporting(false);
+    }
+  }
   const selectedCompare = compareScenes?.byIndex.find(
     (row) => row.indexId === selectedIndexId,
   );
@@ -446,6 +543,9 @@ export function SpectralPanel({
   }
 
   const { data } = payload;
+  const escenaAcquisitionDate = timelineScene?.acquisitionDate ?? data.acquisitionDate;
+  const escenaFreshnessStatus =
+    timelineScene?.evidence.freshnessStatus ?? data.evidence.freshnessStatus;
   const legend = getSpectralLegend(selectedIndexId);
   const activeReading = data.indices.find((index) => index.id === selectedIndexId);
   const zonesOk = zonesPayload?.status === "OK" ? zonesPayload.data : null;
@@ -502,10 +602,10 @@ export function SpectralPanel({
         contornos fishnet recortados a la parcela. Requiere Intelligence Plus.
       </p>
       <p className={styles.muted}>
-        Escena {data.acquisitionDate}
+        Escena {escenaAcquisitionDate}
         <span className={styles.freshnessInline}>
-          <Badge tone={freshnessTone(data.evidence.freshnessStatus)}>
-            {data.evidence.freshnessStatus}
+          <Badge tone={freshnessTone(escenaFreshnessStatus)}>
+            {escenaFreshnessStatus}
           </Badge>
         </span>
         {overlayRendering === "sentinel_raster" ? (
@@ -757,6 +857,25 @@ export function SpectralPanel({
                 ))}
               </tbody>
             </table>
+            <div className={styles.compareBlend}>
+              <span>{compareScenes.earlier.acquisitionDate.slice(5)}</span>
+              <input
+                type="range"
+                className={styles.compareBlendSlider}
+                min={0}
+                max={100}
+                step={1}
+                value={Math.round(compareBlend * 100)}
+                onChange={(event) =>
+                  onCompareBlendChange(Number(event.target.value) / 100)
+                }
+                aria-label="Mezcla A/B en mapa"
+              />
+              <span>{compareScenes.later.acquisitionDate.slice(5)}</span>
+            </div>
+            <p className={styles.zoneHint}>
+              Mezcla los dos PNG en el mapa (A → B). El slider temporal sigue independiente.
+            </p>
           </div>
         ) : compareIds.length === 1 ? (
           <p className={styles.zoneHint}>Selecciona una segunda fecha para ver Δ.</p>
@@ -816,6 +935,14 @@ export function SpectralPanel({
                       >
                         {isPlaying ? "Pausa" : "Play"}
                       </button>
+                      <button
+                        type="button"
+                        className={styles.timelinePlayButton}
+                        disabled={sortedScenes.length < 2 || gifExporting}
+                        onClick={() => void exportTimelineGif()}
+                      >
+                        {gifExporting ? "GIF…" : "GIF"}
+                      </button>
                       <input
                         type="range"
                         className={styles.timelineSlider}
@@ -846,6 +973,7 @@ export function SpectralPanel({
                         ? timelineScene.acquisitionDate
                         : "Vista actual (índices en vivo)"}
                     </p>
+                    {gifMessage ? <p className={styles.zoneHint}>{gifMessage}</p> : null}
                   </div>
                 ) : null}
                 <ul className={styles.historyList}>

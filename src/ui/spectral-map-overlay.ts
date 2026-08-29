@@ -9,6 +9,10 @@ export const SPECTRAL_OVERLAY_SOURCE = "agro-spectral-overlay";
 export const SPECTRAL_OVERLAY_LAYER = "agro-spectral-overlay-circles";
 export const SPECTRAL_RASTER_SOURCE = "agro-spectral-raster";
 export const SPECTRAL_RASTER_LAYER = "agro-spectral-raster-layer";
+export const SPECTRAL_RASTER_COMPARE_A_SOURCE = "agro-spectral-raster-compare-a";
+export const SPECTRAL_RASTER_COMPARE_A_LAYER = "agro-spectral-raster-compare-a-layer";
+export const SPECTRAL_RASTER_COMPARE_B_SOURCE = "agro-spectral-raster-compare-b";
+export const SPECTRAL_RASTER_COMPARE_B_LAYER = "agro-spectral-raster-compare-b-layer";
 export const SPECTRAL_ZONES_SOURCE = "agro-spectral-zones";
 export const SPECTRAL_ZONES_FILL_LAYER = "agro-spectral-zones-fill";
 export const SPECTRAL_ZONES_LINE_LAYER = "agro-spectral-zones-line";
@@ -39,6 +43,22 @@ export function clearSpectralIndexOverlay(map: MapLibreMap) {
   }
   if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
     map.removeSource(SPECTRAL_RASTER_SOURCE);
+  }
+  clearSpectralCompareOverlays(map);
+}
+
+export function clearSpectralCompareOverlays(map: MapLibreMap) {
+  if (map.getLayer(SPECTRAL_RASTER_COMPARE_A_LAYER)) {
+    map.removeLayer(SPECTRAL_RASTER_COMPARE_A_LAYER);
+  }
+  if (map.getSource(SPECTRAL_RASTER_COMPARE_A_SOURCE)) {
+    map.removeSource(SPECTRAL_RASTER_COMPARE_A_SOURCE);
+  }
+  if (map.getLayer(SPECTRAL_RASTER_COMPARE_B_LAYER)) {
+    map.removeLayer(SPECTRAL_RASTER_COMPARE_B_LAYER);
+  }
+  if (map.getSource(SPECTRAL_RASTER_COMPARE_B_SOURCE)) {
+    map.removeSource(SPECTRAL_RASTER_COMPARE_B_SOURCE);
   }
 }
 
@@ -242,6 +262,7 @@ export function applySpectralMapOverlay(
   opacity: number,
   beforeLayerId?: string,
 ) {
+  clearSpectralCompareOverlays(map);
   if (overlay.rendering === "sentinel_raster" && overlay.raster) {
     if (map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
       map.removeLayer(SPECTRAL_OVERLAY_LAYER);
@@ -268,5 +289,123 @@ export function setSpectralOverlayOpacity(map: MapLibreMap, opacity: number) {
   }
   if (map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
     map.setPaintProperty(SPECTRAL_OVERLAY_LAYER, "circle-opacity", opacity * 0.72);
+  }
+}
+
+function mountRasterLayer(
+  map: MapLibreMap,
+  sourceId: string,
+  layerId: string,
+  raster: NonNullable<ParcelSpectralOverlay["raster"]>,
+  layerOpacity: number,
+  beforeLayerId?: string,
+) {
+  if (map.getLayer(layerId)) {
+    map.removeLayer(layerId);
+  }
+  if (map.getSource(sourceId)) {
+    map.removeSource(sourceId);
+  }
+  map.addSource(sourceId, {
+    type: "image",
+    url: raster.imageDataUrl,
+    coordinates: raster.coordinates,
+  });
+  map.addLayer(
+    {
+      id: layerId,
+      type: "raster",
+      source: sourceId,
+      paint: {
+        "raster-opacity": layerOpacity,
+        "raster-fade-duration": 0,
+      },
+    },
+    beforeLayerId,
+  );
+}
+
+/** Crossfade two CDSE PNG overlays (earlier = A, later = B). blend 0→A, 1→B. */
+export function applyDualSpectralMapOverlay(
+  map: MapLibreMap,
+  overlayEarlier: ParcelSpectralOverlay,
+  overlayLater: ParcelSpectralOverlay,
+  opacity: number,
+  blend: number,
+  beforeLayerId?: string,
+) {
+  if (map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
+    map.removeLayer(SPECTRAL_OVERLAY_LAYER);
+  }
+  if (map.getSource(SPECTRAL_OVERLAY_SOURCE)) {
+    map.removeSource(SPECTRAL_OVERLAY_SOURCE);
+  }
+  if (map.getLayer(SPECTRAL_RASTER_LAYER)) {
+    map.removeLayer(SPECTRAL_RASTER_LAYER);
+  }
+  if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
+    map.removeSource(SPECTRAL_RASTER_SOURCE);
+  }
+
+  const clampedBlend = Math.min(1, Math.max(0, blend));
+  const base = opacity * 0.85;
+  const earlierRaster = overlayEarlier.raster;
+  const laterRaster = overlayLater.raster;
+
+  if (
+    overlayEarlier.rendering === "sentinel_raster" &&
+    overlayLater.rendering === "sentinel_raster" &&
+    earlierRaster &&
+    laterRaster
+  ) {
+    mountRasterLayer(
+      map,
+      SPECTRAL_RASTER_COMPARE_A_SOURCE,
+      SPECTRAL_RASTER_COMPARE_A_LAYER,
+      earlierRaster,
+      base * (1 - clampedBlend),
+      beforeLayerId,
+    );
+    mountRasterLayer(
+      map,
+      SPECTRAL_RASTER_COMPARE_B_SOURCE,
+      SPECTRAL_RASTER_COMPARE_B_LAYER,
+      laterRaster,
+      base * clampedBlend,
+      beforeLayerId,
+    );
+    return;
+  }
+
+  clearSpectralCompareOverlays(map);
+  const fallback =
+    overlayLater.rendering === "sentinel_raster" && laterRaster
+      ? overlayLater
+      : overlayEarlier.rendering === "sentinel_raster" && earlierRaster
+        ? overlayEarlier
+        : overlayLater;
+  applySpectralMapOverlay(map, fallback, opacity, beforeLayerId);
+}
+
+export function setDualSpectralOverlayBlend(
+  map: MapLibreMap,
+  opacity: number,
+  blend: number,
+) {
+  const clampedBlend = Math.min(1, Math.max(0, blend));
+  const base = opacity * 0.85;
+  if (map.getLayer(SPECTRAL_RASTER_COMPARE_A_LAYER)) {
+    map.setPaintProperty(
+      SPECTRAL_RASTER_COMPARE_A_LAYER,
+      "raster-opacity",
+      base * (1 - clampedBlend),
+    );
+  }
+  if (map.getLayer(SPECTRAL_RASTER_COMPARE_B_LAYER)) {
+    map.setPaintProperty(
+      SPECTRAL_RASTER_COMPARE_B_LAYER,
+      "raster-opacity",
+      base * clampedBlend,
+    );
   }
 }

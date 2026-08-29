@@ -38,11 +38,13 @@ import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { SpectralPanel } from "@/ui/spectral-panel";
 import {
   applySpectralMapOverlay,
+  applyDualSpectralMapOverlay,
   applySpectralZoneOutlines,
   clearSpectralMapOverlay,
   clearSpectralIndexOverlay,
   clearSpectralZoneOutlines,
   setSpectralOverlayOpacity,
+  setDualSpectralOverlayBlend,
   SPECTRAL_ZONES_FILL_LAYER,
 } from "@/ui/spectral-map-overlay";
 import { WeatherPanel } from "@/ui/weather-panel";
@@ -292,6 +294,17 @@ export function AppShell({
     acquiredAt: string;
     means: Partial<Record<VegetationIndexId, number | null>>;
   } | null>(null);
+  const [spectralCompareHint, setSpectralCompareHint] = useState<{
+    earlier: {
+      acquiredAt: string;
+      means: Partial<Record<VegetationIndexId, number | null>>;
+    };
+    later: {
+      acquiredAt: string;
+      means: Partial<Record<VegetationIndexId, number | null>>;
+    };
+  } | null>(null);
+  const [spectralCompareBlend, setSpectralCompareBlend] = useState(0.5);
 
   drawModeRef.current = drawMode;
   selectedIdRef.current = selectedId;
@@ -717,6 +730,7 @@ export function AppShell({
       setSpectralRendering(null);
       setSpectralFallbackReason(null);
       setSpectralSceneHint(null);
+      setSpectralCompareHint(null);
       return;
     }
 
@@ -727,6 +741,7 @@ export function AppShell({
       setSpectralRendering(null);
       setSpectralFallbackReason(null);
       setSpectralSceneHint(null);
+      setSpectralCompareHint(null);
       return;
     }
 
@@ -738,6 +753,11 @@ export function AppShell({
       setSpectralRendering(null);
       setSpectralFallbackReason(null);
       setSpectralSceneHint(null);
+      setSpectralCompareHint(null);
+      return;
+    }
+
+    if (spectralCompareHint) {
       return;
     }
 
@@ -836,6 +856,136 @@ export function AppShell({
     spectralIndexId,
     spectralSceneHint?.acquiredAt,
     spectralSceneHint?.means,
+    spectralCompareHint,
+  ]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (
+      !map ||
+      drawMode !== "idle" ||
+      !selectedId ||
+      !selected?.geometry ||
+      sideTab !== "spectral" ||
+      !spectralCompareHint
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+    const fetchOverlay = async (hint: {
+      acquiredAt: string;
+      means: Partial<Record<VegetationIndexId, number | null>>;
+    }) => {
+      const acquisitionDay = hint.acquiredAt.slice(0, 10);
+      const cacheKey = `${selectedId}:${spectralIndexId}:${acquisitionDay}`;
+      let overlay = spectralOverlayCacheRef.current.get(cacheKey);
+      if (overlay && overlay.rendering !== "sentinel_raster") {
+        spectralOverlayCacheRef.current.delete(cacheKey);
+        overlay = undefined;
+      }
+      if (overlay) {
+        return overlay;
+      }
+      const parcelMean = hint.means[spectralIndexId];
+      const params = new URLSearchParams({ index: spectralIndexId });
+      params.set("acquiredAt", hint.acquiredAt);
+      params.set(
+        "parcelMean",
+        parcelMean === null || parcelMean === undefined ? "null" : String(parcelMean),
+      );
+      const res = await fetch(
+        `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?${params}`,
+        { cache: "no-store" },
+      );
+      const json = (await res.json()) as {
+        status: string;
+        data?: ParcelSpectralOverlay;
+      };
+      if (json.status !== "OK" || !json.data) {
+        return undefined;
+      }
+      if (json.data.rendering === "sentinel_raster") {
+        spectralOverlayCacheRef.current.set(cacheKey, json.data);
+      }
+      return json.data;
+    };
+
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          setSpectralRendering(null);
+          setSpectralFallbackReason(null);
+          const [earlierOverlay, laterOverlay] = await Promise.all([
+            fetchOverlay(spectralCompareHint.earlier),
+            fetchOverlay(spectralCompareHint.later),
+          ]);
+          if (cancelled || !earlierOverlay || !laterOverlay) {
+            if (!cancelled) {
+              clearSpectralIndexOverlay(map);
+              setSpectralRendering(null);
+              setSpectralFallbackReason(null);
+            }
+            return;
+          }
+          setSpectralRendering(
+            earlierOverlay.rendering === "sentinel_raster" &&
+              laterOverlay.rendering === "sentinel_raster"
+              ? "sentinel_raster"
+              : earlierOverlay.rendering,
+          );
+          setSpectralFallbackReason(
+            earlierOverlay.fallbackReason ?? laterOverlay.fallbackReason ?? null,
+          );
+          const paint = () => {
+            if (cancelled) {
+              return;
+            }
+            applyDualSpectralMapOverlay(
+              map,
+              earlierOverlay,
+              laterOverlay,
+              spectralOpacityRef.current,
+              spectralCompareBlend,
+              PARCELS_LINE,
+            );
+            if (spectralZonesRef.current?.length) {
+              applySpectralZoneOutlines(
+                map,
+                spectralZonesRef.current,
+                getSpectralLegend(spectralIndexId),
+                activeSpectralZoneIdRef.current,
+                PARCELS_LINE,
+              );
+            }
+          };
+          if (map.isStyleLoaded()) {
+            paint();
+          } else {
+            map.once("style.load", paint);
+          }
+        } catch {
+          if (!cancelled) {
+            clearSpectralIndexOverlay(map);
+            setSpectralRendering(null);
+            setSpectralFallbackReason(null);
+          }
+        }
+      })();
+    }, 300);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [
+    drawMode,
+    selectedId,
+    selected?.geometry,
+    sideTab,
+    spectralIndexId,
+    spectralCompareHint,
+    spectralCompareBlend,
   ]);
 
   // Fishnet outlines for Espectral + Campo (zone pin).
@@ -904,8 +1054,12 @@ export function AppShell({
     if (!map) {
       return;
     }
+    if (spectralCompareHint) {
+      setDualSpectralOverlayBlend(map, spectralOpacity, spectralCompareBlend);
+      return;
+    }
     setSpectralOverlayOpacity(map, spectralOpacity);
-  }, [spectralOpacity]);
+  }, [spectralCompareBlend, spectralCompareHint, spectralOpacity]);
 
   const spectralActive =
     drawMode === "idle" && sideTab === "spectral" && Boolean(selected?.geometry);
@@ -1565,6 +1719,9 @@ export function AppShell({
                 onActiveZoneChange={setActiveSpectralZoneId}
                 onSceneHint={(hint) => setSpectralSceneHint(hint)}
                 onPrefetchOverlay={prefetchSpectralOverlay}
+                onCompareSceneHint={(hint) => setSpectralCompareHint(hint)}
+                compareBlend={spectralCompareBlend}
+                onCompareBlendChange={setSpectralCompareBlend}
               />
             ) : null}
             {sideTab === "agent" ? (

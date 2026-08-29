@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (spectral timeline scrubber) |
+| **Última actualización** | 2026-08-29 (spectral badge + dual PNG + GIF) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -219,7 +219,7 @@ Gate: `weather` + `weather_plus`.
 | Perf-4 multi-celda 1-call CDSE | hecho | Process primary + Statistical fallback (ADR-047) |
 | Perf-5 precompute zones en cron | hecho | Tras escena nueva, 8 índices → snapshots (ADR-048) |
 | Smoke perf zones cold vs cache | hecho | Script/smoke de timings Neon vs cold |
-| PNG histórico / GIF / slider | parcial | Slider temporal + play/pause sobre escenas Neon; sin GIF ni PNG persistido (ADR-057) |
+| PNG histórico / GIF / slider | hecho | Slider+play (057); dual A/B crossfade + export GIF cliente (059); sin persistencia Blob |
 | Máscara SCL agresiva | planificado | discovery |
 
 ---
@@ -316,14 +316,14 @@ Gate: `weather` + `weather_plus`.
 
 ## 13. Próximo (backlog corto)
 
-1. **Pre-client QA** — auto **PASS** 2026-08-29 (`SMOKE_NEON`+live); checklist manual M1–M13 en stg pendiente  
+1. **Pre-client QA** — auto **PASS** 2026-08-29; manual M1–M13 **GO** local (M10 skip review entitlement)  
 2. MVP piloto con usuarios reales (stg / orgs demo)  
 3. CDSE Production (post ToS)  
 4. SENAMHI live (contrato)  
 5. Billing live (Stripe Production) — **diferido** hasta MVP validado  
 6. WhatsApp briefing  
 7. eve / re-eval model path  
-8. Dual-overlay / Spectral-hist  
+8. ~~Dual-overlay / Spectral-hist~~ — hecho (057–059)  
 
 ---
 

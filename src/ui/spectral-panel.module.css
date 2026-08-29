@@ -410,6 +410,21 @@
   font-variant-numeric: tabular-nums;
 }
 
+.compareBlend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font-size: 0.6875rem;
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.compareBlendSlider {
+  flex: 1;
+  min-width: 0;
+}
+
 .compareBlock {
   display: flex;
   flex-direction: column;
