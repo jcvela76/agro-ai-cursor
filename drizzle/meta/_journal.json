@@ -57,6 +57,13 @@
       "when": 1787872000000,
       "tag": "0007_parcel_agronomic_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787876000000,
+      "tag": "0008_spectral_scenes",
+      "breakpoints": true
     }
   ]
 }

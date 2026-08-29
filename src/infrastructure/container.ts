@@ -20,6 +20,7 @@ import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weathe
 import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import { GetParcelSpectralOverlay } from "@/application/spectral/get-parcel-spectral-overlay";
 import { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
+import { GetParcelSpectralHistory } from "@/application/spectral/get-parcel-spectral-history";
 import { AppendOrgReviewDecision } from "@/application/review/append-org-review-decision";
 import { ListOrgReviewDecisions } from "@/application/review/list-org-review-decisions";
 import { BuildReportContent } from "@/application/report/build-report-content";
@@ -73,6 +74,8 @@ import { SenamhiStubWeatherSource } from "@/infrastructure/weather/senamhi-stub-
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { SentinelHubStubSpectralSource } from "@/infrastructure/spectral/sentinel-hub-stub-spectral-source";
 import { SentinelHubSpectralSource } from "@/infrastructure/spectral/sentinel-hub-spectral-source";
+import { NeonSpectralSceneRegistry } from "@/infrastructure/spectral/neon-spectral-scene-registry";
+import { OfflineSpectralSceneRegistry } from "@/infrastructure/spectral/offline-spectral-scene-registry";
 import { NeonTraceLotRegistry } from "@/infrastructure/traceability/neon-trace-lot-registry";
 import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
 import { NeonReportRegistry } from "@/infrastructure/report/neon-report-registry";
@@ -102,6 +105,13 @@ export function createParcelAgronomicProfileRegistry() {
     return new NeonParcelAgronomicProfileRegistry(createDb());
   }
   return new OfflineParcelAgronomicProfileRegistry();
+}
+
+export function createSpectralSceneRegistry() {
+  if (process.env.DATABASE_URL) {
+    return new NeonSpectralSceneRegistry(createDb());
+  }
+  return new OfflineSpectralSceneRegistry();
 }
 
 export function createTraceLotRegistry(): TraceLotRegistry {
@@ -271,10 +281,12 @@ export function createSpectralSource(
 }
 
 const spectralSource = createSpectralSource(process.env.SPECTRAL_SOURCE ?? "offline");
+const spectralSceneRegistry = createSpectralSceneRegistry();
 
 export const getParcelVegetationIndices = new GetParcelVegetationIndices(
   parcelRegistry,
   spectralSource,
+  spectralSceneRegistry,
 );
 
 export const getParcelSpectralOverlay = new GetParcelSpectralOverlay(
@@ -285,6 +297,11 @@ export const getParcelSpectralOverlay = new GetParcelSpectralOverlay(
 export const getParcelSpectralZones = new GetParcelSpectralZones(
   parcelRegistry,
   spectralSource,
+);
+
+export const getParcelSpectralHistory = new GetParcelSpectralHistory(
+  parcelRegistry,
+  spectralSceneRegistry,
 );
 
 export const listOrgTraceLots = new ListOrgTraceLots(traceLotRegistry);

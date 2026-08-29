@@ -7,6 +7,7 @@ import {
 } from "@/application/parcel/parcel-agronomic-profile";
 import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
+import { GetParcelSpectralHistory } from "@/application/spectral/get-parcel-spectral-history";
 import { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import { GetParcelWeatherLowRainDays } from "@/application/weather/get-parcel-low-rain-days";
@@ -18,6 +19,7 @@ import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parce
 import { OfflineReportRegistry } from "@/infrastructure/report/offline-report-registry";
 import { OfflineParcelAgronomicProfileRegistry } from "@/infrastructure/parcel/offline-parcel-agronomic-profile-registry";
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
+import { OfflineSpectralSceneRegistry } from "@/infrastructure/spectral/offline-spectral-scene-registry";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 
 describe("WA-07 Plus gate for Agro Agent", () => {
@@ -45,6 +47,10 @@ describe("Agro Agent weather tools", () => {
   const et0 = new GetParcelWeatherEt0(registry, source);
   const vegetationIndices = new GetParcelVegetationIndices(registry, new OfflineSpectralSource());
   const spectralZones = new GetParcelSpectralZones(registry, new OfflineSpectralSource());
+  const spectralHistory = new GetParcelSpectralHistory(
+    registry,
+    new OfflineSpectralSceneRegistry(),
+  );
   const profiles = new OfflineParcelAgronomicProfileRegistry();
   const recentBriefings = new GetParcelRecentBriefings(registry, new OfflineReportRegistry());
   const getProfile = new GetParcelAgronomicProfile(registry, profiles);
@@ -64,6 +70,7 @@ describe("Agro Agent weather tools", () => {
       et0,
       vegetationIndices,
       spectralZones,
+      spectralHistory,
       recentBriefings,
       getProfile,
       updateProfile,

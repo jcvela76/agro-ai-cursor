@@ -59,8 +59,8 @@ Ya definido en `src/domain/spectral/types.ts`:
 
 ## Diferido
 
-- Series temporales / compositing multi-fecha.
-- Persistencia Neon de escenas e índices históricos.
+- Series temporales / compositing multi-fecha (UI animación / slider de rasters).
+- Persistencia de extremos de zona por escena.
 - Máscara SCL agresiva (puede vaciar AOIs bare-soil).
 
 ## Slice Spectral-5 (raster overlay)
@@ -77,3 +77,11 @@ Ya definido en `src/domain/spectral/types.ts`:
 - Tiers **relativos** bajo/medio/alto (terciles intra-parcela, no umbrales agronómicos absolutos).
 - API `GET /api/parcels/[id]/spectral/zones?index=`; panel + contornos MapLibre; tool agente `getParcelSpectralZones`.
 - ADR-040.
+
+## Slice Spectral-7 (historial de escenas)
+
+- Tabla Neon `spectral_scenes` (migración `0008`): upsert por org+parcela+fecha+fuente.
+- Al consultar índices (Plus) se persiste la escena (medias de índices + evidencia).
+- API `GET .../spectral/history?days=`; panel sparkline + lista; tool `getParcelSpectralHistory`.
+- Offline: registry en memoria. Sin PNG histórico ni GIF (diferido).
+- ADR-042.

@@ -203,3 +203,39 @@
   font-size: 0.75rem;
   line-height: 1.4;
 }
+
+.historyBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sparkline {
+  width: 100%;
+  max-width: 12rem;
+  height: 1.75rem;
+  color: var(--color-fg-primary);
+  opacity: 0.85;
+}
+
+.historyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.historyRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-primary);
+}
+
+.historyValue {
+  font-weight: 650;
+}

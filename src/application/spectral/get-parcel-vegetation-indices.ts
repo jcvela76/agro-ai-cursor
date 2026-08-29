@@ -4,7 +4,12 @@ import {
   authorizeWeatherAccess,
   authorizeWeatherPlusAccess,
 } from "@/domain/auth/authorize-weather-access";
-import type { ParcelVegetationIndices, SpectralResult, SpectralSource } from "@/domain/spectral/types";
+import type {
+  ParcelVegetationIndices,
+  SpectralResult,
+  SpectralSource,
+} from "@/domain/spectral/types";
+import type { SpectralSceneRegistry } from "@/domain/spectral/scene-history";
 
 export interface GetParcelSpectralInput {
   authority: AccessSnapshot | null | undefined;
@@ -15,6 +20,7 @@ export class GetParcelVegetationIndices {
   constructor(
     private readonly parcels: ParcelRegistry,
     private readonly spectralSource: SpectralSource,
+    private readonly sceneHistory?: SpectralSceneRegistry | null,
   ) {}
 
   async execute(input: GetParcelSpectralInput): Promise<SpectralResult<ParcelVegetationIndices>> {
@@ -44,11 +50,33 @@ export class GetParcelVegetationIndices {
       };
     }
 
-    return this.spectralSource.getVegetationIndices(input.parcelId, {
+    const result = await this.spectralSource.getVegetationIndices(input.parcelId, {
       latitude: parcel.latitude,
       longitude: parcel.longitude,
       geometry: parcel.geometry,
       timezone: parcel.timezone,
     });
+
+    if (result.ok && this.sceneHistory) {
+      try {
+        await this.sceneHistory.upsert({
+          orgId: parcel.orgId,
+          parcelId: parcel.id,
+          acquisitionDate: result.data.acquisitionDate,
+          acquiredAt: result.data.evidence.acquiredAt,
+          sourceId: result.data.evidence.sourceId,
+          sourceLabel: result.data.evidence.sourceLabel,
+          indices: result.data.indices.map((item) => ({
+            id: item.id,
+            value: item.value,
+          })),
+          evidence: result.data.evidence,
+        });
+      } catch (error) {
+        console.warn("spectral scene upsert failed", error);
+      }
+    }
+
+    return result;
   }
 }

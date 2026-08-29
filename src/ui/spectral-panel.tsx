@@ -10,6 +10,7 @@ import type {
   SpectralZone,
   VegetationIndexId,
 } from "@/domain/spectral/types";
+import type { SpectralSceneRecord } from "@/domain/spectral/scene-history";
 import { Badge } from "@/ui/badge";
 import { EvidenceRow } from "@/ui/evidence-row";
 import { StateBanner } from "@/ui/state-banner";
@@ -59,6 +60,33 @@ function tierTone(tier: SpectralZone["tier"]): "stale" | "fresh" | "unknown" {
   return "unknown";
 }
 
+function sparklinePoints(
+  scenes: SpectralSceneRecord[],
+  indexId: VegetationIndexId,
+): { points: string; values: Array<number | null> } {
+  const values = scenes.map(
+    (scene) => scene.indices.find((item) => item.id === indexId)?.value ?? null,
+  );
+  const numeric = values.filter((v): v is number => v !== null && Number.isFinite(v));
+  if (numeric.length === 0 || scenes.length === 0) {
+    return { points: "", values };
+  }
+  const min = Math.min(...numeric);
+  const max = Math.max(...numeric);
+  const span = max - min || 0.01;
+  const w = 120;
+  const h = 28;
+  const coords = values
+    .map((v, i) => {
+      if (v === null) return null;
+      const x = scenes.length === 1 ? w / 2 : (i / (scenes.length - 1)) * w;
+      const y = h - ((v - min) / span) * (h - 4) - 2;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .filter((p): p is string => p !== null);
+  return { points: coords.join(" "), values };
+}
+
 async function fetchSpectral<T>(url: string): Promise<SpectralOk<T> | SpectralLimited> {
   const res = await fetch(url);
   return (await res.json()) as SpectralOk<T> | SpectralLimited;
@@ -91,6 +119,12 @@ export function SpectralPanel({
   >(null);
   const [loading, setLoading] = useState(true);
   const [zonesLoading, setZonesLoading] = useState(false);
+  const [historyPayload, setHistoryPayload] = useState<
+    | SpectralOk<{ kind: "spectral_history"; days: number; scenes: SpectralSceneRecord[] }>
+    | SpectralLimited
+    | null
+  >(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const onZonesChangeRef = useRef(onZonesChange);
   const onActiveZoneChangeRef = useRef(onActiveZoneChange);
   onZonesChangeRef.current = onZonesChange;
@@ -115,6 +149,30 @@ export function SpectralPanel({
       cancelled = true;
     };
   }, [parcel.id]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setHistoryLoading(true);
+    setHistoryPayload(null);
+    // Refresh history after indices load (upsert) or when parcel changes.
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        const result = await fetchSpectral<{
+          kind: "spectral_history";
+          days: number;
+          scenes: SpectralSceneRecord[];
+        }>(`/api/parcels/${encodeURIComponent(parcel.id)}/spectral/history?days=90`);
+        if (cancelled) return;
+        setHistoryPayload(result);
+        setHistoryLoading(false);
+      })();
+    }, payload?.status === "OK" ? 150 : 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [parcel.id, payload?.status]);
 
   useEffect(() => {
     let cancelled = false;
@@ -290,6 +348,62 @@ export function SpectralPanel({
             Media parcela {zonesOk.parcelMean === null ? "—" : zonesOk.parcelMean.toFixed(2)} ·
             tiers relativos (no umbrales agronómicos absolutos)
           </p>
+        ) : null}
+      </div>
+
+      <div className={styles.historyBlock}>
+        <p className={styles.legendTitle}>Historial · {selectedIndexId.toUpperCase()}</p>
+        {historyLoading ? <p className={styles.muted}>Cargando historial…</p> : null}
+        {!historyLoading && historyPayload && historyPayload.status !== "OK" ? (
+          <p className={styles.muted}>{historyPayload.message}</p>
+        ) : null}
+        {!historyLoading && historyPayload?.status === "OK" ? (
+          <>
+            {historyPayload.data.scenes.length === 0 ? (
+              <p className={styles.muted}>
+                Sin escenas guardadas aún. Se persisten al consultar índices.
+              </p>
+            ) : (
+              <>
+                {(() => {
+                  const spark = sparklinePoints(historyPayload.data.scenes, selectedIndexId);
+                  return spark.points ? (
+                    <svg
+                      className={styles.sparkline}
+                      viewBox="0 0 120 28"
+                      role="img"
+                      aria-label={`Tendencia ${selectedIndexId}`}
+                    >
+                      <polyline
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        points={spark.points}
+                      />
+                    </svg>
+                  ) : null;
+                })()}
+                <ul className={styles.historyList}>
+                  {[...historyPayload.data.scenes].reverse().slice(0, 8).map((scene) => {
+                    const reading = scene.indices.find((item) => item.id === selectedIndexId);
+                    return (
+                      <li key={scene.id} className={styles.historyRow}>
+                        <span>{scene.acquisitionDate}</span>
+                        <span className={styles.historyValue}>
+                          {reading?.value == null ? "—" : reading.value.toFixed(2)}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <p className={styles.zoneHint}>
+                  {historyPayload.data.scenes.length} escena
+                  {historyPayload.data.scenes.length === 1 ? "" : "s"} · últimos{" "}
+                  {historyPayload.data.days} días
+                </p>
+              </>
+            )}
+          </>
         ) : null}
       </div>
 

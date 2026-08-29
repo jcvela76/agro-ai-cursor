@@ -15,6 +15,7 @@ vi.mock("@/infrastructure/container", async () => {
 import { GET as getIndices } from "@/app/api/parcels/[parcelId]/spectral/indices/route";
 import { GET as getOverlay } from "@/app/api/parcels/[parcelId]/spectral/overlay/route";
 import { GET as getZones } from "@/app/api/parcels/[parcelId]/spectral/zones/route";
+import { GET as getHistory } from "@/app/api/parcels/[parcelId]/spectral/history/route";
 
 const parcelId = "parcel-lima-norte-001";
 const weatherOnly = defaultSyntheticSnapshots.find(
@@ -104,6 +105,20 @@ describe("API /api/parcels/[parcelId]/spectral", () => {
     expect(body.data.indexId).toBe("evi");
     expect(body.data.zones.length).toBeGreaterThanOrEqual(1);
     expect(["low", "mid", "high"]).toContain(body.data.zones[0].tier);
+  });
+
+  it("history returns scenes after indices upsert", async () => {
+    mockAuth(weatherPlus.userId, weatherPlus.orgId);
+    await getIndices(new Request("http://localhost"), params);
+    const res = await getHistory(
+      new Request(`http://localhost/api/parcels/${parcelId}/spectral/history?days=90`),
+      params,
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe("OK");
+    expect(body.data.kind).toBe("spectral_history");
+    expect(body.data.scenes.length).toBeGreaterThanOrEqual(1);
   });
 
   it("indices returns 404 for cross-org parcel", async () => {

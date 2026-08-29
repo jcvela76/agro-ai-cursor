@@ -175,7 +175,8 @@ Ver `docs/reports/discovery.md`.
 | Spectral-5 raster | **Hecho 2026-08-28** — Process API PNG overlay en mapa (ADR-039) |
 | Spectral-6 zonas | **Hecho 2026-08-28** — fishnet + stats por zona + panel/mapa/tool (ADR-040) |
 | Report-4 zonas en informes | **Hecho 2026-08-28** — NDWI zones en hídrico + briefing (ADR-041) |
-| **Siguiente** | Legal DRAFT → abogado; Billing live; Production CDSE post ToS |
+| Spectral-7 historial | **Hecho 2026-08-28** — Neon `spectral_scenes` + sparkline + tool (ADR-042) |
+| **Siguiente** | Legal DRAFT → abogado; Billing live; Production CDSE post ToS; `db:migrate` 0008 |
 
 ## Docs por slice (canónico)
 

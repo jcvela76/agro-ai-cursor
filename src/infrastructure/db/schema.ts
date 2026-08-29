@@ -7,10 +7,15 @@ import {
   timestamp,
   primaryKey,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import type { DailyBriefingContextSnapshot } from "@/domain/report/daily-briefing";
 import type { ParcelGeometry } from "@/domain/parcel/types";
 import type { ReviewDecisionKind } from "@/domain/review/types";
+import type {
+  SpectralEvidence,
+  SpectralSceneIndexValue,
+} from "@/domain/spectral/scene-history";
 import type { TraceEventType, TraceLotStatus } from "@/domain/traceability/types";
 
 export const parcels = pgTable("parcels", {
@@ -159,5 +164,32 @@ export const parcelAgronomicProfiles = pgTable(
     updatedByUserId: text("updated_by_user_id"),
   },
   (table) => [index("parcel_agronomic_profiles_org_id_idx").on(table.orgId)],
+);
+
+export const spectralScenes = pgTable(
+  "spectral_scenes",
+  {
+    id: text("id").primaryKey(),
+    orgId: text("org_id").notNull(),
+    parcelId: text("parcel_id").notNull(),
+    acquisitionDate: text("acquisition_date").notNull(),
+    acquiredAt: text("acquired_at").notNull(),
+    sourceId: text("source_id").notNull(),
+    sourceLabel: text("source_label").notNull(),
+    indices: jsonb("indices").$type<SpectralSceneIndexValue[]>().notNull(),
+    evidence: jsonb("evidence").$type<SpectralEvidence>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("spectral_scenes_org_parcel_day_source_uidx").on(
+      table.orgId,
+      table.parcelId,
+      table.acquisitionDate,
+      table.sourceId,
+    ),
+    index("spectral_scenes_org_parcel_idx").on(table.orgId, table.parcelId),
+    index("spectral_scenes_parcel_date_idx").on(table.parcelId, table.acquisitionDate),
+  ],
 );
 

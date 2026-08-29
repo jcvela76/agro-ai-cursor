@@ -136,3 +136,4 @@ Los datos apuntan a **posible estrés hídrico**; conviene validar suelo en camp
 - `getParcelEt0` — Plus: ET0 Hargreaves–Samani campaña YTD (WQ-15); no ETc
 - `getParcelVegetationIndices` — Plus: NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR
 - `getParcelSpectralZones` — Plus: zonas relativas (bajo/medio/alto) del índice elegido dentro de la parcela
+- `getParcelSpectralHistory` — Plus: escenas persistidas (tendencia por fecha)

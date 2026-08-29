@@ -9,6 +9,7 @@ import type {
 } from "@/application/parcel/parcel-agronomic-profile";
 import type { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import type { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
+import type { GetParcelSpectralHistory } from "@/application/spectral/get-parcel-spectral-history";
 import type { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import { isVegetationIndexId } from "@/application/spectral/get-parcel-spectral-overlay";
 import type { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
@@ -36,6 +37,7 @@ export const agroAgentToolNames = {
   et0: "getParcelEt0",
   vegetationIndices: "getParcelVegetationIndices",
   spectralZones: "getParcelSpectralZones",
+  spectralHistory: "getParcelSpectralHistory",
   recentBriefings: "getParcelRecentBriefings",
   getProfile: "getParcelProfile",
   updateProfile: "updateParcelProfile",
@@ -49,6 +51,7 @@ export const plusToolNames = [
   agroAgentToolNames.et0,
   agroAgentToolNames.vegetationIndices,
   agroAgentToolNames.spectralZones,
+  agroAgentToolNames.spectralHistory,
   agroAgentToolNames.recentBriefings,
   agroAgentToolNames.getProfile,
   agroAgentToolNames.updateProfile,
@@ -68,6 +71,7 @@ export function createAgroAgentTools(input: {
   et0: GetParcelWeatherEt0;
   vegetationIndices: GetParcelVegetationIndices;
   spectralZones: GetParcelSpectralZones;
+  spectralHistory: GetParcelSpectralHistory;
   recentBriefings: GetParcelRecentBriefings;
   getProfile: GetParcelAgronomicProfile;
   updateProfile: UpdateParcelAgronomicProfile;
@@ -84,6 +88,7 @@ export function createAgroAgentTools(input: {
     et0,
     vegetationIndices,
     spectralZones,
+    spectralHistory,
     recentBriefings,
     getProfile,
     updateProfile,
@@ -195,6 +200,20 @@ export function createAgroAgentTools(input: {
       execute: async ({ index }) => {
         const indexId = index && isVegetationIndexId(index) ? index : "ndre";
         const result = await spectralZones.execute({ authority, parcelId, indexId });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelSpectralHistory: tool({
+      description:
+        "Historial de escenas espectrales persistidas de la parcela (medias por fecha, últimos N días). Usar para tendencias, evolución, comparar fechas. Requiere Plus. Parámetro opcional days (1–365, default 90).",
+      inputSchema: z.object({
+        days: z.number().int().min(1).max(365).optional(),
+      }),
+      execute: async ({ days }) => {
+        const result = await spectralHistory.execute({ authority, parcelId, days });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }
