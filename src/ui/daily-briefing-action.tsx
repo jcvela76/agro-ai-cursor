@@ -47,13 +47,18 @@ export function DailyBriefingAction({
       const json = (await res.json()) as { status: string; data?: Quota };
       if (json.status === "OK" && json.data) {
         setQuota(json.data);
+      } else {
+        setQuota(null);
       }
     } catch {
       setQuota(null);
     }
   }, [parcelId]);
 
+  // Reset before fetch so a previous parcel's "ya generado" never sticks on a new one.
   useEffect(() => {
+    setQuota(null);
+    setError(null);
     void loadQuota();
   }, [loadQuota]);
 

@@ -104,7 +104,12 @@ export function WeatherPanel({ parcel, isAdmin }: { parcel: Parcel; isAdmin: boo
         {!loading && tab === "forecast" && forecast ? <ForecastView payload={forecast} /> : null}
       </div>
 
-      <DailyBriefingAction parcelId={parcel.id} isAdmin={isAdmin} disabled={loading} />
+      <DailyBriefingAction
+        key={parcel.id}
+        parcelId={parcel.id}
+        isAdmin={isAdmin}
+        disabled={loading}
+      />
       <ReportExportAction
         reportType="weather_climate"
         label="Generar informe climático (PDF)"
