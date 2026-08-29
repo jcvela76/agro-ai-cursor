@@ -45,6 +45,7 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Factory modes | `tests/spectral-source-factory.test.ts` |
 | Sentinel Hub stub | `SMOKE_SENTINEL_STUB=1 npm run smoke:spectral` |
 | Sentinel Hub live (CDSE) | `SMOKE_SENTINEL_LIVE=1 npm run smoke:spectral` (requiere `SENTINEL_CLIENT_*`) |
+| Visual history (timeline / dual A/B / GIF) | `npm run smoke:spectral-visual-history` |
 
 ## Report contrast (fidelidad)
 
