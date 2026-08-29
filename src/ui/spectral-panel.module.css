@@ -329,20 +329,12 @@
   gap: 0.2rem;
 }
 
-.historyRow {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-2);
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-fg-primary);
-}
-
 .historyDate {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
   min-width: 0;
+  flex: 1;
 }
 
 .historyCapture {
@@ -353,4 +345,122 @@
 
 .historyValue {
   font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+.mapSceneBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-fg-primary);
+}
+
+.compareBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.compareHeadline {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.compareTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.compareTable th,
+.compareTable td {
+  text-align: left;
+  padding: 0.2rem 0.35rem;
+  border-bottom: 1px solid var(--color-border-subtle, rgba(0, 0, 0, 0.08));
+}
+
+.compareTable th:not(:first-child),
+.compareTable td:not(:first-child) {
+  text-align: right;
+}
+
+.compareRowActive {
+  font-weight: 650;
+  background: rgba(28, 42, 31, 0.06);
+}
+
+.historyRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.historySelect,
+.historySelectActive {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm, 6px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.historySelect:hover {
+  border-color: var(--color-border-subtle, rgba(0, 0, 0, 0.12));
+}
+
+.historySelectActive {
+  border-color: var(--color-border-strong, rgba(0, 0, 0, 0.22));
+  background: rgba(28, 42, 31, 0.05);
+}
+
+.compareBadge {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-border-subtle);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.historyMapButton,
+.historyMapButtonActive {
+  flex-shrink: 0;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm, 6px);
+  border: 1px solid var(--color-border-subtle, rgba(0, 0, 0, 0.12));
+  background: var(--color-surface-raised, rgba(255, 255, 255, 0.06));
+  color: var(--color-fg-primary);
+  cursor: pointer;
+}
+
+.historyMapButtonActive {
+  border-color: var(--color-fg-primary);
+  font-weight: 700;
+}
+
+.historyMapButton:hover,
+.historyMapButtonActive:hover {
+  border-color: var(--color-border-strong, rgba(0, 0, 0, 0.22));
 }

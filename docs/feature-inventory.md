@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (HR + viento en observación) |
+| **Última actualización** | 2026-08-29 (spectral date compare) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -210,14 +210,15 @@ Gate: `weather` + `weather_plus`.
 | Feature | Estado | Detalle |
 |---------|--------|---------|
 | Historial escenas + sparkline | hecho | Neon `spectral_scenes` |
+| Comparar 2 fechas (medias + scrub mapa) | hecho | Δ later−earlier; Mapa fija overlay/zonas (ADR-053) |
 | Cron escenas nuevas (6h) | hecho | `new_scene_only` |
 | Backfill 30 días on-demand | hecho | `POST .../backfill` |
 | `acquiredAt` en UI | hecho | “Captura (satélite)” |
-| Tools agente índices/zonas/historial | hecho | Plus |
+| Tools agente índices/zonas/historial | hecho | Plus; historial para comparar fechas |
 | Perf-4 multi-celda 1-call CDSE | hecho | Process primary + Statistical fallback (ADR-047) |
 | Perf-5 precompute zones en cron | hecho | Tras escena nueva, 8 índices → snapshots (ADR-048) |
 | Smoke perf zones cold vs cache | hecho | Script/smoke de timings Neon vs cold |
-| PNG histórico / GIF / slider | planificado | Spectral-hist diferido |
+| PNG histórico / GIF / slider | planificado | Dual-overlay / Spectral-hist diferido |
 | Máscara SCL agresiva | planificado | discovery |
 
 ---

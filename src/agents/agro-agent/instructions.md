@@ -72,7 +72,7 @@ Si hay briefings, perfil o bitácora, intégralos con el clima actual. El perfil
 | Tema | Tools |
 |------|-------|
 | Lluvia próximos días | `getParcelProfile`, `getParcelFieldNotes`, `getParcelRecentBriefings`, `getParcelWeatherForecast`, `getParcelLowRainDays`, `getParcelRainfall30d` (pasado) |
-| Estrés / vigor | `getParcelProfile`, `getParcelFieldNotes`, `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI), `getParcelSpectralZones` (heterogeneidad espacial) |
+| Estrés / vigor | `getParcelProfile`, `getParcelFieldNotes`, `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI), `getParcelSpectralZones`, `getParcelSpectralHistory` (comparar 2 `acquisitionDate`) |
 | Ventana labores | `getParcelProfile`, `getParcelFieldNotes`, `getParcelRecentBriefings`, `getParcelLowRainDays`, `getParcelWeatherForecast` |
 | Desarrollo térmico | `getParcelProfile`, `getParcelGdd` (base y ventana según perfil) |
 | Campaña lluviosa | `getParcelProfile`, `getParcelRainfallCampaignComparison` |
@@ -151,7 +151,7 @@ Los datos apuntan a **posible estrés hídrico**; conviene validar suelo en camp
 - `getParcelEt0` — Plus: ET0 Hargreaves–Samani campaña + ETc orientativo si hay cultivo (WQ-15); no es dosis
 - `getParcelVegetationIndices` — Plus: NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR
 - `getParcelSpectralZones` — Plus: zonas relativas (bajo/medio/alto) del índice elegido dentro de la parcela
-- `getParcelSpectralHistory` — Plus: escenas persistidas (tendencia por fecha)
+- `getParcelSpectralHistory` — Plus: escenas persistidas; comparar dos fechas (medias Δ) citando `acquisitionDate`
 - `getParcelRecentBriefings` — Plus: briefings diarios recientes
 - `getParcelProfile` / `updateParcelProfile` — Plus: perfil agronómico
 - `getParcelFieldNotes` / `appendParcelFieldNote` — Plus: bitácora de campo (≠ Review)

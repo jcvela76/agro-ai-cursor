@@ -220,7 +220,7 @@ export function createAgroAgentTools(input: {
     }),
     getParcelSpectralHistory: tool({
       description:
-        "Historial de escenas espectrales persistidas de la parcela (medias por fecha, últimos N días). Usar para tendencias, evolución, comparar fechas. Requiere Plus. Parámetro opcional days (1–365, default 90).",
+        "Historial de escenas espectrales persistidas de la parcela (medias por fecha, últimos N días). Usar para tendencias y para comparar dos acquisitionDate (citar fechas e índice). Requiere Plus. Parámetro opcional days (1–365, default 90).",
       inputSchema: z.object({
         days: z.number().int().min(1).max(365).optional(),
       }),

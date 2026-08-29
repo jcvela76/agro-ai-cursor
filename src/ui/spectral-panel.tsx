@@ -11,6 +11,11 @@ import type {
   VegetationIndexId,
 } from "@/domain/spectral/types";
 import type { SpectralSceneRecord } from "@/domain/spectral/scene-history";
+import {
+  compareSpectralScenes,
+  sceneMeansFromRecord,
+} from "@/domain/spectral/compare-scenes";
+import { VEGETATION_INDEX_ORDER } from "@/domain/spectral/vegetation-indices";
 import { formatSceneCapturedAt } from "@/domain/spectral/persist-spectral-scene";
 import { Badge } from "@/ui/badge";
 import { EvidenceRow } from "@/ui/evidence-row";
@@ -139,12 +144,19 @@ export function SpectralPanel({
   const [backfillLoading, setBackfillLoading] = useState(false);
   const [backfillMessage, setBackfillMessage] = useState<string | null>(null);
   const [historyRefresh, setHistoryRefresh] = useState(0);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [mapSceneId, setMapSceneId] = useState<string | null>(null);
   const onZonesChangeRef = useRef(onZonesChange);
   const onActiveZoneChangeRef = useRef(onActiveZoneChange);
   const onSceneHintRef = useRef(onSceneHint);
   onZonesChangeRef.current = onZonesChange;
   onActiveZoneChangeRef.current = onActiveZoneChange;
   onSceneHintRef.current = onSceneHint;
+
+  useEffect(() => {
+    setCompareIds([]);
+    setMapSceneId(null);
+  }, [parcel.id]);
 
   useEffect(() => {
     if (!activeZoneId) {
@@ -212,8 +224,22 @@ export function SpectralPanel({
     };
   }, [parcel.id]);
 
+  const historyScenes =
+    historyPayload?.status === "OK" ? historyPayload.data.scenes : [];
+  const mapScene =
+    mapSceneId != null
+      ? (historyScenes.find((scene) => scene.id === mapSceneId) ?? null)
+      : null;
+
   // Publish scene hint so map overlay can skip a second Statistical call per index.
   useEffect(() => {
+    if (mapScene) {
+      onSceneHintRef.current?.({
+        acquiredAt: mapScene.acquiredAt,
+        means: sceneMeansFromRecord(mapScene),
+      });
+      return;
+    }
     if (payload?.status !== "OK") {
       onSceneHintRef.current?.(null);
       return;
@@ -226,9 +252,9 @@ export function SpectralPanel({
       acquiredAt: payload.data.evidence.acquiredAt,
       means,
     });
-  }, [payload]);
+  }, [payload, mapScene]);
 
-  // Zones: pass acquiredAt + parcelMean when indices are ready (skips duplicate CDSE indices call).
+  // Zones: pass acquiredAt + parcelMean when scene (map override or live) is ready.
   useEffect(() => {
     let cancelled = false;
     setZonesLoading(true);
@@ -236,17 +262,29 @@ export function SpectralPanel({
     onZonesChangeRef.current(null, selectedIndexId);
     onActiveZoneChangeRef.current(null);
 
-    if (payload?.status !== "OK") {
+    let acquiredAt: string | null = null;
+    let sourceId: string | null = null;
+    let parcelMean: number | null = null;
+
+    if (mapScene) {
+      acquiredAt = mapScene.acquiredAt;
+      sourceId = mapScene.sourceId;
+      parcelMean =
+        mapScene.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
+    } else if (payload?.status === "OK") {
+      acquiredAt = payload.data.evidence.acquiredAt;
+      sourceId = payload.data.evidence.sourceId;
+      parcelMean =
+        payload.data.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
+    }
+
+    if (!acquiredAt || !sourceId) {
       setZonesLoading(false);
       return () => {
         cancelled = true;
       };
     }
 
-    const acquiredAt = payload.data.evidence.acquiredAt;
-    const sourceId = payload.data.evidence.sourceId;
-    const parcelMean =
-      payload.data.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
     const meanParam =
       parcelMean === null ? "null" : encodeURIComponent(String(parcelMean));
 
@@ -267,8 +305,32 @@ export function SpectralPanel({
     return () => {
       cancelled = true;
     };
-  }, [parcel.id, selectedIndexId, payload]);
+  }, [parcel.id, selectedIndexId, payload, mapScene]);
 
+  function toggleCompare(sceneId: string) {
+    setCompareIds((prev) => {
+      if (prev.includes(sceneId)) {
+        return prev.filter((id) => id !== sceneId);
+      }
+      if (prev.length >= 2) {
+        return [prev[1]!, sceneId];
+      }
+      return [...prev, sceneId];
+    });
+  }
+
+  const compareScenes =
+    compareIds.length === 2
+      ? (() => {
+          const a = historyScenes.find((s) => s.id === compareIds[0]);
+          const b = historyScenes.find((s) => s.id === compareIds[1]);
+          if (!a || !b) return null;
+          return compareSpectralScenes(a, b, VEGETATION_INDEX_ORDER);
+        })()
+      : null;
+  const selectedCompare = compareScenes?.byIndex.find(
+    (row) => row.indexId === selectedIndexId,
+  );
   if (loading && !payload) {
     return (
       <div className={styles.content}>
@@ -302,9 +364,8 @@ export function SpectralPanel({
   const legend = getSpectralLegend(selectedIndexId);
   const activeReading = data.indices.find((index) => index.id === selectedIndexId);
   const zonesOk = zonesPayload?.status === "OK" ? zonesPayload.data : null;
-  const historyScenes =
-    historyPayload?.status === "OK" ? historyPayload.data.scenes.length : 0;
-  const showBackfillButton = !historyLoading && historyScenes <= 3;
+  const historySceneCount = historyScenes.length;
+  const showBackfillButton = !historyLoading && historySceneCount <= 3;
   const fromCache = data.evidence.freshnessPolicy.includes("cache_read");
   const zonesFromCache =
     zonesOk?.evidence.freshnessPolicy.includes("zones_cache_read") ?? false;
@@ -547,6 +608,66 @@ export function SpectralPanel({
 
       <div className={styles.historyBlock}>
         <p className={styles.legendTitle}>Historial · {selectedIndexId.toUpperCase()}</p>
+        <p className={styles.zoneHint}>
+          Elige hasta 2 fechas para comparar medias. «Mapa» fija overlay y zonas a esa captura.
+        </p>
+        {mapScene ? (
+          <div className={styles.mapSceneBanner}>
+            <span>
+              Mapa: {mapScene.acquisitionDate} (histórico)
+            </span>
+            <button
+              type="button"
+              className={styles.historyMapButton}
+              onClick={() => setMapSceneId(null)}
+            >
+              Actual
+            </button>
+          </div>
+        ) : null}
+        {compareScenes && selectedCompare ? (
+          <div className={styles.compareBlock}>
+            <p className={styles.compareHeadline}>
+              {compareScenes.earlier.acquisitionDate} → {compareScenes.later.acquisitionDate}
+              {" · "}
+              {selectedIndexId.toUpperCase()}{" "}
+              {selectedCompare.delta == null
+                ? "—"
+                : `${selectedCompare.delta > 0 ? "+" : ""}${selectedCompare.delta.toFixed(2)}`}
+            </p>
+            <table className={styles.compareTable}>
+              <thead>
+                <tr>
+                  <th>Índice</th>
+                  <th>{compareScenes.earlier.acquisitionDate.slice(5)}</th>
+                  <th>{compareScenes.later.acquisitionDate.slice(5)}</th>
+                  <th>Δ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {compareScenes.byIndex.map((row) => (
+                  <tr
+                    key={row.indexId}
+                    className={
+                      row.indexId === selectedIndexId ? styles.compareRowActive : undefined
+                    }
+                  >
+                    <td>{row.indexId.toUpperCase()}</td>
+                    <td>{row.earlierValue == null ? "—" : row.earlierValue.toFixed(2)}</td>
+                    <td>{row.laterValue == null ? "—" : row.laterValue.toFixed(2)}</td>
+                    <td>
+                      {row.delta == null
+                        ? "—"
+                        : `${row.delta > 0 ? "+" : ""}${row.delta.toFixed(2)}`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : compareIds.length === 1 ? (
+          <p className={styles.zoneHint}>Selecciona una segunda fecha para ver Δ.</p>
+        ) : null}
         {showBackfillButton ? (
           <div className={styles.backfillRow}>
             <button
@@ -566,14 +687,14 @@ export function SpectralPanel({
         ) : null}
         {!historyLoading && historyPayload?.status === "OK" ? (
           <>
-            {historyPayload.data.scenes.length === 0 ? (
+            {historyScenes.length === 0 ? (
               <p className={styles.muted}>
                 Sin escenas guardadas aún. Usa «Importar últimos 30 días» o consulta índices.
               </p>
             ) : (
               <>
                 {(() => {
-                  const spark = sparklinePoints(historyPayload.data.scenes, selectedIndexId);
+                  const spark = sparklinePoints(historyScenes, selectedIndexId);
                   return spark.points ? (
                     <svg
                       className={styles.sparkline}
@@ -591,27 +712,53 @@ export function SpectralPanel({
                   ) : null;
                 })()}
                 <ul className={styles.historyList}>
-                  {[...historyPayload.data.scenes].reverse().slice(0, 8).map((scene) => {
+                  {[...historyScenes].reverse().slice(0, 8).map((scene) => {
                     const reading = scene.indices.find((item) => item.id === selectedIndexId);
+                    const compareSlot = compareIds.indexOf(scene.id);
+                    const onMap = mapSceneId === scene.id;
                     return (
                       <li key={scene.id} className={styles.historyRow}>
-                        <span className={styles.historyDate}>
-                          <span>{scene.acquisitionDate}</span>
-                          <span className={styles.historyCapture}>
-                            Captura (satélite):{" "}
-                            {formatSceneCapturedAt(scene.acquiredAt, parcel.timezone)}
+                        <button
+                          type="button"
+                          className={
+                            compareSlot >= 0 ? styles.historySelectActive : styles.historySelect
+                          }
+                          onClick={() => toggleCompare(scene.id)}
+                          aria-pressed={compareSlot >= 0}
+                        >
+                          {compareSlot >= 0 ? (
+                            <span className={styles.compareBadge}>
+                              {compareSlot === 0 ? "A" : "B"}
+                            </span>
+                          ) : null}
+                          <span className={styles.historyDate}>
+                            <span>{scene.acquisitionDate}</span>
+                            <span className={styles.historyCapture}>
+                              Captura:{" "}
+                              {formatSceneCapturedAt(scene.acquiredAt, parcel.timezone)}
+                            </span>
                           </span>
-                        </span>
-                        <span className={styles.historyValue}>
-                          {reading?.value == null ? "—" : reading.value.toFixed(2)}
-                        </span>
+                          <span className={styles.historyValue}>
+                            {reading?.value == null ? "—" : reading.value.toFixed(2)}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          className={onMap ? styles.historyMapButtonActive : styles.historyMapButton}
+                          onClick={() =>
+                            setMapSceneId(onMap ? null : scene.id)
+                          }
+                          aria-pressed={onMap}
+                        >
+                          Mapa
+                        </button>
                       </li>
                     );
                   })}
                 </ul>
                 <p className={styles.zoneHint}>
-                  {historyPayload.data.scenes.length} escena
-                  {historyPayload.data.scenes.length === 1 ? "" : "s"} · últimos{" "}
+                  {historySceneCount} escena
+                  {historySceneCount === 1 ? "" : "s"} · últimos{" "}
                   {historyPayload.data.days} días · hora de captura satelital, no de consulta
                 </p>
               </>
@@ -624,8 +771,14 @@ export function SpectralPanel({
         <EvidenceRow label="Fuente" value={data.evidence.sourceLabel} />
         <EvidenceRow
           label="Captura (satélite)"
-          value={formatSceneCapturedAt(data.evidence.acquiredAt, parcel.timezone)}
+          value={formatSceneCapturedAt(
+            mapScene?.acquiredAt ?? data.evidence.acquiredAt,
+            parcel.timezone,
+          )}
         />
+        {mapScene ? (
+          <EvidenceRow label="Mapa histórico" value={mapScene.acquisitionDate} />
+        ) : null}
         {data.evidence.satelliteMission ? (
           <EvidenceRow label="Misión" value={data.evidence.satelliteMission} />
         ) : null}

@@ -679,7 +679,6 @@ export function AppShell({
     }
 
     let cancelled = false;
-    const cacheKey = `${selectedId}:${spectralIndexId}`;
     const acquiredAt = spectralSceneHint?.acquiredAt;
     const parcelMean = spectralSceneHint?.means[spectralIndexId];
     // Wait for indices hint so we skip a second Statistical call (timeouts under index switching).
@@ -688,6 +687,8 @@ export function AppShell({
       setSpectralFallbackReason(null);
       return;
     }
+    const acquisitionDay = acquiredAt.slice(0, 10);
+    const cacheKey = `${selectedId}:${spectralIndexId}:${acquisitionDay}`;
     const timer = window.setTimeout(() => {
       void (async () => {
         try {
@@ -701,13 +702,11 @@ export function AppShell({
           }
           if (!overlay) {
             const params = new URLSearchParams({ index: spectralIndexId });
-            if (acquiredAt) {
-              params.set("acquiredAt", acquiredAt);
-              params.set(
-                "parcelMean",
-                parcelMean === null || parcelMean === undefined ? "null" : String(parcelMean),
-              );
-            }
+            params.set("acquiredAt", acquiredAt);
+            params.set(
+              "parcelMean",
+              parcelMean === null || parcelMean === undefined ? "null" : String(parcelMean),
+            );
             const res = await fetch(
               `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?${params}`,
               { cache: "no-store" },
