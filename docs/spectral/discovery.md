@@ -59,9 +59,9 @@ Ya definido en `src/domain/spectral/types.ts`:
 
 ## Diferido
 
-- Series temporales / compositing multi-fecha (UI animación / slider de rasters).
 - Persistencia de extremos de zona por escena.
 - Máscara SCL agresiva (puede vaciar AOIs bare-soil).
+- Export GIF / dual PNG crossfade / rasters históricos persistidos (Neon/Blob).
 
 ## Slice Spectral-5 (raster overlay)
 
@@ -85,6 +85,14 @@ Ya definido en `src/domain/spectral/types.ts`:
 - API `GET .../spectral/history?days=`; panel sparkline + lista; tool `getParcelSpectralHistory`.
 - Offline: registry en memoria. Sin PNG histórico ni GIF (diferido).
 - ADR-042.
+
+## Slice Spectral-10 (timeline scrubber)
+
+- Slider + play/pause sobre escenas de `GET .../spectral/history` (≥2); overlay PNG por frame vía cache `parcelId:indexId:day`.
+- Zonas debounced (400 ms) y omitidas durante autoplay; prefetch overlay ±1.
+- Botón «Mapa» y «Actual» (live) sincronizados con `timelineSceneId`.
+- Sin GIF, dual-overlay ni persistencia de rasters.
+- ADR-057.
 
 ## Slice Spectral-8 (cron detección escena nueva)
 

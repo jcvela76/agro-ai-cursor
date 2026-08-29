@@ -325,6 +325,48 @@ export function AppShell({
     [router],
   );
 
+  const prefetchSpectralOverlay = useCallback(
+    (hint: {
+      acquiredAt: string;
+      means: Partial<Record<VegetationIndexId, number | null>>;
+    }) => {
+      const parcelId = selectedIdRef.current;
+      if (!parcelId || sideTabRef.current !== "spectral") {
+        return;
+      }
+      const acquisitionDay = hint.acquiredAt.slice(0, 10);
+      const cacheKey = `${parcelId}:${spectralIndexId}:${acquisitionDay}`;
+      const existing = spectralOverlayCacheRef.current.get(cacheKey);
+      if (existing?.rendering === "sentinel_raster") {
+        return;
+      }
+      const parcelMean = hint.means[spectralIndexId];
+      const params = new URLSearchParams({ index: spectralIndexId });
+      params.set("acquiredAt", hint.acquiredAt);
+      params.set(
+        "parcelMean",
+        parcelMean === null || parcelMean === undefined ? "null" : String(parcelMean),
+      );
+      void fetch(
+        `/api/parcels/${encodeURIComponent(parcelId)}/spectral/overlay?${params}`,
+        { cache: "no-store" },
+      )
+        .then((res) => res.json())
+        .then((json: { status: string; data?: ParcelSpectralOverlay }) => {
+          if (json.status !== "OK" || !json.data) {
+            return;
+          }
+          if (json.data.rendering === "sentinel_raster") {
+            spectralOverlayCacheRef.current.set(cacheKey, json.data);
+          }
+        })
+        .catch(() => {
+          // Prefetch is best-effort.
+        });
+    },
+    [spectralIndexId],
+  );
+
   const reloadParcels = useCallback(async () => {
     const res = await fetch("/api/parcels");
     const json = (await res.json()) as {
@@ -1522,6 +1564,7 @@ export function AppShell({
                 onZonesChange={(zones) => setSpectralZones(zones)}
                 onActiveZoneChange={setActiveSpectralZoneId}
                 onSceneHint={(hint) => setSpectralSceneHint(hint)}
+                onPrefetchOverlay={prefetchSpectralOverlay}
               />
             ) : null}
             {sideTab === "agent" ? (

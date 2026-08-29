@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Parcel } from "@/domain/parcel/types";
 import { colorForLegendValue, getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import type {
@@ -15,6 +15,12 @@ import {
   compareSpectralScenes,
   sceneMeansFromRecord,
 } from "@/domain/spectral/compare-scenes";
+import {
+  indexOfScene,
+  sceneAtIndex,
+  sortScenesAsc,
+  SPECTRAL_TIMELINE_PLAY_MS,
+} from "@/domain/spectral/timeline-scenes";
 import { VEGETATION_INDEX_ORDER } from "@/domain/spectral/vegetation-indices";
 import { formatSceneCapturedAt } from "@/domain/spectral/persist-spectral-scene";
 import { Badge } from "@/ui/badge";
@@ -110,6 +116,7 @@ export function SpectralPanel({
   onZonesChange,
   onActiveZoneChange,
   onSceneHint,
+  onPrefetchOverlay,
 }: {
   parcel: Parcel;
   selectedIndexId: VegetationIndexId;
@@ -125,6 +132,10 @@ export function SpectralPanel({
     acquiredAt: string;
     means: Partial<Record<VegetationIndexId, number | null>>;
   } | null) => void;
+  onPrefetchOverlay?: (hint: {
+    acquiredAt: string;
+    means: Partial<Record<VegetationIndexId, number | null>>;
+  }) => void;
 }) {
   const [payload, setPayload] = useState<SpectralOk<ParcelVegetationIndices> | SpectralLimited | null>(
     null,
@@ -145,18 +156,26 @@ export function SpectralPanel({
   const [backfillMessage, setBackfillMessage] = useState<string | null>(null);
   const [historyRefresh, setHistoryRefresh] = useState(0);
   const [compareIds, setCompareIds] = useState<string[]>([]);
-  const [mapSceneId, setMapSceneId] = useState<string | null>(null);
+  const [timelineSceneId, setTimelineSceneId] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const onZonesChangeRef = useRef(onZonesChange);
   const onActiveZoneChangeRef = useRef(onActiveZoneChange);
   const onSceneHintRef = useRef(onSceneHint);
+  const onPrefetchOverlayRef = useRef(onPrefetchOverlay);
   onZonesChangeRef.current = onZonesChange;
   onActiveZoneChangeRef.current = onActiveZoneChange;
   onSceneHintRef.current = onSceneHint;
+  onPrefetchOverlayRef.current = onPrefetchOverlay;
 
   useEffect(() => {
     setCompareIds([]);
-    setMapSceneId(null);
+    setTimelineSceneId(null);
+    setIsPlaying(false);
   }, [parcel.id]);
+
+  useEffect(() => {
+    setIsPlaying(false);
+  }, [selectedIndexId]);
 
   useEffect(() => {
     if (!activeZoneId) {
@@ -226,17 +245,35 @@ export function SpectralPanel({
 
   const historyScenes =
     historyPayload?.status === "OK" ? historyPayload.data.scenes : [];
-  const mapScene =
-    mapSceneId != null
-      ? (historyScenes.find((scene) => scene.id === mapSceneId) ?? null)
+  const sortedScenes = useMemo(
+    () => sortScenesAsc(historyScenes),
+    [historyScenes],
+  );
+
+  useEffect(() => {
+    if (sortedScenes.length < 2) {
+      return;
+    }
+    const newest = sortedScenes[sortedScenes.length - 1];
+    if (!newest) {
+      return;
+    }
+    setTimelineSceneId((current) => current ?? newest.id);
+  }, [sortedScenes]);
+
+  const timelineScene =
+    timelineSceneId != null
+      ? (sortedScenes.find((scene) => scene.id === timelineSceneId) ?? null)
       : null;
+  const timelineIndex =
+    timelineSceneId != null ? indexOfScene(historyScenes, timelineSceneId) : -1;
 
   // Publish scene hint so map overlay can skip a second Statistical call per index.
   useEffect(() => {
-    if (mapScene) {
+    if (timelineScene) {
       onSceneHintRef.current?.({
-        acquiredAt: mapScene.acquiredAt,
-        means: sceneMeansFromRecord(mapScene),
+        acquiredAt: timelineScene.acquiredAt,
+        means: sceneMeansFromRecord(timelineScene),
       });
       return;
     }
@@ -252,60 +289,108 @@ export function SpectralPanel({
       acquiredAt: payload.data.evidence.acquiredAt,
       means,
     });
-  }, [payload, mapScene]);
+  }, [payload, timelineScene]);
 
-  // Zones: pass acquiredAt + parcelMean when scene (map override or live) is ready.
   useEffect(() => {
-    let cancelled = false;
-    setZonesLoading(true);
-    setZonesPayload(null);
-    onZonesChangeRef.current(null, selectedIndexId);
-    onActiveZoneChangeRef.current(null);
-
-    let acquiredAt: string | null = null;
-    let sourceId: string | null = null;
-    let parcelMean: number | null = null;
-
-    if (mapScene) {
-      acquiredAt = mapScene.acquiredAt;
-      sourceId = mapScene.sourceId;
-      parcelMean =
-        mapScene.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
-    } else if (payload?.status === "OK") {
-      acquiredAt = payload.data.evidence.acquiredAt;
-      sourceId = payload.data.evidence.sourceId;
-      parcelMean =
-        payload.data.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
+    if (!onPrefetchOverlayRef.current || timelineSceneId === null || timelineIndex < 0) {
+      return;
     }
-
-    if (!acquiredAt || !sourceId) {
-      setZonesLoading(false);
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    const meanParam =
-      parcelMean === null ? "null" : encodeURIComponent(String(parcelMean));
-
-    void (async () => {
-      const result = await fetchSpectral<ParcelSpectralZones>(
-        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/zones?index=${encodeURIComponent(selectedIndexId)}&acquiredAt=${encodeURIComponent(acquiredAt)}&parcelMean=${meanParam}&sourceId=${encodeURIComponent(sourceId)}`,
-      );
-      if (cancelled) return;
-      setZonesPayload(result);
-      setZonesLoading(false);
-      if (result.status === "OK") {
-        onZonesChangeRef.current(result.data.zones, selectedIndexId);
-      } else {
-        onZonesChangeRef.current(null, selectedIndexId);
+    for (const delta of [-1, 0, 1]) {
+      const neighbor = sceneAtIndex(historyScenes, timelineIndex + delta);
+      if (!neighbor) {
+        continue;
       }
-    })();
+      onPrefetchOverlayRef.current({
+        acquiredAt: neighbor.acquiredAt,
+        means: sceneMeansFromRecord(neighbor),
+      });
+    }
+  }, [timelineSceneId, timelineIndex, historyScenes, selectedIndexId]);
+
+  useEffect(() => {
+    if (!isPlaying || sortedScenes.length < 2 || timelineSceneId === null) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setTimelineSceneId((prevId) => {
+        if (!prevId) {
+          setIsPlaying(false);
+          return prevId;
+        }
+        const idx = indexOfScene(historyScenes, prevId);
+        if (idx < 0 || idx >= sortedScenes.length - 1) {
+          setIsPlaying(false);
+          return prevId;
+        }
+        return sortedScenes[idx + 1]!.id;
+      });
+    }, SPECTRAL_TIMELINE_PLAY_MS);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [isPlaying, sortedScenes, historyScenes, timelineSceneId]);
+
+  // Zones: debounced; skip while autoplay is running.
+  useEffect(() => {
+    if (isPlaying) {
+      return;
+    }
+
+    let cancelled = false;
+    const debounce = window.setTimeout(() => {
+      void (async () => {
+        setZonesLoading(true);
+        setZonesPayload(null);
+        onZonesChangeRef.current(null, selectedIndexId);
+        onActiveZoneChangeRef.current(null);
+
+        let acquiredAt: string | null = null;
+        let sourceId: string | null = null;
+        let parcelMean: number | null = null;
+
+        if (timelineScene) {
+          acquiredAt = timelineScene.acquiredAt;
+          sourceId = timelineScene.sourceId;
+          parcelMean =
+            timelineScene.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
+        } else if (payload?.status === "OK") {
+          acquiredAt = payload.data.evidence.acquiredAt;
+          sourceId = payload.data.evidence.sourceId;
+          parcelMean =
+            payload.data.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
+        }
+
+        if (!acquiredAt || !sourceId) {
+          if (!cancelled) {
+            setZonesLoading(false);
+          }
+          return;
+        }
+
+        const meanParam =
+          parcelMean === null ? "null" : encodeURIComponent(String(parcelMean));
+
+        const result = await fetchSpectral<ParcelSpectralZones>(
+          `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/zones?index=${encodeURIComponent(selectedIndexId)}&acquiredAt=${encodeURIComponent(acquiredAt)}&parcelMean=${meanParam}&sourceId=${encodeURIComponent(sourceId)}`,
+        );
+        if (cancelled) {
+          return;
+        }
+        setZonesPayload(result);
+        setZonesLoading(false);
+        if (result.status === "OK") {
+          onZonesChangeRef.current(result.data.zones, selectedIndexId);
+        } else {
+          onZonesChangeRef.current(null, selectedIndexId);
+        }
+      })();
+    }, 400);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(debounce);
     };
-  }, [parcel.id, selectedIndexId, payload, mapScene]);
+  }, [parcel.id, selectedIndexId, payload, timelineScene, isPlaying]);
 
   function toggleCompare(sceneId: string) {
     setCompareIds((prev) => {
@@ -609,17 +694,25 @@ export function SpectralPanel({
       <div className={styles.historyBlock}>
         <p className={styles.legendTitle}>Historial · {selectedIndexId.toUpperCase()}</p>
         <p className={styles.zoneHint}>
-          Elige hasta 2 fechas para comparar medias. «Mapa» fija overlay y zonas a esa captura.
+          Arrastra o reproduce capturas guardadas. Zonas se actualizan al pausar. Elige hasta 2
+          fechas para comparar medias; «Mapa» fija el slider en esa captura.
         </p>
-        {mapScene ? (
+        {timelineSceneId === null ? (
+          <div className={styles.mapSceneBanner}>
+            <span>Vista actual (índices en vivo)</span>
+          </div>
+        ) : timelineScene ? (
           <div className={styles.mapSceneBanner}>
             <span>
-              Mapa: {mapScene.acquisitionDate} (histórico)
+              Mapa: {timelineScene.acquisitionDate} (histórico)
             </span>
             <button
               type="button"
               className={styles.historyMapButton}
-              onClick={() => setMapSceneId(null)}
+              onClick={() => {
+                setIsPlaying(false);
+                setTimelineSceneId(null);
+              }}
             >
               Actual
             </button>
@@ -711,11 +804,55 @@ export function SpectralPanel({
                     </svg>
                   ) : null;
                 })()}
+                {sortedScenes.length >= 2 ? (
+                  <div className={styles.timelineBlock}>
+                    <div className={styles.timelineControls}>
+                      <button
+                        type="button"
+                        className={styles.timelinePlayButton}
+                        disabled={timelineSceneId === null}
+                        onClick={() => setIsPlaying((playing) => !playing)}
+                        aria-pressed={isPlaying}
+                      >
+                        {isPlaying ? "Pausa" : "Play"}
+                      </button>
+                      <input
+                        type="range"
+                        className={styles.timelineSlider}
+                        min={0}
+                        max={sortedScenes.length - 1}
+                        step={1}
+                        value={
+                          timelineIndex >= 0 ? timelineIndex : sortedScenes.length - 1
+                        }
+                        onChange={(event) => {
+                          const nextIndex = Number(event.target.value);
+                          const scene = sceneAtIndex(historyScenes, nextIndex);
+                          if (!scene) {
+                            return;
+                          }
+                          setIsPlaying(false);
+                          setTimelineSceneId(scene.id);
+                        }}
+                        aria-label="Línea de tiempo de capturas"
+                      />
+                    </div>
+                    <div className={styles.timelineLabels}>
+                      <span>{sortedScenes[0]?.acquisitionDate}</span>
+                      <span>{sortedScenes[sortedScenes.length - 1]?.acquisitionDate}</span>
+                    </div>
+                    <p className={styles.timelineCurrent}>
+                      {timelineScene
+                        ? timelineScene.acquisitionDate
+                        : "Vista actual (índices en vivo)"}
+                    </p>
+                  </div>
+                ) : null}
                 <ul className={styles.historyList}>
                   {[...historyScenes].reverse().slice(0, 8).map((scene) => {
                     const reading = scene.indices.find((item) => item.id === selectedIndexId);
                     const compareSlot = compareIds.indexOf(scene.id);
-                    const onMap = mapSceneId === scene.id;
+                    const onMap = timelineSceneId === scene.id;
                     return (
                       <li key={scene.id} className={styles.historyRow}>
                         <button
@@ -745,9 +882,10 @@ export function SpectralPanel({
                         <button
                           type="button"
                           className={onMap ? styles.historyMapButtonActive : styles.historyMapButton}
-                          onClick={() =>
-                            setMapSceneId(onMap ? null : scene.id)
-                          }
+                          onClick={() => {
+                            setIsPlaying(false);
+                            setTimelineSceneId(onMap ? null : scene.id);
+                          }}
                           aria-pressed={onMap}
                         >
                           Mapa
@@ -772,12 +910,12 @@ export function SpectralPanel({
         <EvidenceRow
           label="Captura (satélite)"
           value={formatSceneCapturedAt(
-            mapScene?.acquiredAt ?? data.evidence.acquiredAt,
+            timelineScene?.acquiredAt ?? data.evidence.acquiredAt,
             parcel.timezone,
           )}
         />
-        {mapScene ? (
-          <EvidenceRow label="Mapa histórico" value={mapScene.acquisitionDate} />
+        {timelineScene ? (
+          <EvidenceRow label="Mapa histórico" value={timelineScene.acquisitionDate} />
         ) : null}
         {data.evidence.satelliteMission ? (
           <EvidenceRow label="Misión" value={data.evidence.satelliteMission} />

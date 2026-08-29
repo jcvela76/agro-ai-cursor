@@ -360,6 +360,56 @@
   color: var(--color-fg-primary);
 }
 
+.timelineBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+}
+
+.timelineControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.timelinePlayButton {
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 6px;
+  background: var(--color-bg-elevated, #fff);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.timelinePlayButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.timelineSlider {
+  flex: 1;
+  min-width: 0;
+}
+
+.timelineLabels {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.6875rem;
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.timelineCurrent {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .compareBlock {
   display: flex;
   flex-direction: column;
