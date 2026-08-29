@@ -7,9 +7,10 @@ alwaysApply: true
 
 Al cerrar un **slice** de implementación (UI-N, weather adapter, auth, Neon, etc.):
 
-1. **Commit** con mensaje enfocado en el *por qué* del slice (un commit por slice; no mezclar slices distintos).
-2. **Push** a `origin` de la rama activa en el mismo cierre.
-3. No dejar el slice solo en working tree o “para después” salvo que Julio diga explícitamente lo contrario.
+1. Actualizar [`docs/feature-inventory.md`](docs/feature-inventory.md) si el slice cambió capacidades (ver `.cursor/rules/feature-inventory.mdc`).
+2. **Commit** con mensaje enfocado en el *por qué* del slice (un commit por slice; no mezclar slices distintos).
+3. **Push** a `origin` de la rama activa en el mismo cierre.
+4. No dejar el slice solo en working tree o “para después” salvo que Julio diga explícitamente lo contrario.
 
 Esto aplica aunque en otras reglas diga “solo commit cuando lo pida”: **el cierre de slice implica pedir implícito de commit + push**.
 

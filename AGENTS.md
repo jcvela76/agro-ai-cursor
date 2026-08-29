@@ -12,6 +12,9 @@ Antes de implementar, lee también:
 
 - docs/product-boundary.md
 - docs/failure-lessons.md
+- docs/feature-inventory.md — inventario vivo de features/sub-features
+
+Al **cerrar un slice** que cambie capacidades: actualizar `docs/feature-inventory.md` (estado, detalle, fecha) y commitarlo con el slice (regla `.cursor/rules/feature-inventory.mdc`).
 
 ## Regla clean-room
 

@@ -1,0 +1,18 @@
+---
+description: Mantener docs/feature-inventory.md al día con cada slice
+alwaysApply: true
+---
+
+# Feature inventory — actualizar en cada cambio
+
+Al **cerrar un slice** que agregue, cambie, retire o deprecie comportamiento de producto:
+
+1. Actualizar [`docs/feature-inventory.md`](docs/feature-inventory.md):
+   - Estado (`hecho` / `stub` / `parcial` / `docs` / `planificado` / `refuse`)
+   - Detalle breve si cambió
+   - Fecha **Última actualización** al inicio del doc
+2. Si el slice introduce un área nueva, añadir sección.
+3. Incluir el cambio del inventario en el **mismo commit** del slice (o en el commit de cierre del slice).
+4. No omitir sub-features mínimas (APIs, tabs, crons, stubs, gates, non-goals).
+
+Excepción: cambios puramente cosméticos / tipográficos sin impacto de capacidad.

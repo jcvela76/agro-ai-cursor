@@ -8,6 +8,7 @@ Plataforma agronómica multiproducto centrada en parcelas. Proyecto **clean room
 |-----|-----------|
 | [product-boundary.md](docs/product-boundary.md) | Qué es, qué no es, regla clean-room |
 | [failure-lessons.md](docs/failure-lessons.md) | 10 lecciones del proyecto anterior |
+| [feature-inventory.md](docs/feature-inventory.md) | Features/sub-features vivos (actualizar en cada slice) |
 | [roadmap.md](docs/roadmap.md) | Secuencia de entrega simplificada |
 | [weather-first-release.md](docs/weather-first-release.md) | Charter Weather v1, corpus WQ/WA |
 
