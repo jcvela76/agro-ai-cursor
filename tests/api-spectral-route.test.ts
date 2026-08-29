@@ -16,6 +16,7 @@ import { GET as getIndices } from "@/app/api/parcels/[parcelId]/spectral/indices
 import { GET as getOverlay } from "@/app/api/parcels/[parcelId]/spectral/overlay/route";
 import { GET as getZones } from "@/app/api/parcels/[parcelId]/spectral/zones/route";
 import { GET as getHistory } from "@/app/api/parcels/[parcelId]/spectral/history/route";
+import { POST as postBackfill } from "@/app/api/parcels/[parcelId]/spectral/backfill/route";
 
 const parcelId = "parcel-lima-norte-001";
 const weatherOnly = defaultSyntheticSnapshots.find(
@@ -127,5 +128,36 @@ describe("API /api/parcels/[parcelId]/spectral", () => {
     expect(res.status).toBe(404);
     const body = await res.json();
     expect(body.reason).toBe("unavailable");
+  });
+
+  it("backfill returns 200 and populates history for Plus user", async () => {
+    mockAuth(weatherPlus.userId, weatherPlus.orgId);
+    const res = await postBackfill(
+      new Request(`http://localhost/api/parcels/${parcelId}/spectral/backfill?days=30`),
+      params,
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.status).toBe("OK");
+    expect(body.data.kind).toBe("spectral_backfill");
+    expect(body.data.scenesFound).toBeGreaterThanOrEqual(2);
+
+    const history = await getHistory(
+      new Request(`http://localhost/api/parcels/${parcelId}/spectral/history?days=90`),
+      params,
+    );
+    const historyBody = await history.json();
+    expect(historyBody.data.scenes.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("backfill returns 404 without weather_plus", async () => {
+    mockAuth(weatherOnly.userId, weatherOnly.orgId);
+    const res = await postBackfill(
+      new Request(`http://localhost/api/parcels/${parcelId}/spectral/backfill?days=30`),
+      params,
+    );
+    expect(res.status).toBe(404);
+    const body = await res.json();
+    expect(body.message).toContain("Plus");
   });
 });

@@ -45,4 +45,31 @@ export class SentinelHubStubSpectralSource implements SpectralSource {
       },
     };
   }
+
+  async listVegetationIndexScenes(
+    parcelId: string,
+    location: SpectralLocationHint,
+    options?: { days?: number },
+  ): Promise<SpectralResult<ParcelVegetationIndices[]>> {
+    if (!this.inner.listVegetationIndexScenes) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Historical spectral scenes are not available from this provider.",
+      };
+    }
+
+    const result = await this.inner.listVegetationIndexScenes(parcelId, location, options);
+    if (!result.ok) {
+      return result;
+    }
+
+    return {
+      ok: true,
+      data: result.data.map((scene) => ({
+        ...scene,
+        evidence: remapEvidence(scene.evidence),
+      })),
+    };
+  }
 }

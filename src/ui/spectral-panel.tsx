@@ -126,6 +126,9 @@ export function SpectralPanel({
     | null
   >(null);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [backfillLoading, setBackfillLoading] = useState(false);
+  const [backfillMessage, setBackfillMessage] = useState<string | null>(null);
+  const [historyRefresh, setHistoryRefresh] = useState(0);
   const onZonesChangeRef = useRef(onZonesChange);
   const onActiveZoneChangeRef = useRef(onActiveZoneChange);
   onZonesChangeRef.current = onZonesChange;
@@ -173,7 +176,7 @@ export function SpectralPanel({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [parcel.id, payload?.status]);
+  }, [parcel.id, payload?.status, historyRefresh]);
 
   useEffect(() => {
     let cancelled = false;
@@ -223,6 +226,39 @@ export function SpectralPanel({
   const legend = getSpectralLegend(selectedIndexId);
   const activeReading = data.indices.find((index) => index.id === selectedIndexId);
   const zonesOk = zonesPayload?.status === "OK" ? zonesPayload.data : null;
+  const historyScenes =
+    historyPayload?.status === "OK" ? historyPayload.data.scenes.length : 0;
+  const showBackfillButton = !historyLoading && historyScenes <= 3;
+
+  async function runBackfill() {
+    setBackfillLoading(true);
+    setBackfillMessage(null);
+    try {
+      const res = await fetch(
+        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/backfill?days=30`,
+        { method: "POST" },
+      );
+      const body = (await res.json()) as
+        | SpectralOk<{
+            kind: "spectral_backfill";
+            scenesFound: number;
+            scenesPersisted: number;
+          }>
+        | SpectralLimited;
+      if (body.status === "OK") {
+        setBackfillMessage(
+          `${body.data.scenesFound} escena${body.data.scenesFound === 1 ? "" : "s"} importada${body.data.scenesFound === 1 ? "" : "s"}`,
+        );
+        setHistoryRefresh((value) => value + 1);
+      } else {
+        setBackfillMessage(body.message);
+      }
+    } catch {
+      setBackfillMessage("No se pudo importar el historial.");
+    } finally {
+      setBackfillLoading(false);
+    }
+  }
 
   return (
     <div className={styles.content}>
@@ -354,6 +390,19 @@ export function SpectralPanel({
 
       <div className={styles.historyBlock}>
         <p className={styles.legendTitle}>Historial · {selectedIndexId.toUpperCase()}</p>
+        {showBackfillButton ? (
+          <div className={styles.backfillRow}>
+            <button
+              type="button"
+              className={styles.backfillButton}
+              disabled={backfillLoading}
+              onClick={() => void runBackfill()}
+            >
+              {backfillLoading ? "Importando…" : "Importar últimos 30 días"}
+            </button>
+            {backfillMessage ? <p className={styles.zoneHint}>{backfillMessage}</p> : null}
+          </div>
+        ) : null}
         {historyLoading ? <p className={styles.muted}>Cargando historial…</p> : null}
         {!historyLoading && historyPayload && historyPayload.status !== "OK" ? (
           <p className={styles.muted}>{historyPayload.message}</p>
@@ -362,7 +411,7 @@ export function SpectralPanel({
           <>
             {historyPayload.data.scenes.length === 0 ? (
               <p className={styles.muted}>
-                Sin escenas guardadas aún. Se persisten al consultar índices.
+                Sin escenas guardadas aún. Usa «Importar últimos 30 días» o consulta índices.
               </p>
             ) : (
               <>

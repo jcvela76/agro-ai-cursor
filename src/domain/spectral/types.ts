@@ -168,6 +168,12 @@ export interface SpectralSource {
     parcelId: string,
     location?: SpectralLocationHint,
   ): Promise<SpectralResult<ParcelVegetationIndices>>;
+  /** Optional historical scenes for backfill (one provider call, multiple acquisition intervals). */
+  listVegetationIndexScenes?(
+    parcelId: string,
+    location: SpectralLocationHint,
+    options?: { days?: number },
+  ): Promise<SpectralResult<ParcelVegetationIndices[]>>;
   /** Optional live raster overlay (CDSE Process API). */
   getIndexOverlay?(
     request: SpectralIndexOverlayRequest,

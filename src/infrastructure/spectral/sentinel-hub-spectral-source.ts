@@ -180,6 +180,97 @@ function pickLatestValidInterval(intervals: StatsInterval[]): {
   return null;
 }
 
+function listAllValidIntervals(intervals: StatsInterval[]): Array<{
+  interval: StatsInterval;
+  bands: SpectralReflectanceBands;
+}> {
+  const results: Array<{ interval: StatsInterval; bands: SpectralReflectanceBands }> = [];
+  for (const interval of intervals) {
+    const bands = extractMeans(interval);
+    if (bands) {
+      results.push({ interval, bands });
+    }
+  }
+  return results;
+}
+
+function buildStatisticsRequestBody(input: {
+  geometry: ParcelGeometry;
+  timeRange: { from: string; to: string };
+  maxCloudCoverage: number;
+  aggregationInterval: string;
+}): Record<string, unknown> {
+  return {
+    input: {
+      bounds: {
+        geometry: input.geometry,
+        properties: {
+          crs: "http://www.opengis.net/def/crs/EPSG/0/4326",
+        },
+      },
+      data: [
+        {
+          type: "sentinel-2-l2a",
+          dataFilter: {
+            mosaickingOrder: "mostRecent",
+            maxCloudCoverage: input.maxCloudCoverage,
+          },
+        },
+      ],
+    },
+    aggregation: {
+      timeRange: input.timeRange,
+      aggregationInterval: {
+        of: input.aggregationInterval,
+        lastIntervalBehavior: "SHORTEN",
+      },
+      width: 64,
+      height: 64,
+      evalscript: SENTINEL2_L2A_BAND_MEAN_EVALSCRIPT,
+    },
+  };
+}
+
+function mapIntervalToVegetationIndices(input: {
+  parcelId: string;
+  location: SpectralLocationHint;
+  interval: StatsInterval;
+  bands: SpectralReflectanceBands;
+  end: Date;
+  freshnessMaxDays: number;
+  lookbackDays: number;
+  maxCloudCoverage: number;
+}): ParcelVegetationIndices {
+  const acquiredAt = input.interval.interval.from;
+  const acquiredDate = new Date(acquiredAt);
+  const ageDays = daysBetween(input.end, acquiredDate);
+  const freshnessStatus = ageDays <= input.freshnessMaxDays ? "fresh" : "stale";
+  const timezone = input.location.timezone ?? "America/Lima";
+  const acquisitionDate = acquiredAt.slice(0, 10);
+
+  return {
+    kind: "vegetation_indices",
+    acquisitionDate,
+    indices: computeVegetationIndices(input.bands),
+    evidence: {
+      sourceId: SENTINEL_HUB_SOURCE_ID,
+      sourceLabel: SENTINEL_HUB_SOURCE_LABEL,
+      acquiredAt,
+      timezone,
+      spatialScope: {
+        kind: "point",
+        latitude: input.location.latitude,
+        longitude: input.location.longitude,
+        label: input.parcelId,
+      },
+      freshnessStatus,
+      freshnessPolicy: `cdse_s2_l2a_lookback_${input.lookbackDays}d_fresh_${input.freshnessMaxDays}d_cloud_${input.maxCloudCoverage}`,
+      satelliteMission: "Sentinel-2",
+      processingLevel: "L2A",
+    },
+  };
+}
+
 /**
  * Live spectral adapter via Copernicus Data Space (Sentinel Hub Statistical API).
  * Requires SENTINEL_CLIENT_ID + SENTINEL_CLIENT_SECRET (OAuth client credentials).
@@ -257,37 +348,116 @@ export class SentinelHubSpectralSource implements SpectralSource {
       to: toIsoDayEnd(end),
     };
 
-    const requestBody = {
-      input: {
-        bounds: {
-          geometry,
-          properties: {
-            crs: "http://www.opengis.net/def/crs/EPSG/0/4326",
-          },
-        },
-        data: [
-          {
-            type: "sentinel-2-l2a",
-            dataFilter: {
-              mosaickingOrder: "mostRecent",
-              maxCloudCoverage: this.maxCloudCoverage,
-            },
-          },
-        ],
-      },
-      aggregation: {
-        timeRange,
-        aggregationInterval: {
-          of: "P5D",
-          lastIntervalBehavior: "SHORTEN",
-        },
-        width: 64,
-        height: 64,
-        evalscript: SENTINEL2_L2A_BAND_MEAN_EVALSCRIPT,
-      },
+    const payload = await this.fetchStatistics({
+      geometry,
+      timeRange,
+      aggregationInterval: "P5D",
+    });
+    if (!payload.ok) {
+      return payload;
+    }
+
+    const intervals = payload.data ?? [];
+    const picked = pickLatestValidInterval(intervals);
+    if (!picked) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No hay escena Sentinel-2 L2A válida en la ventana configurada.",
+      };
+    }
+
+    const result: SpectralResult<ParcelVegetationIndices> = {
+      ok: true,
+      data: mapIntervalToVegetationIndices({
+        parcelId,
+        location,
+        interval: picked.interval,
+        bands: picked.bands,
+        end,
+        freshnessMaxDays: this.freshnessMaxDays,
+        lookbackDays: this.lookbackDays,
+        maxCloudCoverage: this.maxCloudCoverage,
+      }),
     };
 
-    let payload: StatsResponse;
+    if (this.cacheTtlMs > 0) {
+      this.cache.set(cacheKey, result, this.cacheTtlMs);
+    }
+
+    return result;
+  }
+
+  async listVegetationIndexScenes(
+    parcelId: string,
+    location: SpectralLocationHint,
+    options?: { days?: number },
+  ): Promise<SpectralResult<ParcelVegetationIndices[]>> {
+    const geometry = resolveGeometry(location);
+    if (!geometry) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "Spectral live requires parcel coordinates or polygon.",
+      };
+    }
+
+    const maxDays = readEnvInt("SPECTRAL_BACKFILL_MAX_DAYS", 90);
+    const days = Math.min(Math.max(options?.days ?? this.lookbackDays, 1), maxDays);
+    const end = this.now();
+    const start = new Date(end.getTime() - days * 24 * 60 * 60 * 1000);
+    const timeRange = {
+      from: toIsoDayStart(start),
+      to: toIsoDayEnd(end),
+    };
+
+    const payload = await this.fetchStatistics({
+      geometry,
+      timeRange,
+      aggregationInterval: "P1D",
+    });
+    if (!payload.ok) {
+      return payload;
+    }
+
+    const scenes = listAllValidIntervals(payload.data ?? [])
+      .map((item) =>
+        mapIntervalToVegetationIndices({
+          parcelId,
+          location,
+          interval: item.interval,
+          bands: item.bands,
+          end,
+          freshnessMaxDays: this.freshnessMaxDays,
+          lookbackDays: days,
+          maxCloudCoverage: this.maxCloudCoverage,
+        }),
+      )
+      .sort((a, b) => a.evidence.acquiredAt.localeCompare(b.evidence.acquiredAt));
+
+    if (scenes.length === 0) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No hay escenas Sentinel-2 L2A válidas en la ventana configurada.",
+      };
+    }
+
+    return { ok: true, data: scenes };
+  }
+
+  private async fetchStatistics(input: {
+    geometry: ParcelGeometry;
+    timeRange: { from: string; to: string };
+    aggregationInterval: string;
+  }): Promise<SpectralResult<StatsInterval[]>> {
+    const requestBody = buildStatisticsRequestBody({
+      geometry: input.geometry,
+      timeRange: input.timeRange,
+      maxCloudCoverage: this.maxCloudCoverage,
+      aggregationInterval: input.aggregationInterval,
+    });
+
     try {
       const token = await this.tokenProvider.getAccessToken();
       const response = await this.fetchFn(this.statisticsUrl, {
@@ -307,7 +477,8 @@ export class SentinelHubSpectralSource implements SpectralSource {
           message: "Spectral provider request failed.",
         };
       }
-      payload = (await response.json()) as StatsResponse;
+      const payload = (await response.json()) as StatsResponse;
+      return { ok: true, data: payload.data ?? [] };
     } catch {
       return {
         ok: false,
@@ -315,54 +486,6 @@ export class SentinelHubSpectralSource implements SpectralSource {
         message: "Spectral provider request failed.",
       };
     }
-
-    const intervals = payload.data ?? [];
-    const picked = pickLatestValidInterval(intervals);
-    if (!picked) {
-      return {
-        ok: false,
-        reason: "unavailable",
-        message: "No hay escena Sentinel-2 L2A válida en la ventana configurada.",
-      };
-    }
-
-    const acquiredAt = picked.interval.interval.from;
-    const acquiredDate = new Date(acquiredAt);
-    const ageDays = daysBetween(end, acquiredDate);
-    const freshnessStatus = ageDays <= this.freshnessMaxDays ? "fresh" : "stale";
-    const timezone = location.timezone ?? "America/Lima";
-    const acquisitionDate = acquiredAt.slice(0, 10);
-
-    const result: SpectralResult<ParcelVegetationIndices> = {
-      ok: true,
-      data: {
-        kind: "vegetation_indices",
-        acquisitionDate,
-        indices: computeVegetationIndices(picked.bands),
-        evidence: {
-          sourceId: SENTINEL_HUB_SOURCE_ID,
-          sourceLabel: SENTINEL_HUB_SOURCE_LABEL,
-          acquiredAt,
-          timezone,
-          spatialScope: {
-            kind: "point",
-            latitude: location.latitude,
-            longitude: location.longitude,
-            label: parcelId,
-          },
-          freshnessStatus,
-          freshnessPolicy: `cdse_s2_l2a_lookback_${this.lookbackDays}d_fresh_${this.freshnessMaxDays}d_cloud_${this.maxCloudCoverage}`,
-          satelliteMission: "Sentinel-2",
-          processingLevel: "L2A",
-        },
-      },
-    };
-
-    if (this.cacheTtlMs > 0) {
-      this.cache.set(cacheKey, result, this.cacheTtlMs);
-    }
-
-    return result;
   }
 
   async getIndexOverlay(

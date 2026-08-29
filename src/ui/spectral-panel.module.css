@@ -210,6 +210,33 @@
   gap: var(--space-2);
 }
 
+.backfillRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.backfillButton {
+  align-self: flex-start;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--color-fg-primary);
+  background: var(--color-surface-raised, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-sm, 6px);
+  cursor: pointer;
+}
+
+.backfillButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.backfillButton:hover:not(:disabled) {
+  border-color: var(--color-border-strong, rgba(255, 255, 255, 0.22));
+}
+
 .sparkline {
   width: 100%;
   max-width: 12rem;

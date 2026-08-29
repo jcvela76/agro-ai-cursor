@@ -25,6 +25,18 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
+function bandPayload(mean: number) {
+  return {
+    blue: { stats: { mean, sampleCount: 100, noDataCount: 0 } },
+    green: { stats: { mean: mean + 0.01, sampleCount: 100, noDataCount: 0 } },
+    red: { stats: { mean: mean + 0.02, sampleCount: 100, noDataCount: 0 } },
+    redEdge: { stats: { mean: mean + 0.05, sampleCount: 100, noDataCount: 0 } },
+    nir: { stats: { mean: mean + 0.2, sampleCount: 100, noDataCount: 0 } },
+    swir: { stats: { mean: mean + 0.1, sampleCount: 100, noDataCount: 0 } },
+    swir2: { stats: { mean: mean + 0.08, sampleCount: 100, noDataCount: 0 } },
+  };
+}
+
 describe("SentinelHubSpectralSource (CDSE)", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -164,6 +176,59 @@ describe("SentinelHubSpectralSource (CDSE)", () => {
     expect(result.ok).toBe(false);
     if (result.ok) return;
     expect(result.reason).toBe("unavailable");
+  });
+
+  it("listVegetationIndexScenes returns all valid intervals sorted by acquiredAt", async () => {
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ access_token: "tok-test", expires_in: 1800 }))
+      .mockResolvedValueOnce(
+        jsonResponse({
+          status: "OK",
+          data: [
+            {
+              interval: { from: "2026-08-10T00:00:00Z", to: "2026-08-11T00:00:00Z" },
+              outputs: { bands: { bands: bandPayload(0.05) } },
+            },
+            {
+              interval: { from: "2026-08-18T00:00:00Z", to: "2026-08-19T00:00:00Z" },
+              outputs: { bands: { bands: bandPayload(0.06) } },
+            },
+            {
+              interval: { from: "2026-08-25T00:00:00Z", to: "2026-08-26T00:00:00Z" },
+              outputs: { bands: { bands: bandPayload(0.07) } },
+            },
+          ],
+        }),
+      );
+
+    const source = new SentinelHubSpectralSource({
+      clientId: "sh-test",
+      clientSecret: "secret",
+      fetchFn,
+      cacheTtlMs: 0,
+      now: () => new Date("2026-08-28T12:00:00Z"),
+    });
+
+    const location = {
+      latitude: -11.95,
+      longitude: -77.05,
+      geometry: limaGeometry,
+      timezone: "America/Lima",
+    };
+    const result = await source.listVegetationIndexScenes("parcel-lima-norte-001", location, {
+      days: 30,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data).toHaveLength(3);
+    expect(result.data[0]?.acquisitionDate).toBe("2026-08-10");
+    expect(result.data[2]?.acquisitionDate).toBe("2026-08-25");
+
+    const statsCall = fetchFn.mock.calls[1];
+    const body = JSON.parse(String(statsCall[1]?.body));
+    expect(body.aggregation.aggregationInterval.of).toBe("P1D");
   });
 
   it("caches successful CDSE results and skips a second network round-trip", async () => {

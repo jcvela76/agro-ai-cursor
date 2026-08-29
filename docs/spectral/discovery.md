@@ -94,3 +94,11 @@ Ya definido en `src/domain/spectral/types.ts`:
 - `acquiredAt` = hora satelital de referencia (UI: “Captura (satélite)”), distinto de `updatedAt` de DB.
 - Env opcional: `SPECTRAL_CRON_MAX_PARCELS` (default 25 por ejecución).
 - ADR-043.
+
+## Slice Spectral-9 (backfill histórico bajo demanda)
+
+- `listVegetationIndexScenes` en adapter CDSE: 1 Statistical API call con intervalos `P1D` sobre ventana configurable.
+- `POST .../spectral/backfill?days=30` (Plus, parcela con geometría); persiste medias en `spectral_scenes`.
+- Panel Espectral: botón «Importar últimos 30 días» cuando hay pocas escenas guardadas.
+- Sin PNG histórico (Spectral-hist-3). Sin auto-backfill al crear parcela.
+- ADR-044.

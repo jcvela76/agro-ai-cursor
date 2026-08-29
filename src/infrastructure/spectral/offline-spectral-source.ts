@@ -92,4 +92,58 @@ export class OfflineSpectralSource implements SpectralSource {
       },
     };
   }
+
+  async listVegetationIndexScenes(
+    parcelId: string,
+    location: SpectralLocationHint,
+    options?: { days?: number },
+  ): Promise<SpectralResult<ParcelVegetationIndices[]>> {
+    const fixture =
+      this.byParcelId.get(parcelId) ??
+      this.byParcelId.get(resolveOfflineFixtureParcelId(parcelId)) ??
+      this.byCoords.get(coordKey(location.latitude, location.longitude));
+
+    if (!fixture) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No hay datos espectrales offline para esta parcela.",
+      };
+    }
+
+    const days = Math.min(Math.max(options?.days ?? 30, 1), 90);
+    const baseDate = new Date(`${fixture.acquisitionDate}T12:00:00Z`);
+    const offsets = [0, 7, 14, 21].filter((offset) => offset < days);
+
+    const scenes = offsets
+      .map((offsetDays) => {
+        const date = new Date(baseDate.getTime() - offsetDays * 24 * 60 * 60 * 1000);
+        const acquisitionDate = date.toISOString().slice(0, 10);
+        const acquiredAt = `${acquisitionDate}T10:30:00-05:00`;
+        const scale = 1 - offsetDays * 0.02;
+        const bands: SpectralReflectanceBands = {
+          blue: fixture.bands.blue * scale,
+          green: fixture.bands.green * scale,
+          red: fixture.bands.red * scale,
+          redEdge: fixture.bands.redEdge * scale,
+          nir: fixture.bands.nir * scale,
+          swir: fixture.bands.swir * scale,
+          swir2: fixture.bands.swir2 * scale,
+        };
+
+        return {
+          kind: "vegetation_indices" as const,
+          acquisitionDate,
+          indices: computeVegetationIndices(bands),
+          evidence: {
+            ...fixture.evidence,
+            acquiredAt,
+            freshnessStatus: offsetDays <= 14 ? ("fresh" as const) : ("stale" as const),
+          },
+        };
+      })
+      .sort((a, b) => a.evidence.acquiredAt.localeCompare(b.evidence.acquiredAt));
+
+    return { ok: true, data: scenes };
+  }
 }

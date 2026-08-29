@@ -21,6 +21,7 @@ import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-ve
 import { GetParcelSpectralOverlay } from "@/application/spectral/get-parcel-spectral-overlay";
 import { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
 import { GetParcelSpectralHistory } from "@/application/spectral/get-parcel-spectral-history";
+import { BackfillParcelSpectralHistory } from "@/application/spectral/backfill-parcel-spectral-history";
 import { RunSpectralScenePolling } from "@/application/spectral/run-spectral-scene-polling";
 import { AppendOrgReviewDecision } from "@/application/review/append-org-review-decision";
 import { ListOrgReviewDecisions } from "@/application/review/list-org-review-decisions";
@@ -302,6 +303,12 @@ export const getParcelSpectralZones = new GetParcelSpectralZones(
 
 export const getParcelSpectralHistory = new GetParcelSpectralHistory(
   parcelRegistry,
+  spectralSceneRegistry,
+);
+
+export const backfillParcelSpectralHistory = new BackfillParcelSpectralHistory(
+  parcelRegistry,
+  spectralSource,
   spectralSceneRegistry,
 );
 
