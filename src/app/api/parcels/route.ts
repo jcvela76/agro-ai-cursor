@@ -1,9 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { resolveParcelQuota } from "@/application/parcel/mutate-org-parcels";
 import {
   createAccessResolver,
   createOrgParcel,
   listOrgParcels,
+  orgMetadataStore,
+  parcelRegistry,
 } from "@/infrastructure/container";
 
 function mutationStatus(reason: string): number {
@@ -14,6 +17,8 @@ function mutationStatus(reason: string): number {
       return 404;
     case "cross_org":
     case "inactive_member":
+    case "parcel_limit":
+    case "parcel_area_limit":
       return 403;
     default:
       return 400;
@@ -38,7 +43,17 @@ export async function GET() {
     );
   }
 
-  return NextResponse.json({ status: "OK", data: result.data });
+  let quota = null;
+  if (authority && orgId) {
+    quota = await resolveParcelQuota({
+      parcels: parcelRegistry,
+      metadata: orgMetadataStore,
+      authority,
+      orgId,
+    });
+  }
+
+  return NextResponse.json({ status: "OK", data: result.data, quota });
 }
 
 export async function POST(request: Request) {
@@ -66,7 +81,15 @@ export async function POST(request: Request) {
 
   if (!result.ok) {
     return NextResponse.json(
-      { status: "PARCEL_MUTATION_DENIED", reason: result.reason, message: result.message },
+      {
+        status: "PARCEL_MUTATION_DENIED",
+        reason: result.reason,
+        message: result.message,
+        billingHref:
+          result.reason === "parcel_limit" || result.reason === "parcel_area_limit"
+            ? "/app/billing"
+            : undefined,
+      },
       { status: mutationStatus(result.reason) },
     );
   }

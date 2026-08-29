@@ -255,6 +255,14 @@ export function AppShell({
   const sideTabRef = useRef<SideTab>(parseSideTab(initialTab));
 
   const [parcels, setParcels] = useState<Parcel[]>([]);
+  const [parcelQuota, setParcelQuota] = useState<{
+    used: number;
+    limit: number;
+    remaining: number;
+    blocked: boolean;
+    maxHaPerParcel: number;
+    planSlug: string;
+  } | null>(null);
   const [listError, setListError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(initialParcelId);
   const [drawMode, setDrawMode] = useState<DrawMode>("idle");
@@ -306,12 +314,21 @@ export function AppShell({
       status: string;
       data?: Parcel[];
       message?: string;
+      quota?: {
+        used: number;
+        limit: number;
+        remaining: number;
+        blocked: boolean;
+        maxHaPerParcel: number;
+        planSlug: string;
+      } | null;
     };
     if (!res.ok || json.status !== "OK" || !json.data) {
       setListError(json.message ?? "No se pudieron cargar las parcelas");
       return;
     }
     setParcels(json.data);
+    setParcelQuota(json.quota ?? null);
     setListError(null);
   }, []);
 
@@ -735,6 +752,12 @@ export function AppShell({
   };
 
   const startDraw = () => {
+    if (parcelQuota?.blocked) {
+      setActionError(
+        `Cupo de parcelas agotado (${parcelQuota.used}/${parcelQuota.limit}). Mejora el plan en Facturación.`,
+      );
+      return;
+    }
     const draw = drawRef.current;
     if (!draw) {
       setActionError("Espera a que el mapa termine de cargar e inténtalo de nuevo");
@@ -768,9 +791,18 @@ export function AppShell({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, geometry: draftGeometry }),
       });
-      const json = (await res.json()) as { status: string; data?: Parcel; message?: string };
+      const json = (await res.json()) as {
+        status: string;
+        data?: Parcel;
+        message?: string;
+        billingHref?: string;
+      };
       if (!res.ok || json.status !== "OK" || !json.data) {
-        setActionError(json.message ?? "No se pudo guardar");
+        const tip =
+          json.billingHref != null
+            ? ` ${json.message ?? "Límite de plan."} → /app/billing`
+            : (json.message ?? "No se pudo guardar");
+        setActionError(tip);
         return;
       }
       resetDrawState({ restoreSelection: false });
@@ -868,9 +900,18 @@ export function AppShell({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, geometry: feature.geometry }),
       });
-      const json = (await res.json()) as { status: string; data?: Parcel; message?: string };
+      const json = (await res.json()) as {
+        status: string;
+        data?: Parcel;
+        message?: string;
+        billingHref?: string;
+      };
       if (!res.ok || json.status !== "OK" || !json.data) {
-        setActionError(json.message ?? "No se pudo actualizar");
+        const tip =
+          json.billingHref != null
+            ? ` ${json.message ?? "Límite de plan."} → /app/billing`
+            : (json.message ?? "No se pudo actualizar");
+        setActionError(tip);
         return;
       }
       resetDrawState({ restoreSelection: false });
@@ -960,11 +1001,21 @@ export function AppShell({
             type="button"
             variant="primary"
             onClick={startDraw}
-            disabled={busy || !drawReady}
+            disabled={busy || !drawReady || Boolean(parcelQuota?.blocked)}
             className={styles.chromeAction}
+            title={
+              parcelQuota
+                ? `Parcelas ${parcelQuota.used}/${parcelQuota.limit} · máx ${parcelQuota.maxHaPerParcel} ha`
+                : undefined
+            }
           >
             + Nueva parcela
           </Button>
+          {parcelQuota ? (
+            <span className={styles.parcelQuota} title={`Plan ${parcelQuota.planSlug}`}>
+              {parcelQuota.used}/{parcelQuota.limit} · ≤{parcelQuota.maxHaPerParcel} ha
+            </span>
+          ) : null}
           <UserButton />
         </div>
       </header>
@@ -1039,7 +1090,13 @@ export function AppShell({
                 autoFocus
               />
             </label>
-            <p className={styles.help}>Polígono listo. Guarda nombre y geometría en el workspace.</p>
+            <p className={styles.help}>
+              Polígono listo. Guarda nombre y geometría en el workspace
+              {parcelQuota
+                ? ` · cupo ${parcelQuota.used}/${parcelQuota.limit}, máx ${parcelQuota.maxHaPerParcel} ha`
+                : ""}
+              .
+            </p>
             <div className={styles.actions}>
               <Button type="button" onClick={() => void saveDraft()} disabled={busy}>
                 Guardar parcela

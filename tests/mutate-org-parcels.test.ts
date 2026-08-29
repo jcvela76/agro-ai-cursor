@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CreateOrgParcel, DeleteOrgParcel, UpdateOrgParcel } from "@/application/parcel/mutate-org-parcels";
-import { squareAround } from "@/domain/parcel/geometry";
+import { demoParcelSquare, squareAround } from "@/domain/parcel/geometry";
 import { polygonCentroid } from "@/domain/parcel/geometry";
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
@@ -20,7 +20,7 @@ describe("CreateOrgParcel / UpdateOrgParcel / DeleteOrgParcel", () => {
   it("creates a parcel for the active org", async () => {
     const registry = new SyntheticParcelRegistry([]);
     const create = new CreateOrgParcel(registry);
-    const geometry = squareAround(-77.1, -12.0, 0.005);
+    const geometry = demoParcelSquare(-77.1, -12.0);
 
     const result = await create.execute({
       authority,
@@ -44,7 +44,7 @@ describe("CreateOrgParcel / UpdateOrgParcel / DeleteOrgParcel", () => {
       authority: null,
       orgId: null,
       name: "X",
-      geometry: squareAround(0, 0),
+      geometry: demoParcelSquare(0, 0),
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -62,7 +62,7 @@ describe("CreateOrgParcel / UpdateOrgParcel / DeleteOrgParcel", () => {
       authority,
       orgId: authority.orgId,
       name: "Temp",
-      geometry: squareAround(-77.0, -12.0),
+      geometry: demoParcelSquare(-77.0, -12.0),
     });
     expect(created.ok).toBe(true);
     if (!created.ok) return;

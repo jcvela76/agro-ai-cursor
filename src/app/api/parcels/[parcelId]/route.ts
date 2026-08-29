@@ -14,6 +14,8 @@ function mutationStatus(reason: string): number {
       return 404;
     case "cross_org":
     case "inactive_member":
+    case "parcel_limit":
+    case "parcel_area_limit":
       return 403;
     default:
       return 400;
@@ -50,7 +52,15 @@ export async function PATCH(
 
   if (!result.ok) {
     return NextResponse.json(
-      { status: "PARCEL_MUTATION_DENIED", reason: result.reason, message: result.message },
+      {
+        status: "PARCEL_MUTATION_DENIED",
+        reason: result.reason,
+        message: result.message,
+        billingHref:
+          result.reason === "parcel_limit" || result.reason === "parcel_area_limit"
+            ? "/app/billing"
+            : undefined,
+      },
       { status: mutationStatus(result.reason) },
     );
   }

@@ -33,9 +33,31 @@ export const PLAN_DAILY_BRIEFING_LIMITS: Record<string, number> = {
   full: 120,
 };
 
+/** Max parcels per org (create blocked at limit). Pilot mid. */
+export const PLAN_PARCEL_COUNT_LIMITS: Record<string, number> = {
+  free: 2,
+  free_org: 2,
+  weather_base: 2,
+  weather_plus: 10,
+  operations: 40,
+  full: 100,
+};
+
+/** Max hectares per parcel polygon (create / expand). Pilot mid. */
+export const PLAN_PARCEL_MAX_HA: Record<string, number> = {
+  free: 25,
+  free_org: 25,
+  weather_base: 25,
+  weather_plus: 100,
+  operations: 500,
+  full: 2000,
+};
+
 const DEFAULT_MEMBER_LIMIT = PLAN_MEMBER_LIMITS.free;
 const DEFAULT_REPORT_LIMIT = PLAN_REPORT_LIMITS.free;
 const DEFAULT_DAILY_BRIEFING_LIMIT = PLAN_DAILY_BRIEFING_LIMITS.free;
+const DEFAULT_PARCEL_COUNT_LIMIT = PLAN_PARCEL_COUNT_LIMITS.free;
+const DEFAULT_PARCEL_MAX_HA = PLAN_PARCEL_MAX_HA.free;
 
 export function reportLimitForPlan(slug: string | null | undefined): number {
   const normalized = normalizePlanSlug(slug) ?? "free";
@@ -45,6 +67,37 @@ export function reportLimitForPlan(slug: string | null | undefined): number {
 export function dailyBriefingLimitForPlan(slug: string | null | undefined): number {
   const normalized = normalizePlanSlug(slug) ?? "free";
   return PLAN_DAILY_BRIEFING_LIMITS[normalized] ?? DEFAULT_DAILY_BRIEFING_LIMIT;
+}
+
+export function parcelCountLimitForPlan(slug: string | null | undefined): number {
+  const normalized = normalizePlanSlug(slug) ?? "free";
+  return PLAN_PARCEL_COUNT_LIMITS[normalized] ?? DEFAULT_PARCEL_COUNT_LIMIT;
+}
+
+export function parcelMaxHaForPlan(slug: string | null | undefined): number {
+  const normalized = normalizePlanSlug(slug) ?? "free";
+  return PLAN_PARCEL_MAX_HA[normalized] ?? DEFAULT_PARCEL_MAX_HA;
+}
+
+export function parcelQuotaUsage(input: {
+  used: number;
+  planSlug: string | null | undefined;
+}): {
+  limit: number;
+  used: number;
+  remaining: number;
+  blocked: boolean;
+  maxHaPerParcel: number;
+} {
+  const limit = parcelCountLimitForPlan(input.planSlug);
+  const used = input.used;
+  return {
+    limit,
+    used,
+    remaining: Math.max(0, limit - used),
+    blocked: used >= limit,
+    maxHaPerParcel: parcelMaxHaForPlan(input.planSlug),
+  };
 }
 
 export function reportQuotaUsage(input: {

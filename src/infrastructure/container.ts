@@ -161,20 +161,6 @@ const reportRegistry = createReportRegistry();
 const dailyBriefingDeliveryPrefsRegistry = createDailyBriefingDeliveryPrefsRegistry();
 const emailSender = createEmailSender();
 
-export const listOrgParcels = new ListOrgParcels(parcelRegistry);
-export const createOrgParcel = new CreateOrgParcel(parcelRegistry);
-export const updateOrgParcel = new UpdateOrgParcel(parcelRegistry);
-export const deleteOrgParcel = new DeleteOrgParcel(parcelRegistry);
-
-export const getParcelAgronomicProfile = new GetParcelAgronomicProfile(
-  parcelRegistry,
-  parcelAgronomicProfileRegistry,
-);
-export const updateParcelAgronomicProfile = new UpdateParcelAgronomicProfile(
-  parcelRegistry,
-  parcelAgronomicProfileRegistry,
-);
-
 export function createOrgMetadataStore(): OrgMetadataStore {
   if (process.env.CLERK_SECRET_KEY) {
     return new ClerkOrgMetadataStore();
@@ -188,6 +174,21 @@ export function createOrgMetadataStore(): OrgMetadataStore {
 }
 
 const orgMetadataStore = createOrgMetadataStore();
+export { orgMetadataStore, parcelRegistry };
+
+export const listOrgParcels = new ListOrgParcels(parcelRegistry);
+export const createOrgParcel = new CreateOrgParcel(parcelRegistry, orgMetadataStore);
+export const updateOrgParcel = new UpdateOrgParcel(parcelRegistry, orgMetadataStore);
+export const deleteOrgParcel = new DeleteOrgParcel(parcelRegistry);
+
+export const getParcelAgronomicProfile = new GetParcelAgronomicProfile(
+  parcelRegistry,
+  parcelAgronomicProfileRegistry,
+);
+export const updateParcelAgronomicProfile = new UpdateParcelAgronomicProfile(
+  parcelRegistry,
+  parcelAgronomicProfileRegistry,
+);
 
 function createOrgMemberLimitGateway() {
   if (process.env.CLERK_SECRET_KEY) {

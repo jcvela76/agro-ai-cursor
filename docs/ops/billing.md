@@ -61,6 +61,19 @@ Tope de **miembros activos + invitaciones pendientes** por plan (UI en `/app/adm
 
 Mapper: `src/domain/billing/plan-limits.ts`. Sin cobro per-seat en Clerk por ahora; al llegar al tope, CTA a `/app/billing`.
 
+### Límites de parcelas (piloto medio)
+
+Tope de **número de parcelas** y **máx. hectáreas por parcela** (no tope de ha totales org). Enforcement en create/update; parcelas ya sobre el límite siguen legibles (grandfather); se puede reducir/renombrar, no ampliar más allá del tope.
+
+| Plan slug | Máx parcelas | Máx ha / parcela |
+|-----------|--------------|------------------|
+| `free` / `free_org` / `weather_base` | 2 | 25 |
+| `weather_plus` | 10 | 100 |
+| `operations` | 40 | 500 |
+| `full` | 100 | 2000 |
+
+Mapper: `PLAN_PARCEL_COUNT_LIMITS` / `PLAN_PARCEL_MAX_HA` en `src/domain/billing/plan-limits.ts`. UI muestra cupo junto a «Nueva parcela»; deny → CTA `/app/billing`.
+
 ### Cuota de informes (Plus — ADR-035 / ADR-036)
 
 **Puntuales** (`PLAN_REPORT_LIMITS`) — Clima / Agente / Trace on-demand:
@@ -224,7 +237,7 @@ Ver también: `docs/ops/legal.md`.
 - Planes JSON (CLI): `docs/ops/clerk-billing-plans.json`
 - Scripts: `scripts/clerk-billing-bootstrap.sh`, `scripts/clerk-webhook-stg.sh`, `scripts/clerk-webhook-prod.sh`
 - Mapper: `src/domain/billing/plan-entitlements.ts`
-- Límites miembros: `src/domain/billing/plan-limits.ts`
+- Límites miembros / parcelas: `src/domain/billing/plan-limits.ts`
 - Parse webhook: `src/application/billing/parse-subscription-item-event.ts`
 - Sync: `src/application/billing/sync-org-billing-entitlements.ts`
 - Route: `src/app/api/webhooks/clerk/route.ts`

@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (pre-client QA) |
+| **Última actualización** | 2026-08-29 (parcel plan limits) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -73,6 +73,8 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Terra Draw create/edit | hecho | Dibujar/editar polígonos |
 | Markers / fill / fitBounds | hecho | Visualización y zoom |
 | Área aproximada (ha) | hecho | Estimación de hectáreas |
+| Límites por plan (# + máx ha) | hecho | free 2×25 · plus 10×100 · ops 40×500 · full 100×2000; grandfather shrink |
+| Cupo en UI + CTA billing | hecho | Badge chrome; deny create/expand |
 | Registry Neon vs sintético | hecho | Persistencia real o fixtures |
 | Seed parcelas | hecho | `npm run db:seed` |
 | Historial de geometría | docs | En boundary; no en schema |
@@ -244,7 +246,7 @@ Gate: `weather` + `weather_plus`.
 | Clerk Billing sandbox + PricingTable | hecho | `/app/billing` |
 | Webhook sync entitlements | hecho | `POST /api/webhooks/clerk` |
 | Cancel flow | hecho | `/app/billing/cancel` |
-| Cuotas miembros / reportes / briefings | hecho | `plan-limits.ts` |
+| Cuotas miembros / reportes / briefings / parcelas | hecho | `plan-limits.ts` |
 | Cobro live Production | planificado | Counsel + Stripe live |
 | Precios LP como cotización | refuse | Solo informativos |
 
