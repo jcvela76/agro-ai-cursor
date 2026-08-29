@@ -135,6 +135,14 @@ export function SpectralPanel({
   onZonesChangeRef.current = onZonesChange;
   onActiveZoneChangeRef.current = onActiveZoneChange;
 
+  useEffect(() => {
+    if (!activeZoneId) {
+      return;
+    }
+    const row = document.getElementById(`spectral-zone-${activeZoneId}`);
+    row?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [activeZoneId]);
+
   // History loads immediately (Neon) — does not wait for CDSE indices.
   useEffect(() => {
     let cancelled = false;
@@ -281,14 +289,6 @@ export function SpectralPanel({
     zonesOk?.parcelMean !== undefined
       ? activeZone.value - zonesOk.parcelMean
       : null;
-
-  useEffect(() => {
-    if (!activeZoneId) {
-      return;
-    }
-    const row = document.getElementById(`spectral-zone-${activeZoneId}`);
-    row?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [activeZoneId]);
 
   async function runBackfill() {
     setBackfillLoading(true);
