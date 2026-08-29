@@ -205,6 +205,8 @@ El webhook Production puede configurarse **antes** de cobro live (org member lim
 
 Hasta completar Stripe + smoke: **ningún cobro live** en apex.
 
+**Decisión (2026-08-29):** Stripe Production / cobro live **diferido** hasta MVP validado con usuarios reales. Counsel OK; sandbox Billing permanece en stg.
+
 Ver también: `docs/ops/legal.md`.
 
 ## Override ops

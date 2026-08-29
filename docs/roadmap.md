@@ -183,7 +183,8 @@ Ver `docs/reports/discovery.md`.
 | Spectral Perf-4 | **Hecho 2026-08-29** — 1 Process FLOAT32 + aggregate fishnet; Statistical fallback (ADR-047) |
 | Spectral Perf-5 | **Hecho 2026-08-29** — cron precompute 8 índices → zone snapshots (ADR-048) |
 | Legal-1.3 | **Hecho 2026-08-29** — counsel aprobado; operador RAW CODE S.A.C. RUC 20614132206; sin banner DRAFT |
-| **Siguiente** | Billing live (Stripe Production); Production CDSE post ToS |
+| Billing live | **Diferido 2026-08-29** — tras MVP probado por usuarios reales (sandbox + counsel OK) |
+| **Siguiente** | Piloto usuarios reales; Production CDSE post ToS |
 
 ## Docs por slice (canónico)
 
