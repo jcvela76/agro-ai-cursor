@@ -83,6 +83,7 @@ Secuencia simplificada de entrega. Este documento es el plan activo.
 - **2b:** programación diaria → email / WhatsApp — **email + cron hecho**; WhatsApp pendiente
 - **2c:** tool agente `getParcelRecentBriefings` — **hecho**
 - **Report-3:** perfil agronómico de parcela vía chat + pestaña Perfil — **hecho**
+- **Report-4:** zonas espectrales NDWI en informe hídrico + briefing diario — **hecho** (ADR-041)
 
 Ver `docs/reports/discovery.md`.
 
@@ -173,6 +174,7 @@ Ver `docs/reports/discovery.md`.
 | Spectral-4 live | **Hecho 2026-08-28** — CDSE Statistical API + OAuth; `SPECTRAL_SOURCE=sentinel_hub` (ADR-038) |
 | Spectral-5 raster | **Hecho 2026-08-28** — Process API PNG overlay en mapa (ADR-039) |
 | Spectral-6 zonas | **Hecho 2026-08-28** — fishnet + stats por zona + panel/mapa/tool (ADR-040) |
+| Report-4 zonas en informes | **Hecho 2026-08-28** — NDWI zones en hídrico + briefing (ADR-041) |
 | **Siguiente** | Legal DRAFT → abogado; Billing live; Production CDSE post ToS |
 
 ## Docs por slice (canónico)

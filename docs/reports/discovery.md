@@ -87,6 +87,7 @@ Día N+1: carga último `ready` (≤7 días); si no hay → briefing “día 1�
 1. Resumen del día  
 2. Delta vs ayer (si hay snapshot)  
 3. Tablas (clima / hídrico / espectral según tools)  
+   - **Report-4:** NDWI parcel mean + extremos de zona (baja/alta/Δ) en evidencia del briefing e informe hídrico; sugerencia determinística si Δ ≥ 0.05
 4. Sugerencias agente (WQ-18)  
 5. Límites + decisión agrónomo  
 

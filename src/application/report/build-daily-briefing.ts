@@ -76,6 +76,7 @@ export class BuildDailyBriefing {
       limits: [
         "ET0 ≠ riego aplicado",
         "NDWI/NDMI no miden humedad de suelo directa",
+        "Zonas espectrales = medias relativas (fishnet), no umbrales absolutos",
         "Decisión operativa: agrónomo",
       ],
     };

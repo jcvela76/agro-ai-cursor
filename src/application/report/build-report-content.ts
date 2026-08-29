@@ -11,6 +11,12 @@ import type { GetParcelWeatherObservation } from "@/application/weather/get-parc
 import type { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import type { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import type { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
+import type { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
+import {
+  pickZoneExtremes,
+  zoneExtremesBullet,
+  zoneExtremesEvidenceRows,
+} from "@/domain/spectral/zone-report-summary";
 import { renderAgentBriefingHtml, renderReportHtml } from "@/reports/render-report-html";
 
 export interface BuildReportContentInput {
@@ -41,6 +47,7 @@ export class BuildReportContent {
     private readonly gdd: GetParcelWeatherGdd,
     private readonly et0: GetParcelWeatherEt0,
     private readonly vegetation: GetParcelVegetationIndices,
+    private readonly spectralZones: GetParcelSpectralZones,
   ) {}
 
   async execute(input: BuildReportContentInput): Promise<BuildReportResult> {
@@ -272,6 +279,21 @@ export class BuildReportContent {
           validity: veg.data.acquisitionDate,
         });
       }
+
+      const zonesResult = await this.spectralZones.execute({
+        ...authInput,
+        indexId: "ndwi",
+      });
+      if (zonesResult.ok) {
+        const extremes = pickZoneExtremes(zonesResult.data);
+        const source = zonesResult.data.evidence.sourceLabel;
+        const validity = zonesResult.data.evidence.acquiredAt.slice(0, 10);
+        rows.push(...zoneExtremesEvidenceRows(extremes, source, validity));
+        const zoneBullet = zoneExtremesBullet(extremes);
+        if (zoneBullet) {
+          bullets.push(zoneBullet);
+        }
+      }
     }
 
     const summaryHtml = `<h2>Resumen</h2><ul>${bullets.map((b) => `<li>${b}</li>`).join("")}</ul><p>La evidencia sugiere revisar condiciones en campo antes de decidir riego.</p>`;
@@ -282,7 +304,8 @@ export class BuildReportContent {
       parcelName: parcel.name,
       summaryHtml,
       evidenceRows: rows,
-      limitsHtml: "ET0 ≠ riego aplicado; NDWI/NDMI no miden humedad de suelo directa. Decisión: agrónomo.",
+      limitsHtml:
+        "ET0 ≠ riego aplicado; NDWI/NDMI no miden humedad de suelo directa. Zonas = medias relativas dentro de la parcela (fishnet), no umbrales agronómicos absolutos. Decisión: agrónomo.",
       generatedAt,
     });
 

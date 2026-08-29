@@ -43,6 +43,21 @@ export function synthesizeDailyBriefingDeterministic(input: {
     });
   }
 
+  const ndwiSpread = input.signals.find((s) => s.id === "ndwi_zone_spread");
+  const ndwiZoneLow = input.signals.find((s) => s.id === "ndwi_zone_low");
+  if (
+    typeof ndwiSpread?.value === "number" &&
+    ndwiSpread.value >= 0.05 &&
+    typeof ndwiZoneLow?.value === "number"
+  ) {
+    suggestions.push({
+      theme: "vegetation",
+      text: `Heterogeneidad NDWI dentro de la parcela (Δ ${ndwiSpread.value.toFixed(2)}); ${ndwiZoneLow.label} = ${ndwiZoneLow.value.toFixed(2)}. Conviene priorizar inspección en esa subárea; tiers relativos, no umbrales absolutos.`,
+      confidence: "medium",
+      evidenceRefs: ["ndwi_zone_spread", "ndwi_zone_low"],
+    });
+  }
+
   if (typeof dryDays?.value === "number" && dryDays.value >= 5) {
     suggestions.push({
       theme: "weather",

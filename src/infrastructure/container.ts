@@ -312,6 +312,7 @@ export const buildReportContent = new BuildReportContent(
   getParcelWeatherGdd,
   getParcelWeatherEt0,
   getParcelVegetationIndices,
+  getParcelSpectralZones,
 );
 
 export const collectParcelSignals = new CollectParcelSignals(
@@ -321,6 +322,7 @@ export const collectParcelSignals = new CollectParcelSignals(
   getParcelWeatherRainfall30d,
   getParcelWeatherEt0,
   getParcelVegetationIndices,
+  getParcelSpectralZones,
 );
 
 export const buildDailyBriefing = new BuildDailyBriefing(

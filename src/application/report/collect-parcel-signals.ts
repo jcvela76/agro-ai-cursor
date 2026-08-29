@@ -7,6 +7,12 @@ import type { GetParcelWeatherForecast } from "@/application/weather/get-parcel-
 import type { GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
 import type { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import type { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
+import type { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
+import {
+  pickZoneExtremes,
+  zoneExtremesBriefingSignals,
+  zoneExtremesEvidenceRows,
+} from "@/domain/spectral/zone-report-summary";
 
 export interface ParcelEvidenceRow {
   signal: string;
@@ -30,6 +36,7 @@ export class CollectParcelSignals {
     private readonly rainfall30d: GetParcelWeatherRainfall30d,
     private readonly et0: GetParcelWeatherEt0,
     private readonly vegetation: GetParcelVegetationIndices,
+    private readonly spectralZones: GetParcelSpectralZones,
   ) {}
 
   async execute(input: {
@@ -176,6 +183,18 @@ export class CollectParcelSignals {
           source: veg.data.evidence.sourceLabel,
           validity: veg.data.acquisitionDate,
         });
+      }
+
+      const zonesResult = await this.spectralZones.execute({
+        ...authInput,
+        indexId: "ndwi",
+      });
+      if (zonesResult.ok) {
+        const extremes = pickZoneExtremes(zonesResult.data);
+        const source = zonesResult.data.evidence.sourceLabel;
+        const validity = zonesResult.data.evidence.acquiredAt.slice(0, 10);
+        signals.push(...zoneExtremesBriefingSignals(extremes, source, validity));
+        evidenceRows.push(...zoneExtremesEvidenceRows(extremes, source, validity));
       }
     }
 
