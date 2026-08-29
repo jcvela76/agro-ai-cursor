@@ -58,7 +58,7 @@ export class CollectParcelSignals {
       this.forecast.execute(authInput),
       this.rainfall30d.execute(authInput),
       this.et0.execute(authInput),
-      this.vegetation.execute(authInput),
+      this.vegetation.execute({ ...authInput, source: "auto" }),
     ]);
 
     const signals: DailyBriefingSignal[] = [];
@@ -188,6 +188,9 @@ export class CollectParcelSignals {
       const zonesResult = await this.spectralZones.execute({
         ...authInput,
         indexId: "ndwi",
+        acquiredAt: veg.data.evidence.acquiredAt,
+        sourceId: veg.data.evidence.sourceId,
+        parcelMean: ndwi?.value ?? null,
       });
       if (zonesResult.ok) {
         const extremes = pickZoneExtremes(zonesResult.data);
