@@ -145,6 +145,13 @@ Compara git, Neon (`spectral_scenes` + parcela smoke), HTTP y presencia de env V
 - Evidence: `zones_fishnet_process_1` / methodId `zones/v2`; fallback `zones_fishnet_3` / `zones/v1`.
 - ADR-047.
 
+## Slice Spectral Perf-5 (precompute zones en cron)
+
+- Tras `new_scene_only` persistido: precomputa zonas para los 8 índices del catálogo.
+- Reusa `GetParcelSpectralZones` write-through → `spectral_zone_snapshots`.
+- `zonesPrecomputed` en resultado del cron; best-effort por índice.
+- ADR-048.
+
 ### Costos estimados (tiempo + CDSE)
 
 | Paso | Esfuerzo eng. | Latencia percibida | Calls CDSE / open Espectral | $ (CDSE*) |
@@ -154,6 +161,6 @@ Compara git, Neon (`spectral_scenes` + parcela smoke), HTTP y presencia de env V
 | **Perf-2** (hecho) | ~0.3 d | zonas sin +2–8 s de índices | zonas: 9→9 celdas, −1 índices | −1 Statistical / zonas |
 | **Perf-3** (hecho) | ~1 d | zonas &lt;0.3 s en revisita | 0 si hit | −9 Statistical / revisita |
 | **Perf-4** (hecho) | ~1 d | zonas 2–5 s cold | **1 Process** (fallback 9) | −8 Statistical / cold |
-| **Perf-5** precompute cron | 1–2 d | casi todo &lt;0.3 s | 0 en click | costo a cron |
+| **Perf-5** (hecho) | ~0.5 d | click ≈ Neon si cron ya corrió | 0 en click | +hasta 8 Process / escena nueva |
 
 \*CDSE (Copernicus Data Space) en cuenta gratuita/research suele facturar en *processing units*, no USD fijo; el ahorro real es **cuota + latencia**. En comercial SH clásico, 1 Statistical ≈ fracción de céntimo — el costo dominante es tiempo de usuario y rate limits.

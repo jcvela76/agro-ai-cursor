@@ -181,7 +181,8 @@ Ver `docs/reports/discovery.md`.
 | Spectral Perf-1/2 | **Hecho 2026-08-29** — cache Neon índices + zonas sin re-fetch + debounce overlay (ADR-045) |
 | Spectral Perf-3 | **Hecho 2026-08-29** — `spectral_zone_snapshots` read/write-through (ADR-046) |
 | Spectral Perf-4 | **Hecho 2026-08-29** — 1 Process FLOAT32 + aggregate fishnet; Statistical fallback (ADR-047) |
-| **Siguiente** | Perf-5 precompute; Legal DRAFT → abogado; Billing live; Production CDSE post ToS |
+| Spectral Perf-5 | **Hecho 2026-08-29** — cron precompute 8 índices → zone snapshots (ADR-048) |
+| **Siguiente** | Legal DRAFT → abogado; Billing live; Production CDSE post ToS |
 
 ## Docs por slice (canónico)
 

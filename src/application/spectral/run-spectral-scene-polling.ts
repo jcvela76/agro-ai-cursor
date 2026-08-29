@@ -3,12 +3,14 @@ import { authorizeWeatherAccess, authorizeWeatherPlusAccess } from "@/domain/aut
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import type { DailyBriefingDeliveryPrefsRegistry } from "@/domain/report/daily-briefing-delivery";
 import type { OrgMetadataStore } from "@/domain/workspace/types";
+import { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
 import {
   buildSpectralSceneUpsert,
   persistSpectralScene,
 } from "@/domain/spectral/persist-spectral-scene";
 import type { SpectralSceneRegistry } from "@/domain/spectral/scene-history";
 import type { SpectralSource } from "@/domain/spectral/types";
+import { VEGETATION_INDEX_ORDER } from "@/domain/spectral/vegetation-indices";
 
 const CRON_USER_ID = "system:spectral-scene-cron";
 
@@ -20,6 +22,8 @@ export interface SpectralScenePollingParcelResult {
   acquiredAt: string | null;
   skippedReason?: string;
   error?: string;
+  /** Count of zone snapshots upserted after a new scene (Perf-5). */
+  zonesPrecomputed?: number;
 }
 
 export interface SpectralScenePollingOrgResult {
@@ -47,6 +51,7 @@ export class RunSpectralScenePolling {
     private readonly sceneHistory: SpectralSceneRegistry,
     private readonly metadataStore: OrgMetadataStore,
     private readonly briefingPrefs: DailyBriefingDeliveryPrefsRegistry,
+    private readonly spectralZones: GetParcelSpectralZones,
     private readonly listOrgIds?: () => Promise<string[]>,
   ) {}
 
@@ -177,6 +182,19 @@ export class RunSpectralScenePolling {
           "new_scene_only",
         );
 
+        let zonesPrecomputed: number | undefined;
+        if (persisted.persisted) {
+          zonesPrecomputed = await this.precomputeZones({
+            authority,
+            parcelId: parcel.id,
+            acquiredAt: indices.data.evidence.acquiredAt,
+            sourceId: indices.data.evidence.sourceId,
+            meansByIndex: new Map(
+              indices.data.indices.map((item) => [item.id, item.value] as const),
+            ),
+          });
+        }
+
         parcelResults.push({
           parcelId: parcel.id,
           parcelName: parcel.name,
@@ -184,6 +202,7 @@ export class RunSpectralScenePolling {
           acquisitionDate: indices.data.acquisitionDate,
           acquiredAt: indices.data.evidence.acquiredAt,
           skippedReason: persisted.skippedReason,
+          zonesPrecomputed,
         });
       } catch (error) {
         parcelResults.push({
@@ -198,5 +217,40 @@ export class RunSpectralScenePolling {
     }
 
     return { orgId, parcels: parcelResults };
+  }
+
+  private async precomputeZones(input: {
+    authority: AccessSnapshot;
+    parcelId: string;
+    acquiredAt: string;
+    sourceId: string;
+    meansByIndex: Map<string, number | null>;
+  }): Promise<number> {
+    let okCount = 0;
+    for (const indexId of VEGETATION_INDEX_ORDER) {
+      try {
+        const result = await this.spectralZones.execute({
+          authority: input.authority,
+          parcelId: input.parcelId,
+          indexId,
+          acquiredAt: input.acquiredAt,
+          parcelMean: input.meansByIndex.get(indexId) ?? null,
+          sourceId: input.sourceId,
+        });
+        if (result.ok) {
+          okCount += 1;
+        } else {
+          console.warn(
+            `spectral zone precompute failed parcel=${input.parcelId} index=${indexId}: ${result.message}`,
+          );
+        }
+      } catch (error) {
+        console.warn(
+          `spectral zone precompute error parcel=${input.parcelId} index=${indexId}`,
+          error,
+        );
+      }
+    }
+    return okCount;
   }
 }

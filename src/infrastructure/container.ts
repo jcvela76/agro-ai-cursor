@@ -409,6 +409,7 @@ export const runSpectralScenePolling = new RunSpectralScenePolling(
   spectralSceneRegistry,
   orgMetadataStore,
   dailyBriefingDeliveryPrefsRegistry,
+  getParcelSpectralZones,
   createListOrgIds(parcelRegistry),
 );
 
