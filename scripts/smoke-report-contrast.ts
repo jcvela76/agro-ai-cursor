@@ -34,7 +34,8 @@ import type { SpectralSceneRegistry } from "../src/domain/spectral/scene-history
 import type { SpectralZoneSnapshotRegistry } from "../src/domain/spectral/zone-history";
 import { createDb } from "../src/infrastructure/db/client";
 import { NeonParcelRegistry } from "../src/infrastructure/parcel/neon-parcel-registry";
-import { SyntheticParcelRegistry } from "../src/infrastructure/parcel/synthetic-parcel-registry";
+import { SyntheticParcelRegistry } from "../src/infrastructure/parcel/synthetic-parcel-registry"
+import { OfflineParcelAgronomicProfileRegistry } from "../src/infrastructure/parcel/offline-parcel-agronomic-profile-registry";
 import { OfflineWeatherSource } from "../src/infrastructure/weather/offline-weather-source";
 import { OpenMeteoWeatherSource } from "../src/infrastructure/weather/open-meteo-weather-source";
 import { NasaPowerWeatherSource } from "../src/infrastructure/weather/nasa-power-weather-source";
@@ -269,8 +270,8 @@ async function main(): Promise<void> {
   const primaryObs = new GetParcelWeatherObservation(stack.parcels, stack.primaryWeather);
   const primaryFc = new GetParcelWeatherForecast(stack.parcels, stack.primaryWeather);
   const primaryRain = new GetParcelWeatherRainfall30d(stack.parcels, stack.primaryWeather);
-  const primaryGdd = new GetParcelWeatherGdd(stack.parcels, stack.primaryWeather);
-  const primaryEt0 = new GetParcelWeatherEt0(stack.parcels, stack.primaryWeather);
+  const primaryGdd = new GetParcelWeatherGdd(stack.parcels, stack.primaryWeather, new OfflineParcelAgronomicProfileRegistry());
+  const primaryEt0 = new GetParcelWeatherEt0(stack.parcels, stack.primaryWeather, new OfflineParcelAgronomicProfileRegistry());
   const vegetation = new GetParcelVegetationIndices(stack.parcels, stack.spectral, stack.scenes);
   const spectralZones = new GetParcelSpectralZones(
     stack.parcels,
@@ -418,7 +419,7 @@ async function main(): Promise<void> {
     const weatherLive = process.env.SMOKE_WEATHER_LIVE === "1";
     const cObs = new GetParcelWeatherObservation(stack.parcels, stack.contrastWeather);
     const cRain = new GetParcelWeatherRainfall30d(stack.parcels, stack.contrastWeather);
-    const cEt0 = new GetParcelWeatherEt0(stack.parcels, stack.contrastWeather);
+    const cEt0 = new GetParcelWeatherEt0(stack.parcels, stack.contrastWeather, new OfflineParcelAgronomicProfileRegistry());
     const cFc = new GetParcelWeatherForecast(stack.parcels, stack.contrastWeather);
     const [obs2, rain2, et02, fc2] = await Promise.all([
       cObs.execute(authInput),

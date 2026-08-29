@@ -61,10 +61,11 @@ function buildDeps() {
     rainfallCampaignComparison: new GetParcelWeatherRainfallCampaignComparison(
       registry,
       weather,
+      profiles,
     ),
     lowRainDays: new GetParcelWeatherLowRainDays(registry, weather),
-    gdd: new GetParcelWeatherGdd(registry, weather),
-    et0: new GetParcelWeatherEt0(registry, weather),
+    gdd: new GetParcelWeatherGdd(registry, weather, profiles),
+    et0: new GetParcelWeatherEt0(registry, weather, profiles),
     vegetationIndices: new GetParcelVegetationIndices(registry, spectral),
     recentBriefings: new GetParcelRecentBriefings(registry, reports),
     getProfile: new GetParcelAgronomicProfile(registry, profiles),

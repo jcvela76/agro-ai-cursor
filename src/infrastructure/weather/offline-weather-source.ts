@@ -1,4 +1,5 @@
 import type {
+  WeatherCampaignQuery,
   WeatherEt0,
   WeatherForecast,
   WeatherGdd,
@@ -111,6 +112,7 @@ export class OfflineWeatherSource implements WeatherSource {
 
   async getRainfallCampaignComparison(
     parcelId: string,
+    query?: WeatherCampaignQuery,
   ): Promise<WeatherResult<WeatherRainfallCampaignComparison>> {
     const data = this.rainfallCampaignComparison.get(parcelId);
     if (!data) {
@@ -120,8 +122,21 @@ export class OfflineWeatherSource implements WeatherSource {
         message: "No campaign rainfall comparison fixture exists for this parcel.",
       };
     }
-
-    return { ok: true, data };
+    if (!query) {
+      return { ok: true, data };
+    }
+    return {
+      ok: true,
+      data: {
+        ...data,
+        campaignSource: query.source,
+        campaign: {
+          ...data.campaign,
+          periodStart: query.startDate,
+          periodEnd: query.endDate,
+        },
+      },
+    };
   }
 
   async getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>> {
@@ -137,7 +152,10 @@ export class OfflineWeatherSource implements WeatherSource {
     return { ok: true, data };
   }
 
-  async getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>> {
+  async getGdd(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherGdd>> {
     const data = this.gdd.get(parcelId);
     if (!data) {
       return {
@@ -146,11 +164,25 @@ export class OfflineWeatherSource implements WeatherSource {
         message: "No GDD fixture exists for this parcel.",
       };
     }
-
-    return { ok: true, data };
+    if (!query) {
+      return { ok: true, data };
+    }
+    return {
+      ok: true,
+      data: {
+        ...data,
+        campaignSource: query.source,
+        baseTempCelsius: query.baseTempCelsius ?? data.baseTempCelsius,
+        periodStart: query.startDate,
+        periodEnd: query.endDate,
+      },
+    };
   }
 
-  async getEt0(parcelId: string): Promise<WeatherResult<WeatherEt0>> {
+  async getEt0(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherEt0>> {
     const data = this.et0.get(parcelId);
     if (!data) {
       return {
@@ -159,7 +191,17 @@ export class OfflineWeatherSource implements WeatherSource {
         message: "No ET0 fixture exists for this parcel.",
       };
     }
-
-    return { ok: true, data };
+    if (!query) {
+      return { ok: true, data };
+    }
+    return {
+      ok: true,
+      data: {
+        ...data,
+        campaignSource: query.source,
+        periodStart: query.startDate,
+        periodEnd: query.endDate,
+      },
+    };
   }
 }

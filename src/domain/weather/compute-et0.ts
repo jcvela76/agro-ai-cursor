@@ -1,6 +1,6 @@
-export const ET0_CALCULATION_METHOD_ID = "et0-hargreaves-samani-calendar-ytd/v1";
+export const ET0_CALCULATION_METHOD_ID = "et0-hargreaves-samani-campaign/v2";
 export const ET0_CALCULATION_METHOD_LABEL =
-  "ET0 Hargreaves–Samani (mm), suma año calendario YTD";
+  "ET0 Hargreaves–Samani (mm), suma campaña (siembra o YTD)";
 
 export interface Et0DailyTemps {
   date: string;

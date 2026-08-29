@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (agent chat retention by plan) |
+| **Última actualización** | 2026-08-29 (agronomic profile campaign + agent context) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -130,9 +130,11 @@ Gate: `weather` + `weather_plus`.
 | Tool lluvia 30d (WQ-11) | hecho | Agregado precipitación |
 | Tool campaña vs año previo (WQ-12) | hecho | Comparación |
 | Tool días baja lluvia (WQ-13) | hecho | Ranking en horizonte |
-| Tool GDD (WQ-14) | hecho | Grados-día |
-| Tool ET0 Hargreaves (WQ-15) | hecho | Evapotranspiración ref. |
-| Guidance evidence-based (WQ-18) | hecho | Orientación con límites |
+| Tool GDD (WQ-14) | hecho | Campaña siembra o YTD; base por cultivo/override |
+| Tool ET0 Hargreaves (WQ-15) | hecho | Campaña + ETc orientativo Kc×ET0 si hay cultivo |
+| Guidance evidence-based (WQ-18) | hecho | Orientación con límites; gaps de perfil en prompt |
+| Contexto perfil en system prompt | hecho | Gaps prioritarios; updateParcelProfile sin confirmar |
+| Catálogo cultivo PE + siembra ISO | hecho | cropKey; campaña desde siembra (ADR-050) |
 | Tools Trace vía agente | refuse | WQ-17 |
 | eve / agentes durables | planificado | ADR-014 diferido |
 | OpenAI / Bedrock directo | docs | Re-eval ADR-015 |
@@ -159,10 +161,11 @@ Gate: `weather` + `weather_plus`.
 ### Perfil agronómico (Report-3)
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Tab Perfil + CRUD | hecho | Por parcela |
+| Tab Perfil + CRUD | hecho | Por parcela; select cultivo PE + date siembra |
 | API profile | hecho | `/api/parcels/[id]/profile` |
-| Tools agente get/update | hecho | Lee/escribe perfil |
-| Neon `parcel_agronomic_profiles` | hecho | Persistencia |
+| Tools agente get/update | hecho | Lee/escribe; cropKey + gddBase |
+| Neon `parcel_agronomic_profiles` | hecho | crop_key, gdd_base_celsius |
+| Briefing usa perfil | hecho | Señales cultivo/siembra/gaps; umbrales piloto + costa árida |
 
 ---
 

@@ -1,9 +1,10 @@
 [
   {
     "kind": "gdd",
-    "calculationMethodId": "gdd-mean-base10-calendar-ytd/v1",
-    "calculationMethodLabel": "Grados-día (Tmax+Tmin)/2 − base 10 °C, suma año calendario YTD",
+    "calculationMethodId": "gdd-mean-base-campaign/v2/calendario_ytd",
+    "calculationMethodLabel": "Grados-día (Tmax+Tmin)/2 − base °C, suma campaña (siembra o YTD) (calendario_ytd)",
     "baseTempCelsius": 10,
+    "campaignSource": "calendar_ytd",
     "totalGdd": 1842.5,
     "daysIncluded": 238,
     "periodStart": "2026-01-01",

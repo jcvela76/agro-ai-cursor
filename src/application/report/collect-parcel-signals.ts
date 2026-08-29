@@ -2,6 +2,13 @@ import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import { authorizeWeatherAccess } from "@/domain/auth/authorize-weather-access";
 import type { DailyBriefingSignal } from "@/domain/report/daily-briefing";
 import type { ParcelRegistry } from "@/domain/parcel/types";
+import type { ParcelAgronomicProfileRegistry } from "@/domain/parcel/agronomic-profile";
+import {
+  emptyParcelAgronomicProfile,
+  profileGaps,
+  resolveCampaignWindow,
+} from "@/domain/parcel/agronomic-profile";
+import { displayCropLabel } from "@/domain/parcel/crop-catalog";
 import type { GetParcelWeatherEt0 } from "@/application/weather/get-parcel-et0";
 import type { GetParcelWeatherForecast } from "@/application/weather/get-parcel-weather";
 import type { GetParcelWeatherObservation } from "@/application/weather/get-parcel-weather";
@@ -13,6 +20,11 @@ import {
   zoneExtremesBriefingSignals,
   zoneExtremesEvidenceRows,
 } from "@/domain/spectral/zone-report-summary";
+
+/** Peru coastal arid band heuristic (piloto). */
+export function isAridCoastHeuristic(latitude: number, longitude: number): boolean {
+  return latitude >= -18.5 && latitude <= -5 && longitude <= -75 && longitude >= -82;
+}
 
 export interface ParcelEvidenceRow {
   signal: string;
@@ -26,6 +38,8 @@ export interface CollectedParcelSignals {
   parcelName: string;
   signals: DailyBriefingSignal[];
   evidenceRows: ParcelEvidenceRow[];
+  profileGaps: string[];
+  aridCoast: boolean;
 }
 
 export class CollectParcelSignals {
@@ -37,6 +51,7 @@ export class CollectParcelSignals {
     private readonly et0: GetParcelWeatherEt0,
     private readonly vegetation: GetParcelVegetationIndices,
     private readonly spectralZones: GetParcelSpectralZones,
+    private readonly profiles: ParcelAgronomicProfileRegistry,
   ) {}
 
   async execute(input: {
@@ -52,6 +67,14 @@ export class CollectParcelSignals {
       return { ok: false, message: "Parcela no accesible." };
     }
 
+    const profile =
+      (await this.profiles.getByParcelId(parcel.orgId, parcel.id)) ??
+      emptyParcelAgronomicProfile(parcel.orgId, parcel.id);
+    const gaps = profileGaps(profile);
+    const aridCoast = isAridCoastHeuristic(parcel.latitude, parcel.longitude);
+    const campaign = resolveCampaignWindow(profile);
+    const cropLabel = displayCropLabel(profile.cropKey, profile.crop);
+
     const authInput = { authority: input.authority, parcelId: input.parcelId };
     const [obs, fc, rain, et0Res, veg] = await Promise.all([
       this.observation.execute(authInput),
@@ -63,6 +86,34 @@ export class CollectParcelSignals {
 
     const signals: DailyBriefingSignal[] = [];
     const evidenceRows: ParcelEvidenceRow[] = [];
+
+    if (cropLabel) {
+      signals.push({
+        id: "profile_crop",
+        label: "Cultivo (perfil)",
+        value: cropLabel,
+        source: "perfil parcela",
+        validity: profile.updatedAt,
+      });
+    }
+    if (profile.sowingDate) {
+      signals.push({
+        id: "profile_sowing",
+        label: "Siembra (perfil)",
+        value: profile.sowingDate,
+        source: "perfil parcela",
+        validity: `campaña ${campaign.source}`,
+      });
+    }
+    if (gaps.length > 0) {
+      signals.push({
+        id: "profile_gaps",
+        label: "Gaps de perfil",
+        value: gaps.join(", "),
+        source: "perfil parcela",
+        validity: "completar",
+      });
+    }
 
     if (obs.ok) {
       signals.push({
@@ -135,20 +186,38 @@ export class CollectParcelSignals {
     }
 
     if (et0Res.ok) {
+      const campaignLabel =
+        et0Res.data.campaignSource === "sowing" ? "desde siembra" : "YTD calendario";
       signals.push({
         id: "et0_ytd",
-        label: "ET0 campaña YTD",
+        label: `ET0 campaña (${campaignLabel})`,
         value: Number(et0Res.data.totalEt0Mm.toFixed(1)),
         unit: "mm",
         source: et0Res.data.evidence.sourceLabel,
         validity: `${et0Res.data.periodStart} – ${et0Res.data.periodEnd}`,
       });
       evidenceRows.push({
-        signal: "ET0 YTD",
+        signal: `ET0 (${campaignLabel})`,
         value: `${et0Res.data.totalEt0Mm.toFixed(1)} mm`,
         source: et0Res.data.evidence.sourceLabel,
         validity: `${et0Res.data.periodStart} – ${et0Res.data.periodEnd}`,
       });
+      if (typeof et0Res.data.etcEstimateMm === "number") {
+        signals.push({
+          id: "etc_estimate",
+          label: `ETc orientativo (Kc ${et0Res.data.kcUsed ?? "?"} · ${et0Res.data.kcStage ?? "mid"})`,
+          value: Number(et0Res.data.etcEstimateMm.toFixed(1)),
+          unit: "mm",
+          source: "perfil × ET0",
+          validity: `${et0Res.data.periodStart} – ${et0Res.data.periodEnd}`,
+        });
+        evidenceRows.push({
+          signal: "ETc orientativo",
+          value: `${et0Res.data.etcEstimateMm.toFixed(1)} mm (no es dosis)`,
+          source: "perfil × ET0",
+          validity: et0Res.data.kcStage ?? "mid",
+        });
+      }
     }
 
     if (veg.ok) {
@@ -206,6 +275,8 @@ export class CollectParcelSignals {
       parcelName: parcel.name,
       signals,
       evidenceRows,
+      profileGaps: gaps,
+      aridCoast,
     };
   }
 }

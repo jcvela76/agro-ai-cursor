@@ -1,10 +1,12 @@
 import type { ParcelRegistry } from "@/domain/parcel/types";
+import type { ParcelAgronomicProfileRegistry } from "@/domain/parcel/agronomic-profile";
 import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import {
   authorizeWeatherAccess,
   authorizeWeatherPlusAccess,
 } from "@/domain/auth/authorize-weather-access";
 import type { WeatherGdd, WeatherResult, WeatherSource } from "@/domain/weather/types";
+import { campaignQueryForParcel } from "@/application/weather/campaign-from-profile";
 
 export interface GetParcelWeatherInput {
   authority: AccessSnapshot | null | undefined;
@@ -15,6 +17,7 @@ export class GetParcelWeatherGdd {
   constructor(
     private readonly parcels: ParcelRegistry,
     private readonly weatherSource: WeatherSource,
+    private readonly profiles: ParcelAgronomicProfileRegistry,
   ) {}
 
   async execute(input: GetParcelWeatherInput): Promise<WeatherResult<WeatherGdd>> {
@@ -44,6 +47,12 @@ export class GetParcelWeatherGdd {
       };
     }
 
-    return this.weatherSource.getGdd(input.parcelId);
+    const query = await campaignQueryForParcel({
+      profiles: this.profiles,
+      orgId: parcel.orgId,
+      parcelId: input.parcelId,
+      includeGddBase: true,
+    });
+    return this.weatherSource.getGdd(input.parcelId, query);
   }
 }

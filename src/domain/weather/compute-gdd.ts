@@ -1,6 +1,6 @@
-export const GDD_CALCULATION_METHOD_ID = "gdd-mean-base10-calendar-ytd/v1";
+export const GDD_CALCULATION_METHOD_ID = "gdd-mean-base-campaign/v2";
 export const GDD_CALCULATION_METHOD_LABEL =
-  "Grados-día (Tmax+Tmin)/2 − base 10 °C, suma año calendario YTD";
+  "Grados-día (Tmax+Tmin)/2 − base °C, suma campaña (siembra o YTD)";
 export const GDD_BASE_TEMP_CELSIUS = 10;
 
 export interface GddDailyTemps {

@@ -1,8 +1,9 @@
 [
   {
     "kind": "et0",
-    "calculationMethodId": "et0-hargreaves-samani-calendar-ytd/v1",
-    "calculationMethodLabel": "ET0 Hargreaves–Samani (mm), suma año calendario YTD",
+    "calculationMethodId": "et0-hargreaves-samani-campaign/v2/calendario_ytd",
+    "calculationMethodLabel": "ET0 Hargreaves–Samani (mm), suma campaña (siembra o YTD) (calendario_ytd)",
+    "campaignSource": "calendar_ytd",
     "totalEt0Mm": 912.4,
     "daysIncluded": 238,
     "periodStart": "2026-01-01",

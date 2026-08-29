@@ -58,10 +58,11 @@ export const agentRouteContainerMock = {
   getParcelWeatherRainfallCampaignComparison: new GetParcelWeatherRainfallCampaignComparison(
     parcels,
     weather,
+    profiles,
   ),
   getParcelWeatherLowRainDays: new GetParcelWeatherLowRainDays(parcels, weather),
-  getParcelWeatherGdd: new GetParcelWeatherGdd(parcels, weather),
-  getParcelWeatherEt0: new GetParcelWeatherEt0(parcels, weather),
+  getParcelWeatherGdd: new GetParcelWeatherGdd(parcels, weather, profiles),
+  getParcelWeatherEt0: new GetParcelWeatherEt0(parcels, weather, profiles),
   getParcelVegetationIndices: new GetParcelVegetationIndices(parcels, spectral),
   getParcelSpectralZones: new GetParcelSpectralZones(parcels, spectral, zoneSnapshots),
   getParcelSpectralHistory: new GetParcelSpectralHistory(parcels, scenes),

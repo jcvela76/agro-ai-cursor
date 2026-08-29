@@ -1,8 +1,9 @@
 [
   {
     "kind": "rainfall_campaign_comparison",
-    "comparisonMethodId": "campaign-vs-prior-year-calendar-ytd/v1",
-    "comparisonMethodLabel": "Campaña año calendario (YTD) vs mismo rango año anterior",
+    "comparisonMethodId": "campaign-vs-prior-year/v2/calendario_ytd",
+    "comparisonMethodLabel": "Campaña (siembra o YTD) vs mismo rango año anterior (calendario_ytd)",
+    "campaignSource": "calendar_ytd",
     "campaign": {
       "totalPrecipitationMm": 45.2,
       "daysIncluded": 238,

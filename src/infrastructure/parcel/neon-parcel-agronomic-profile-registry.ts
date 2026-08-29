@@ -1,4 +1,3 @@
-import { and, eq } from "drizzle-orm";
 import type {
   ParcelAgronomicProfile,
   ParcelAgronomicProfileRegistry,
@@ -8,6 +7,9 @@ import {
   emptyParcelAgronomicProfile,
   mergeProfileFields,
 } from "@/domain/parcel/agronomic-profile";
+import type { CropKey } from "@/domain/parcel/crop-catalog";
+import { isCropKey } from "@/domain/parcel/crop-catalog";
+import { and, eq } from "drizzle-orm";
 import type { Db } from "@/infrastructure/db/client";
 import { parcelAgronomicProfiles } from "@/infrastructure/db/schema";
 
@@ -41,6 +43,7 @@ export class NeonParcelAgronomicProfileRegistry implements ParcelAgronomicProfil
         parcelId: input.parcelId,
         orgId: input.orgId,
         crop: merged.crop,
+        cropKey: merged.cropKey,
         sowingDate: merged.sowingDate,
         phenologyStage: merged.phenologyStage,
         irrigationSystem: merged.irrigationSystem,
@@ -48,6 +51,7 @@ export class NeonParcelAgronomicProfileRegistry implements ParcelAgronomicProfil
         lastApplication: merged.lastApplication,
         expectedHarvest: merged.expectedHarvest,
         notes: merged.notes,
+        gddBaseCelsius: merged.gddBaseCelsius,
         updatedAt: now,
         updatedByUserId: input.updatedByUserId,
       })
@@ -56,6 +60,7 @@ export class NeonParcelAgronomicProfileRegistry implements ParcelAgronomicProfil
         set: {
           orgId: input.orgId,
           crop: merged.crop,
+          cropKey: merged.cropKey,
           sowingDate: merged.sowingDate,
           phenologyStage: merged.phenologyStage,
           irrigationSystem: merged.irrigationSystem,
@@ -63,6 +68,7 @@ export class NeonParcelAgronomicProfileRegistry implements ParcelAgronomicProfil
           lastApplication: merged.lastApplication,
           expectedHarvest: merged.expectedHarvest,
           notes: merged.notes,
+          gddBaseCelsius: merged.gddBaseCelsius,
           updatedAt: now,
           updatedByUserId: input.updatedByUserId,
         },
@@ -82,6 +88,7 @@ export class NeonParcelAgronomicProfileRegistry implements ParcelAgronomicProfil
     return {
       parcelId: row.parcelId,
       orgId: row.orgId,
+      cropKey: row.cropKey && isCropKey(row.cropKey) ? (row.cropKey as CropKey) : null,
       crop: row.crop,
       sowingDate: row.sowingDate,
       phenologyStage: row.phenologyStage,
@@ -90,6 +97,7 @@ export class NeonParcelAgronomicProfileRegistry implements ParcelAgronomicProfil
       lastApplication: row.lastApplication,
       expectedHarvest: row.expectedHarvest,
       notes: row.notes,
+      gddBaseCelsius: row.gddBaseCelsius,
       updatedAt: row.updatedAt.toISOString(),
       updatedByUserId: row.updatedByUserId,
     };

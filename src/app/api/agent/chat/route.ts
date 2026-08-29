@@ -7,7 +7,8 @@ import {
 } from "ai";
 import { NextResponse } from "next/server";
 import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/tools";
-import { loadAgroAgentInstructions } from "@/agents/agro-agent/load-instructions";
+import { buildAgroAgentSystemPrompt } from "@/agents/agro-agent/build-system-prompt";
+import { emptyParcelAgronomicProfile } from "@/domain/parcel/agronomic-profile";
 import {
   appendParcelAgentChat,
   authorizeParcelAgentChat,
@@ -193,9 +194,15 @@ export async function POST(request: Request) {
 
   const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;
 
+  const profileResult = await getParcelAgronomicProfile.execute({ authority, parcelId });
+  const profile =
+    profileResult.ok
+      ? profileResult.data
+      : emptyParcelAgronomicProfile(authority.orgId, parcelId);
+
   const result = streamText({
     model,
-    system: `${loadAgroAgentInstructions()}\n\nParcela activa (fija): ${parcelId}. Usa solo tools; no inventes valores. Formato: resumen breve visible + tabla completa dentro de <details><summary>Ver evidencia consultada</summary>. Si preguntan riego/humedad: playbook hídrico completo antes de responder.`,
+    system: buildAgroAgentSystemPrompt({ parcelId, profile }),
     messages: modelMessages,
     tools,
     stopWhen: stepCountIs(10),

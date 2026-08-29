@@ -52,6 +52,8 @@ export class BuildDailyBriefing {
       reportDay,
       signals: collected.signals,
       previous: previousSnapshot,
+      aridCoast: collected.aridCoast,
+      profileGaps: collected.profileGaps,
     });
 
     const deltas = buildDailyBriefingDeltas(collected.signals, previousSnapshot?.signals);
@@ -61,22 +63,40 @@ export class BuildDailyBriefing {
       timeStyle: "short",
     }).format(new Date());
 
+    const gapQuestions = collected.profileGaps.map((gap) => {
+      switch (gap) {
+        case "crop":
+          return "¿Qué cultivo tiene la parcela? (catálogo PE o texto)";
+        case "sowing_date":
+          return "¿Cuál es la fecha de siembra (YYYY-MM-DD)?";
+        case "irrigation_system":
+          return "¿Qué sistema de riego usa?";
+        case "irrigation_frequency":
+          return "¿Con qué frecuencia se riega esta parcela?";
+        case "phenology_stage":
+          return "¿En qué etapa fenológica está el cultivo?";
+        default:
+          return `Completar dato de perfil: ${gap}`;
+      }
+    });
+
     const contextSnapshot: DailyBriefingContextSnapshot = {
       reportDay,
       parcelId: collected.parcelId,
       parcelName: collected.parcelName,
       signals: collected.signals,
       suggestions: narrative.suggestions,
-      openQuestions: [
-        "¿Con qué frecuencia se riega esta parcela?",
-        "¿Qué cultivo / variedad tiene la parcela?",
-        "¿Cuál es la fecha de siembra o etapa fenológica?",
-        "¿Qué sistema de riego usa?",
-      ],
+      openQuestions:
+        gapQuestions.length > 0
+          ? gapQuestions
+          : [
+              "¿Hay observaciones de campo recientes que contrastar con las señales?",
+            ],
       limits: [
-        "ET0 ≠ riego aplicado",
+        "ET0 ≠ riego aplicado; ETc orientativo ≠ dosis",
         "NDWI/NDMI no miden humedad de suelo directa",
         "Zonas espectrales = medias relativas (fishnet), no umbrales absolutos",
+        "Umbrales briefing = piloto_generico",
         "Decisión operativa: agrónomo",
       ],
     };

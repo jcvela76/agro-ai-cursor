@@ -57,6 +57,17 @@ export interface WeatherRainfall30d {
   evidence: WeatherEvidence;
 }
 
+/** Campaign window for Plus aggregates (GDD / ET0 / lluvia campaña). */
+export type WeatherCampaignSource = "sowing" | "calendar_ytd";
+
+export interface WeatherCampaignQuery {
+  startDate: string;
+  endDate: string;
+  source: WeatherCampaignSource;
+  /** GDD base °C (ignored by ET0 / rainfall). */
+  baseTempCelsius?: number;
+}
+
 /** WQ-12: campaign vs reference precipitation comparison (Plus). */
 export interface WeatherRainfallPeriodSummary {
   totalPrecipitationMm: number;
@@ -69,6 +80,7 @@ export interface WeatherRainfallCampaignComparison {
   kind: "rainfall_campaign_comparison";
   comparisonMethodId: string;
   comparisonMethodLabel: string;
+  campaignSource: WeatherCampaignSource;
   campaign: WeatherRainfallPeriodSummary;
   reference: WeatherRainfallPeriodSummary;
   deltaMm: number;
@@ -102,6 +114,7 @@ export interface WeatherGdd {
   calculationMethodId: string;
   calculationMethodLabel: string;
   baseTempCelsius: number;
+  campaignSource: WeatherCampaignSource;
   totalGdd: number;
   daysIncluded: number;
   periodStart: string;
@@ -114,10 +127,15 @@ export interface WeatherEt0 {
   kind: "et0";
   calculationMethodId: string;
   calculationMethodLabel: string;
+  campaignSource: WeatherCampaignSource;
   totalEt0Mm: number;
   daysIncluded: number;
   periodStart: string;
   periodEnd: string;
+  /** Orientative crop ET (Kc × ET0) when profile has crop; not an irrigation dose. */
+  etcEstimateMm?: number | null;
+  kcUsed?: number | null;
+  kcStage?: string | null;
   evidence: WeatherEvidence;
 }
 
@@ -131,8 +149,15 @@ export interface WeatherSource {
   getRainfall30d(parcelId: string): Promise<WeatherResult<WeatherRainfall30d>>;
   getRainfallCampaignComparison(
     parcelId: string,
+    query?: WeatherCampaignQuery,
   ): Promise<WeatherResult<WeatherRainfallCampaignComparison>>;
   getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>>;
-  getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>>;
-  getEt0(parcelId: string): Promise<WeatherResult<WeatherEt0>>;
+  getGdd(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherGdd>>;
+  getEt0(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherEt0>>;
 }

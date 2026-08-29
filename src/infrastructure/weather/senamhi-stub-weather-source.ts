@@ -1,4 +1,5 @@
 import type {
+  WeatherCampaignQuery,
   WeatherEt0,
   WeatherEvidence,
   WeatherForecast,
@@ -67,8 +68,9 @@ export class SenamhiStubWeatherSource implements WeatherSource {
 
   async getRainfallCampaignComparison(
     parcelId: string,
+    query?: WeatherCampaignQuery,
   ): Promise<WeatherResult<WeatherRainfallCampaignComparison>> {
-    const result = await this.inner.getRainfallCampaignComparison(parcelId);
+    const result = await this.inner.getRainfallCampaignComparison(parcelId, query);
     if (!result.ok) {
       return result;
     }
@@ -89,8 +91,11 @@ export class SenamhiStubWeatherSource implements WeatherSource {
     };
   }
 
-  async getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>> {
-    const result = await this.inner.getGdd(parcelId);
+  async getGdd(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherGdd>> {
+    const result = await this.inner.getGdd(parcelId, query);
     if (!result.ok) {
       return result;
     }
@@ -100,8 +105,11 @@ export class SenamhiStubWeatherSource implements WeatherSource {
     };
   }
 
-  async getEt0(parcelId: string): Promise<WeatherResult<WeatherEt0>> {
-    const result = await this.inner.getEt0(parcelId);
+  async getEt0(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherEt0>> {
+    const result = await this.inner.getEt0(parcelId, query);
     if (!result.ok) {
       return result;
     }

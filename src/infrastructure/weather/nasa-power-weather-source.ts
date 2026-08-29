@@ -1,7 +1,6 @@
 import type { ParcelRegistry } from "@/domain/parcel/types";
 import {
   accumulateGdd,
-  GDD_BASE_TEMP_CELSIUS,
   GDD_CALCULATION_METHOD_ID,
   GDD_CALCULATION_METHOD_LABEL,
 } from "@/domain/weather/compute-gdd";
@@ -10,7 +9,13 @@ import {
   ET0_CALCULATION_METHOD_ID,
   ET0_CALCULATION_METHOD_LABEL,
 } from "@/domain/weather/compute-et0";
+import {
+  campaignMethodSuffix,
+  resolveWeatherCampaignQuery,
+  shiftIsoDateYears,
+} from "@/domain/weather/campaign-query";
 import type {
+  WeatherCampaignQuery,
   WeatherEt0,
   WeatherForecast,
   WeatherGdd,
@@ -63,9 +68,14 @@ function parseYmdToIso(ymd: string): string {
 const LOOKBACK_DAYS = 14;
 const RAINFALL_WINDOW_DAYS = 30;
 const FRESH_MAX_AGE_MS = 48 * 60 * 60 * 1000;
-const CAMPAIGN_COMPARISON_METHOD_ID = "campaign-vs-prior-year-calendar-ytd/v1";
+const CAMPAIGN_COMPARISON_METHOD_ID = "campaign-vs-prior-year/v2";
 const CAMPAIGN_COMPARISON_METHOD_LABEL =
-  "Campaña año calendario (YTD) vs mismo rango año anterior";
+  "Campaña (siembra o YTD) vs mismo rango año anterior";
+
+function isoToUtcDate(isoDate: string): Date {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d));
+}
 
 function ymdToIsoDate(ymd: string): string {
   const year = ymd.slice(0, 4);
@@ -275,6 +285,7 @@ export class NasaPowerWeatherSource implements WeatherSource {
 
   async getRainfallCampaignComparison(
     parcelId: string,
+    query?: WeatherCampaignQuery,
   ): Promise<WeatherResult<WeatherRainfallCampaignComparison>> {
     const parcel = await this.parcels.getParcel(parcelId);
     if (!parcel) {
@@ -286,32 +297,25 @@ export class NasaPowerWeatherSource implements WeatherSource {
     }
 
     const now = this.now();
-    const currentYear = now.getUTCFullYear();
-    const campaignStart = new Date(Date.UTC(currentYear, 0, 1));
-    const fetchStart = new Date(Date.UTC(currentYear - 1, 0, 1));
+    const campaign = resolveWeatherCampaignQuery(query, now);
+    const referenceStart = shiftIsoDateYears(campaign.startDate, -1);
+    const referenceEnd = shiftIsoDateYears(campaign.endDate, -1);
+    const fetchStart = isoToUtcDate(referenceStart);
+    const fetchEnd = isoToUtcDate(campaign.endDate);
 
-    const series = await this.fetchDailyPrecipitation(parcel, fetchStart, now);
+    const series = await this.fetchDailyPrecipitation(parcel, fetchStart, fetchEnd);
     if (!series.ok) {
       return series;
     }
 
     const { precips, validDates } = series.data;
-    const campaignStartYmd = formatYmd(campaignStart);
-    const campaignDatesAll = validDates.filter((d) => d >= campaignStartYmd);
-    const latestCampaignYmd = campaignDatesAll[campaignDatesAll.length - 1];
+    const campaignStartYmd = campaign.startDate.replaceAll("-", "");
+    const campaignEndYmd = campaign.endDate.replaceAll("-", "");
+    const referenceStartYmd = referenceStart.replaceAll("-", "");
+    const referenceEndYmd = referenceEnd.replaceAll("-", "");
 
-    if (!latestCampaignYmd) {
-      return {
-        ok: false,
-        reason: "unavailable",
-        message: "Insufficient campaign-year precipitation data for comparison.",
-      };
-    }
-
-    const referenceStartYmd = formatYmd(new Date(Date.UTC(currentYear - 1, 0, 1)));
-    const referenceEndYmd = `${currentYear - 1}${latestCampaignYmd.slice(4)}`;
     const campaignDates = validDates.filter(
-      (d) => d >= campaignStartYmd && d <= latestCampaignYmd,
+      (d) => d >= campaignStartYmd && d <= campaignEndYmd,
     );
     const referenceDates = validDates.filter(
       (d) => d >= referenceStartYmd && d <= referenceEndYmd,
@@ -331,18 +335,21 @@ export class NasaPowerWeatherSource implements WeatherSource {
     const deltaPercent =
       referenceTotal === 0 ? null : (deltaMm / referenceTotal) * 100;
 
-    const campaignStartIso = ymdToIsoDate(campaignDates[0]);
-    const campaignEndIso = ymdToIsoDate(campaignDates[campaignDates.length - 1]);
-    const referenceStartIso = ymdToIsoDate(referenceDates[0]);
-    const referenceEndIso = ymdToIsoDate(referenceDates[referenceDates.length - 1]);
+    const campaignStartIso = ymdToIsoDate(campaignDates[0]!);
+    const campaignEndIso = ymdToIsoDate(campaignDates[campaignDates.length - 1]!);
+    const referenceStartIso = ymdToIsoDate(referenceDates[0]!);
+    const referenceEndIso = ymdToIsoDate(referenceDates[referenceDates.length - 1]!);
+    const latestCampaignYmd = campaignDates[campaignDates.length - 1]!;
     const freshnessStatus = observationFreshness(latestCampaignYmd, now);
+    const suffix = campaignMethodSuffix(campaign.source);
 
     return {
       ok: true,
       data: {
         kind: "rainfall_campaign_comparison",
-        comparisonMethodId: CAMPAIGN_COMPARISON_METHOD_ID,
-        comparisonMethodLabel: CAMPAIGN_COMPARISON_METHOD_LABEL,
+        comparisonMethodId: `${CAMPAIGN_COMPARISON_METHOD_ID}/${suffix}`,
+        comparisonMethodLabel: `${CAMPAIGN_COMPARISON_METHOD_LABEL} (${suffix})`,
+        campaignSource: campaign.source,
         campaign: {
           totalPrecipitationMm: campaignTotal,
           daysIncluded: campaignDates.length,
@@ -355,8 +362,9 @@ export class NasaPowerWeatherSource implements WeatherSource {
           periodStart: referenceStartIso,
           periodEnd: referenceEndIso,
         },
-        deltaMm,
-        deltaPercent,
+        deltaMm: Math.round(deltaMm * 100) / 100,
+        deltaPercent:
+          deltaPercent === null ? null : Math.round(deltaPercent * 10) / 10,
         evidence: {
           sourceId: "nasa-power",
           sourceLabel: "NASA POWER",
@@ -370,7 +378,7 @@ export class NasaPowerWeatherSource implements WeatherSource {
             label: parcel.id,
           },
           freshnessStatus,
-          freshnessPolicy: "campaign_vs_prior_year_calendar_ytd_v1",
+          freshnessPolicy: `campaign_vs_prior_${suffix}_v2`,
         },
       },
     };
@@ -431,7 +439,10 @@ export class NasaPowerWeatherSource implements WeatherSource {
     return { ok: true, data: { precips, validDates } };
   }
 
-  async getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>> {
+  async getGdd(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherGdd>> {
     const parcel = await this.parcels.getParcel(parcelId);
     if (!parcel) {
       return {
@@ -442,10 +453,12 @@ export class NasaPowerWeatherSource implements WeatherSource {
     }
 
     const now = this.now();
-    const currentYear = now.getUTCFullYear();
-    const campaignStart = new Date(Date.UTC(currentYear, 0, 1));
-
-    const series = await this.fetchDailyTempsMaxMin(parcel, campaignStart, now);
+    const campaign = resolveWeatherCampaignQuery(query, now);
+    const series = await this.fetchDailyTempsMaxMin(
+      parcel,
+      isoToUtcDate(campaign.startDate),
+      isoToUtcDate(campaign.endDate),
+    );
     if (!series.ok) {
       return series;
     }
@@ -461,10 +474,10 @@ export class NasaPowerWeatherSource implements WeatherSource {
 
     const days = validDates.map((ymd) => ({
       date: ymdToIsoDate(ymd),
-      tempMaxCelsius: tmax[ymd],
-      tempMinCelsius: tmin[ymd],
+      tempMaxCelsius: tmax[ymd]!,
+      tempMinCelsius: tmin[ymd]!,
     }));
-    const accumulation = accumulateGdd(days, GDD_BASE_TEMP_CELSIUS);
+    const accumulation = accumulateGdd(days, campaign.baseTempCelsius);
     if (!accumulation) {
       return {
         ok: false,
@@ -473,16 +486,18 @@ export class NasaPowerWeatherSource implements WeatherSource {
       };
     }
 
-    const latestYmd = validDates[validDates.length - 1];
+    const latestYmd = validDates[validDates.length - 1]!;
     const freshnessStatus = observationFreshness(latestYmd, now);
+    const suffix = campaignMethodSuffix(campaign.source);
 
     return {
       ok: true,
       data: {
         kind: "gdd",
-        calculationMethodId: GDD_CALCULATION_METHOD_ID,
-        calculationMethodLabel: GDD_CALCULATION_METHOD_LABEL,
+        calculationMethodId: `${GDD_CALCULATION_METHOD_ID}/${suffix}`,
+        calculationMethodLabel: `${GDD_CALCULATION_METHOD_LABEL} (${suffix})`,
         baseTempCelsius: accumulation.baseTempCelsius,
+        campaignSource: campaign.source,
         totalGdd: accumulation.totalGdd,
         daysIncluded: accumulation.daysIncluded,
         periodStart: accumulation.periodStart,
@@ -500,13 +515,16 @@ export class NasaPowerWeatherSource implements WeatherSource {
             label: parcel.id,
           },
           freshnessStatus,
-          freshnessPolicy: "gdd_mean_base10_calendar_ytd_v1",
+          freshnessPolicy: `gdd_mean_base_campaign_${suffix}_v2`,
         },
       },
     };
   }
 
-  async getEt0(parcelId: string): Promise<WeatherResult<WeatherEt0>> {
+  async getEt0(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherEt0>> {
     const parcel = await this.parcels.getParcel(parcelId);
     if (!parcel) {
       return {
@@ -517,10 +535,12 @@ export class NasaPowerWeatherSource implements WeatherSource {
     }
 
     const now = this.now();
-    const currentYear = now.getUTCFullYear();
-    const campaignStart = new Date(Date.UTC(currentYear, 0, 1));
-
-    const series = await this.fetchDailyTempsMaxMin(parcel, campaignStart, now);
+    const campaign = resolveWeatherCampaignQuery(query, now);
+    const series = await this.fetchDailyTempsMaxMin(
+      parcel,
+      isoToUtcDate(campaign.startDate),
+      isoToUtcDate(campaign.endDate),
+    );
     if (!series.ok) {
       return series;
     }
@@ -536,8 +556,8 @@ export class NasaPowerWeatherSource implements WeatherSource {
 
     const days = validDates.map((ymd) => ({
       date: ymdToIsoDate(ymd),
-      tempMaxCelsius: tmax[ymd],
-      tempMinCelsius: tmin[ymd],
+      tempMaxCelsius: tmax[ymd]!,
+      tempMinCelsius: tmin[ymd]!,
     }));
     const accumulation = accumulateEt0(days, parcel.latitude);
     if (!accumulation) {
@@ -548,15 +568,17 @@ export class NasaPowerWeatherSource implements WeatherSource {
       };
     }
 
-    const latestYmd = validDates[validDates.length - 1];
+    const latestYmd = validDates[validDates.length - 1]!;
     const freshnessStatus = observationFreshness(latestYmd, now);
+    const suffix = campaignMethodSuffix(campaign.source);
 
     return {
       ok: true,
       data: {
         kind: "et0",
-        calculationMethodId: ET0_CALCULATION_METHOD_ID,
-        calculationMethodLabel: ET0_CALCULATION_METHOD_LABEL,
+        calculationMethodId: `${ET0_CALCULATION_METHOD_ID}/${suffix}`,
+        calculationMethodLabel: `${ET0_CALCULATION_METHOD_LABEL} (${suffix})`,
+        campaignSource: campaign.source,
         totalEt0Mm: accumulation.totalEt0Mm,
         daysIncluded: accumulation.daysIncluded,
         periodStart: accumulation.periodStart,
@@ -574,7 +596,7 @@ export class NasaPowerWeatherSource implements WeatherSource {
             label: parcel.id,
           },
           freshnessStatus,
-          freshnessPolicy: "et0_hargreaves_samani_calendar_ytd_v1",
+          freshnessPolicy: `et0_hargreaves_campaign_${suffix}_v2`,
         },
       },
     };

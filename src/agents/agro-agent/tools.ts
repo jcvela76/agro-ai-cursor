@@ -133,7 +133,7 @@ export function createAgroAgentTools(input: {
     }),
     getParcelRainfallCampaignComparison: tool({
       description:
-        "Compara la lluvia acumulada de la campaña (año calendario YTD) con el mismo rango del año anterior. Método versionado con evidencia. Requiere Plus.",
+        "Compara la lluvia acumulada de la campaña (desde siembra si está en perfil; si no, YTD calendario) con el mismo rango del año anterior. Método versionado con evidencia. Requiere Plus.",
       inputSchema: z.object({}),
       execute: async () => {
         const result = await rainfallCampaignComparison.execute({ authority, parcelId });
@@ -157,7 +157,7 @@ export function createAgroAgentTools(input: {
     }),
     getParcelGdd: tool({
       description:
-        "Estima grados-día de crecimiento (GDD) acumulados en la campaña año calendario YTD con base 10 °C y Tmax/Tmin diarios (método versionado + evidencia). Requiere Plus.",
+        "Estima grados-día de crecimiento (GDD) acumulados en la campaña (desde siembra o YTD) con base °C del cultivo/perfil y Tmax/Tmin diarios (método versionado + evidencia). Requiere Plus.",
       inputSchema: z.object({}),
       execute: async () => {
         const result = await gdd.execute({ authority, parcelId });
@@ -169,7 +169,7 @@ export function createAgroAgentTools(input: {
     }),
     getParcelEt0: tool({
       description:
-        "Estima evapotranspiración de referencia ET0 (mm) acumulada en la campaña año calendario YTD con Hargreaves–Samani sobre Tmax/Tmin (método versionado + evidencia). Requiere Plus. No es ETc de cultivo.",
+        "Estima evapotranspiración de referencia ET0 (mm) acumulada en la campaña (desde siembra o YTD) con Hargreaves–Samani. Si hay cultivo en perfil, incluye etcEstimateMm = Kc×ET0 (orientativo, no dosis de riego). Requiere Plus.",
       inputSchema: z.object({}),
       execute: async () => {
         const result = await et0.execute({ authority, parcelId });
@@ -236,7 +236,7 @@ export function createAgroAgentTools(input: {
     }),
     getParcelProfile: tool({
       description:
-        "Lee el perfil agronómico persistido de la parcela activa (cultivo, siembra, riego, fenología, etc.). Usar antes de orientar riego/labores. Campos null = desconocidos. Requiere Plus.",
+        "Lee el perfil agronómico persistido de la parcela activa (cropKey, cultivo, siembra YYYY-MM-DD, riego, fenología, gddBase). Usar antes de orientar riego/labores. Campos null = desconocidos. Requiere Plus.",
       inputSchema: z.object({}),
       execute: async () => {
         const result = await getProfile.execute({ authority, parcelId });
@@ -248,8 +248,12 @@ export function createAgroAgentTools(input: {
     }),
     updateParcelProfile: tool({
       description:
-        "Guarda de inmediato campos del perfil agronómico de la parcela activa (sin pedir confirmación extra). Solo envía campos que el usuario acaba de indicar; null borra un campo. Resume lo guardado. Requiere Plus.",
+        "Guarda de inmediato campos del perfil agronómico de la parcela activa (sin pedir confirmación extra). Usa cropKey del catálogo PE (cafe|uva|esparrago|palto|maiz|papa|citricos|otro). sowingDate debe ser YYYY-MM-DD. Solo envía campos que el usuario acaba de indicar; null borra un campo. Resume lo guardado. Requiere Plus.",
       inputSchema: z.object({
+        cropKey: z
+          .enum(["cafe", "uva", "esparrago", "palto", "maiz", "papa", "citricos", "otro"])
+          .nullable()
+          .optional(),
         crop: optionalProfileText,
         sowingDate: optionalProfileText,
         phenologyStage: optionalProfileText,
@@ -258,6 +262,7 @@ export function createAgroAgentTools(input: {
         lastApplication: optionalProfileText,
         expectedHarvest: optionalProfileText,
         notes: optionalProfileText,
+        gddBaseCelsius: z.number().min(0).max(20).nullable().optional(),
       }),
       execute: async (raw) => {
         const fields = parseProfileFields(raw);

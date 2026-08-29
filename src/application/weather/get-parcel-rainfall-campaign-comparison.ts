@@ -1,4 +1,5 @@
 import type { ParcelRegistry } from "@/domain/parcel/types";
+import type { ParcelAgronomicProfileRegistry } from "@/domain/parcel/agronomic-profile";
 import type { AccessSnapshot } from "@/domain/auth/authorize-weather-access";
 import {
   authorizeWeatherAccess,
@@ -9,6 +10,7 @@ import type {
   WeatherResult,
   WeatherSource,
 } from "@/domain/weather/types";
+import { campaignQueryForParcel } from "@/application/weather/campaign-from-profile";
 
 export interface GetParcelWeatherInput {
   authority: AccessSnapshot | null | undefined;
@@ -19,6 +21,7 @@ export class GetParcelWeatherRainfallCampaignComparison {
   constructor(
     private readonly parcels: ParcelRegistry,
     private readonly weatherSource: WeatherSource,
+    private readonly profiles: ParcelAgronomicProfileRegistry,
   ) {}
 
   async execute(
@@ -50,6 +53,11 @@ export class GetParcelWeatherRainfallCampaignComparison {
       };
     }
 
-    return this.weatherSource.getRainfallCampaignComparison(input.parcelId);
+    const query = await campaignQueryForParcel({
+      profiles: this.profiles,
+      orgId: parcel.orgId,
+      parcelId: input.parcelId,
+    });
+    return this.weatherSource.getRainfallCampaignComparison(input.parcelId, query);
   }
 }

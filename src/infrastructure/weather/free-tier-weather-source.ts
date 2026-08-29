@@ -1,4 +1,5 @@
 import type {
+  WeatherCampaignQuery,
   WeatherEt0,
   WeatherForecast,
   WeatherGdd,
@@ -31,19 +32,26 @@ export class FreeTierWeatherSource implements WeatherSource {
 
   getRainfallCampaignComparison(
     parcelId: string,
+    query?: WeatherCampaignQuery,
   ): Promise<WeatherResult<WeatherRainfallCampaignComparison>> {
-    return this.observationSource.getRainfallCampaignComparison(parcelId);
+    return this.observationSource.getRainfallCampaignComparison(parcelId, query);
   }
 
   getLowRainDays(parcelId: string): Promise<WeatherResult<WeatherLowRainDays>> {
     return this.forecastSource.getLowRainDays(parcelId);
   }
 
-  getGdd(parcelId: string): Promise<WeatherResult<WeatherGdd>> {
-    return this.observationSource.getGdd(parcelId);
+  getGdd(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherGdd>> {
+    return this.observationSource.getGdd(parcelId, query);
   }
 
-  getEt0(parcelId: string): Promise<WeatherResult<WeatherEt0>> {
-    return this.observationSource.getEt0(parcelId);
+  getEt0(
+    parcelId: string,
+    query?: WeatherCampaignQuery,
+  ): Promise<WeatherResult<WeatherEt0>> {
+    return this.observationSource.getEt0(parcelId, query);
   }
 }

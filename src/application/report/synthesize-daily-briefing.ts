@@ -8,6 +8,9 @@ import { buildDailyBriefingDeltas } from "@/domain/report/daily-briefing";
 
 const DEFAULT_GATEWAY_MODEL = "openai/gpt-4o-mini";
 
+/** Piloto genérico — no calibrado por cultivo/zona. */
+export const BRIEFING_THRESHOLD_TAG = "piloto_generico" as const;
+
 function isGatewayConfigured(): boolean {
   return Boolean(
     process.env.AI_GATEWAY_API_KEY ||
@@ -19,6 +22,8 @@ function isGatewayConfigured(): boolean {
 export function synthesizeDailyBriefingDeterministic(input: {
   signals: DailyBriefingSignal[];
   previous?: DailyBriefingContextSnapshot | null;
+  aridCoast?: boolean;
+  profileGaps?: string[];
 }): { summaryMarkdown: string; suggestions: DailyBriefingSuggestion[] } {
   const suggestions: DailyBriefingSuggestion[] = [];
   const rain30 = input.signals.find((s) => s.id === "rain_30d");
@@ -26,18 +31,27 @@ export function synthesizeDailyBriefingDeterministic(input: {
   const dryDays = input.signals.find((s) => s.id === "forecast_dry_days");
 
   if (typeof rain30?.value === "number" && rain30.value < 5) {
-    suggestions.push({
-      theme: "water",
-      text: "Lluvia acumulada muy baja en 30 días; conviene validar humedad de suelo en campo.",
-      confidence: "medium",
-      evidenceRefs: ["rain_30d"],
-    });
+    if (input.aridCoast) {
+      suggestions.push({
+        theme: "water",
+        text: `Lluvia 30d muy baja (${rain30.value} mm) — esperado en costa árida; contrastar con ET0/ETc y humedad de suelo. Umbral ${BRIEFING_THRESHOLD_TAG}.`,
+        confidence: "low",
+        evidenceRefs: ["rain_30d", "et0_ytd"],
+      });
+    } else {
+      suggestions.push({
+        theme: "water",
+        text: `Lluvia acumulada muy baja en 30 días (${BRIEFING_THRESHOLD_TAG}); conviene validar humedad de suelo en campo.`,
+        confidence: "medium",
+        evidenceRefs: ["rain_30d"],
+      });
+    }
   }
 
   if (typeof ndwi?.value === "number" && ndwi.value < -0.3) {
     suggestions.push({
       theme: "vegetation",
-      text: "NDWI bajo sugiere posible estrés hídrico en vegetación; no sustituye medición de suelo.",
+      text: `NDWI bajo (${BRIEFING_THRESHOLD_TAG}) sugiere posible estrés hídrico en vegetación; no sustituye medición de suelo.`,
       confidence: "medium",
       evidenceRefs: ["ndwi"],
     });
@@ -64,6 +78,16 @@ export function synthesizeDailyBriefingDeterministic(input: {
       text: "Pronóstico seco en el horizonte disponible; planificar labores al aire libre con cautela.",
       confidence: "low",
       evidenceRefs: ["forecast_dry_days"],
+    });
+  }
+
+  if (input.profileGaps && input.profileGaps.length > 0) {
+    const first = input.profileGaps[0]!;
+    suggestions.push({
+      theme: "operations",
+      text: `Perfil incompleto (falta ${first}). Completar en tab Perfil o vía Agente mejora GDD/campaña/ETc.`,
+      confidence: "high",
+      evidenceRefs: ["profile_gaps"],
     });
   }
 
@@ -95,6 +119,8 @@ export async function synthesizeDailyBriefingNarrative(input: {
   reportDay: string;
   signals: DailyBriefingSignal[];
   previous?: DailyBriefingContextSnapshot | null;
+  aridCoast?: boolean;
+  profileGaps?: string[];
 }): Promise<{ summaryMarkdown: string; suggestions: DailyBriefingSuggestion[] }> {
   if (!isGatewayConfigured()) {
     return synthesizeDailyBriefingDeterministic(input);
@@ -109,6 +135,9 @@ ${JSON.stringify(input.signals, null, 2)}
 Delta vs briefing anterior:
 ${deltas.length ? JSON.stringify(deltas, null, 2) : "Sin briefing previo."}
 
+Contexto: costa_arida=${Boolean(input.aridCoast)}; gaps_perfil=${(input.profileGaps ?? []).join(",") || "ninguno"}.
+Umbrales marcados como ${BRIEFING_THRESHOLD_TAG} (no calibrados por cultivo).
+Si ETc aparece, es orientativo (Kc×ET0), no dosis de riego.
 Reglas WQ-18: orientación condicional con evidencia; prohibido ordenar riego/dosis; decisión final del agrónomo.
 
 Responde SOLO markdown con:

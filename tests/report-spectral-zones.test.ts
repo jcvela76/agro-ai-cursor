@@ -8,9 +8,10 @@ import { GetParcelWeatherForecast, GetParcelWeatherObservation } from "@/applica
 import { GetParcelWeatherGdd } from "@/application/weather/get-parcel-gdd";
 import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-rainfall-30d";
 import { buildSpectralZones } from "@/domain/spectral/build-spectral-zones";
-import { partitionParcelZones } from "@/domain/spectral/partition-zones";
+import { partitionParcelZones, ZONE_PARTITION_VERSION } from "@/domain/spectral/partition-zones";
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
+import { OfflineParcelAgronomicProfileRegistry } from "@/infrastructure/parcel/offline-parcel-agronomic-profile-registry";
 import { OfflineSpectralSceneRegistry } from "@/infrastructure/spectral/offline-spectral-scene-registry";
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { OfflineSpectralZoneSnapshotRegistry } from "@/infrastructure/spectral/offline-spectral-zone-snapshot-registry";
@@ -20,6 +21,7 @@ import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-s
 const plus = defaultSyntheticSnapshots.find((s) => s.userId === "user-plus-005")!;
 const parcels = new SyntheticParcelRegistry();
 const weather = new OfflineWeatherSource();
+const profiles = new OfflineParcelAgronomicProfileRegistry();
 const spectral = new OfflineSpectralSource();
 const vegetation = new GetParcelVegetationIndices(parcels, spectral);
 const zones = new GetParcelSpectralZones(parcels, spectral);
@@ -31,9 +33,10 @@ describe("Report-4 spectral zones in reports", () => {
       new GetParcelWeatherObservation(parcels, weather),
       new GetParcelWeatherForecast(parcels, weather),
       new GetParcelWeatherRainfall30d(parcels, weather),
-      new GetParcelWeatherEt0(parcels, weather),
+      new GetParcelWeatherEt0(parcels, weather, profiles),
       vegetation,
       zones,
+      profiles,
     );
     const result = await collector.execute({
       authority: plus,
@@ -53,8 +56,8 @@ describe("Report-4 spectral zones in reports", () => {
       new GetParcelWeatherObservation(parcels, weather),
       new GetParcelWeatherForecast(parcels, weather),
       new GetParcelWeatherRainfall30d(parcels, weather),
-      new GetParcelWeatherGdd(parcels, weather),
-      new GetParcelWeatherEt0(parcels, weather),
+      new GetParcelWeatherGdd(parcels, weather, profiles),
+      new GetParcelWeatherEt0(parcels, weather, profiles),
       vegetation,
       zones,
     );
@@ -118,7 +121,7 @@ describe("Report-4 spectral zones in reports", () => {
       sourceId: idx.data.evidence.sourceId,
       indexId: "ndwi",
       parcelMean: ndwiMean,
-      methodId: "ndwi+zones_cached/v1",
+      methodId: `ndwi+${ZONE_PARTITION_VERSION}`,
       zones: built,
       evidence: idx.data.evidence,
     });
@@ -133,8 +136,8 @@ describe("Report-4 spectral zones in reports", () => {
       new GetParcelWeatherObservation(parcels, weather),
       new GetParcelWeatherForecast(parcels, weather),
       new GetParcelWeatherRainfall30d(parcels, weather),
-      new GetParcelWeatherGdd(parcels, weather),
-      new GetParcelWeatherEt0(parcels, weather),
+      new GetParcelWeatherGdd(parcels, weather, profiles),
+      new GetParcelWeatherEt0(parcels, weather, profiles),
       vegetationCached,
       zonesCached,
     );

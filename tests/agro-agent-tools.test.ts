@@ -38,20 +38,22 @@ describe("Agro Agent weather tools", () => {
   const observation = new GetParcelWeatherObservation(registry, source);
   const forecast = new GetParcelWeatherForecast(registry, source);
   const rainfall30d = new GetParcelWeatherRainfall30d(registry, source);
+  const profilesEarly = new OfflineParcelAgronomicProfileRegistry();
   const rainfallCampaignComparison = new GetParcelWeatherRainfallCampaignComparison(
     registry,
     source,
+    profilesEarly,
   );
   const lowRainDays = new GetParcelWeatherLowRainDays(registry, source);
-  const gdd = new GetParcelWeatherGdd(registry, source);
-  const et0 = new GetParcelWeatherEt0(registry, source);
+  const gdd = new GetParcelWeatherGdd(registry, source, profilesEarly);
+  const et0 = new GetParcelWeatherEt0(registry, source, profilesEarly);
   const vegetationIndices = new GetParcelVegetationIndices(registry, new OfflineSpectralSource());
   const spectralZones = new GetParcelSpectralZones(registry, new OfflineSpectralSource());
   const spectralHistory = new GetParcelSpectralHistory(
     registry,
     new OfflineSpectralSceneRegistry(),
   );
-  const profiles = new OfflineParcelAgronomicProfileRegistry();
+  const profiles = profilesEarly;
   const recentBriefings = new GetParcelRecentBriefings(registry, new OfflineReportRegistry());
   const getProfile = new GetParcelAgronomicProfile(registry, profiles);
   const updateProfile = new UpdateParcelAgronomicProfile(registry, profiles);
@@ -127,9 +129,7 @@ describe("Agro Agent weather tools", () => {
     expect(result).toMatchObject({ ok: true });
     if ("ok" in result && result.ok) {
       expect(result.data.kind).toBe("rainfall_campaign_comparison");
-      expect(result.data.comparisonMethodId).toBe(
-        "campaign-vs-prior-year-calendar-ytd/v1",
-      );
+      expect(result.data.comparisonMethodId).toContain("campaign-vs-prior-year");
       expect(result.data.deltaMm).toBe(6.5);
     }
   });
@@ -157,7 +157,7 @@ describe("Agro Agent weather tools", () => {
     expect(result).toMatchObject({ ok: true });
     if ("ok" in result && result.ok) {
       expect(result.data.kind).toBe("gdd");
-      expect(result.data.calculationMethodId).toBe("gdd-mean-base10-calendar-ytd/v1");
+      expect(result.data.calculationMethodId).toContain("gdd-mean-base-campaign/v2");
       expect(result.data.totalGdd).toBe(1842.5);
     }
   });
@@ -171,8 +171,8 @@ describe("Agro Agent weather tools", () => {
     expect(result).toMatchObject({ ok: true });
     if ("ok" in result && result.ok) {
       expect(result.data.kind).toBe("et0");
-      expect(result.data.calculationMethodId).toBe(
-        "et0-hargreaves-samani-calendar-ytd/v1",
+      expect(result.data.calculationMethodId).toContain(
+        "et0-hargreaves-samani-campaign/v2",
       );
       expect(result.data.totalEt0Mm).toBe(912.4);
     }

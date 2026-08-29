@@ -139,9 +139,8 @@ describe("NasaPowerWeatherSource", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.kind).toBe("rainfall_campaign_comparison");
-      expect(result.data.comparisonMethodId).toBe(
-        "campaign-vs-prior-year-calendar-ytd/v1",
-      );
+      expect(result.data.comparisonMethodId).toContain("campaign-vs-prior-year/v2");
+      expect(result.data.campaignSource).toBe("calendar_ytd");
       expect(result.data.campaign.periodStart).toBe("2026-01-01");
       expect(result.data.campaign.periodEnd).toBe("2026-08-23");
       expect(result.data.reference.periodStart).toBe("2025-01-01");
@@ -150,9 +149,7 @@ describe("NasaPowerWeatherSource", () => {
       expect(result.data.reference.totalPrecipitationMm).toBe(1.5);
       expect(result.data.deltaMm).toBe(3.5);
       expect(result.data.deltaPercent).toBeCloseTo(233.33, 1);
-      expect(result.data.evidence.freshnessPolicy).toBe(
-        "campaign_vs_prior_year_calendar_ytd_v1",
-      );
+      expect(result.data.evidence.freshnessPolicy).toContain("campaign_vs_prior");
     }
   });
 
@@ -201,14 +198,15 @@ describe("NasaPowerWeatherSource", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.kind).toBe("gdd");
-      expect(result.data.calculationMethodId).toBe("gdd-mean-base10-calendar-ytd/v1");
+      expect(result.data.calculationMethodId).toContain("gdd-mean-base-campaign/v2");
+      expect(result.data.campaignSource).toBe("calendar_ytd");
       expect(result.data.baseTempCelsius).toBe(10);
       // (22+12)/2-10=7; (24+14)/2-10=9; (20+10)/2-10=5 → 21
       expect(result.data.totalGdd).toBe(21);
       expect(result.data.daysIncluded).toBe(3);
       expect(result.data.periodStart).toBe("2026-01-01");
       expect(result.data.periodEnd).toBe("2026-08-23");
-      expect(result.data.evidence.freshnessPolicy).toBe("gdd_mean_base10_calendar_ytd_v1");
+      expect(result.data.evidence.freshnessPolicy).toContain("gdd_mean_base_campaign");
     }
   });
 
@@ -245,16 +243,15 @@ describe("NasaPowerWeatherSource", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.kind).toBe("et0");
-      expect(result.data.calculationMethodId).toBe(
-        "et0-hargreaves-samani-calendar-ytd/v1",
+      expect(result.data.calculationMethodId).toContain(
+        "et0-hargreaves-samani-campaign/v2",
       );
+      expect(result.data.campaignSource).toBe("calendar_ytd");
       expect(result.data.daysIncluded).toBe(3);
       expect(result.data.periodStart).toBe("2026-01-01");
       expect(result.data.periodEnd).toBe("2026-08-23");
       expect(result.data.totalEt0Mm).toBeGreaterThan(0);
-      expect(result.data.evidence.freshnessPolicy).toBe(
-        "et0_hargreaves_samani_calendar_ytd_v1",
-      );
+      expect(result.data.evidence.freshnessPolicy).toContain("et0_hargreaves_campaign");
     }
   });
 });

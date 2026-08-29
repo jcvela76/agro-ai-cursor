@@ -272,16 +272,28 @@ export const getParcelWeatherRainfall30d = new GetParcelWeatherRainfall30d(
 );
 
 export const getParcelWeatherRainfallCampaignComparison =
-  new GetParcelWeatherRainfallCampaignComparison(parcelRegistry, weatherSource);
+  new GetParcelWeatherRainfallCampaignComparison(
+    parcelRegistry,
+    weatherSource,
+    parcelAgronomicProfileRegistry,
+  );
 
 export const getParcelWeatherLowRainDays = new GetParcelWeatherLowRainDays(
   parcelRegistry,
   weatherSource,
 );
 
-export const getParcelWeatherGdd = new GetParcelWeatherGdd(parcelRegistry, weatherSource);
+export const getParcelWeatherGdd = new GetParcelWeatherGdd(
+  parcelRegistry,
+  weatherSource,
+  parcelAgronomicProfileRegistry,
+);
 
-export const getParcelWeatherEt0 = new GetParcelWeatherEt0(parcelRegistry, weatherSource);
+export const getParcelWeatherEt0 = new GetParcelWeatherEt0(
+  parcelRegistry,
+  weatherSource,
+  parcelAgronomicProfileRegistry,
+);
 
 export function createSpectralSource(
   mode = process.env.SPECTRAL_SOURCE ?? "offline",
@@ -375,6 +387,7 @@ export const collectParcelSignals = new CollectParcelSignals(
   getParcelWeatherEt0,
   getParcelVegetationIndices,
   getParcelSpectralZones,
+  parcelAgronomicProfileRegistry,
 );
 
 export const buildDailyBriefing = new BuildDailyBriefing(
