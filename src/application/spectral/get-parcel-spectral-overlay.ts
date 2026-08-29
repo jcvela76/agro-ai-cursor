@@ -8,6 +8,7 @@ import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import { buildSyntheticOverlayGrid } from "@/domain/spectral/synthetic-overlay-grid";
 import type {
   ParcelSpectralOverlay,
+  SpectralEvidence,
   SpectralResult,
   SpectralSource,
   VegetationIndexId,
@@ -33,6 +34,12 @@ export interface GetParcelSpectralOverlayInput {
   authority: AccessSnapshot | null | undefined;
   parcelId: string;
   indexId: VegetationIndexId;
+  /**
+   * When set with parcelMean, skips a second vegetation-indices provider call
+   * (client already loaded indices for the panel).
+   */
+  acquiredAt?: string;
+  parcelMean?: number | null;
 }
 
 const EMPTY_GRID: ParcelSpectralOverlay["grid"] = {
@@ -73,34 +80,66 @@ export class GetParcelSpectralOverlay {
       };
     }
 
-    const indicesResult = await this.spectralSource.getVegetationIndices(input.parcelId, {
-      latitude: parcel.latitude,
-      longitude: parcel.longitude,
-      geometry: parcel.geometry,
-      timezone: parcel.timezone,
-    });
-    if (!indicesResult.ok) {
-      return indicesResult;
-    }
-
-    const reading = indicesResult.data.indices.find((item) => item.id === input.indexId);
-    if (!reading) {
-      return {
-        ok: false,
-        reason: "unavailable",
-        message: "Unknown vegetation index.",
-      };
-    }
-
     const legend = getSpectralLegend(input.indexId);
-    const meanValue = reading.value ?? legend.min;
+    const hintAcquiredAt = input.acquiredAt?.trim() || "";
+    const canSkipIndices =
+      Boolean(hintAcquiredAt) &&
+      input.parcelMean !== undefined &&
+      Number.isFinite(Date.parse(hintAcquiredAt));
+
+    let meanValue: number = legend.min;
+    let value: number | null = null;
+    let evidence: SpectralEvidence;
+
+    if (canSkipIndices) {
+      value = input.parcelMean ?? null;
+      meanValue = value ?? (legend.min + legend.max) / 2;
+      evidence = {
+        sourceId: "client-scene-hint",
+        sourceLabel: "Escena activa (cliente)",
+        acquiredAt: hintAcquiredAt,
+        timezone: parcel.timezone,
+        spatialScope: {
+          kind: "point",
+          latitude: parcel.latitude,
+          longitude: parcel.longitude,
+          label: parcel.id,
+        },
+        freshnessStatus: "unknown",
+        freshnessPolicy: "overlay_acquired_at_hint",
+      };
+    } else {
+      const indicesResult = await this.spectralSource.getVegetationIndices(input.parcelId, {
+        latitude: parcel.latitude,
+        longitude: parcel.longitude,
+        geometry: parcel.geometry,
+        timezone: parcel.timezone,
+      });
+      if (!indicesResult.ok) {
+        return indicesResult;
+      }
+
+      const reading = indicesResult.data.indices.find((item) => item.id === input.indexId);
+      if (!reading) {
+        return {
+          ok: false,
+          reason: "unavailable",
+          message: "Unknown vegetation index.",
+        };
+      }
+
+      value = reading.value;
+      meanValue = reading.value ?? legend.min;
+      evidence = indicesResult.data.evidence;
+    }
+
     const base = {
       kind: "spectral_overlay" as const,
       indexId: input.indexId,
       label: VEGETATION_INDEX_CATALOG[input.indexId].label,
-      value: reading.value,
+      value,
       legend,
-      evidence: indicesResult.data.evidence,
+      evidence,
     };
 
     if (this.spectralSource.getIndexOverlay) {
@@ -108,7 +147,7 @@ export class GetParcelSpectralOverlay {
         parcelId: parcel.id,
         indexId: input.indexId,
         geometry: parcel.geometry,
-        acquiredAt: indicesResult.data.evidence.acquiredAt,
+        acquiredAt: evidence.acquiredAt,
       });
       if (raster.ok) {
         return {
@@ -121,7 +160,21 @@ export class GetParcelSpectralOverlay {
           },
         };
       }
-      // Fall through to synthetic if Process API fails but indices succeeded.
+      return {
+        ok: true,
+        data: {
+          ...base,
+          grid: buildSyntheticOverlayGrid({
+            geometry: parcel.geometry,
+            parcelId: parcel.id,
+            meanValue,
+            legend,
+            indexId: input.indexId,
+          }),
+          rendering: "synthetic_grid",
+          fallbackReason: raster.message || "Process API no devolvió PNG.",
+        },
+      };
     }
 
     return {

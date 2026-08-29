@@ -563,30 +563,47 @@ export class SentinelHubSpectralSource implements SpectralSource {
 
     try {
       const token = await this.tokenProvider.getAccessToken();
-      const response = await this.fetchFn(this.processUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "image/png",
-        },
-        body: JSON.stringify(body),
-      });
+      const runProcess = async () =>
+        this.fetchFn(this.processUrl, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Accept: "image/png",
+          },
+          body: JSON.stringify(body),
+        });
+
+      let response = await runProcess();
+      if (!response.ok) {
+        // One retry — CDSE occasionally flakes under burst (index chip switching).
+        response = await runProcess();
+      }
 
       if (!response.ok) {
+        const detail = (await response.text().catch(() => "")).slice(0, 180);
         return {
           ok: false,
           reason: "internal_error",
-          message: "Spectral overlay provider request failed.",
+          message: detail
+            ? `Spectral overlay provider request failed (${response.status}): ${detail}`
+            : `Spectral overlay provider request failed (${response.status}).`,
         };
       }
 
       const buffer = Buffer.from(await response.arrayBuffer());
-      if (buffer.byteLength < 32) {
+      // PNG magic: 89 50 4E 47
+      const isPng =
+        buffer.byteLength >= 8 &&
+        buffer[0] === 0x89 &&
+        buffer[1] === 0x50 &&
+        buffer[2] === 0x4e &&
+        buffer[3] === 0x47;
+      if (!isPng || buffer.byteLength < 32) {
         return {
           ok: false,
           reason: "unavailable",
-          message: "Spectral overlay returned an empty image.",
+          message: "Spectral overlay returned an empty or invalid PNG.",
         };
       }
 

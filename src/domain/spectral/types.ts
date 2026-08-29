@@ -101,6 +101,8 @@ export interface ParcelSpectralOverlay {
   /** Live CDSE Process API PNG when available. */
   raster?: SpectralRasterOverlay;
   rendering: "synthetic_grid" | "sentinel_raster";
+  /** Why rendering is synthetic_grid despite a live source (Process miss, etc.). */
+  fallbackReason?: string;
   evidence?: SpectralEvidence;
 }
 

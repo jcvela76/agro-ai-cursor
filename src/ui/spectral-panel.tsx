@@ -98,21 +98,28 @@ export function SpectralPanel({
   selectedIndexId,
   overlayOpacity,
   overlayRendering = null,
+  overlayFallbackReason = null,
   activeZoneId,
   onIndexChange,
   onOpacityChange,
   onZonesChange,
   onActiveZoneChange,
+  onSceneHint,
 }: {
   parcel: Parcel;
   selectedIndexId: VegetationIndexId;
   overlayOpacity: number;
   overlayRendering?: "sentinel_raster" | "synthetic_grid" | null;
+  overlayFallbackReason?: string | null;
   activeZoneId: string | null;
   onIndexChange: (indexId: VegetationIndexId) => void;
   onOpacityChange: (opacity: number) => void;
   onZonesChange: (zones: SpectralZone[] | null, legendIndexId: VegetationIndexId) => void;
   onActiveZoneChange: (zoneId: string | null) => void;
+  onSceneHint?: (hint: {
+    acquiredAt: string;
+    means: Partial<Record<VegetationIndexId, number | null>>;
+  } | null) => void;
 }) {
   const [payload, setPayload] = useState<SpectralOk<ParcelVegetationIndices> | SpectralLimited | null>(
     null,
@@ -134,8 +141,10 @@ export function SpectralPanel({
   const [historyRefresh, setHistoryRefresh] = useState(0);
   const onZonesChangeRef = useRef(onZonesChange);
   const onActiveZoneChangeRef = useRef(onActiveZoneChange);
+  const onSceneHintRef = useRef(onSceneHint);
   onZonesChangeRef.current = onZonesChange;
   onActiveZoneChangeRef.current = onActiveZoneChange;
+  onSceneHintRef.current = onSceneHint;
 
   useEffect(() => {
     if (!activeZoneId) {
@@ -202,6 +211,22 @@ export function SpectralPanel({
       cancelled = true;
     };
   }, [parcel.id]);
+
+  // Publish scene hint so map overlay can skip a second Statistical call per index.
+  useEffect(() => {
+    if (payload?.status !== "OK") {
+      onSceneHintRef.current?.(null);
+      return;
+    }
+    const means: Partial<Record<VegetationIndexId, number | null>> = {};
+    for (const index of payload.data.indices) {
+      means[index.id] = index.value;
+    }
+    onSceneHintRef.current?.({
+      acquiredAt: payload.data.evidence.acquiredAt,
+      means,
+    });
+  }, [payload]);
 
   // Zones: pass acquiredAt + parcelMean when indices are ready (skips duplicate CDSE indices call).
   useEffect(() => {
@@ -345,6 +370,13 @@ export function SpectralPanel({
           <span className={styles.freshnessInline}>
             <Badge tone="stale">grilla indicativa</Badge>
           </span>
+        ) : (
+          <span className={styles.freshnessInline}>
+            <Badge tone="unknown">overlay…</Badge>
+          </span>
+        )}
+        {overlayRendering === "synthetic_grid" && overlayFallbackReason ? (
+          <span className={styles.zoneHint}> · {overlayFallbackReason}</span>
         ) : null}
         {fromCache ? (
           <span className={styles.freshnessInline}>

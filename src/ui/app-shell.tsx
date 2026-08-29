@@ -285,6 +285,11 @@ export function AppShell({
   const [spectralRendering, setSpectralRendering] = useState<
     "sentinel_raster" | "synthetic_grid" | null
   >(null);
+  const [spectralFallbackReason, setSpectralFallbackReason] = useState<string | null>(null);
+  const [spectralSceneHint, setSpectralSceneHint] = useState<{
+    acquiredAt: string;
+    means: Partial<Record<VegetationIndexId, number | null>>;
+  } | null>(null);
 
   drawModeRef.current = drawMode;
   selectedIdRef.current = selectedId;
@@ -666,14 +671,26 @@ export function AppShell({
       setSpectralZones(null);
       setActiveSpectralZoneId(null);
       setSpectralRendering(null);
+      setSpectralFallbackReason(null);
+      setSpectralSceneHint(null);
       return;
     }
 
     let cancelled = false;
     const cacheKey = `${selectedId}:${spectralIndexId}`;
+    const acquiredAt = spectralSceneHint?.acquiredAt;
+    const parcelMean = spectralSceneHint?.means[spectralIndexId];
+    // Wait for indices hint so we skip a second Statistical call (timeouts under index switching).
+    if (!acquiredAt) {
+      setSpectralRendering(null);
+      setSpectralFallbackReason(null);
+      return;
+    }
     const timer = window.setTimeout(() => {
       void (async () => {
         try {
+          setSpectralRendering(null);
+          setSpectralFallbackReason(null);
           let overlay = spectralOverlayCacheRef.current.get(cacheKey);
           // Only reuse a live CDSE PNG. Synthetic fallback must not stick after a Process miss.
           if (overlay && overlay.rendering !== "sentinel_raster") {
@@ -681,8 +698,16 @@ export function AppShell({
             overlay = undefined;
           }
           if (!overlay) {
+            const params = new URLSearchParams({ index: spectralIndexId });
+            if (acquiredAt) {
+              params.set("acquiredAt", acquiredAt);
+              params.set(
+                "parcelMean",
+                parcelMean === null || parcelMean === undefined ? "null" : String(parcelMean),
+              );
+            }
             const res = await fetch(
-              `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?index=${encodeURIComponent(spectralIndexId)}`,
+              `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?${params}`,
               { cache: "no-store" },
             );
             const json = (await res.json()) as {
@@ -693,6 +718,7 @@ export function AppShell({
               if (!cancelled) {
                 clearSpectralIndexOverlay(map);
                 setSpectralRendering(null);
+                setSpectralFallbackReason(null);
               }
               return;
             }
@@ -704,6 +730,7 @@ export function AppShell({
 
           if (cancelled || !overlay) return;
           setSpectralRendering(overlay.rendering);
+          setSpectralFallbackReason(overlay.fallbackReason ?? null);
           const paint = () => {
             if (cancelled || !overlay) return;
             applySpectralMapOverlay(map, overlay, spectralOpacityRef.current, PARCELS_LINE);
@@ -727,6 +754,7 @@ export function AppShell({
           if (!cancelled) {
             clearSpectralIndexOverlay(map);
             setSpectralRendering(null);
+            setSpectralFallbackReason(null);
           }
         }
       })();
@@ -736,7 +764,15 @@ export function AppShell({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [drawMode, selected, selectedId, sideTab, spectralIndexId]);
+  }, [
+    drawMode,
+    selectedId,
+    selected?.geometry,
+    sideTab,
+    spectralIndexId,
+    spectralSceneHint?.acquiredAt,
+    spectralSceneHint?.means,
+  ]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -1404,11 +1440,13 @@ export function AppShell({
                 selectedIndexId={spectralIndexId}
                 overlayOpacity={spectralOpacity}
                 overlayRendering={spectralRendering}
+                overlayFallbackReason={spectralFallbackReason}
                 activeZoneId={activeSpectralZoneId}
                 onIndexChange={setSpectralIndexId}
                 onOpacityChange={setSpectralOpacity}
                 onZonesChange={(zones) => setSpectralZones(zones)}
                 onActiveZoneChange={setActiveSpectralZoneId}
+                onSceneHint={(hint) => setSpectralSceneHint(hint)}
               />
             ) : null}
             {sideTab === "agent" ? (
