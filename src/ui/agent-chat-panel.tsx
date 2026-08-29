@@ -11,6 +11,12 @@ import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./agent-chat-panel.module.css";
 
+type LoadedChatMessage = {
+  id: string;
+  role: "user" | "assistant" | "system";
+  parts: Array<{ type: "text"; text: string }>;
+};
+
 export function AgentChatPanel({
   parcel,
   isAdmin,
@@ -19,31 +25,10 @@ export function AgentChatPanel({
   isAdmin: boolean;
 }) {
   const [plusEnabled, setPlusEnabled] = useState<boolean | null>(null);
+  const [retentionDays, setRetentionDays] = useState<number | null>(null);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [input, setInput] = useState("");
   const [gateError, setGateError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch("/api/agent/chat");
-        const json = (await res.json()) as {
-          status: string;
-          data?: { plusEnabled: boolean };
-        };
-        if (!cancelled && json.status === "OK" && json.data) {
-          setPlusEnabled(json.data.plusEnabled);
-        }
-      } catch {
-        if (!cancelled) {
-          setPlusEnabled(false);
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [parcel.id]);
 
   const transport = useMemo(
     () =>
@@ -60,9 +45,60 @@ export function AgentChatPanel({
   });
 
   useEffect(() => {
-    setMessages([]);
+    let cancelled = false;
+    setPlusEnabled(null);
+    setRetentionDays(null);
+    setHistoryLoaded(false);
     setInput("");
     setGateError(null);
+    setMessages([]);
+
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/agent/chat?parcelId=${encodeURIComponent(parcel.id)}`,
+        );
+        const json = (await res.json()) as {
+          status: string;
+          message?: string;
+          data?: {
+            plusEnabled: boolean;
+            retentionDays?: number;
+            messages?: LoadedChatMessage[];
+          };
+        };
+        if (cancelled) return;
+
+        if (json.status === "OK" && json.data) {
+          setPlusEnabled(json.data.plusEnabled);
+          setRetentionDays(json.data.retentionDays ?? null);
+          if (json.data.plusEnabled && json.data.messages) {
+            setMessages(
+              json.data.messages.map((message) => ({
+                id: message.id,
+                role: message.role,
+                parts: message.parts,
+              })),
+            );
+          }
+        } else {
+          setPlusEnabled(false);
+          setGateError(json.message ?? "No se pudo cargar el historial");
+        }
+      } catch {
+        if (!cancelled) {
+          setPlusEnabled(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setHistoryLoaded(true);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [parcel.id, setMessages]);
 
   const busy = status === "submitted" || status === "streaming";
@@ -98,7 +134,7 @@ export function AgentChatPanel({
     }
   };
 
-  if (plusEnabled === null) {
+  if (plusEnabled === null || !historyLoaded) {
     return <p className={styles.muted}>Comprobando Plus…</p>;
   }
 
@@ -123,14 +159,22 @@ export function AgentChatPanel({
 
   return (
     <div className={styles.chat}>
-      <p className={styles.intro}>
-        Pregunta sobre observación o pronóstico de <strong>{parcel.name}</strong>. Cito fuente y
-        frescura; no invento datos.
-      </p>
+      <div className={styles.introRow}>
+        <p className={styles.intro}>
+          Pregunta sobre observación o pronóstico de <strong>{parcel.name}</strong>. Cito fuente y
+          frescura; no invento datos.
+        </p>
+        {retentionDays != null && retentionDays > 0 ? (
+          <span className={styles.retentionBadge}>Historial · {retentionDays} días</span>
+        ) : null}
+      </div>
 
       <div className={styles.messages} aria-live="polite">
         {messages.length === 0 ? (
-          <p className={styles.muted}>Ej.: ¿Cuál es la última temperatura disponible?</p>
+          <p className={styles.muted}>
+            Sin mensajes en la ventana de retención. Ej.: ¿Cuál es la última temperatura
+            disponible?
+          </p>
         ) : null}
         {messages.map((message) => {
           const toolParts = message.parts.filter((part) => part.type.startsWith("tool-"));

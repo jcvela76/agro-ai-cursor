@@ -94,6 +94,13 @@ import { NeonDailyBriefingDeliveryPrefsRegistry } from "@/infrastructure/report/
 import { OfflineDailyBriefingDeliveryPrefsRegistry } from "@/infrastructure/report/offline-daily-briefing-delivery-prefs";
 import { createEmailSender } from "@/infrastructure/email/email-sender";
 import {
+  AppendParcelAgentChat,
+  AuthorizeParcelAgentChat,
+  LoadParcelAgentChat,
+} from "@/application/agent/parcel-agent-chat";
+import { NeonAgentChatRegistry } from "@/infrastructure/agent/neon-agent-chat-registry";
+import { OfflineAgentChatRegistry } from "@/infrastructure/agent/offline-agent-chat-registry";
+import {
   isPaidWeatherSourceMode,
 } from "@/application/weather/weather-use-case-options";
 
@@ -146,6 +153,13 @@ export function createReportRegistry() {
   return new OfflineReportRegistry();
 }
 
+export function createAgentChatRegistry() {
+  if (process.env.DATABASE_URL) {
+    return new NeonAgentChatRegistry(createDb());
+  }
+  return new OfflineAgentChatRegistry();
+}
+
 export function createDailyBriefingDeliveryPrefsRegistry() {
   if (process.env.DATABASE_URL) {
     return new NeonDailyBriefingDeliveryPrefsRegistry(createDb());
@@ -158,6 +172,7 @@ const parcelAgronomicProfileRegistry = createParcelAgronomicProfileRegistry();
 const traceLotRegistry = createTraceLotRegistry();
 const reviewDecisionRegistry = createReviewDecisionRegistry();
 const reportRegistry = createReportRegistry();
+const agentChatRegistry = createAgentChatRegistry();
 const dailyBriefingDeliveryPrefsRegistry = createDailyBriefingDeliveryPrefsRegistry();
 const emailSender = createEmailSender();
 
@@ -381,6 +396,18 @@ export const getParcelRecentBriefings = new GetParcelRecentBriefings(
   parcelRegistry,
   reportRegistry,
 );
+
+export const loadParcelAgentChat = new LoadParcelAgentChat(
+  parcelRegistry,
+  agentChatRegistry,
+  orgMetadataStore,
+);
+export const appendParcelAgentChat = new AppendParcelAgentChat(
+  parcelRegistry,
+  agentChatRegistry,
+  orgMetadataStore,
+);
+export const authorizeParcelAgentChat = new AuthorizeParcelAgentChat(parcelRegistry);
 
 export const getDailyBriefingDeliveryPrefs = new GetDailyBriefingDeliveryPrefs(
   dailyBriefingDeliveryPrefsRegistry,

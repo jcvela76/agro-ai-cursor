@@ -9,6 +9,8 @@ import { NextResponse } from "next/server";
 import { createAgroAgentTools, isPlusToolAllowed } from "@/agents/agro-agent/tools";
 import { loadAgroAgentInstructions } from "@/agents/agro-agent/load-instructions";
 import {
+  appendParcelAgentChat,
+  authorizeParcelAgentChat,
   createAccessResolver,
   getParcelAgronomicProfile,
   getParcelRecentBriefings,
@@ -22,6 +24,7 @@ import {
   getParcelVegetationIndices,
   getParcelSpectralZones,
   getParcelSpectralHistory,
+  loadParcelAgentChat,
   updateParcelAgronomicProfile,
 } from "@/infrastructure/container";
 
@@ -39,14 +42,56 @@ function isGatewayConfigured(): boolean {
   );
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const { userId, orgId } = await auth();
   const accessResolver = createAccessResolver();
   const authority = await accessResolver.resolve(userId, orgId ?? null);
+  const plusEnabled = isPlusToolAllowed({ authority });
+
+  const url = new URL(request.url);
+  const parcelId = url.searchParams.get("parcelId")?.trim();
+
+  if (!parcelId) {
+    return NextResponse.json({
+      status: "OK",
+      data: {
+        plusEnabled,
+        gatewayConfigured: isGatewayConfigured(),
+      },
+    });
+  }
+
+  if (!plusEnabled || !authority) {
+    return NextResponse.json({
+      status: "OK",
+      data: {
+        plusEnabled: false,
+        retentionDays: 0,
+        messages: [],
+        gatewayConfigured: isGatewayConfigured(),
+      },
+    });
+  }
+
+  const loaded = await loadParcelAgentChat.execute({ authority, parcelId });
+  if (!loaded.ok) {
+    return NextResponse.json(
+      { status: "AGENT_UNAVAILABLE", message: loaded.message },
+      { status: 403 },
+    );
+  }
+
   return NextResponse.json({
     status: "OK",
     data: {
-      plusEnabled: isPlusToolAllowed({ authority }),
+      plusEnabled: loaded.plusEnabled,
+      retentionDays: loaded.retentionDays,
+      messages: loaded.messages.map((message) => ({
+        id: message.id,
+        role: message.role,
+        parts: message.parts,
+        createdAt: message.createdAt,
+      })),
       gatewayConfigured: isGatewayConfigured(),
     },
   });
@@ -96,6 +141,15 @@ export async function POST(request: Request) {
     );
   }
 
+  // Authorize parcel before streaming.
+  const gate = await authorizeParcelAgentChat.execute({ authority, parcelId });
+  if (!gate.ok) {
+    return NextResponse.json(
+      { status: "AGENT_UNAVAILABLE", message: gate.message },
+      { status: 403 },
+    );
+  }
+
   const messages = body.messages ?? [];
   if (messages.length === 0 && !body.message?.trim()) {
     return NextResponse.json(
@@ -108,6 +162,16 @@ export async function POST(request: Request) {
     messages.length > 0
       ? await convertToModelMessages(messages)
       : [{ role: "user" as const, content: body.message!.trim() }];
+
+  const lastUserMessage =
+    [...messages].reverse().find((message) => message.role === "user") ??
+    (body.message?.trim()
+      ? ({
+          id: `user-${Date.now()}`,
+          role: "user" as const,
+          parts: [{ type: "text" as const, text: body.message.trim() }],
+        } satisfies UIMessage)
+      : null);
 
   const tools = createAgroAgentTools({
     authority,
@@ -137,5 +201,38 @@ export async function POST(request: Request) {
     stopWhen: stepCountIs(10),
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    originalMessages: messages,
+    onFinish: async ({ responseMessage, isAborted }) => {
+      if (isAborted) {
+        return;
+      }
+      try {
+        await appendParcelAgentChat.execute({
+          authority,
+          parcelId,
+          authorUserId: userId ?? null,
+          turns: [
+            ...(lastUserMessage
+              ? [
+                  {
+                    id: lastUserMessage.id,
+                    role: "user" as const,
+                    parts: lastUserMessage.parts,
+                    authorUserId: userId ?? null,
+                  },
+                ]
+              : []),
+            {
+              id: responseMessage.id,
+              role: "assistant" as const,
+              parts: responseMessage.parts,
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("[agent/chat] failed to persist turn", error);
+      }
+    },
+  });
 }

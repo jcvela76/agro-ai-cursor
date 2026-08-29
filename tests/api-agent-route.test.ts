@@ -61,7 +61,7 @@ describe("API /api/agent/chat", () => {
 
   it("GET returns plusEnabled false when unauthenticated", async () => {
     mockAuth(null, null);
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/agent/chat"));
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.status).toBe("OK");
@@ -70,16 +70,28 @@ describe("API /api/agent/chat", () => {
 
   it("GET returns plusEnabled true for Plus user", async () => {
     mockAuth(weatherPlus.userId, weatherPlus.orgId);
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/agent/chat"));
     const body = await res.json();
     expect(body.data.plusEnabled).toBe(true);
   });
 
   it("GET returns plusEnabled false for weather-only user", async () => {
     mockAuth(weatherOnly.userId, weatherOnly.orgId);
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/agent/chat"));
     const body = await res.json();
     expect(body.data.plusEnabled).toBe(false);
+  });
+
+  it("GET with parcelId returns retention and messages for Plus", async () => {
+    mockAuth(weatherPlus.userId, weatherPlus.orgId);
+    const res = await GET(
+      new Request("http://localhost/api/agent/chat?parcelId=parcel-lima-norte-001"),
+    );
+    const body = await res.json();
+    expect(body.status).toBe("OK");
+    expect(body.data.plusEnabled).toBe(true);
+    expect(body.data.retentionDays).toBeGreaterThan(0);
+    expect(Array.isArray(body.data.messages)).toBe(true);
   });
 
   it("POST returns 403 without weather_plus", async () => {

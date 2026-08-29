@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (zone fishnet clipped to parcel) |
+| **Última actualización** | 2026-08-29 (agent chat retention by plan) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -121,8 +121,10 @@ Gate: `weather` + `weather_plus`.
 ### Agro Agent
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Tab Agente (chat UI) | hecho | Shell |
-| API chat streaming | hecho | `POST /api/agent/chat` |
+| Tab Agente (chat UI) | hecho | Shell; carga historial por parcela; badge retención |
+| API chat streaming | hecho | `POST /api/agent/chat`; persiste turno user+assistant |
+| Historial chat por parcela | hecho | Neon `agent_chat_messages`; hilo compartido org+parcela (ADR-049) |
+| Retención chat por plan | hecho | Plus 7d / Ops 30d / Full 90d; tope 80 msgs; lazy prune |
 | AI Gateway model path | hecho | ADR-015 |
 | Tool observation / forecast | hecho | Clima base vía tools |
 | Tool lluvia 30d (WQ-11) | hecho | Agregado precipitación |

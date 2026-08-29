@@ -96,6 +96,17 @@ Mapper: `PLAN_PARCEL_COUNT_LIMITS` / `PLAN_PARCEL_MAX_HA` en `src/domain/billing
 
 Además: máx. **1 briefing ready / día Lima / (org + parcela)**. Fallos no consumen cupo.
 
+**Historial Agro Agent** (`PLAN_AGENT_CHAT_RETENTION_DAYS`, ADR-049):
+
+| Plan slug | Retención del hilo (parcela compartida) |
+|-----------|----------------------------------------|
+| `free` / `free_org` / `weather_base` | 0 (sin chat / gate Plus) |
+| `weather_plus` | 7 días |
+| `operations` | 30 días |
+| `full` | 90 días |
+
+Tope de carga: **80** mensajes más recientes dentro de la ventana. Poda lazy en GET/append. Retención ilimitada diferida.
+
 Acciones en tabs Clima / Agente / Trace; persistencia `generated_reports` en Neon.
 
 Si Clerk emite `org:weather_plus`, el mapper normaliza quitando el prefijo `org:`.

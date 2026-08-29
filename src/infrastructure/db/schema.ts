@@ -227,3 +227,30 @@ export const spectralZoneSnapshots = pgTable(
   ],
 );
 
+export type AgentChatMessageRole = "user" | "assistant" | "system";
+
+export type AgentChatMessagePart = {
+  type: "text";
+  text: string;
+};
+
+export const agentChatMessages = pgTable(
+  "agent_chat_messages",
+  {
+    id: text("id").primaryKey(),
+    orgId: text("org_id").notNull(),
+    parcelId: text("parcel_id").notNull(),
+    role: text("role").$type<AgentChatMessageRole>().notNull(),
+    parts: jsonb("parts").$type<AgentChatMessagePart[]>().notNull(),
+    authorUserId: text("author_user_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("agent_chat_messages_org_parcel_created_idx").on(
+      table.orgId,
+      table.parcelId,
+      table.createdAt,
+    ),
+  ],
+);
+

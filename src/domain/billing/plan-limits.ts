@@ -33,6 +33,22 @@ export const PLAN_DAILY_BRIEFING_LIMITS: Record<string, number> = {
   full: 120,
 };
 
+/**
+ * Agro Agent chat retention window (days) for the shared parcel thread.
+ * Unlimited deferred. ADR-049.
+ */
+export const PLAN_AGENT_CHAT_RETENTION_DAYS: Record<string, number> = {
+  free: 0,
+  free_org: 0,
+  weather_base: 0,
+  weather_plus: 7,
+  operations: 30,
+  full: 90,
+};
+
+/** Secondary cap when loading chat history within the retention window. */
+export const AGENT_CHAT_LOAD_MAX_MESSAGES = 80;
+
 /** Max parcels per org (create blocked at limit). Pilot mid. */
 export const PLAN_PARCEL_COUNT_LIMITS: Record<string, number> = {
   free: 2,
@@ -56,6 +72,7 @@ export const PLAN_PARCEL_MAX_HA: Record<string, number> = {
 const DEFAULT_MEMBER_LIMIT = PLAN_MEMBER_LIMITS.free;
 const DEFAULT_REPORT_LIMIT = PLAN_REPORT_LIMITS.free;
 const DEFAULT_DAILY_BRIEFING_LIMIT = PLAN_DAILY_BRIEFING_LIMITS.free;
+const DEFAULT_AGENT_CHAT_RETENTION_DAYS = PLAN_AGENT_CHAT_RETENTION_DAYS.free;
 const DEFAULT_PARCEL_COUNT_LIMIT = PLAN_PARCEL_COUNT_LIMITS.free;
 const DEFAULT_PARCEL_MAX_HA = PLAN_PARCEL_MAX_HA.free;
 
@@ -67,6 +84,11 @@ export function reportLimitForPlan(slug: string | null | undefined): number {
 export function dailyBriefingLimitForPlan(slug: string | null | undefined): number {
   const normalized = normalizePlanSlug(slug) ?? "free";
   return PLAN_DAILY_BRIEFING_LIMITS[normalized] ?? DEFAULT_DAILY_BRIEFING_LIMIT;
+}
+
+export function agentChatRetentionDaysForPlan(slug: string | null | undefined): number {
+  const normalized = normalizePlanSlug(slug) ?? "free";
+  return PLAN_AGENT_CHAT_RETENTION_DAYS[normalized] ?? DEFAULT_AGENT_CHAT_RETENTION_DAYS;
 }
 
 export function parcelCountLimitForPlan(slug: string | null | undefined): number {
