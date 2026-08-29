@@ -273,6 +273,22 @@ export function SpectralPanel({
   const fromCache = data.evidence.freshnessPolicy.includes("cache_read");
   const zonesFromCache =
     zonesOk?.evidence.freshnessPolicy.includes("zones_cache_read") ?? false;
+  const activeZone = zonesOk?.zones.find((zone) => zone.id === activeZoneId) ?? null;
+  const zoneDelta =
+    activeZone?.value !== null &&
+    activeZone?.value !== undefined &&
+    zonesOk?.parcelMean !== null &&
+    zonesOk?.parcelMean !== undefined
+      ? activeZone.value - zonesOk.parcelMean
+      : null;
+
+  useEffect(() => {
+    if (!activeZoneId) {
+      return;
+    }
+    const row = document.getElementById(`spectral-zone-${activeZoneId}`);
+    row?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [activeZoneId]);
 
   async function runBackfill() {
     setBackfillLoading(true);
@@ -413,12 +429,52 @@ export function SpectralPanel({
         {!zonesLoading && zonesPayload && zonesPayload.status !== "OK" ? (
           <p className={styles.muted}>{zonesPayload.message}</p>
         ) : null}
+        {!zonesLoading && zonesOk && activeZone ? (
+          <div className={styles.zoneDetail} role="status">
+            <div className={styles.zoneDetailHeader}>
+              <p className={styles.zoneDetailTitle}>
+                Zona {activeZone.label}
+                <Badge tone={tierTone(activeZone.tier)}>{tierLabel(activeZone.tier)}</Badge>
+              </p>
+              <button
+                type="button"
+                className={styles.zoneDetailClose}
+                onClick={() => onActiveZoneChange(null)}
+                aria-label="Cerrar detalle de zona"
+              >
+                Cerrar
+              </button>
+            </div>
+            <dl className={styles.zoneDetailStats}>
+              <div>
+                <dt>{selectedIndexId.toUpperCase()}</dt>
+                <dd>{activeZone.value === null ? "—" : activeZone.value.toFixed(2)}</dd>
+              </div>
+              <div>
+                <dt>Área</dt>
+                <dd>{Math.round(activeZone.areaShare * 100)}%</dd>
+              </div>
+              <div>
+                <dt>vs media</dt>
+                <dd>
+                  {zoneDelta === null
+                    ? "—"
+                    : `${zoneDelta > 0 ? "+" : ""}${zoneDelta.toFixed(2)}`}
+                </dd>
+              </div>
+            </dl>
+            <p className={styles.zoneHint}>
+              Tier relativo dentro de la parcela (no umbral agronómico absoluto). Click fuera de
+              la cuadrícula en el mapa para limpiar.
+            </p>
+          </div>
+        ) : null}
         {!zonesLoading && zonesOk ? (
           <ul className={styles.zoneList}>
             {zonesOk.zones.map((zone) => {
               const active = zone.id === activeZoneId;
               return (
-                <li key={zone.id}>
+                <li key={zone.id} id={`spectral-zone-${zone.id}`}>
                   <button
                     type="button"
                     className={active ? styles.zoneRowActive : styles.zoneRow}

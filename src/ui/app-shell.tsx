@@ -40,6 +40,7 @@ import {
   clearSpectralMapOverlay,
   clearSpectralZoneOutlines,
   setSpectralOverlayOpacity,
+  SPECTRAL_ZONES_FILL_LAYER,
 } from "@/ui/spectral-map-overlay";
 import { WeatherPanel } from "@/ui/weather-panel";
 import styles from "./app-shell.module.css";
@@ -52,6 +53,34 @@ const PARCEL_DETAIL_MAX_ZOOM = 16;
 
 type DrawMode = "idle" | "draw" | "edit";
 type SideTab = "weather" | "spectral" | "agent" | "profile" | "trace" | "review";
+
+const SIDE_TABS: readonly SideTab[] = [
+  "weather",
+  "spectral",
+  "agent",
+  "profile",
+  "trace",
+  "review",
+];
+
+function parseSideTab(raw: string | null | undefined): SideTab {
+  if (raw && (SIDE_TABS as readonly string[]).includes(raw)) {
+    return raw as SideTab;
+  }
+  return "weather";
+}
+
+function buildAppUrl(parcelId: string | null, tab: SideTab): string {
+  const params = new URLSearchParams();
+  if (parcelId) {
+    params.set("parcel", parcelId);
+  }
+  if (tab !== "weather") {
+    params.set("tab", tab);
+  }
+  const query = params.toString();
+  return query ? `/app?${query}` : "/app";
+}
 
 function shortOrgDisplayName(name: string): string {
   return name.replace(/\s*\(sint[eé]tica\)\s*/gi, "").trim();
@@ -198,8 +227,10 @@ function syncParcelLayers(
 
 export function AppShell({
   initialParcelId,
+  initialTab,
 }: {
   initialParcelId: string | null;
+  initialTab?: string | null;
 }) {
   const router = useRouter();
   const { has } = useAuth();
@@ -216,13 +247,18 @@ export function AppShell({
   const draftFeatureIdRef = useRef<string | number | null>(null);
   const editingParcelIdRef = useRef<string | null>(null);
   const drawModeRef = useRef<DrawMode>("idle");
-  const selectParcelRef = useRef<(parcelId: string | null) => void>(() => {});
+  const selectParcelRef = useRef<
+    (parcelId: string | null, options?: { keepTab?: boolean }) => void
+  >(() => {});
+  const setActiveSpectralZoneIdRef = useRef<(zoneId: string | null) => void>(() => {});
+  const selectedIdRef = useRef<string | null>(initialParcelId);
+  const sideTabRef = useRef<SideTab>(parseSideTab(initialTab));
 
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [listError, setListError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(initialParcelId);
   const [drawMode, setDrawMode] = useState<DrawMode>("idle");
-  const [sideTab, setSideTab] = useState<SideTab>("weather");
+  const [sideTab, setSideTab] = useState<SideTab>(() => parseSideTab(initialTab));
   const [draftName, setDraftName] = useState("Nueva parcela");
   const [draftGeometry, setDraftGeometry] = useState<ParcelGeometry | null>(null);
   const [detailName, setDetailName] = useState("");
@@ -235,19 +271,34 @@ export function AppShell({
   const [activeSpectralZoneId, setActiveSpectralZoneId] = useState<string | null>(null);
 
   drawModeRef.current = drawMode;
+  selectedIdRef.current = selectedId;
+  sideTabRef.current = sideTab;
 
   const selectParcel = useCallback(
     (parcelId: string | null, options?: { keepTab?: boolean }) => {
       setSelectedId(parcelId);
+      const nextTab = options?.keepTab ? sideTabRef.current : "weather";
       if (!options?.keepTab) {
         setSideTab("weather");
+        setActiveSpectralZoneId(null);
       }
-      const url = parcelId ? `/app?parcel=${encodeURIComponent(parcelId)}` : "/app";
-      router.replace(url, { scroll: false });
+      router.replace(buildAppUrl(parcelId, nextTab), { scroll: false });
     },
     [router],
   );
   selectParcelRef.current = selectParcel;
+  setActiveSpectralZoneIdRef.current = setActiveSpectralZoneId;
+
+  const goToTab = useCallback(
+    (tab: SideTab) => {
+      setSideTab(tab);
+      if (tab !== "spectral") {
+        setActiveSpectralZoneId(null);
+      }
+      router.replace(buildAppUrl(selectedIdRef.current, tab), { scroll: false });
+    },
+    [router],
+  );
 
   const reloadParcels = useCallback(async () => {
     const res = await fetch("/api/parcels");
@@ -441,18 +492,44 @@ export function AppShell({
       if (drawModeRef.current !== "idle") {
         return;
       }
+      // Prefer spectral zone hit so inspecting a quadrant doesn't reset the side tab.
+      if (map.getLayer(SPECTRAL_ZONES_FILL_LAYER)) {
+        const zoneHits = map.queryRenderedFeatures(event.point, {
+          layers: [SPECTRAL_ZONES_FILL_LAYER],
+        });
+        const zoneId = zoneHits[0]?.properties?.id;
+        if (typeof zoneId === "string") {
+          setActiveSpectralZoneIdRef.current(zoneId);
+          return;
+        }
+        // Click outside any zone clears the zone focus.
+        setActiveSpectralZoneIdRef.current(null);
+      }
       if (!map.getLayer(PARCELS_FILL)) {
         return;
       }
       const hits = map.queryRenderedFeatures(event.point, { layers: [PARCELS_FILL] });
       const parcelId = hits[0]?.properties?.parcelId;
       if (typeof parcelId === "string") {
-        selectParcelRef.current(parcelId);
+        selectParcelRef.current(parcelId, { keepTab: true });
       }
     });
 
     map.on("mousemove", (event) => {
-      if (drawModeRef.current !== "idle" || !map.getLayer(PARCELS_FILL)) {
+      if (drawModeRef.current !== "idle") {
+        map.getCanvas().style.cursor = "";
+        return;
+      }
+      if (map.getLayer(SPECTRAL_ZONES_FILL_LAYER)) {
+        const zoneHits = map.queryRenderedFeatures(event.point, {
+          layers: [SPECTRAL_ZONES_FILL_LAYER],
+        });
+        if (zoneHits.length > 0) {
+          map.getCanvas().style.cursor = "pointer";
+          return;
+        }
+      }
+      if (!map.getLayer(PARCELS_FILL)) {
         map.getCanvas().style.cursor = "";
         return;
       }
@@ -528,7 +605,7 @@ export function AppShell({
         el.setAttribute("aria-label", parcel.name);
         el.addEventListener("click", (event) => {
           event.stopPropagation();
-          selectParcel(parcel.id);
+          selectParcel(parcel.id, { keepTab: true });
         });
 
         const marker = new Marker({ element: el })
@@ -698,6 +775,7 @@ export function AppShell({
       }
       resetDrawState({ restoreSelection: false });
       await reloadParcels();
+      // New parcel → Clima as onboarding entry; map re-select keeps the current tab.
       selectParcel(json.data.id);
     } catch {
       setActionError("No se pudo guardar");
@@ -797,7 +875,7 @@ export function AppShell({
       }
       resetDrawState({ restoreSelection: false });
       await reloadParcels();
-      selectParcel(json.data.id);
+      selectParcel(json.data.id, { keepTab: true });
     } catch {
       setActionError("No se pudo actualizar");
     } finally {
@@ -1029,7 +1107,7 @@ export function AppShell({
                 role="tab"
                 aria-selected={sideTab === "weather"}
                 className={sideTab === "weather" ? styles.tabActive : styles.tab}
-                onClick={() => setSideTab("weather")}
+                onClick={() => goToTab("weather")}
               >
                 Clima
               </button>
@@ -1038,7 +1116,7 @@ export function AppShell({
                 role="tab"
                 aria-selected={sideTab === "spectral"}
                 className={sideTab === "spectral" ? styles.tabActive : styles.tab}
-                onClick={() => setSideTab("spectral")}
+                onClick={() => goToTab("spectral")}
               >
                 Espectral
               </button>
@@ -1047,7 +1125,7 @@ export function AppShell({
                 role="tab"
                 aria-selected={sideTab === "agent"}
                 className={sideTab === "agent" ? styles.tabActive : styles.tab}
-                onClick={() => setSideTab("agent")}
+                onClick={() => goToTab("agent")}
               >
                 Agente
               </button>
@@ -1056,7 +1134,7 @@ export function AppShell({
                 role="tab"
                 aria-selected={sideTab === "profile"}
                 className={sideTab === "profile" ? styles.tabActive : styles.tab}
-                onClick={() => setSideTab("profile")}
+                onClick={() => goToTab("profile")}
               >
                 Perfil
               </button>
@@ -1065,7 +1143,7 @@ export function AppShell({
                 role="tab"
                 aria-selected={sideTab === "trace"}
                 className={sideTab === "trace" ? styles.tabActive : styles.tab}
-                onClick={() => setSideTab("trace")}
+                onClick={() => goToTab("trace")}
               >
                 Trazabilidad
               </button>
@@ -1074,7 +1152,7 @@ export function AppShell({
                 role="tab"
                 aria-selected={sideTab === "review"}
                 className={sideTab === "review" ? styles.tabActive : styles.tab}
-                onClick={() => setSideTab("review")}
+                onClick={() => goToTab("review")}
               >
                 Revisión
               </button>

@@ -24,8 +24,10 @@ const AppShell = dynamic(
 
 export function AppShellLoader({
   initialParcelId,
+  initialTab,
 }: {
   initialParcelId: string | null;
+  initialTab?: string | null;
 }) {
-  return <AppShell initialParcelId={initialParcelId} />;
+  return <AppShell initialParcelId={initialParcelId} initialTab={initialTab ?? null} />;
 }
