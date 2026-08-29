@@ -2,30 +2,25 @@
 
 **ADR:** ADR-032  
 **Alcance:** Documentos públicos en `/legal/*`, avisos en LP y billing.  
-**Estado vigente:** **DRAFT** — publicado en producción como borrador orientativo; **no sustituye** revisión ni aprobación de abogado en Perú.
+**Estado vigente:** **APROBADO** por counsel Perú (2026-08-29) — operador `RAW CODE S.A.C.` RUC `20614132206`. Cobro live en apex sigue sujeto al checklist de `docs/ops/billing.md` (§ Stripe Production / webhook / smoke).
 
-## Pendiente — handoff abogado
+## Handoff abogado — cerrado
 
-**Uso actual:** las páginas en `/legal/*` están live en `geoagro.ai` como **draft interno/publicable** (piloto, waitlist, sandbox billing). Válidas para operar sin cobro live; **no** como paquete legal final.
+- [x] Paquete legal enviado / revisado por abogado (Perú)
+- [x] Identidad del operador completada (`LEGAL_OPERATOR_*` desde ficha RUC SUNAT)
+- [x] Texto vigente en `documents.ts` + `LEGAL_LAST_UPDATED=2026-08-29`
+- [x] Confirmación en session-log (desbloquea checklist billing § aprobación counsel)
 
-**Pendiente explícito (Julio → counsel Perú):**
-
-- [ ] Enviar paquete legal a abogado para **revisión y aprobación** antes de cobro live
-- [ ] Completar identidad del operador: razón social, RUC, domicilio fiscal (`src/content/legal/types.ts` → `LEGAL_OPERATOR_*`)
-- [ ] Incorporar observaciones del abogado en `documents.ts` + actualizar `LEGAL_LAST_UPDATED`
-- [ ] Confirmar en session-log cuando counsel apruebe el texto (desbloquea checklist billing §2)
-
-**Qué enviar al abogado:**
+**Qué se envió / revisó:**
 
 | Entregable | Ubicación |
 |------------|-----------|
-| Texto legal (4 docs) | `src/content/legal/documents.ts` o URLs live `/legal/*` |
-| Runbook ops | Este archivo (`docs/ops/legal.md`) |
-| Checklist cobro | `docs/ops/billing.md` → sección checklist legal |
-| Contexto producto | LP `geoagro.ai`, billing sandbox en stg, planes USD en suscripción §1 |
-| Foco sugerido | Ley 29733, IGV/facturación electrónica, transferencias internacionales (Clerk/Vercel/Neon/Stripe), B2B, reembolsos, EUDR disclaimer |
+| Texto legal (4 docs) | `src/content/legal/documents.ts` · URLs `/legal/*` |
+| Runbook ops | Este archivo |
+| Checklist cobro | `docs/ops/billing.md` |
+| Operador | Ficha RUC RAW CODE S.A.C. `20614132206` |
 
-**Hasta aprobación:** mantener banner orientativo en `LegalDocumentView`; no habilitar cobro live en apex.
+Banner DRAFT retirado de `LegalDocumentView` tras aprobación.
 
 ## Documentos publicados
 
@@ -39,6 +34,16 @@
 Fuente en código: `src/content/legal/documents.ts`  
 Última actualización: constante `LEGAL_LAST_UPDATED` en `src/content/legal/types.ts`.
 
+### Operador
+
+| Campo | Valor |
+|-------|--------|
+| Producto | Agro AI |
+| Razón social | RAW CODE S.A.C. |
+| RUC | 20614132206 |
+| Domicilio fiscal | Cal. Las Gaviotas 117, Dpto. 201, Urb. Limatambo, Surquillo, Lima, Perú |
+| Contacto | `hola@geoagro.ai` |
+
 ## Avisos en producto
 
 - **LP** (`/`): sección Precios con enlaces a `LEGAL_NAV_LINKS`; footer legal compartido
@@ -48,15 +53,15 @@ Fuente en código: `src/content/legal/documents.ts`
 
 Marcar en `docs/ops/billing.md` cuando aplique:
 
-1. **Publicación** — documentos en `/legal/*` ✅ (Legal-1) — **estado DRAFT** hasta aprobación abogado
-2. **Revisión y aprobación abogado** — pendiente; handoff en sección «Pendiente — handoff abogado» arriba
-3. **LP** — avisos no vinculantes + enlaces legal ✅
+1. **Publicación** — documentos en `/legal/*` ✅ (Legal-1)
+2. **Revisión y aprobación abogado** ✅ 2026-08-29
+3. **LP** — avisos + enlaces legal ✅
 4. **Stripe Production** + Clerk Billing live en instancia Production
 5. **Webhook Production** + secret en Vercel
 6. **Smoke cobro** controlado + cancelación documentada
-7. **Confirmación explícita** en session-log
+7. **Confirmación explícita** en session-log (cobro live)
 
-Hasta completar 2–7: **ningún cobro live** en apex.
+Hasta completar 4–7: **ningún cobro live** en apex.
 
 ## Cambiar contenido legal
 
@@ -65,15 +70,11 @@ Hasta completar 2–7: **ningún cobro live** en apex.
 3. Commit slice Legal-1.x si es cambio sustantivo
 4. Tras cambios materiales de precios/cobro, re-validar con asesor legal
 
-## Legal-1.1 (2026-08-28)
+## Legal-1.3 (2026-08-29)
 
-- Modelo `blocks` para orden párrafos/listas
-- Tabla planes alineada con `billing.md` (USD + miembros + slugs Clerk)
-- Glosario LP (Básico/Profesional/Empresa) ↔ slugs
-- Disclaimer EUDR, piloto/beta, API/CSV en términos
-- Waitlist: consentimiento → `/legal/privacy`
-- Placeholders operador (razón social / RUC) pendientes de abogado
-- SEO: canonical/OG por doc, sitemap, `dynamicParams = false`
+- Counsel aprobación confirmada
+- Operador RUC/razón social/domicilio desde ficha SUNAT
+- Banner DRAFT retirado
 
 ## Legal-1.2 (2026-08-28)
 
@@ -81,6 +82,16 @@ Hasta completar 2–7: **ningún cobro live** en apex.
 - Twitter metadata por doc; tests nav ↔ slugs
 - Operador en refunds/subscription; B2B, IGV/USD, transferencias 29733
 - Email vía constante en derechos/reembolsos
+
+## Legal-1.1 (2026-08-28)
+
+- Modelo `blocks` para orden párrafos/listas
+- Tabla planes alineada con `billing.md` (USD + miembros + slugs Clerk)
+- Glosario LP (Básico/Profesional/Empresa) ↔ slugs
+- Disclaimer EUDR, piloto/beta, API/CSV en términos
+- Waitlist: consentimiento → `/legal/privacy`
+- Placeholders operador (razón social / RUC) — reemplazados en Legal-1.3
+- SEO: canonical/OG por doc, sitemap, `dynamicParams = false`
 
 ## LP-claims (2026-08-28)
 

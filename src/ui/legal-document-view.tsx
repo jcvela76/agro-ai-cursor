@@ -18,10 +18,6 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
         Última actualización: {LEGAL_LAST_UPDATED} · {LEGAL_JURISDICTION} ·{" "}
         <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>
       </p>
-      <aside className={styles.notice} role="note">
-        Texto orientativo para operación del producto. No sustituye asesoría legal
-        profesional. Revise con su abogado antes de habilitar cobro live a clientes en Perú.
-      </aside>
 
       {document.sections.map((section) => (
         <section key={section.id} id={section.id} className={styles.section}>

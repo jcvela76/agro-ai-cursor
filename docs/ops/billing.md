@@ -188,22 +188,22 @@ Tarjeta de prueba Stripe (development gateway): usar números de test de Stripe 
 | `CLERK_WEBHOOK_SIGNING_SECRET` Vercel Production | ✅ 2026-08-28 |
 | Smoke member limits Production (Lima Coffee) | ✅ 2026-08-28 |
 | `NEXT_PUBLIC_APP_URL` en Vercel Production | **Verificar** `https://geoagro.ai` |
-| Billing enabled + Stripe **account propia** en instancia Production | Bloqueado hasta checklist legal |
-| Montos vinculantes / cobro live en Perú | Bloqueado hasta aprobación abogado |
+| Billing enabled + Stripe **account propia** en instancia Production | Pendiente (counsel OK 2026-08-29; falta Stripe Production) |
+| Montos vinculantes / cobro live en Perú | Pendiente checklist Stripe / smoke cobro |
 
 El webhook Production puede configurarse **antes** de cobro live (org member limits + futuros `subscriptionItem.*`).
 
 ### Checklist legal (antes de cobro live)
 
-- [x] Términos / política de privacidad / facturación publicados en `/legal/*` (Legal-1, 2026-08-28) — **revisión abogado pendiente**
+- [x] Términos / política de privacidad / facturación publicados en `/legal/*` (Legal-1, 2026-08-28)
 - [x] Precios LP con aviso legal explícito + enlaces a `/legal/subscription`, `/legal/terms`, `/legal/privacy`
-- [ ] Revisión y **aprobación** por abogado (Perú) — paquete en `/legal/*` es **DRAFT**; ver `docs/ops/legal.md`
+- [x] Revisión y **aprobación** por abogado (Perú) — 2026-08-29; operador RAW CODE S.A.C. RUC 20614132206; ver `docs/ops/legal.md`
 - [ ] Stripe account Production conectada en Clerk Production (no reusar gateway dev)
 - [x] Webhook Production + `CLERK_WEBHOOK_SIGNING_SECRET` en Vercel Production (Billing-ops-prod, 2026-08-28; smoke member limits OK)
 - [ ] Smoke cobro real con monto mínimo controlado y reverso/cancelación documentados
-- [ ] Confirmación explícita de Julio en session-log / ops
+- [ ] Confirmación explícita de Julio en session-log / ops (cobro live)
 
-Hasta entonces: **ningún cobro live** en apex.
+Hasta completar Stripe + smoke: **ningún cobro live** en apex.
 
 Ver también: `docs/ops/legal.md`.
 

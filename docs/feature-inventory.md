@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (report contrast) |
+| **Última actualización** | 2026-08-29 (Legal-1.3 counsel) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -254,10 +254,10 @@ Gate: `weather` + `weather_plus`.
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| `/legal/terms\|privacy\|refunds\|subscription` | hecho | Banner DRAFT |
+| `/legal/terms\|privacy\|refunds\|subscription` | hecho | Counsel-approved; sin banner DRAFT |
 | Footer links LP / auth / billing | hecho | `LegalFooterLinks` |
-| Aprobación counsel | planificado | `docs/ops/legal.md` |
-| RUC / dirección operador | parcial | Placeholders |
+| Aprobación counsel | hecho | 2026-08-29; `docs/ops/legal.md` |
+| RUC / dirección operador | hecho | RAW CODE S.A.C. · 20614132206 · Surquillo |
 
 ---
 
@@ -292,12 +292,11 @@ Gate: `weather` + `weather_plus`.
 
 ## 13. Próximo (backlog corto)
 
-1. Legal DRAFT → abogado  
-2. Billing live  
-3. CDSE Production (post ToS)  
-4. SENAMHI live  
-5. WhatsApp briefing  
-6. eve / re-eval model path  
+1. Billing live (Stripe Production + smoke cobro)  
+2. CDSE Production (post ToS)  
+3. SENAMHI live (contrato)  
+4. WhatsApp briefing  
+5. eve / re-eval model path  
 
 ---
 

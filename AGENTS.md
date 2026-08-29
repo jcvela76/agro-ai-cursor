@@ -73,10 +73,10 @@ Para cambios de instancia Clerk (orgs, metadata) preferir **Backend API** con `C
 
 ## Pendientes conocidos
 
-- Legal DRAFT → abogado: `/legal/*` publicado como borrador; aprobación counsel pendiente (`docs/ops/legal.md`)
+- Legal-1.3 (2026-08-29): counsel aprobó `/legal/*`; operador RAW CODE S.A.C. RUC 20614132206 (`docs/ops/legal.md`)
 - eve init (diferido post UI-5; ADR-014)
 - Re-evaluar model path (ADR-015): Gateway vs OpenAI key directa vs Bedrock / eve
-- Cobro Billing **live** en Production (checklist `docs/ops/billing.md`; sandbox Billing-1 hecho)
+- Cobro Billing **live** en Production (checklist `docs/ops/billing.md`; sandbox Billing-1 hecho; counsel OK)
 - SENAMHI live / contrato (stub `senamhi_stub` hecho; ADR-031)
 - CDSE Spectral: env `SENTINEL_CLIENT_*` en Vercel Preview/stg; Production ToS
 

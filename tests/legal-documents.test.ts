@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getLegalDocument, LEGAL_DOCUMENTS, LEGAL_SLUGS } from "@/content/legal/documents";
-import { LEGAL_NAV_LINKS } from "@/content/legal/types";
+import { LEGAL_NAV_LINKS, LEGAL_OPERATOR_ADDRESS, LEGAL_OPERATOR_LEGAL_NAME, LEGAL_OPERATOR_RUC } from "@/content/legal/types";
 
 describe("legal documents", () => {
   it("defines all four public slugs", () => {
@@ -54,6 +54,21 @@ describe("legal documents", () => {
       const contacto = getLegalDocument(slug)!.sections.find((s) => s.id === "contacto");
       expect(contacto).toBeDefined();
       expect(contacto!.blocks[0]?.type).toBe("paragraph");
+    }
+  });
+
+  it("operator identity is filled (no placeholders)", () => {
+    expect(LEGAL_OPERATOR_LEGAL_NAME).toBe("RAW CODE S.A.C.");
+    expect(LEGAL_OPERATOR_RUC).toBe("20614132206");
+    expect(LEGAL_OPERATOR_ADDRESS.toLowerCase()).toContain("surquillo");
+    expect(LEGAL_OPERATOR_LEGAL_NAME).not.toMatch(/por definir/i);
+    expect(LEGAL_OPERATOR_RUC).not.toMatch(/por definir/i);
+
+    const contacto = getLegalDocument("subscription")!.sections.find((s) => s.id === "contacto");
+    expect(contacto?.blocks[0]?.type).toBe("paragraph");
+    if (contacto?.blocks[0]?.type === "paragraph") {
+      expect(contacto.blocks[0].text).toContain("RAW CODE S.A.C.");
+      expect(contacto.blocks[0].text).toContain("20614132206");
     }
   });
 });
