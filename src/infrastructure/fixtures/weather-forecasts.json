@@ -7,14 +7,18 @@
         "tempMinCelsius": 16.2,
         "tempMaxCelsius": 24.8,
         "precipitationMm": 2.1,
-        "precipitationProbability": 0.35
+        "precipitationProbability": 0.35,
+        "relativeHumidityPercent": 68,
+        "windSpeedMetersPerSecond": 2.8
       },
       {
         "date": "2026-08-28",
         "tempMinCelsius": 15.9,
         "tempMaxCelsius": 23.5,
         "precipitationMm": 0.4,
-        "precipitationProbability": 0.12
+        "precipitationProbability": 0.12,
+        "relativeHumidityPercent": 62,
+        "windSpeedMetersPerSecond": 2.1
       }
     ],
     "evidence": {

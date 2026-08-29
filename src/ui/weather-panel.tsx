@@ -207,15 +207,30 @@ function ForecastView({
         </p>
       </div>
       <ul className={styles.days}>
-        {data.days.slice(0, 7).map((day) => (
-          <li key={day.date} className={styles.day}>
-            <span>{day.date}</span>
-            <span>
-              {day.tempMinCelsius.toFixed(0)}–{day.tempMaxCelsius.toFixed(0)} °C
-            </span>
-            <span>{day.precipitationMm.toFixed(1)} mm</span>
-          </li>
-        ))}
+        {data.days.slice(0, 7).map((day) => {
+          const humidityLabel =
+            day.relativeHumidityPercent == null
+              ? "—"
+              : `${day.relativeHumidityPercent.toFixed(0)} %`;
+          const windLabel =
+            day.windSpeedMetersPerSecond == null
+              ? "—"
+              : `${day.windSpeedMetersPerSecond.toFixed(1)} m/s`;
+          return (
+            <li key={day.date} className={styles.day}>
+              <span className={styles.dayDate}>{day.date}</span>
+              <span className={styles.dayMetrics}>
+                <span>
+                  {day.tempMinCelsius.toFixed(0)}–{day.tempMaxCelsius.toFixed(0)} °C
+                </span>
+                <span>{day.precipitationMm.toFixed(1)} mm</span>
+                <span>
+                  HR {humidityLabel} · Viento {windLabel}
+                </span>
+              </span>
+            </li>
+          );
+        })}
       </ul>
       <EvidenceBlock evidence={data.evidence} />
     </div>

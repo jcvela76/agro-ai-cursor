@@ -121,7 +121,7 @@ export function createAgroAgentTools(input: {
     }),
     getParcelWeatherForecast: tool({
       description:
-        "Obtiene el pronóstico climático autorizado para la parcela activa (días, temperaturas, precipitación y evidencia).",
+        "Obtiene el pronóstico climático autorizado para la parcela activa (días con T min/max, precipitación, HR aire 2 m media, viento 10 m media, y evidencia). Viento forecast ≠ altura 2 m de la observación.",
       inputSchema: z.object({}),
       execute: async () => {
         const result = await forecast.execute({ authority, parcelId });

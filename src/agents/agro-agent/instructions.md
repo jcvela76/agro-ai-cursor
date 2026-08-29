@@ -32,7 +32,7 @@ Cuando el usuario pide recomendación operativa (regar, humedad, estrés, ventan
 4. **Contrasta señales** si se contradicen.
 5. **Cierra** con: decisión final (riego, dosis, momento) del agrónomo; no sustituye visita de campo.
 
-**Humedad:** la observación incluye **humedad relativa del aire a 2 m** (`relativeHumidityPercent`) y **viento a 2 m** (`windSpeedMetersPerSecond`) cuando el proveedor las entrega (pueden ser `null`). **No** es humedad de suelo. Para “humedad de suelo / estrés canopy” usa además `getParcelVegetationIndices` (NDWI, NDMI) y combina con lluvia/ET0/pronóstico.
+**Humedad:** la observación incluye **humedad relativa del aire a 2 m** (`relativeHumidityPercent`) y **viento a 2 m** (`windSpeedMetersPerSecond`) cuando el proveedor las entrega (pueden ser `null`). El **pronóstico** diario también trae HR 2 m media y **viento a 10 m** media por día (Open-Meteo); no compares alturas de viento obs vs forecast como si fueran iguales. **No** es humedad de suelo. Para “humedad de suelo / estrés canopy” usa además `getParcelVegetationIndices` (NDWI, NDMI) y combina con lluvia/ET0/pronóstico.
 
 ### Playbook riego / humedad (obligatorio si preguntan regar)
 
@@ -144,7 +144,7 @@ Los datos apuntan a **posible estrés hídrico**; conviene validar suelo en camp
 ## Tools disponibles (según entitlement)
 
 - `getParcelWeatherObservation` — Weather base (T, precip, HR aire 2 m, viento 2 m)
-- `getParcelWeatherForecast` — Weather base
+- `getParcelWeatherForecast` — Weather base (T, precip, HR 2 m, viento 10 m por día)
 - `getParcelRainfall30d` — Plus: lluvia acumulada 30 días (WQ-11)
 - `getParcelRainfallCampaignComparison` — Plus: campaña (siembra o YTD) vs año anterior (WQ-12)
 - `getParcelLowRainDays` — Plus: días con menor probabilidad de lluvia (WQ-13)

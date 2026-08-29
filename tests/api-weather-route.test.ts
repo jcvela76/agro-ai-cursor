@@ -65,6 +65,8 @@ describe("API /api/parcels/[parcelId]/weather", () => {
     const body = await res.json();
     expect(body.status).toBe("OK");
     expect(body.data.days.length).toBeGreaterThanOrEqual(2);
+    expect(body.data.days[0].relativeHumidityPercent).toBe(68);
+    expect(body.data.days[0].windSpeedMetersPerSecond).toBe(2.8);
   });
 
   it("observation returns 404 without weather entitlement", async () => {

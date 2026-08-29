@@ -23,9 +23,15 @@ interface OpenMeteoDailyResponse {
     temperature_2m_min?: Array<number | null>;
     precipitation_sum?: Array<number | null>;
     precipitation_probability_max?: Array<number | null>;
+    relative_humidity_2m_mean?: Array<number | null>;
+    wind_speed_10m_mean?: Array<number | null>;
   };
   daily_units?: Record<string, string>;
   timezone?: string;
+}
+
+function numericOrNull(value: number | null | undefined): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function isOpenMeteoDaily(payload: unknown): payload is OpenMeteoDailyResponse {
@@ -67,10 +73,18 @@ export class OpenMeteoWeatherSource implements WeatherSource {
     url.searchParams.set("longitude", String(parcel.longitude));
     url.searchParams.set(
       "daily",
-      "temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max",
+      [
+        "temperature_2m_max",
+        "temperature_2m_min",
+        "precipitation_sum",
+        "precipitation_probability_max",
+        "relative_humidity_2m_mean",
+        "wind_speed_10m_mean",
+      ].join(","),
     );
     url.searchParams.set("timezone", parcel.timezone);
     url.searchParams.set("forecast_days", "7");
+    url.searchParams.set("wind_speed_unit", "ms");
 
     let payload: unknown;
     try {
@@ -120,6 +134,12 @@ export class OpenMeteoWeatherSource implements WeatherSource {
         precipitationMm: precip,
         precipitationProbability:
           typeof probability === "number" ? probability / 100 : undefined,
+        relativeHumidityPercent: numericOrNull(
+          payload.daily.relative_humidity_2m_mean?.[i],
+        ),
+        windSpeedMetersPerSecond: numericOrNull(
+          payload.daily.wind_speed_10m_mean?.[i],
+        ),
       });
     }
 

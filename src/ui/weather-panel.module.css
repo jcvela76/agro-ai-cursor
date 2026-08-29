@@ -120,11 +120,24 @@
 
 .day {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 6.5rem 1fr;
   gap: var(--space-3);
   font-size: 0.8125rem;
   padding: var(--space-2) 0;
   border-bottom: 1px solid var(--color-border-subtle);
+  align-items: start;
+}
+
+.dayDate {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+}
+
+.dayMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: var(--color-fg-muted);
 }
 
 .evidence {

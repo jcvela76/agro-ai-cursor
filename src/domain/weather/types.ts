@@ -43,6 +43,13 @@ export interface WeatherForecastDay {
   tempMaxCelsius: number;
   precipitationMm: number;
   precipitationProbability?: number;
+  /** Daily mean relative humidity at 2 m (%). Null if provider fill/missing. */
+  relativeHumidityPercent: number | null;
+  /**
+   * Daily mean wind speed (m/s). Open-Meteo forecast uses 10 m;
+   * observation wind is 2 m (NASA POWER). Null if provider fill/missing.
+   */
+  windSpeedMetersPerSecond: number | null;
 }
 
 export interface WeatherForecast {
