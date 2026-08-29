@@ -138,6 +138,13 @@ Compara git, Neon (`spectral_scenes` + parcela smoke), HTTP y presencia de env V
 - Badge `cache` en panel Zonas cuando `zones_cache_read`.
 - ADR-046.
 
+## Slice Spectral Perf-4 (1 Process → zone means)
+
+- Cold path: 1× Process API TIFF FLOAT32 del índice + promedio por celda fishnet (`geotiff`).
+- Fallback: loop Statistical por celda si Process falla.
+- Evidence: `zones_fishnet_process_1` / methodId `zones/v2`; fallback `zones_fishnet_3` / `zones/v1`.
+- ADR-047.
+
 ### Costos estimados (tiempo + CDSE)
 
 | Paso | Esfuerzo eng. | Latencia percibida | Calls CDSE / open Espectral | $ (CDSE*) |
@@ -146,7 +153,7 @@ Compara git, Neon (`spectral_scenes` + parcela smoke), HTTP y presencia de env V
 | **Perf-1** (hecho) | ~0.5 d | &lt;0.3 s con cache; live bg | 1 índices live (bg) | −~50% en revisita |
 | **Perf-2** (hecho) | ~0.3 d | zonas sin +2–8 s de índices | zonas: 9→9 celdas, −1 índices | −1 Statistical / zonas |
 | **Perf-3** (hecho) | ~1 d | zonas &lt;0.3 s en revisita | 0 si hit | −9 Statistical / revisita |
-| **Perf-4** 1-call multi-celda | 1–2 d | zonas 2–5 s cold | 9→1 | −8 Statistical / cold |
+| **Perf-4** (hecho) | ~1 d | zonas 2–5 s cold | **1 Process** (fallback 9) | −8 Statistical / cold |
 | **Perf-5** precompute cron | 1–2 d | casi todo &lt;0.3 s | 0 en click | costo a cron |
 
 \*CDSE (Copernicus Data Space) en cuenta gratuita/research suele facturar en *processing units*, no USD fijo; el ahorro real es **cuota + latencia**. En comercial SH clásico, 1 Statistical ≈ fracción de céntimo — el costo dominante es tiempo de usuario y rate limits.

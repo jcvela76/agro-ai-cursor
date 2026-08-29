@@ -95,6 +95,28 @@ function evaluatePixel(s) {
 `;
 }
 
+/**
+ * Evalscript that returns raw vegetation-index FLOAT32 for Process TIFF.
+ * Masked pixels are NaN so aggregation can skip them.
+ */
+export function buildIndexFloatEvalscript(indexId: VegetationIndexId): string {
+  const setup = INDEX_SETUP[indexId];
+  return `//VERSION=3
+function setup() {
+  return {
+    input: [{ bands: ${JSON.stringify(setup.bands)}, units: "REFLECTANCE" }],
+    output: { bands: 1, sampleType: "FLOAT32" }
+  };
+}
+function evaluatePixel(s) {
+  ${setup.compute}
+  var mask = s.dataMask;
+  if (!(mask > 0)) return [NaN];
+  return [v];
+}
+`;
+}
+
 export function geometryBbox(geometry: ParcelGeometry): {
   minLng: number;
   minLat: number;

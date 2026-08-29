@@ -157,10 +157,14 @@ export interface SpectralIndexZonesRequest {
   maxCloudCoverage?: number;
 }
 
+export type SpectralZonesComputation = "process_raster" | "statistical_cells";
+
 export interface SpectralIndexZonesPayload {
   indexId: VegetationIndexId;
   parcelMean: number | null;
   zones: SpectralZone[];
+  /** How zone means were computed (evidence / methodId tagging). */
+  computation?: SpectralZonesComputation;
 }
 
 export interface SpectralSource {

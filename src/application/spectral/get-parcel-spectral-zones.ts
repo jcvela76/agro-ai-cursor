@@ -181,17 +181,20 @@ export class GetParcelSpectralZones {
         parcelMean,
       });
       if (live.ok) {
+        const viaProcess = live.data.computation !== "statistical_cells";
         result = {
           kind: "spectral_zones",
           indexId: input.indexId,
           label: meta.label,
-          methodId: `${meta.methodId}+zones/v1`,
+          methodId: `${meta.methodId}+${viaProcess ? "zones/v2" : "zones/v1"}`,
           parcelMean: live.data.parcelMean ?? parcelMean,
           zones: live.data.zones,
           evidence: {
             ...baseEvidence,
             sourceId: cacheSourceId || baseEvidence.sourceId,
-            freshnessPolicy: `${baseEvidence.freshnessPolicy}|zones_fishnet_3`,
+            freshnessPolicy: `${baseEvidence.freshnessPolicy}|${
+              viaProcess ? "zones_fishnet_process_1" : "zones_fishnet_3"
+            }`,
           },
         };
       }

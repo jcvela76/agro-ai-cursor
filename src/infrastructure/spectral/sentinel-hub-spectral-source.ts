@@ -16,15 +16,23 @@ import type {
   SpectralResult,
   SpectralSource,
 } from "@/domain/spectral/types";
+import {
+  aggregateZoneRaster,
+  decodeFloatTiff,
+} from "@/infrastructure/spectral/aggregate-zone-raster";
 import { CdseTokenProvider, type FetchFn } from "@/infrastructure/spectral/cdse-auth";
 import { SENTINEL2_L2A_BAND_MEAN_EVALSCRIPT } from "@/infrastructure/spectral/sentinel-hub-evalscript";
 import {
   bboxImageCoordinates,
+  buildIndexFloatEvalscript,
   buildIndexRasterEvalscript,
   geometryBbox,
   rasterOutputSize,
 } from "@/infrastructure/spectral/sentinel-hub-index-evalscript";
 import { TtlCache } from "@/infrastructure/spectral/ttl-cache";
+
+/** Coarse grid for zone Process raster (enough for 3×3 fishnet; cheaper than overlay 512). */
+export const ZONE_RASTER_MAX_SIDE = 96;
 
 export const SENTINEL_HUB_SOURCE_ID = "sentinel-hub-cdse";
 export const SENTINEL_HUB_SOURCE_LABEL = "Sentinel Hub (CDSE) — Sentinel-2 L2A";
@@ -609,7 +617,7 @@ export class SentinelHubSpectralSource implements SpectralSource {
     request: SpectralIndexZonesRequest,
   ): Promise<SpectralResult<SpectralIndexZonesPayload>> {
     const day = request.acquiredAt.slice(0, 10);
-    const cacheKey = `zones-v1|${request.parcelId}|${request.indexId}|${day}|${JSON.stringify(request.geometry)}`;
+    const cacheKey = `zones-v2|${request.parcelId}|${request.indexId}|${day}|${JSON.stringify(request.geometry)}`;
     if (this.cacheTtlMs > 0) {
       const cached = this.zonesCache.get(cacheKey);
       if (cached) {
@@ -646,31 +654,45 @@ export class SentinelHubSpectralSource implements SpectralSource {
       };
     }
 
-    const valuesByCellId = new Map<string, number | null>();
-    const settled = await Promise.all(
-      cells.map(async (cell) => {
-        const bands = await this.fetchBandMeansForGeometry({
-          geometry: cell.geometry,
-          timeFrom,
-          timeTo,
-          maxCloud,
-          token,
-          width: 32,
-          height: 32,
-        });
-        const value = bands ? computeVegetationIndex(request.indexId, bands) : null;
-        return { id: cell.id, value };
-      }),
-    );
+    const processValues = await this.fetchZoneMeansViaProcess({
+      geometry: request.geometry,
+      indexId: request.indexId,
+      cells,
+      timeFrom,
+      timeTo,
+      maxCloud,
+      token,
+    });
+
+    let valuesByCellId = processValues;
+    let computation: NonNullable<SpectralIndexZonesPayload["computation"]> = "process_raster";
+
+    if (!valuesByCellId) {
+      valuesByCellId = await this.fetchZoneMeansViaStatistical({
+        cells,
+        indexId: request.indexId,
+        timeFrom,
+        timeTo,
+        maxCloud,
+        token,
+      });
+      computation = "statistical_cells";
+    }
+
+    if (!valuesByCellId) {
+      return {
+        ok: false,
+        reason: "unavailable",
+        message: "No hay estadísticas por zona para esta escena.",
+      };
+    }
 
     let validCount = 0;
-    for (const item of settled) {
-      valuesByCellId.set(item.id, item.value);
-      if (item.value !== null) {
+    for (const value of valuesByCellId.values()) {
+      if (value !== null) {
         validCount += 1;
       }
     }
-
     if (validCount === 0) {
       return {
         ok: false,
@@ -690,6 +712,7 @@ export class SentinelHubSpectralSource implements SpectralSource {
         indexId: request.indexId,
         parcelMean: request.parcelMean,
         zones,
+        computation,
       },
     };
 
@@ -697,6 +720,127 @@ export class SentinelHubSpectralSource implements SpectralSource {
       this.zonesCache.set(cacheKey, result, this.cacheTtlMs);
     }
     return result;
+  }
+
+  private async fetchZoneMeansViaProcess(input: {
+    geometry: ParcelGeometry;
+    indexId: SpectralIndexZonesRequest["indexId"];
+    cells: ReturnType<typeof partitionParcelZones>;
+    timeFrom: string;
+    timeTo: string;
+    maxCloud: number;
+    token: string;
+  }): Promise<Map<string, number | null> | null> {
+    const bbox = geometryBbox(input.geometry);
+    if (!Number.isFinite(bbox.minLng) || bbox.maxLng <= bbox.minLng) {
+      return null;
+    }
+    const { width, height } = rasterOutputSize(bbox, ZONE_RASTER_MAX_SIDE);
+    const body = {
+      input: {
+        bounds: {
+          geometry: input.geometry,
+          properties: {
+            crs: "http://www.opengis.net/def/crs/EPSG/0/4326",
+          },
+        },
+        data: [
+          {
+            type: "sentinel-2-l2a",
+            dataFilter: {
+              timeRange: { from: input.timeFrom, to: input.timeTo },
+              maxCloudCoverage: input.maxCloud,
+              mosaickingOrder: "mostRecent",
+            },
+          },
+        ],
+      },
+      output: {
+        width,
+        height,
+        responses: [
+          {
+            identifier: "default",
+            format: { type: "image/tiff" },
+          },
+        ],
+      },
+      evalscript: buildIndexFloatEvalscript(input.indexId),
+    };
+
+    try {
+      const response = await this.fetchFn(this.processUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${input.token}`,
+          "Content-Type": "application/json",
+          Accept: "image/tiff",
+        },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) {
+        return null;
+      }
+      const buffer = await response.arrayBuffer();
+      if (buffer.byteLength < 32) {
+        return null;
+      }
+      const decoded = await decodeFloatTiff(buffer);
+      if (!decoded) {
+        return null;
+      }
+      const valuesByCellId = aggregateZoneRaster({
+        values: decoded.values,
+        width: decoded.width,
+        height: decoded.height,
+        bbox,
+        cells: input.cells,
+      });
+      let valid = 0;
+      for (const value of valuesByCellId.values()) {
+        if (value !== null) {
+          valid += 1;
+        }
+      }
+      return valid > 0 ? valuesByCellId : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async fetchZoneMeansViaStatistical(input: {
+    cells: ReturnType<typeof partitionParcelZones>;
+    indexId: SpectralIndexZonesRequest["indexId"];
+    timeFrom: string;
+    timeTo: string;
+    maxCloud: number;
+    token: string;
+  }): Promise<Map<string, number | null> | null> {
+    const settled = await Promise.all(
+      input.cells.map(async (cell) => {
+        const bands = await this.fetchBandMeansForGeometry({
+          geometry: cell.geometry,
+          timeFrom: input.timeFrom,
+          timeTo: input.timeTo,
+          maxCloud: input.maxCloud,
+          token: input.token,
+          width: 32,
+          height: 32,
+        });
+        const value = bands ? computeVegetationIndex(input.indexId, bands) : null;
+        return { id: cell.id, value };
+      }),
+    );
+
+    const valuesByCellId = new Map<string, number | null>();
+    let validCount = 0;
+    for (const item of settled) {
+      valuesByCellId.set(item.id, item.value);
+      if (item.value !== null) {
+        validCount += 1;
+      }
+    }
+    return validCount > 0 ? valuesByCellId : null;
   }
 
   private async fetchBandMeansForGeometry(input: {

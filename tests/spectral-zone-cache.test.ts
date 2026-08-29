@@ -3,10 +3,11 @@ import { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectr
 import { buildSpectralZones } from "@/domain/spectral/build-spectral-zones";
 import { partitionParcelZones } from "@/domain/spectral/partition-zones";
 import type {
+  SpectralIndexZonesPayload,
+  SpectralIndexZonesRequest,
   SpectralLocationHint,
   SpectralResult,
   SpectralSource,
-  VegetationIndexId,
 } from "@/domain/spectral/types";
 import { defaultSyntheticSnapshots } from "@/infrastructure/auth/synthetic-access-resolver";
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
@@ -25,18 +26,9 @@ class CountingZoneSource implements SpectralSource {
     return this.offline.getVegetationIndices(parcelId, hint);
   }
 
-  async getIndexZones(input: {
-    parcelId: string;
-    indexId: VegetationIndexId;
-    geometry: NonNullable<SpectralLocationHint["geometry"]>;
-    acquiredAt: string;
-    parcelMean: number | null;
-  }): Promise<
-    SpectralResult<{
-      zones: ReturnType<typeof buildSpectralZones>;
-      parcelMean: number | null;
-    }>
-  > {
+  async getIndexZones(
+    input: SpectralIndexZonesRequest,
+  ): Promise<SpectralResult<SpectralIndexZonesPayload>> {
     this.zoneCalls += 1;
     const cells = partitionParcelZones(input.geometry);
     const valuesByCellId = new Map<string, number | null>();
@@ -46,8 +38,10 @@ class CountingZoneSource implements SpectralSource {
     return {
       ok: true,
       data: {
+        indexId: input.indexId,
         zones: buildSpectralZones({ geometry: input.geometry, valuesByCellId }),
         parcelMean: input.parcelMean,
+        computation: "process_raster",
       },
     };
   }
