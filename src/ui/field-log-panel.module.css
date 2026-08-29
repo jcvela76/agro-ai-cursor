@@ -127,3 +127,20 @@
   font-weight: 600;
   color: var(--color-fg-primary);
 }
+
+.photoPreview,
+.photoThumb {
+  display: block;
+  max-width: 100%;
+  max-height: 10rem;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  object-fit: cover;
+}
+
+.photoLink {
+  display: inline-block;
+  margin-top: var(--space-2);
+}

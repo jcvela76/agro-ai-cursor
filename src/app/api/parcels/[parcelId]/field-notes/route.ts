@@ -5,6 +5,9 @@ import {
   createAccessResolver,
   listParcelFieldNotes,
 } from "@/infrastructure/container";
+import { uploadFieldNotePhoto } from "@/infrastructure/field-note/upload-field-note-photo";
+
+export const runtime = "nodejs";
 
 export async function GET(
   _request: Request,
@@ -35,28 +38,93 @@ export async function POST(
   const accessResolver = createAccessResolver();
   const authority = await accessResolver.resolve(userId, orgId ?? null);
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json(
-      { status: "BAD_REQUEST", message: "JSON inválido." },
-      { status: 400 },
-    );
+  const contentType = request.headers.get("content-type") ?? "";
+  let noteBody: unknown;
+  let zoneLabel: unknown;
+  let observedAt: unknown;
+  let photo: File | null = null;
+
+  if (contentType.includes("multipart/form-data")) {
+    let form: FormData;
+    try {
+      form = await request.formData();
+    } catch {
+      return NextResponse.json(
+        { status: "BAD_REQUEST", message: "Formulario inválido." },
+        { status: 400 },
+      );
+    }
+    noteBody = form.get("body");
+    zoneLabel = form.get("zoneLabel");
+    observedAt = form.get("observedAt");
+    const file = form.get("photo");
+    if (file instanceof File && file.size > 0) {
+      photo = file;
+    }
+  } else {
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { status: "BAD_REQUEST", message: "JSON inválido." },
+        { status: 400 },
+      );
+    }
+    const payload = (body ?? {}) as {
+      body?: unknown;
+      zoneLabel?: unknown;
+      observedAt?: unknown;
+    };
+    noteBody = payload.body;
+    zoneLabel = payload.zoneLabel;
+    observedAt = payload.observedAt;
   }
 
-  const payload = (body ?? {}) as {
-    body?: unknown;
-    zoneLabel?: unknown;
-    observedAt?: unknown;
-  };
+  let photoUrl: string | null = null;
+  let photoContentType: string | null = null;
+
+  if (photo) {
+    const gate = await listParcelFieldNotes.execute({
+      authority,
+      parcelId,
+      limit: 1,
+    });
+    if (!gate.ok) {
+      return NextResponse.json(
+        { status: "FIELD_NOTES_UNAVAILABLE", message: gate.message },
+        { status: 403 },
+      );
+    }
+    if (!authority?.orgId) {
+      return NextResponse.json(
+        { status: "FIELD_NOTES_UNAVAILABLE", message: "Organización requerida." },
+        { status: 403 },
+      );
+    }
+    const uploaded = await uploadFieldNotePhoto({
+      orgId: authority.orgId,
+      parcelId,
+      file: photo,
+    });
+    if (!uploaded.ok) {
+      return NextResponse.json(
+        { status: "BAD_REQUEST", message: uploaded.message },
+        { status: 400 },
+      );
+    }
+    photoUrl = uploaded.data.url;
+    photoContentType = uploaded.data.contentType;
+  }
 
   const result = await appendParcelFieldNote.execute({
     authority,
     parcelId,
-    body: payload.body,
-    zoneLabel: payload.zoneLabel,
-    observedAt: payload.observedAt,
+    body: noteBody,
+    zoneLabel,
+    observedAt,
+    photoUrl,
+    photoContentType,
   });
 
   if (!result.ok) {

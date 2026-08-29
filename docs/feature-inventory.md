@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (spectral date compare) |
+| **Última actualización** | 2026-08-29 (bitácora fotos) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -173,13 +173,14 @@ Gate: `weather` + `weather_plus`.
 ### Bitácora de campo
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Tab Campo + lista/form | hecho | Texto + fecha + zona opcional; append-only |
-| API field-notes | hecho | `GET\|POST /api/parcels/[id]/field-notes` |
-| Neon `parcel_field_notes` | hecho | Índice org+parcel+observed_at |
+| Tab Campo + lista/form | hecho | Texto + fecha + zona; foto opcional |
+| API field-notes | hecho | `GET\|POST` JSON o multipart con foto |
+| Neon `parcel_field_notes` | hecho | + `photo_url` / `photo_content_type` |
 | Gate Plus | hecho | Igual que Perfil / Agente |
-| Tools agente list/append | hecho | `getParcelFieldNotes` / `appendParcelFieldNote` |
-| Fotos / pin mapa | planificado | Slice 2 |
-| Editar/borrar notas | refuse | Append-only (ADR-051) |
+| Tools agente list/append | hecho | List cita `photoUrl`; append texto |
+| Foto opcional (Vercel Blob) | hecho | 1 JPEG/PNG/WebP ≤4 MB; server `put` (ADR-054) |
+| Pin mapa | planificado | Click zona fishnet |
+| Multi-foto / editar/borrar | refuse | Append-only; 1 foto máx. |
 
 ---
 

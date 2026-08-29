@@ -1,6 +1,14 @@
 export const FIELD_NOTE_BODY_MAX = 2000;
 export const FIELD_NOTE_ZONE_MAX = 80;
 export const FIELD_NOTE_LIST_MAX = 50;
+export const FIELD_NOTE_PHOTO_MAX_BYTES = 4 * 1024 * 1024;
+export const FIELD_NOTE_PHOTO_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+] as const;
+
+export type FieldNotePhotoContentType = (typeof FIELD_NOTE_PHOTO_TYPES)[number];
 
 export interface ParcelFieldNote {
   id: string;
@@ -11,6 +19,8 @@ export interface ParcelFieldNote {
   observedAt: string;
   authorUserId: string;
   createdAt: string;
+  photoUrl: string | null;
+  photoContentType: string | null;
 }
 
 export interface AppendParcelFieldNoteInput {
@@ -20,6 +30,8 @@ export interface AppendParcelFieldNoteInput {
   zoneLabel?: string | null;
   observedAt?: Date;
   authorUserId: string;
+  photoUrl?: string | null;
+  photoContentType?: string | null;
 }
 
 export interface ParcelFieldNoteRegistry {
@@ -55,4 +67,10 @@ export function parseObservedAt(value: unknown): Date | undefined {
   const dt = new Date(value);
   if (Number.isNaN(dt.getTime())) return undefined;
   return dt;
+}
+
+export function isAllowedFieldNotePhotoType(
+  value: string,
+): value is FieldNotePhotoContentType {
+  return (FIELD_NOTE_PHOTO_TYPES as readonly string[]).includes(value);
 }

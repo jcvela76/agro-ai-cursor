@@ -267,6 +267,8 @@ export const parcelFieldNotes = pgTable(
     observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
     authorUserId: text("author_user_id").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    photoUrl: text("photo_url"),
+    photoContentType: text("photo_content_type"),
   },
   (table) => [
     index("parcel_field_notes_org_parcel_observed_idx").on(

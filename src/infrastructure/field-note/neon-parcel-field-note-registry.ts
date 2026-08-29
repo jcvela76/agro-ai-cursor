@@ -46,6 +46,8 @@ export class NeonParcelFieldNoteRegistry implements ParcelFieldNoteRegistry {
         observedAt,
         authorUserId: input.authorUserId,
         createdAt: now,
+        photoUrl: input.photoUrl ?? null,
+        photoContentType: input.photoContentType ?? null,
       })
       .returning();
     const row = rows[0];
@@ -65,6 +67,8 @@ export class NeonParcelFieldNoteRegistry implements ParcelFieldNoteRegistry {
       observedAt: row.observedAt.toISOString(),
       authorUserId: row.authorUserId,
       createdAt: row.createdAt.toISOString(),
+      photoUrl: row.photoUrl,
+      photoContentType: row.photoContentType,
     };
   }
 }

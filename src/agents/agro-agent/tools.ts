@@ -287,7 +287,7 @@ export function createAgroAgentTools(input: {
     }),
     getParcelFieldNotes: tool({
       description:
-        "Lista notas recientes de la bitácora de campo de la parcela activa (inspección, estrés visto, riego aplicado). No es Agronomic Review. Citar fecha y zona si hay. Requiere Plus. Parámetro opcional limit (1–50, default 10).",
+        "Lista notas recientes de la bitácora de campo de la parcela activa (inspección, estrés visto, riego aplicado; puede incluir photoUrl). No es Agronomic Review. Citar fecha, zona y si hay foto. Requiere Plus. Parámetro opcional limit (1–50, default 10).",
       inputSchema: z.object({
         limit: z.number().int().min(1).max(50).optional(),
       }),

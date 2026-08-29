@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import type { Parcel } from "@/domain/parcel/types";
 import type { ParcelFieldNote } from "@/domain/field-note/types";
+import { FIELD_NOTE_PHOTO_MAX_BYTES } from "@/domain/field-note/types";
 import { Button } from "@/ui/button";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./field-log-panel.module.css";
@@ -45,6 +46,8 @@ export function FieldLogPanel({
   const [body, setBody] = useState("");
   const [zoneLabel, setZoneLabel] = useState("");
   const [observedAt, setObservedAt] = useState(toDatetimeLocalValue);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -80,6 +83,16 @@ export function FieldLogPanel({
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (!photo) {
+      setPhotoPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(photo);
+    setPhotoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [photo]);
+
   const onSave = async (event: FormEvent) => {
     event.preventDefault();
     setBusy(true);
@@ -89,18 +102,37 @@ export function FieldLogPanel({
       const observedIso = observedAt
         ? new Date(observedAt).toISOString()
         : undefined;
-      const res = await fetch(
-        `/api/parcels/${encodeURIComponent(parcel.id)}/field-notes`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            body,
-            zoneLabel: zoneLabel.trim() || null,
-            observedAt: observedIso,
-          }),
-        },
-      );
+
+      let res: Response;
+      if (photo) {
+        if (photo.size > FIELD_NOTE_PHOTO_MAX_BYTES) {
+          setError("Foto demasiado grande (máx. 4 MB).");
+          return;
+        }
+        const form = new FormData();
+        form.set("body", body);
+        if (zoneLabel.trim()) form.set("zoneLabel", zoneLabel.trim());
+        if (observedIso) form.set("observedAt", observedIso);
+        form.set("photo", photo);
+        res = await fetch(
+          `/api/parcels/${encodeURIComponent(parcel.id)}/field-notes`,
+          { method: "POST", body: form },
+        );
+      } else {
+        res = await fetch(
+          `/api/parcels/${encodeURIComponent(parcel.id)}/field-notes`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              body,
+              zoneLabel: zoneLabel.trim() || null,
+              observedAt: observedIso,
+            }),
+          },
+        );
+      }
+
       const json = (await res.json()) as {
         status: string;
         data?: ParcelFieldNote;
@@ -114,6 +146,7 @@ export function FieldLogPanel({
       setBody("");
       setZoneLabel("");
       setObservedAt(toDatetimeLocalValue());
+      setPhoto(null);
       setMessage("Nota de campo guardada.");
     } catch {
       setError("Error de red al guardar.");
@@ -149,7 +182,7 @@ export function FieldLogPanel({
     <div className={styles.root}>
       <p className={styles.intro}>
         Bitácora de <strong>{parcel.name}</strong>. Notas rápidas de campo (no sustituyen
-        Revisión formal). Fotos: próximamente.
+        Revisión formal). Una foto opcional por nota (JPEG/PNG/WebP, máx. 4 MB).
       </p>
 
       <form className={styles.composer} onSubmit={(e) => void onSave(e)}>
@@ -186,6 +219,19 @@ export function FieldLogPanel({
             />
           </label>
         </div>
+        <label className={styles.field}>
+          <span>Foto (opcional)</span>
+          <input
+            className={styles.input}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+          />
+        </label>
+        {photoPreview ? (
+          // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
+          <img src={photoPreview} alt="Vista previa" className={styles.photoPreview} />
+        ) : null}
         <div className={styles.actions}>
           <Button type="submit" disabled={busy || !body.trim()}>
             {busy ? "Guardando…" : "Añadir nota"}
@@ -209,6 +255,21 @@ export function FieldLogPanel({
                 <span className={styles.author}>{shortAuthor(note.authorUserId)}</span>
               </header>
               <p className={styles.noteBody}>{note.body}</p>
+              {note.photoUrl ? (
+                <a
+                  className={styles.photoLink}
+                  href={note.photoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- remote blob URL */}
+                  <img
+                    src={note.photoUrl}
+                    alt="Foto de campo"
+                    className={styles.photoThumb}
+                  />
+                </a>
+              ) : null}
             </article>
           ))
         )}

@@ -80,6 +80,20 @@ describe("parcel field notes use cases", () => {
     });
     expect(result.ok).toBe(false);
   });
+
+  it("stores optional photo metadata", async () => {
+    const result = await append.execute({
+      authority: plus,
+      parcelId,
+      body: "Mancha clorótica con foto",
+      photoUrl: "https://example.public.blob.vercel-storage.com/field.jpg",
+      photoContentType: "image/jpeg",
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.data.photoUrl).toContain("blob.vercel-storage.com");
+    expect(result.data.photoContentType).toBe("image/jpeg");
+  });
 });
 
 describe("Agro Agent field note tools", () => {

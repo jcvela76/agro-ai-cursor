@@ -36,6 +36,8 @@ export class OfflineParcelFieldNoteRegistry implements ParcelFieldNoteRegistry {
       observedAt: (input.observedAt ?? now).toISOString(),
       authorUserId: input.authorUserId,
       createdAt: now.toISOString(),
+      photoUrl: input.photoUrl ?? null,
+      photoContentType: input.photoContentType ?? null,
     };
     this.notes.set(note.id, note);
     return { ...note };

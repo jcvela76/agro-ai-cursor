@@ -100,6 +100,8 @@ export class AppendParcelFieldNote {
     body: unknown;
     zoneLabel?: unknown;
     observedAt?: unknown;
+    photoUrl?: string | null;
+    photoContentType?: string | null;
   }): Promise<
     | { ok: true; data: ParcelFieldNote }
     | { ok: false; reason: "unavailable"; message: string }
@@ -147,6 +149,8 @@ export class AppendParcelFieldNote {
       zoneLabel: zoneLabel ?? null,
       observedAt,
       authorUserId: gate.authority.userId,
+      photoUrl: input.photoUrl ?? null,
+      photoContentType: input.photoContentType ?? null,
     });
     return { ok: true, data };
   }
