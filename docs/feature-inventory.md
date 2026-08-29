@@ -181,7 +181,7 @@ Gate: `weather` + `weather_plus`.
 ### Zonas
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Fishnet 3×3 + tiers relativos | hecho | Sin umbrales absolutos |
+| Fishnet 3×3 + tiers relativos | hecho | Celdas recortadas al polígono (`zones/v3`); cubren toda la parcela |
 | API zones | hecho | `GET .../spectral/zones` |
 | Contornos MapLibre | hecho | Dibujo de celdas |
 | Refresh + badge cache | hecho | `?refresh=1` |
