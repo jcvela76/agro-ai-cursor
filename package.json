@@ -23,6 +23,7 @@
     "smoke:trace": "npx tsx scripts/smoke-trace.ts",
     "smoke:review": "npx tsx scripts/smoke-review.ts",
     "smoke:parcels": "npx tsx scripts/smoke-parcels.ts",
+    "smoke:subscription-parcels": "npx tsx scripts/smoke-subscription-parcels.ts",
     "smoke:weather": "npx tsx scripts/smoke-weather.ts",
     "smoke:spectral": "npx tsx scripts/smoke-spectral.ts",
     "smoke:spectral-backfill-ica": "npx tsx scripts/smoke-spectral-backfill-ica.ts",

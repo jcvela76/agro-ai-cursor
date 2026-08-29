@@ -9,6 +9,7 @@ import { spawnSync } from "node:child_process";
 
 const scripts = [
   "smoke:parcels",
+  "smoke:subscription-parcels",
   "smoke:weather",
   "smoke:spectral",
   "smoke:agent",

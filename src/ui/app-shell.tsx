@@ -21,6 +21,7 @@ import {
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
 import { approximateAreaHectares } from "@/domain/parcel/geometry";
+import { planDisplayLabel } from "@/domain/billing/plan-display";
 import type { ParcelSpectralOverlay, SpectralZone, VegetationIndexId } from "@/domain/spectral/types";
 import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import { MapChip } from "@/ui/map-chip";
@@ -990,6 +991,51 @@ export function AppShell({
               },
             }}
           />
+          {parcelQuota ? (
+            <div
+              className={
+                parcelQuota.blocked ? styles.parcelQuotaBarBlocked : styles.parcelQuotaBar
+              }
+              role="status"
+              aria-live="polite"
+              title={`Plan ${parcelQuota.planSlug}`}
+            >
+              <span className={styles.parcelQuotaPlan}>
+                {planDisplayLabel(parcelQuota.planSlug)}
+              </span>
+              <span className={styles.parcelQuotaSep} aria-hidden>
+                ·
+              </span>
+              <span>
+                Parcelas {parcelQuota.used}/{parcelQuota.limit}
+              </span>
+              <span className={styles.parcelQuotaSep} aria-hidden>
+                ·
+              </span>
+              <span>Máx {parcelQuota.maxHaPerParcel} ha</span>
+              {selected?.geometry?.type === "Polygon" ? (
+                <>
+                  <span className={styles.parcelQuotaSep} aria-hidden>
+                    ·
+                  </span>
+                  <span
+                    className={
+                      summaryAreaHectares > parcelQuota.maxHaPerParcel
+                        ? styles.parcelQuotaOver
+                        : undefined
+                    }
+                  >
+                    Selección {summaryAreaHectares.toFixed(1)} ha
+                  </span>
+                </>
+              ) : null}
+              {parcelQuota.blocked ? (
+                <Link className={styles.parcelQuotaUpgrade} href="/app/billing">
+                  Mejorar plan
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
         </div>
         <div className={styles.chromeRight}>
           {isAdmin ? (
@@ -1011,11 +1057,6 @@ export function AppShell({
           >
             + Nueva parcela
           </Button>
-          {parcelQuota ? (
-            <span className={styles.parcelQuota} title={`Plan ${parcelQuota.planSlug}`}>
-              {parcelQuota.used}/{parcelQuota.limit} · ≤{parcelQuota.maxHaPerParcel} ha
-            </span>
-          ) : null}
           <UserButton />
         </div>
       </header>
@@ -1091,7 +1132,10 @@ export function AppShell({
               />
             </label>
             <p className={styles.help}>
-              Polígono listo. Guarda nombre y geometría en el workspace
+              Polígono listo
+              {draftGeometry
+                ? ` · ~${approximateAreaHectares(draftGeometry).toFixed(1)} ha`
+                : ""}
               {parcelQuota
                 ? ` · cupo ${parcelQuota.used}/${parcelQuota.limit}, máx ${parcelQuota.maxHaPerParcel} ha`
                 : ""}

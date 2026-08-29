@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (parcel plan limits) |
+| **Última actualización** | 2026-08-29 (subscription parcel tests + top quota) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -74,7 +74,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Markers / fill / fitBounds | hecho | Visualización y zoom |
 | Área aproximada (ha) | hecho | Estimación de hectáreas |
 | Límites por plan (# + máx ha) | hecho | free 2×25 · plus 10×100 · ops 40×500 · full 100×2000; grandfather shrink |
-| Cupo en UI + CTA billing | hecho | Badge chrome; deny create/expand |
+| Cupo en UI + CTA billing | hecho | Badge top chrome (plan · N/M · máx ha · selección); deny create/expand |
 | Registry Neon vs sintético | hecho | Persistencia real o fixtures |
 | Seed parcelas | hecho | `npm run db:seed` |
 | Historial de geometría | docs | En boundary; no en schema |
