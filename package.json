@@ -27,6 +27,8 @@
     "smoke:spectral": "npx tsx scripts/smoke-spectral.ts",
     "smoke:spectral-backfill-ica": "npx tsx scripts/smoke-spectral-backfill-ica.ts",
     "smoke:spectral-perf": "npx tsx scripts/smoke-spectral-perf.ts",
+    "smoke:report-contrast": "npx tsx scripts/smoke-report-contrast.ts",
+    "tally:report-suggestion-labels": "npx tsx scripts/tally-report-suggestion-labels.ts",
     "smoke:agent": "npx tsx scripts/smoke-agent.ts",
     "smoke:admin": "npx tsx scripts/smoke-admin.ts",
     "smoke:all": "npx tsx scripts/smoke-all.ts",

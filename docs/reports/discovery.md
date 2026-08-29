@@ -138,6 +138,45 @@ Ejemplos:
 - ¿Última aplicación / cosecha esperada?
 
 Almacenado en `parcel_agronomic_profiles`. Tools: `getParcelProfile` / `updateParcelProfile` (guardado directo). UI: pestaña Perfil.
+
+---
+
+## Report contrast — qué mide / qué no
+
+Piloto de contraste con datos reales (ops, no producto UI).
+
+| Capa | Qué mide | Cómo |
+|------|----------|------|
+| **Fidelidad** | Números del HTML del informe = use cases | `npm run smoke:report-contrast` |
+| **Cross-provider** | Free stack (NASA POWER obs) vs Open-Meteo forecast proxy; offline = fixtures offset | Misma smoke; divergencia = **warn**, no fail |
+| **Espectral** | NDWI `source: auto` (Neon/cache) vs `live` | ±0.05 si misma escena; warn si distinta acquisition |
+| **Acierto agronómico** | ¿La sugerencia fue útil en campo? | Labels humanos vía Review (abajo) |
+
+**No mide:** acierto de riego, humedad de suelo, SENAMHI live, ni reescritura de `rpt-…` históricos (HTML inmutable).
+
+```bash
+npm run smoke:report-contrast
+SMOKE_NEON=1 SMOKE_WEATHER_LIVE=1 SMOKE_SENTINEL_LIVE=1 npm run smoke:report-contrast
+FAIL_ON_WARN=1 npm run smoke:report-contrast   # opcional: treats warns as fail
+```
+
+### Scorecard de sugerencias (Review)
+
+Al registrar una decisión en Agronomic Review tras leer un informe/briefing, incluir en `rationale` (o `summary`):
+
+```text
+report:<reportId> suggestion:<theme> verdict:agree|disagree|partial
+```
+
+Temas: `water` | `vegetation` | `weather` | `operations`. Nota libre después del tag.
+
+Tally:
+
+```bash
+npm run tally:report-suggestion-labels
+SMOKE_NEON=1 SMOKE_ORG_ID=org_… npm run tally:report-suggestion-labels
+```
+
 ---
 
 ## Slices sugeridos

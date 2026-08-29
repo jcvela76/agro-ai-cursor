@@ -22,6 +22,28 @@
       "decidedAt": "2026-03-14T18:00:00.000Z"
     },
     {
+      "id": "rev-lima-norte-suggest-label-001",
+      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "parcelId": "parcel-lima-norte-001",
+      "kind": "decide",
+      "summary": "Score sugerencia briefing agua",
+      "rationale": "report:rpt-demo-water-001 suggestion:water verdict:agree — humedad superficial baja al tacto en franja norte.",
+      "actorId": "user-agronomist-001",
+      "decidedAt": "2026-08-29T16:00:00.000Z",
+      "evidenceRef": "briefing://rpt-demo-water-001"
+    },
+    {
+      "id": "rev-lima-norte-suggest-label-002",
+      "orgId": "org_3ITi6wk2MTcwXZ1FrMaNZEKfR0G",
+      "parcelId": "parcel-lima-norte-001",
+      "kind": "decide",
+      "summary": "Score sugerencia NDWI",
+      "rationale": "report:rpt-demo-water-001 suggestion:vegetation verdict:partial — NDWI bajo pero riego reciente; no estrés claro.",
+      "actorId": "user-agronomist-001",
+      "decidedAt": "2026-08-29T16:05:00.000Z",
+      "evidenceRef": "briefing://rpt-demo-water-001"
+    },
+    {
       "id": "rev-lima-norte-prod-observe-001",
       "orgId": "org_3IW1Ls81Xul5wDXca1hCD0iAMQ5",
       "parcelId": "parcel-lima-norte-prod-001",

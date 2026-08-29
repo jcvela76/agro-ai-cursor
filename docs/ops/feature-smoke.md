@@ -46,6 +46,18 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Sentinel Hub stub | `SMOKE_SENTINEL_STUB=1 npm run smoke:spectral` |
 | Sentinel Hub live (CDSE) | `SMOKE_SENTINEL_LIVE=1 npm run smoke:spectral` (requiere `SENTINEL_CLIENT_*`) |
 
+## Report contrast (fidelidad)
+
+| Check | Cómo |
+|-------|------|
+| Offline fidelidad HTML↔UC + cross-provider warn (fixtures offset) | `npm run smoke:report-contrast` |
+| Neon + free weather (NASA POWER) + Open-Meteo proxy + CDSE (parcela Ica) | `SMOKE_NEON=1 SMOKE_WEATHER_LIVE=1 SMOKE_SENTINEL_LIVE=1 npm run smoke:report-contrast` |
+| Parcela explícita | `SMOKE_PARCEL_ID=parcel-…` |
+| Warns como fallo | `FAIL_ON_WARN=1` |
+| Tally labels Review (sugerencias) | `npm run tally:report-suggestion-labels` · `SMOKE_NEON=1` |
+
+**Qué mide / qué no:** fidelidad de números y contraste entre fuentes ≠ acierto agronómico. Ver `docs/reports/discovery.md` § Report contrast.
+
 ## QA-4 — Agente
 
 | Check | Cómo |
@@ -109,4 +121,6 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 npm run qa:regression          # test + lint + smoke:all (con stubs)
 npm run smoke:all              # solo smokes offline
 SMOKE_NEON=1 npm run smoke:all # incluye Neon si DATABASE_URL está configurado
+npm run smoke:report-contrast  # fidelidad informes vs fuentes (warn ≠ fail)
+npm run tally:report-suggestion-labels  # % agree Review tags
 ```

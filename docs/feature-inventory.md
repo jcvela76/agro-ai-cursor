@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 |
+| **Última actualización** | 2026-08-29 (report contrast) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -148,6 +148,8 @@ Gate: `weather` + `weather_plus`.
 | WhatsApp delivery | stub | Prefs aceptan; envío rechazado |
 | Tool briefings recientes | hecho | Agente lee historial |
 | NDWI zonas en informe/briefing | hecho | Report-4 / ADR-041 |
+| Contraste fidelidad (smoke) | hecho | `smoke:report-contrast` — report↔UC + cross-provider warn |
+| Scorecard sugerencias (Review tags) | docs | Tag `report:… suggestion:… verdict:…`; `tally:report-suggestion-labels` |
 | Tab Informes dedicado | refuse | ADR-035: acciones, no tab |
 
 ### Perfil agronómico (Report-3)
