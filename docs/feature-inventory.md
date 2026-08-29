@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (subscription parcel tests + top quota) |
+| **Última actualización** | 2026-08-29 (briefing UI reset on parcel change) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -143,7 +143,7 @@ Gate: `weather` + `weather_plus`.
 | Preview `/reports/[id]` | hecho | Vista de informe |
 | Tipos clima / hídrico / agente / dossier | hecho | `domain/report/types` |
 | Cuota mensual por plan | hecho | `PLAN_REPORT_LIMITS` |
-| Briefing diario manual | hecho | Tipo `daily_briefing` |
+| Briefing diario manual | hecho | Tipo `daily_briefing`; UI resetea cupo al cambiar parcela (no hereda “ya generado”) |
 | Memoria de briefing | hecho | Parent + snapshot (ADR-036) |
 | Email briefing + cron | hecho | `/api/cron/daily-briefings` |
 | Prefs de entrega | hecho | Email (y canal WhatsApp stub) |
