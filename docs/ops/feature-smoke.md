@@ -111,7 +111,7 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Neon persistence | `SMOKE_NEON=1 npm run smoke:all` (requiere `DATABASE_URL`) | ☐ manual |
 | Seed Neon | `npm run db:seed` (+ trace/review seeds) | ☐ manual |
 | E2E visual `/app` | Browser smoke Lima Coffee (post-polygon fix) | ☐ manual |
-| Promote `stg` → `main` | Tras veredicto + billing/legal checklist | ☐ pendiente |
+| Promote `stg` → `main` | `main` = `stg` @ `5735fe0` (2026-08-29 Legal-1.3) | ☑ |
 
 **Veredicto QA-8 (2026-08-28, rama `stg`, commit post-QA-7):** PASS offline — listo para polish visual y smoke manual en stg/Vercel antes de `main`.
 
