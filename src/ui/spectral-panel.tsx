@@ -353,7 +353,7 @@ export function SpectralPanel({
         Índices de vegetación derivados de reflectancia Sentinel-2 L2A. El mapa
         muestra raster CDSE con contraste local (estirado alrededor de la media
         de la parcela); si Process falla, grilla indicativa. Las zonas son
-        contornos relativos (fishnet). Requiere Intelligence Plus.
+        contornos fishnet recortados a la parcela. Requiere Intelligence Plus.
       </p>
       <p className={styles.muted}>
         Escena {data.acquisitionDate}

@@ -45,6 +45,42 @@ describe("Spectral-6 zone partition", () => {
     expect(cells.length).toBeLessThanOrEqual(9);
   });
 
+  it("clips fishnet cells so their union covers an elongated diagonal parcel", () => {
+    // Similar to Ica-style diagonal field: bbox corners sit outside the parcel.
+    const diagonal = {
+      type: "Polygon" as const,
+      coordinates: [
+        [
+          [-75.78, -14.02],
+          [-75.76, -14.03],
+          [-75.755, -14.05],
+          [-75.775, -14.055],
+          [-75.79, -14.035],
+          [-75.78, -14.02],
+        ],
+      ],
+    };
+    const cells = partitionParcelZones(diagonal, 3);
+    expect(cells.length).toBeGreaterThanOrEqual(4);
+
+    const ring = diagonal.coordinates[0];
+    let parcelArea = 0;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      parcelArea += ring[j][0] * ring[i][1] - ring[i][0] * ring[j][1];
+    }
+    parcelArea = Math.abs(parcelArea) / 2;
+    const cellsArea = cells.reduce((sum, cell) => sum + cell.areaDeg2, 0);
+    // Clipped union should recover nearly the full parcel area (not just center cells).
+    expect(cellsArea / parcelArea).toBeGreaterThan(0.98);
+    expect(cellsArea / parcelArea).toBeLessThan(1.02);
+
+    // Tip cells (bbox corners) are kept when they intersect — not dropped by center-inside.
+    const tipIds = cells.map((c) => c.id);
+    expect(tipIds.some((id) => id === "z00" || id === "z02" || id === "z20" || id === "z22")).toBe(
+      true,
+    );
+  });
+
   it("labels compass relative to origin", () => {
     expect(
       compassLabel(
@@ -164,6 +200,7 @@ describe("GetParcelSpectralZones", () => {
     if (!result.ok) return;
     expect(result.data.methodId).toContain("zones/v2");
     expect(result.data.evidence.freshnessPolicy).toContain("zones_fishnet_process_1");
+    expect(result.data.methodId).toContain("zones/v3");
     expect(result.data.zones.length).toBeGreaterThanOrEqual(2);
     expect(processCalls).toBe(1);
     expect(statsCalls).toBe(0);

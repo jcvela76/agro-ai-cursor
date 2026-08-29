@@ -6,7 +6,7 @@ import {
 } from "@/domain/auth/authorize-weather-access";
 import { buildSpectralZones } from "@/domain/spectral/build-spectral-zones";
 import { clampLegendValue, getSpectralLegend } from "@/domain/spectral/overlay-legends";
-import { partitionParcelZones } from "@/domain/spectral/partition-zones";
+import { partitionParcelZones, ZONE_PARTITION_VERSION } from "@/domain/spectral/partition-zones";
 import type {
   ParcelSpectralZones,
   SpectralEvidence,
@@ -152,21 +152,26 @@ export class GetParcelSpectralZones {
         indexId: input.indexId,
       });
       if (cached) {
-        return {
-          ok: true,
-          data: {
-            kind: "spectral_zones",
-            indexId: input.indexId,
-            label: meta.label,
-            methodId: cached.methodId,
-            parcelMean: cached.parcelMean,
-            zones: cached.zones,
-            evidence: {
-              ...cached.evidence,
-              freshnessPolicy: `${cached.evidence.freshnessPolicy}|zones_cache_read`,
+        // Ignore snapshots from older fishnet semantics (unclipped bbox cells).
+        if (!cached.methodId.includes(ZONE_PARTITION_VERSION)) {
+          // fall through to recompute
+        } else {
+          return {
+            ok: true,
+            data: {
+              kind: "spectral_zones",
+              indexId: input.indexId,
+              label: meta.label,
+              methodId: cached.methodId,
+              parcelMean: cached.parcelMean,
+              zones: cached.zones,
+              evidence: {
+                ...cached.evidence,
+                freshnessPolicy: `${cached.evidence.freshnessPolicy}|zones_cache_read`,
+              },
             },
-          },
-        };
+          };
+        }
       }
     }
 
@@ -186,7 +191,7 @@ export class GetParcelSpectralZones {
           kind: "spectral_zones",
           indexId: input.indexId,
           label: meta.label,
-          methodId: `${meta.methodId}+${viaProcess ? "zones/v2" : "zones/v1"}`,
+          methodId: `${meta.methodId}+${viaProcess ? "zones/v2" : "zones/v1"}+${ZONE_PARTITION_VERSION}`,
           parcelMean: live.data.parcelMean ?? parcelMean,
           zones: live.data.zones,
           evidence: {
@@ -194,7 +199,7 @@ export class GetParcelSpectralZones {
             sourceId: cacheSourceId || baseEvidence.sourceId,
             freshnessPolicy: `${baseEvidence.freshnessPolicy}|${
               viaProcess ? "zones_fishnet_process_1" : "zones_fishnet_3"
-            }`,
+            }|${ZONE_PARTITION_VERSION}`,
           },
         };
       }
@@ -214,13 +219,13 @@ export class GetParcelSpectralZones {
         kind: "spectral_zones",
         indexId: input.indexId,
         label: meta.label,
-        methodId: `${meta.methodId}+zones_synthetic/v1`,
+        methodId: `${meta.methodId}+zones_synthetic/v1+${ZONE_PARTITION_VERSION}`,
         parcelMean,
         zones,
         evidence: {
           ...baseEvidence,
           sourceId: cacheSourceId || baseEvidence.sourceId,
-          freshnessPolicy: `${baseEvidence.freshnessPolicy}|zones_synthetic_fishnet`,
+          freshnessPolicy: `${baseEvidence.freshnessPolicy}|zones_synthetic_fishnet|${ZONE_PARTITION_VERSION}`,
         },
       };
     }
