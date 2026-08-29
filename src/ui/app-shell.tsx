@@ -39,6 +39,7 @@ import {
   applySpectralMapOverlay,
   applySpectralZoneOutlines,
   clearSpectralMapOverlay,
+  clearSpectralIndexOverlay,
   clearSpectralZoneOutlines,
   setSpectralOverlayOpacity,
   SPECTRAL_ZONES_FILL_LAYER,
@@ -245,6 +246,8 @@ export function AppShell({
     new Map<string, ParcelSpectralOverlay>(),
   );
   const spectralOpacityRef = useRef(0.62);
+  const spectralZonesRef = useRef<SpectralZone[] | null>(null);
+  const activeSpectralZoneIdRef = useRef<string | null>(null);
   const draftFeatureIdRef = useRef<string | number | null>(null);
   const editingParcelIdRef = useRef<string | null>(null);
   const drawModeRef = useRef<DrawMode>("idle");
@@ -279,10 +282,15 @@ export function AppShell({
   const [spectralOpacity, setSpectralOpacity] = useState(0.62);
   const [spectralZones, setSpectralZones] = useState<SpectralZone[] | null>(null);
   const [activeSpectralZoneId, setActiveSpectralZoneId] = useState<string | null>(null);
+  const [spectralRendering, setSpectralRendering] = useState<
+    "sentinel_raster" | "synthetic_grid" | null
+  >(null);
 
   drawModeRef.current = drawMode;
   selectedIdRef.current = selectedId;
   sideTabRef.current = sideTab;
+  spectralZonesRef.current = spectralZones;
+  activeSpectralZoneIdRef.current = activeSpectralZoneId;
 
   const selectParcel = useCallback(
     (parcelId: string | null, options?: { keepTab?: boolean }) => {
@@ -657,6 +665,7 @@ export function AppShell({
       spectralOverlayCacheRef.current.clear();
       setSpectralZones(null);
       setActiveSpectralZoneId(null);
+      setSpectralRendering(null);
       return;
     }
 
@@ -664,33 +673,61 @@ export function AppShell({
     const cacheKey = `${selectedId}:${spectralIndexId}`;
     const timer = window.setTimeout(() => {
       void (async () => {
-        let overlay = spectralOverlayCacheRef.current.get(cacheKey);
-        if (!overlay) {
-          const res = await fetch(
-            `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?index=${encodeURIComponent(spectralIndexId)}`,
-          );
-          const json = (await res.json()) as {
-            status: string;
-            data?: Parameters<typeof applySpectralMapOverlay>[1];
-          };
-          if (cancelled || json.status !== "OK" || !json.data) {
-            if (!cancelled) {
-              clearSpectralMapOverlay(map);
-            }
-            return;
+        try {
+          let overlay = spectralOverlayCacheRef.current.get(cacheKey);
+          // Only reuse a live CDSE PNG. Synthetic fallback must not stick after a Process miss.
+          if (overlay && overlay.rendering !== "sentinel_raster") {
+            spectralOverlayCacheRef.current.delete(cacheKey);
+            overlay = undefined;
           }
-          overlay = json.data;
-          spectralOverlayCacheRef.current.set(cacheKey, overlay);
-        }
+          if (!overlay) {
+            const res = await fetch(
+              `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?index=${encodeURIComponent(spectralIndexId)}`,
+              { cache: "no-store" },
+            );
+            const json = (await res.json()) as {
+              status: string;
+              data?: Parameters<typeof applySpectralMapOverlay>[1];
+            };
+            if (cancelled || json.status !== "OK" || !json.data) {
+              if (!cancelled) {
+                clearSpectralIndexOverlay(map);
+                setSpectralRendering(null);
+              }
+              return;
+            }
+            overlay = json.data;
+            if (overlay.rendering === "sentinel_raster") {
+              spectralOverlayCacheRef.current.set(cacheKey, overlay);
+            }
+          }
 
-        const paint = () => {
           if (cancelled || !overlay) return;
-          applySpectralMapOverlay(map, overlay, spectralOpacityRef.current, PARCELS_LINE);
-        };
-        if (map.isStyleLoaded()) {
-          paint();
-        } else {
-          map.once("style.load", paint);
+          setSpectralRendering(overlay.rendering);
+          const paint = () => {
+            if (cancelled || !overlay) return;
+            applySpectralMapOverlay(map, overlay, spectralOpacityRef.current, PARCELS_LINE);
+            // Re-stack zone outlines above the PNG after raster mount.
+            if (spectralZonesRef.current?.length) {
+              applySpectralZoneOutlines(
+                map,
+                spectralZonesRef.current,
+                getSpectralLegend(spectralIndexId),
+                activeSpectralZoneIdRef.current,
+                PARCELS_LINE,
+              );
+            }
+          };
+          if (map.isStyleLoaded()) {
+            paint();
+          } else {
+            map.once("style.load", paint);
+          }
+        } catch {
+          if (!cancelled) {
+            clearSpectralIndexOverlay(map);
+            setSpectralRendering(null);
+          }
         }
       })();
     }, 300);
@@ -1366,6 +1403,7 @@ export function AppShell({
                 parcel={selected}
                 selectedIndexId={spectralIndexId}
                 overlayOpacity={spectralOpacity}
+                overlayRendering={spectralRendering}
                 activeZoneId={activeSpectralZoneId}
                 onIndexChange={setSpectralIndexId}
                 onOpacityChange={setSpectralOpacity}

@@ -97,6 +97,7 @@ export function SpectralPanel({
   parcel,
   selectedIndexId,
   overlayOpacity,
+  overlayRendering = null,
   activeZoneId,
   onIndexChange,
   onOpacityChange,
@@ -106,6 +107,7 @@ export function SpectralPanel({
   parcel: Parcel;
   selectedIndexId: VegetationIndexId;
   overlayOpacity: number;
+  overlayRendering?: "sentinel_raster" | "synthetic_grid" | null;
   activeZoneId: string | null;
   onIndexChange: (indexId: VegetationIndexId) => void;
   onOpacityChange: (opacity: number) => void;
@@ -335,6 +337,15 @@ export function SpectralPanel({
             {data.evidence.freshnessStatus}
           </Badge>
         </span>
+        {overlayRendering === "sentinel_raster" ? (
+          <span className={styles.freshnessInline}>
+            <Badge tone="fresh">PNG satélite</Badge>
+          </span>
+        ) : overlayRendering === "synthetic_grid" ? (
+          <span className={styles.freshnessInline}>
+            <Badge tone="stale">grilla indicativa</Badge>
+          </span>
+        ) : null}
         {fromCache ? (
           <span className={styles.freshnessInline}>
             <Badge tone="unknown">cache</Badge>

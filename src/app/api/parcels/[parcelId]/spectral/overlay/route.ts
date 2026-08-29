@@ -35,5 +35,7 @@ export async function GET(
     return spectralErrorResponse(result);
   }
 
-  return spectralSuccessResponse(result.data);
+  // Never HTTP-cache synthetic fallback — a one-off Process miss must not stick for 5 minutes.
+  const cacheSeconds = result.data.rendering === "sentinel_raster" ? 300 : null;
+  return spectralSuccessResponse(result.data, { cacheSeconds });
 }

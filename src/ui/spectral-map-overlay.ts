@@ -1,4 +1,4 @@
-import type { Map as MapLibreMap, GeoJSONSource, RasterSourceSpecification } from "maplibre-gl";
+import type { Map as MapLibreMap, GeoJSONSource } from "maplibre-gl";
 import type { ExpressionSpecification } from "maplibre-gl";
 import type { FeatureCollection, Polygon, MultiPolygon } from "geojson";
 import type { SpectralLegend, SpectralZone } from "@/domain/spectral/types";
@@ -22,6 +22,12 @@ function colorExpression(legend: SpectralLegend): ExpressionSpecification {
 }
 
 export function clearSpectralMapOverlay(map: MapLibreMap) {
+  clearSpectralIndexOverlay(map);
+  clearSpectralZoneOutlines(map);
+}
+
+/** Clears index raster/grid only — keeps zone outlines. */
+export function clearSpectralIndexOverlay(map: MapLibreMap) {
   if (map.getLayer(SPECTRAL_OVERLAY_LAYER)) {
     map.removeLayer(SPECTRAL_OVERLAY_LAYER);
   }
@@ -34,7 +40,6 @@ export function clearSpectralMapOverlay(map: MapLibreMap) {
   if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
     map.removeSource(SPECTRAL_RASTER_SOURCE);
   }
-  clearSpectralZoneOutlines(map);
 }
 
 export function clearSpectralZoneOutlines(map: MapLibreMap) {
@@ -92,11 +97,12 @@ export function applySpectralZoneOutlines(
         source: SPECTRAL_ZONES_SOURCE,
         paint: {
           "fill-color": ["get", "color"],
+          // Keep fills very light so CDSE PNG (or synthetic dots) stay visible underneath.
           "fill-opacity": [
             "case",
             ["get", "active"],
-            0.28,
-            0.1,
+            0.12,
+            0.04,
           ],
         },
       },
@@ -131,8 +137,8 @@ export function applySpectralZoneOutlines(
     map.setPaintProperty(SPECTRAL_ZONES_FILL_LAYER, "fill-opacity", [
       "case",
       ["get", "active"],
-      0.28,
-      0.1,
+      0.12,
+      0.04,
     ]);
   }
   if (map.getLayer(SPECTRAL_ZONES_LINE_LAYER)) {
@@ -156,54 +162,30 @@ function applyRasterOverlay(
     return;
   }
 
-  const existing = map.getSource(SPECTRAL_RASTER_SOURCE) as
-    | (RasterSourceSpecification & { updateImage?: (opts: {
-        url: string;
-        coordinates: SpectralRasterCoordinates;
-      }) => void })
-    | undefined;
-
-  type SpectralRasterCoordinates = [
-    [number, number],
-    [number, number],
-    [number, number],
-    [number, number],
-  ];
-
-  if (existing && "updateImage" in existing && typeof existing.updateImage === "function") {
-    existing.updateImage({
-      url: raster.imageDataUrl,
-      coordinates: raster.coordinates,
-    });
-  } else {
-    if (map.getLayer(SPECTRAL_RASTER_LAYER)) {
-      map.removeLayer(SPECTRAL_RASTER_LAYER);
-    }
-    if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
-      map.removeSource(SPECTRAL_RASTER_SOURCE);
-    }
-    map.addSource(SPECTRAL_RASTER_SOURCE, {
-      type: "image",
-      url: raster.imageDataUrl,
-      coordinates: raster.coordinates,
-    });
-    map.addLayer(
-      {
-        id: SPECTRAL_RASTER_LAYER,
-        type: "raster",
-        source: SPECTRAL_RASTER_SOURCE,
-        paint: {
-          "raster-opacity": opacity * 0.85,
-          "raster-fade-duration": 0,
-        },
-      },
-      beforeLayerId,
-    );
-  }
-
+  // Always remount image source — updateImage is flaky with large data-URL PNGs.
   if (map.getLayer(SPECTRAL_RASTER_LAYER)) {
-    map.setPaintProperty(SPECTRAL_RASTER_LAYER, "raster-opacity", opacity * 0.85);
+    map.removeLayer(SPECTRAL_RASTER_LAYER);
   }
+  if (map.getSource(SPECTRAL_RASTER_SOURCE)) {
+    map.removeSource(SPECTRAL_RASTER_SOURCE);
+  }
+  map.addSource(SPECTRAL_RASTER_SOURCE, {
+    type: "image",
+    url: raster.imageDataUrl,
+    coordinates: raster.coordinates,
+  });
+  map.addLayer(
+    {
+      id: SPECTRAL_RASTER_LAYER,
+      type: "raster",
+      source: SPECTRAL_RASTER_SOURCE,
+      paint: {
+        "raster-opacity": opacity * 0.85,
+        "raster-fade-duration": 0,
+      },
+    },
+    beforeLayerId,
+  );
 }
 
 function applySyntheticGridOverlay(
