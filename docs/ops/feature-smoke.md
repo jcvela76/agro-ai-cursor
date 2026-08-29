@@ -113,6 +113,16 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | E2E visual `/app` | Browser smoke Lima Coffee (post-polygon fix) | ☐ manual |
 | Promote `stg` → `main` | `main` = `stg` @ `5735fe0` (2026-08-29 Legal-1.3) | ☑ |
 
+## Pre-client (antes de usuarios reales)
+
+| Paso | Comando | OK |
+|------|---------|-----|
+| Gate automatizado | `npm run qa:pre-client` | ☐ |
+| + Neon / live Ica | `SMOKE_NEON=1 SMOKE_WEATHER_LIVE=1 SMOKE_SENTINEL_LIVE=1 npm run qa:pre-client` | ☐ |
+| Checklist browser stg | `docs/ops/pre-client-qa.md` M1–M13 | ☐ |
+
+Veredicto y orgs (1 workspace = 1 cliente en MVP): ver [pre-client-qa.md](pre-client-qa.md).
+
 **Veredicto QA-8 (2026-08-28, rama `stg`, commit post-QA-7):** PASS offline — listo para polish visual y smoke manual en stg/Vercel antes de `main`.
 
 ### Comandos útiles

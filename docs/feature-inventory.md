@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (Billing live diferido) |
+| **Última actualización** | 2026-08-29 (pre-client QA) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -292,12 +292,13 @@ Gate: `weather` + `weather_plus`.
 
 ## 13. Próximo (backlog corto)
 
-1. MVP piloto con usuarios reales (stg / orgs demo)  
-2. CDSE Production (post ToS)  
-3. SENAMHI live (contrato)  
-4. Billing live (Stripe Production) — **diferido** hasta MVP validado  
-5. WhatsApp briefing  
-6. eve / re-eval model path  
+1. **Pre-client QA** — `npm run qa:pre-client` + checklist `docs/ops/pre-client-qa.md`  
+2. MVP piloto con usuarios reales (stg / orgs demo)  
+3. CDSE Production (post ToS)  
+4. SENAMHI live (contrato)  
+5. Billing live (Stripe Production) — **diferido** hasta MVP validado  
+6. WhatsApp briefing  
+7. eve / re-eval model path  
 
 ---
 
