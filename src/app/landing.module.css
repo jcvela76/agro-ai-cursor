@@ -76,7 +76,7 @@
 .navLink {
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba(28, 42, 31, 0.6);
+  color: rgba(28, 42, 31, 0.72);
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -101,7 +101,7 @@
 .navEnter {
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba(28, 42, 31, 0.45);
+  color: rgba(28, 42, 31, 0.58);
   text-decoration: none;
   transition: color 0.2s ease;
 }

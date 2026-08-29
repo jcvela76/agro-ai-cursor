@@ -11,6 +11,7 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
 | Nombre | Slice | fileKey | Estado | Edición | Código / design destino |
 |--------|-------|---------|--------|---------|-------------------------|
 | [Agro AI Landing Page](https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page) | LP / waitlist (SEO-1) | `2SYf8DOtblK84RC6oaNql7` | **Congelado** — Version 2 = waitlist stg | **No editar** (solo lectura / version history) | `/` · `public/landing/` · frame `marketing/lp/full` en `oTT6PqFOAijVxYZb5wztEP` |
+| **Agro AI Landing Page v3** (piloto) | LP-3 pre-piloto | *pendiente Copy design* | **En diseño** — brief en [`docs/marketing/lp-audit-2026.md`](../marketing/lp-audit-2026.md) | Copy design desde `2SYf8DOtblK84RC6oaNql7` | frame `marketing/lp/pilot-v3` |
 | [Agro AI — Billing & Admin](https://www.figma.com/make/gQ0ta5hxC4FNd5EKaHY5nX/Agro-AI-%E2%80%94-Billing---Admin) | Billing-2 UX | `gQ0ta5hxC4FNd5EKaHY5nX` | **Portado** — código en `stg` (2026-08-27) | **Congelado** (solo lectura) | `/app/admin` · `/app/billing` · `/app/billing/cancel` |
 | [Agro AI — Map & Spectral](https://www.figma.com/make/nusU2o1IuN6xOwgxEqgOv7/Agro-AI-Map---Spectral) | Spectral-2 UX | `nusU2o1IuN6xOwgxEqgOv7` | **Portado** — código en `stg` (2026-08-28) · **Make V4** alineado (2026-08-28) | **Congelado** (solo lectura) | `/app` · `spectral-panel` · `spectral-map-overlay` |
 
