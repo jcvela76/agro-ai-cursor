@@ -110,8 +110,8 @@ Leyenda: **OK** · **SUAVIZAR** · **QUITAR** · **AÑADIR** · **MOVER**
 |-------------|-------|------|
 | Canvas | `#F3F0E8` | OK — UI-1 |
 | Texto body | `#1C2A1F` | OK sobre canvas |
-| Nav links | `rgba(28,42,31,0.6)` | **Revisar** — puede fallar AA en texto pequeño; subir a `0.72` |
-| Eyebrow | similar muted | Idem |
+| Nav links | `rgba(28,42,31,0.72)` | OK — LP-3a |
+| Eyebrow | `#4F6F52` | OK — accent sólido |
 | Display | Fraunces | H1/H2 only |
 | Body | Source Sans 3 | OK |
 | CTAs | `.btnPrimary` field green | Verificar contraste texto blanco/crema |
@@ -213,8 +213,8 @@ Cada slice cerrado: actualizar filas LP en `docs/feature-inventory.md` + commit 
 
 ## 6. Siguiente paso inmediato
 
+- [x] Agent: **LP-3a** contraste CSS (`navLink`, leads, evidence bar, productos)
 - [ ] Julio: **Copy design** → nuevo Make LP-3 con brief §4  
 - [ ] Capturas stg para assets (o usar Make Spectral como placeholder)  
-- [ ] Agent implementa **LP-3a** (contraste CSS) en paralelo si no bloquea diseño  
 
-**Estado audit:** Fase 0 completa · Fase 1 Make pendiente usuario/design
+**Estado audit:** Fase 0 completa · LP-3a hecho · Fase 1 Make pendiente usuario/design
