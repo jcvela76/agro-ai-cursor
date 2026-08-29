@@ -112,3 +112,12 @@ SMOKE_NEON=1 SMOKE_SENTINEL_LIVE=1 SMOKE_KEEP_PARCEL=1 npm run smoke:spectral-ba
 ```
 
 Parcela ~5 ha en valle Tacama (Ica); crea → backfill 30d → verifica historial.
+
+### Audit local / stg / prod
+
+```bash
+npm run audit:env
+SMOKE_PARCEL_ID=parcel-xxx npm run audit:env
+```
+
+Compara git, Neon (`spectral_scenes` + parcela smoke), HTTP y presencia de env Vercel.
