@@ -102,3 +102,13 @@ Ya definido en `src/domain/spectral/types.ts`:
 - Panel Espectral: botón «Importar últimos 30 días» cuando hay pocas escenas guardadas.
 - Sin PNG histórico (Spectral-hist-3). Sin auto-backfill al crear parcela.
 - ADR-044.
+
+### Smoke local (Ica)
+
+```bash
+npm run smoke:spectral-backfill-ica
+SMOKE_SENTINEL_LIVE=1 npm run smoke:spectral-backfill-ica   # CDSE real
+SMOKE_NEON=1 SMOKE_SENTINEL_LIVE=1 SMOKE_KEEP_PARCEL=1 npm run smoke:spectral-backfill-ica
+```
+
+Parcela ~5 ha en valle Tacama (Ica); crea → backfill 30d → verifica historial.

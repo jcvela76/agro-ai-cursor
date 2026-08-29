@@ -25,6 +25,7 @@
     "smoke:parcels": "npx tsx scripts/smoke-parcels.ts",
     "smoke:weather": "npx tsx scripts/smoke-weather.ts",
     "smoke:spectral": "npx tsx scripts/smoke-spectral.ts",
+    "smoke:spectral-backfill-ica": "npx tsx scripts/smoke-spectral-backfill-ica.ts",
     "smoke:agent": "npx tsx scripts/smoke-agent.ts",
     "smoke:admin": "npx tsx scripts/smoke-admin.ts",
     "smoke:all": "npx tsx scripts/smoke-all.ts",
