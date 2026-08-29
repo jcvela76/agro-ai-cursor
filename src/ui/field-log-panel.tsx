@@ -33,9 +33,14 @@ function shortAuthor(userId: string): string {
 export function FieldLogPanel({
   parcel,
   isAdmin,
+  mapZoneLabel = null,
+  onClearMapZone,
 }: {
   parcel: Parcel;
   isAdmin: boolean;
+  /** Compass label from fishnet click on the map (SO, NE, …). */
+  mapZoneLabel?: string | null;
+  onClearMapZone?: () => void;
 }) {
   const [notes, setNotes] = useState<ParcelFieldNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +53,12 @@ export function FieldLogPanel({
   const [observedAt, setObservedAt] = useState(toDatetimeLocalValue);
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (mapZoneLabel) {
+      setZoneLabel(mapZoneLabel);
+    }
+  }, [mapZoneLabel]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -147,6 +158,7 @@ export function FieldLogPanel({
       setZoneLabel("");
       setObservedAt(toDatetimeLocalValue());
       setPhoto(null);
+      onClearMapZone?.();
       setMessage("Nota de campo guardada.");
     } catch {
       setError("Error de red al guardar.");
@@ -182,7 +194,8 @@ export function FieldLogPanel({
     <div className={styles.root}>
       <p className={styles.intro}>
         Bitácora de <strong>{parcel.name}</strong>. Notas rápidas de campo (no sustituyen
-        Revisión formal). Una foto opcional por nota (JPEG/PNG/WebP, máx. 4 MB).
+        Revisión formal). Una foto opcional por nota (JPEG/PNG/WebP, máx. 4 MB). Click una zona
+        del mapa para etiquetar (o escribe a mano).
       </p>
 
       <form className={styles.composer} onSubmit={(e) => void onSave(e)}>
@@ -204,8 +217,13 @@ export function FieldLogPanel({
             <input
               className={styles.input}
               value={zoneLabel}
-              onChange={(e) => setZoneLabel(e.target.value)}
-              placeholder="Ej. SO / NE / borde"
+              onChange={(e) => {
+                setZoneLabel(e.target.value);
+                if (mapZoneLabel && e.target.value !== mapZoneLabel) {
+                  onClearMapZone?.();
+                }
+              }}
+              placeholder="Ej. SO / NE — o click en el mapa"
               maxLength={80}
             />
           </label>

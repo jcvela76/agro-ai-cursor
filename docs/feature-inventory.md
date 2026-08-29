@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (bitácora fotos) |
+| **Última actualización** | 2026-08-29 (pin mapa bitácora) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -179,7 +179,7 @@ Gate: `weather` + `weather_plus`.
 | Gate Plus | hecho | Igual que Perfil / Agente |
 | Tools agente list/append | hecho | List cita `photoUrl`; append texto |
 | Foto opcional (Vercel Blob) | hecho | 1 JPEG/PNG/WebP ≤4 MB; server `put` (ADR-054) |
-| Pin mapa | planificado | Click zona fishnet |
+| Pin mapa (click zona fishnet) | hecho | Campo muestra fishnet; click → `zoneLabel` (ADR-055) |
 | Multi-foto / editar/borrar | refuse | Append-only; 1 foto máx. |
 
 ---

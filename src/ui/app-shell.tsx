@@ -317,7 +317,7 @@ export function AppShell({
   const goToTab = useCallback(
     (tab: SideTab) => {
       setSideTab(tab);
-      if (tab !== "spectral") {
+      if (tab !== "spectral" && tab !== "field") {
         setActiveSpectralZoneId(null);
       }
       router.replace(buildAppUrl(selectedIdRef.current, tab), { scroll: false });
@@ -665,10 +665,31 @@ export function AppShell({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || drawMode !== "idle" || sideTab !== "spectral" || !selectedId || !selected?.geometry) {
+    if (!map || drawMode !== "idle" || !selectedId || !selected?.geometry) {
       if (map) {
         clearSpectralMapOverlay(map);
       }
+      spectralOverlayCacheRef.current.clear();
+      setSpectralZones(null);
+      setActiveSpectralZoneId(null);
+      setSpectralRendering(null);
+      setSpectralFallbackReason(null);
+      setSpectralSceneHint(null);
+      return;
+    }
+
+    // Campo: keep fishnet for zone pin; drop PNG overlay/hints from Espectral.
+    if (sideTab === "field") {
+      clearSpectralIndexOverlay(map);
+      spectralOverlayCacheRef.current.clear();
+      setSpectralRendering(null);
+      setSpectralFallbackReason(null);
+      setSpectralSceneHint(null);
+      return;
+    }
+
+    if (sideTab !== "spectral") {
+      clearSpectralMapOverlay(map);
       spectralOverlayCacheRef.current.clear();
       setSpectralZones(null);
       setActiveSpectralZoneId(null);
@@ -775,9 +796,11 @@ export function AppShell({
     spectralSceneHint?.means,
   ]);
 
+  // Fishnet outlines for Espectral + Campo (zone pin).
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || sideTab !== "spectral" || !spectralZones?.length) {
+    const showZones = sideTab === "spectral" || sideTab === "field";
+    if (!map || !showZones || !spectralZones?.length) {
       if (map) {
         clearSpectralZoneOutlines(map);
       }
@@ -794,6 +817,45 @@ export function AppShell({
     }
   }, [activeSpectralZoneId, sideTab, spectralIndexId, spectralZones]);
 
+  // Cold Campo: load NDRE zones if fishnet not already in memory (e.g. after Espectral visit).
+  const fieldZonesFetchRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (sideTab !== "field" || !selectedId) {
+      return;
+    }
+    if (spectralZones?.length) {
+      fieldZonesFetchRef.current = selectedId;
+      return;
+    }
+    if (fieldZonesFetchRef.current === selectedId) {
+      return;
+    }
+    fieldZonesFetchRef.current = selectedId;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch(
+          `/api/parcels/${encodeURIComponent(selectedId)}/spectral/zones?index=ndre`,
+          { cache: "no-store" },
+        );
+        const json = (await res.json()) as {
+          status: string;
+          data?: { zones?: SpectralZone[] };
+        };
+        if (cancelled || json.status !== "OK" || !json.data?.zones?.length) {
+          return;
+        }
+        setSpectralZones(json.data.zones);
+        setSpectralIndexId("ndre");
+      } catch {
+        // Manual zone text remains available.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [sideTab, selectedId, spectralZones?.length]);
+
   useEffect(() => {
     spectralOpacityRef.current = spectralOpacity;
     const map = mapRef.current;
@@ -806,7 +868,10 @@ export function AppShell({
   const spectralActive =
     drawMode === "idle" && sideTab === "spectral" && Boolean(selected?.geometry);
   const mapChromeActive = drawMode === "idle";
-
+  const fieldMapZoneLabel =
+    sideTab === "field" && activeSpectralZoneId && spectralZones
+      ? (spectralZones.find((z) => z.id === activeSpectralZoneId)?.label ?? null)
+      : null;
   const summaryTitle = organization?.name
     ? shortOrgDisplayName(organization.name)
     : (selected?.name ?? "");
@@ -1466,7 +1531,12 @@ export function AppShell({
               <ParcelProfilePanel parcel={selected} isAdmin={isAdmin} />
             ) : null}
             {sideTab === "field" ? (
-              <FieldLogPanel parcel={selected} isAdmin={isAdmin} />
+              <FieldLogPanel
+                parcel={selected}
+                isAdmin={isAdmin}
+                mapZoneLabel={fieldMapZoneLabel}
+                onClearMapZone={() => setActiveSpectralZoneId(null)}
+              />
             ) : null}
             {sideTab === "trace" ? (
               <TraceLotsPanel parcelId={selected.id} isAdmin={isAdmin} />

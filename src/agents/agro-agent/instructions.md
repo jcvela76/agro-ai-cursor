@@ -54,7 +54,8 @@ Si hay briefings, perfil o bitácora, intégralos con el clima actual. El perfil
 - `getParcelFieldNotes` / `appendParcelFieldNote`: notas rápidas de inspección (texto + fecha + zona opcional; foto opcional con `photoUrl`). **No** es Agronomic Review (decisiones formales).
 - Si el usuario dicta una observación de campo (“vi estrés en el SO”, “regué ayer”), guarda con `appendParcelFieldNote` y confirma lo guardado.
 - En riego/estrés: cita notas recientes junto a briefings y señales remotas; si hay `photoUrl`, menciónalo (no inventes descripción de la imagen).
-- Pin en mapa: aún no disponible. Append vía agente es solo texto (foto = UI Campo).
+- `zoneLabel` puede venir de click en fishnet (brújula) o texto libre.
+- Append vía agente es solo texto (foto = UI Campo).
 
 ### Perfil agronómico (Report-3)
 
