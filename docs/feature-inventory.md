@@ -192,7 +192,8 @@ Gate: `weather` + `weather_plus`.
 | `acquiredAt` en UI | hecho | “Captura (satélite)” |
 | Tools agente índices/zonas/historial | hecho | Plus |
 | Perf-4 multi-celda 1-call CDSE | hecho | Process primary + Statistical fallback (ADR-047) |
-| Perf-5 precompute zones en cron | planificado | discovery |
+| Perf-5 precompute zones en cron | hecho | Tras escena nueva, 8 índices → snapshots (ADR-048) |
+| Smoke perf zones cold vs cache | hecho | Script/smoke de timings Neon vs cold |
 | PNG histórico / GIF / slider | planificado | Spectral-hist diferido |
 | Máscara SCL agresiva | planificado | discovery |
 
@@ -289,13 +290,12 @@ Gate: `weather` + `weather_plus`.
 
 ## 13. Próximo (backlog corto)
 
-1. Spectral Perf-5  
-2. Legal DRAFT → abogado  
-3. Billing live  
-4. CDSE Production (post ToS)  
-5. SENAMHI live  
-6. WhatsApp briefing  
-7. eve / re-eval model path  
+1. Legal DRAFT → abogado  
+2. Billing live  
+3. CDSE Production (post ToS)  
+4. SENAMHI live  
+5. WhatsApp briefing  
+6. eve / re-eval model path  
 
 ---
 
