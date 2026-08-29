@@ -351,9 +351,9 @@ export function SpectralPanel({
     <div className={styles.content}>
       <p className={styles.intro}>
         Índices de vegetación derivados de reflectancia Sentinel-2 L2A. El mapa
-        muestra raster CDSE cuando hay escena live; si no, grilla indicativa. Las
-        zonas son medias relativas dentro de la parcela (fishnet). Requiere
-        Intelligence Plus.
+        muestra raster CDSE con contraste local (estirado alrededor de la media
+        de la parcela); si Process falla, grilla indicativa. Las zonas son
+        contornos relativos (fishnet). Requiere Intelligence Plus.
       </p>
       <p className={styles.muted}>
         Escena {data.acquisitionDate}

@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (overlay acquiredAt hint — all indices PNG) |
+| **Última actualización** | 2026-08-29 (overlay mean-centered color stretch) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -174,7 +174,7 @@ Gate: `weather` + `weather_plus`.
 | Offline spectral | hecho | Fuente sintética |
 | Sentinel Hub stub | stub | `sentinel_hub_stub` |
 | CDSE live (Statistical API) | hecho | stg; Production post ToS |
-| Overlay mapa (PNG) | hecho | CDSE Process; hint acquiredAt evita Statistical×índice; retry PNG; badge + fallbackReason |
+| Overlay mapa (PNG) | hecho | Process PNG + stretch local alrededor de media parcela (contraste en campos áridos) |
 | Debounce overlay 300ms | hecho | Perf UI |
 | Cache índices (Perf-1/2) | hecho | `source=cache\|live` + refresh |
 

@@ -500,7 +500,13 @@ export class SentinelHubSpectralSource implements SpectralSource {
     request: SpectralIndexOverlayRequest,
   ): Promise<SpectralResult<SpectralRasterOverlay>> {
     const day = request.acquiredAt.slice(0, 10);
-    const cacheKey = `raster-v2|${request.parcelId}|${request.indexId}|${day}|${JSON.stringify(request.geometry)}`;
+    const stretchKey =
+      request.colorCenter !== undefined &&
+      request.colorCenter !== null &&
+      Number.isFinite(request.colorCenter)
+        ? request.colorCenter.toFixed(4)
+        : "abs";
+    const cacheKey = `raster-v3|${request.parcelId}|${request.indexId}|${day}|${stretchKey}|${JSON.stringify(request.geometry)}`;
     if (this.cacheTtlMs > 0) {
       const cached = this.rasterCache.get(cacheKey);
       if (cached) {
@@ -558,7 +564,9 @@ export class SentinelHubSpectralSource implements SpectralSource {
           },
         ],
       },
-      evalscript: buildIndexRasterEvalscript(request.indexId),
+      evalscript: buildIndexRasterEvalscript(request.indexId, {
+        colorCenter: request.colorCenter,
+      }),
     };
 
     try {

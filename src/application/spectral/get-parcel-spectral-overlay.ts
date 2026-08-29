@@ -148,6 +148,7 @@ export class GetParcelSpectralOverlay {
         indexId: input.indexId,
         geometry: parcel.geometry,
         acquiredAt: evidence.acquiredAt,
+        colorCenter: value,
       });
       if (raster.ok) {
         return {

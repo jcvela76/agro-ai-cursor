@@ -125,6 +125,11 @@ export interface SpectralIndexOverlayRequest {
   /** Prefer scene day from indices evidence (YYYY-MM-DD or ISO). */
   acquiredAt: string;
   maxCloudCoverage?: number;
+  /**
+   * Parcel mean for the index — used to stretch the colormap around local values
+   * so arid fields (means near 0) still show intra-parcel contrast.
+   */
+  colorCenter?: number | null;
 }
 
 export type SpectralZoneTier = "low" | "mid" | "high";

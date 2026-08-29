@@ -97,12 +97,12 @@ export function applySpectralZoneOutlines(
         source: SPECTRAL_ZONES_SOURCE,
         paint: {
           "fill-color": ["get", "color"],
-          // Keep fills very light so CDSE PNG (or synthetic dots) stay visible underneath.
+          // Outlines carry zone identity; keep fill near-zero so stretched PNG texture stays visible.
           "fill-opacity": [
             "case",
             ["get", "active"],
-            0.12,
-            0.04,
+            0.06,
+            0,
           ],
         },
       },
@@ -137,8 +137,8 @@ export function applySpectralZoneOutlines(
     map.setPaintProperty(SPECTRAL_ZONES_FILL_LAYER, "fill-opacity", [
       "case",
       ["get", "active"],
-      0.12,
-      0.04,
+      0.06,
+      0,
     ]);
   }
   if (map.getLayer(SPECTRAL_ZONES_LINE_LAYER)) {

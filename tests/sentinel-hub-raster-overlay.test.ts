@@ -30,6 +30,14 @@ describe("Spectral-5: CDSE raster overlay", () => {
     expect(script).toContain("B08");
     expect(script).toContain("colorize");
     expect(script).toContain("STOPS");
+    expect(script).toContain("USE_STRETCH=false");
+  });
+
+  it("stretches colormap around parcel mean for arid low-variance fields", () => {
+    const script = buildIndexRasterEvalscript("ndre", { colorCenter: -0.0003 });
+    expect(script).toContain("USE_STRETCH=true");
+    expect(script).toContain("CENTER=-0.000300");
+    expect(script).toContain("HALF=0.1200");
   });
 
   it("maps polygon bbox to MapLibre image corners", () => {

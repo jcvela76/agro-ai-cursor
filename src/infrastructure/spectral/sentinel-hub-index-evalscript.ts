@@ -51,7 +51,10 @@ const INDEX_SETUP: Record<
 };
 
 /** Evalscript that paints a vegetation index with the product legend colors (RGBA). */
-export function buildIndexRasterEvalscript(indexId: VegetationIndexId): string {
+export function buildIndexRasterEvalscript(
+  indexId: VegetationIndexId,
+  options?: { colorCenter?: number | null; halfRange?: number },
+): string {
   const legend = getSpectralLegend(indexId);
   const setup = INDEX_SETUP[indexId];
   const stopsJs = legend.stops
@@ -60,6 +63,15 @@ export function buildIndexRasterEvalscript(indexId: VegetationIndexId): string {
       return `{v:${stop.value},r:${r.toFixed(4)},g:${g.toFixed(4)},b:${b.toFixed(4)}}`;
     })
     .join(",");
+
+  const halfRange = options?.halfRange ?? defaultOverlayHalfRange(indexId);
+  const center =
+    options?.colorCenter !== undefined &&
+    options.colorCenter !== null &&
+    Number.isFinite(options.colorCenter)
+      ? options.colorCenter
+      : null;
+  const useStretch = center !== null;
 
   return `//VERSION=3
 function setup() {
@@ -71,6 +83,9 @@ function setup() {
 var STOPS=[${stopsJs}];
 var VMIN=${legend.min};
 var VMAX=${legend.max};
+var USE_STRETCH=${useStretch ? "true" : "false"};
+var CENTER=${useStretch ? Number(center).toFixed(6) : "0"};
+var HALF=${halfRange.toFixed(4)};
 function colorize(v) {
   if (v<=STOPS[0].v) return [STOPS[0].r,STOPS[0].g,STOPS[0].b];
   for (var i=1;i<STOPS.length;i++) {
@@ -87,12 +102,41 @@ function evaluatePixel(s) {
   ${setup.compute}
   var mask = s.dataMask;
   if (!(mask > 0)) return [0,0,0,0];
-  if (v<VMIN) v=VMIN;
-  if (v>VMAX) v=VMAX;
-  var c=colorize(v);
+  var display = v;
+  if (USE_STRETCH) {
+    var lo = CENTER - HALF;
+    var hi = CENTER + HALF;
+    var u = (v - lo) / ((hi - lo) || 1e-6);
+    if (u < 0) u = 0;
+    if (u > 1) u = 1;
+    display = VMIN + u * (VMAX - VMIN);
+  } else {
+    if (display < VMIN) display = VMIN;
+    if (display > VMAX) display = VMAX;
+  }
+  var c = colorize(display);
   return [c[0],c[1],c[2],mask];
 }
 `;
+}
+
+/** Half-window (index units) for local contrast stretch around parcel mean. */
+export function defaultOverlayHalfRange(indexId: VegetationIndexId): number {
+  switch (indexId) {
+    case "evi":
+      return 0.18;
+    case "ndwi":
+    case "ndmi":
+      return 0.16;
+    case "nbr":
+      return 0.22;
+    case "ndre":
+    case "savi":
+    case "msavi":
+    case "gndvi":
+    default:
+      return 0.12;
+  }
 }
 
 /**
