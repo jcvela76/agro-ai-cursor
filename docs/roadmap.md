@@ -178,7 +178,8 @@ Ver `docs/reports/discovery.md`.
 | Spectral-7 historial | **Hecho 2026-08-28** — Neon `spectral_scenes` + sparkline + tool (ADR-042) |
 | Spectral-8 cron escenas | **Hecho 2026-08-28** — poll 6h Plus, solo escena nueva + `acquiredAt` en UI (ADR-043) |
 | Spectral-9 backfill | **Hecho 2026-08-28** — POST backfill 30d índices + botón panel (ADR-044) |
-| **Siguiente** | Legal DRAFT → abogado; Billing live; Production CDSE post ToS; `db:migrate` 0008 |
+| Spectral Perf-1/2 | **Hecho 2026-08-29** — cache Neon índices + zonas sin re-fetch + debounce overlay (ADR-045) |
+| **Siguiente** | Perf-3 zones persistidas; Legal DRAFT → abogado; Billing live; Production CDSE post ToS |
 
 ## Docs por slice (canónico)
 

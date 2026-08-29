@@ -12,7 +12,16 @@ export async function GET(
 ) {
   const { userId, orgId } = await auth();
   const { parcelId } = await context.params;
-  const indexParam = new URL(request.url).searchParams.get("index") ?? "ndre";
+  const url = new URL(request.url);
+  const indexParam = url.searchParams.get("index") ?? "ndre";
+  const acquiredAt = url.searchParams.get("acquiredAt") ?? undefined;
+  const meanRaw = url.searchParams.get("parcelMean");
+  const parcelMean =
+    meanRaw === null || meanRaw === ""
+      ? undefined
+      : meanRaw === "null"
+        ? null
+        : Number.parseFloat(meanRaw);
 
   if (!isVegetationIndexId(indexParam)) {
     return spectralErrorResponse({
@@ -29,6 +38,13 @@ export async function GET(
     authority,
     parcelId,
     indexId: indexParam,
+    acquiredAt,
+    parcelMean:
+      parcelMean === undefined
+        ? undefined
+        : parcelMean === null || Number.isFinite(parcelMean)
+          ? parcelMean
+          : undefined,
   });
 
   if (!result.ok) {

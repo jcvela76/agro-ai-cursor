@@ -119,6 +119,7 @@ export function SpectralPanel({
     SpectralOk<ParcelSpectralZones> | SpectralLimited | null
   >(null);
   const [loading, setLoading] = useState(true);
+  const [refreshingLive, setRefreshingLive] = useState(false);
   const [zonesLoading, setZonesLoading] = useState(false);
   const [historyPayload, setHistoryPayload] = useState<
     | SpectralOk<{ kind: "spectral_history"; days: number; scenes: SpectralSceneRecord[] }>
@@ -134,18 +135,56 @@ export function SpectralPanel({
   onZonesChangeRef.current = onZonesChange;
   onActiveZoneChangeRef.current = onActiveZoneChange;
 
+  // History loads immediately (Neon) — does not wait for CDSE indices.
+  useEffect(() => {
+    let cancelled = false;
+    setHistoryLoading(true);
+    setHistoryPayload(null);
+
+    void (async () => {
+      const result = await fetchSpectral<{
+        kind: "spectral_history";
+        days: number;
+        scenes: SpectralSceneRecord[];
+      }>(`/api/parcels/${encodeURIComponent(parcel.id)}/spectral/history?days=90`);
+      if (cancelled) return;
+      setHistoryPayload(result);
+      setHistoryLoading(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [parcel.id, historyRefresh]);
+
+  // Indices: Neon cache first (fast), then live CDSE refresh in background.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setPayload(null);
+    setRefreshingLive(false);
 
     void (async () => {
-      const result = await fetchSpectral<ParcelVegetationIndices>(
-        `/api/parcels/${parcel.id}/spectral/indices`,
+      const cached = await fetchSpectral<ParcelVegetationIndices>(
+        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/indices?source=cache`,
       );
-      if (!cancelled) {
-        setPayload(result);
+      if (cancelled) return;
+
+      if (cached.status === "OK") {
+        setPayload(cached);
         setLoading(false);
+        setRefreshingLive(true);
+      }
+
+      const live = await fetchSpectral<ParcelVegetationIndices>(
+        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/indices?source=live`,
+      );
+      if (cancelled) return;
+      setPayload(live);
+      setLoading(false);
+      setRefreshingLive(false);
+      if (live.status === "OK") {
+        setHistoryRefresh((value) => value + 1);
       }
     })();
 
@@ -154,30 +193,7 @@ export function SpectralPanel({
     };
   }, [parcel.id]);
 
-  useEffect(() => {
-    let cancelled = false;
-    setHistoryLoading(true);
-    setHistoryPayload(null);
-    // Refresh history after indices load (upsert) or when parcel changes.
-    const timer = window.setTimeout(() => {
-      void (async () => {
-        const result = await fetchSpectral<{
-          kind: "spectral_history";
-          days: number;
-          scenes: SpectralSceneRecord[];
-        }>(`/api/parcels/${encodeURIComponent(parcel.id)}/spectral/history?days=90`);
-        if (cancelled) return;
-        setHistoryPayload(result);
-        setHistoryLoading(false);
-      })();
-    }, payload?.status === "OK" ? 150 : 0);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [parcel.id, payload?.status, historyRefresh]);
-
+  // Zones: pass acquiredAt + parcelMean when indices are ready (skips duplicate CDSE indices call).
   useEffect(() => {
     let cancelled = false;
     setZonesLoading(true);
@@ -185,9 +201,22 @@ export function SpectralPanel({
     onZonesChangeRef.current(null, selectedIndexId);
     onActiveZoneChangeRef.current(null);
 
+    if (payload?.status !== "OK") {
+      setZonesLoading(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const acquiredAt = payload.data.evidence.acquiredAt;
+    const parcelMean =
+      payload.data.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
+    const meanParam =
+      parcelMean === null ? "null" : encodeURIComponent(String(parcelMean));
+
     void (async () => {
       const result = await fetchSpectral<ParcelSpectralZones>(
-        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/zones?index=${encodeURIComponent(selectedIndexId)}`,
+        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/zones?index=${encodeURIComponent(selectedIndexId)}&acquiredAt=${encodeURIComponent(acquiredAt)}&parcelMean=${meanParam}`,
       );
       if (cancelled) return;
       setZonesPayload(result);
@@ -202,10 +231,21 @@ export function SpectralPanel({
     return () => {
       cancelled = true;
     };
-  }, [parcel.id, selectedIndexId]);
+  }, [parcel.id, selectedIndexId, payload]);
 
-  if (loading) {
-    return <p className={styles.muted}>Cargando índices espectrales…</p>;
+  if (loading && !payload) {
+    return (
+      <div className={styles.content}>
+        <p className={styles.muted}>Cargando índices espectrales…</p>
+        {historyLoading ? <p className={styles.muted}>Cargando historial…</p> : null}
+        {!historyLoading && historyPayload?.status === "OK" ? (
+          <p className={styles.zoneHint}>
+            {historyPayload.data.scenes.length} escena
+            {historyPayload.data.scenes.length === 1 ? "" : "s"} en historial (Neon)
+          </p>
+        ) : null}
+      </div>
+    );
   }
 
   if (!payload) {
@@ -229,6 +269,7 @@ export function SpectralPanel({
   const historyScenes =
     historyPayload?.status === "OK" ? historyPayload.data.scenes.length : 0;
   const showBackfillButton = !historyLoading && historyScenes <= 3;
+  const fromCache = data.evidence.freshnessPolicy.includes("cache_read");
 
   async function runBackfill() {
     setBackfillLoading(true);
@@ -275,6 +316,12 @@ export function SpectralPanel({
             {data.evidence.freshnessStatus}
           </Badge>
         </span>
+        {fromCache ? (
+          <span className={styles.freshnessInline}>
+            <Badge tone="unknown">cache</Badge>
+          </span>
+        ) : null}
+        {refreshingLive ? <span className={styles.zoneHint}> · Actualizando satélite…</span> : null}
       </p>
 
       <div className={styles.indexGrid}>

@@ -566,40 +566,42 @@ export function AppShell({
 
     let cancelled = false;
     const cacheKey = `${selectedId}:${spectralIndexId}`;
-
-    void (async () => {
-      let overlay = spectralOverlayCacheRef.current.get(cacheKey);
-      if (!overlay) {
-        const res = await fetch(
-          `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?index=${encodeURIComponent(spectralIndexId)}`,
-        );
-        const json = (await res.json()) as {
-          status: string;
-          data?: Parameters<typeof applySpectralMapOverlay>[1];
-        };
-        if (cancelled || json.status !== "OK" || !json.data) {
-          if (!cancelled) {
-            clearSpectralMapOverlay(map);
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        let overlay = spectralOverlayCacheRef.current.get(cacheKey);
+        if (!overlay) {
+          const res = await fetch(
+            `/api/parcels/${encodeURIComponent(selectedId)}/spectral/overlay?index=${encodeURIComponent(spectralIndexId)}`,
+          );
+          const json = (await res.json()) as {
+            status: string;
+            data?: Parameters<typeof applySpectralMapOverlay>[1];
+          };
+          if (cancelled || json.status !== "OK" || !json.data) {
+            if (!cancelled) {
+              clearSpectralMapOverlay(map);
+            }
+            return;
           }
-          return;
+          overlay = json.data;
+          spectralOverlayCacheRef.current.set(cacheKey, overlay);
         }
-        overlay = json.data;
-        spectralOverlayCacheRef.current.set(cacheKey, overlay);
-      }
 
-      const paint = () => {
-        if (cancelled || !overlay) return;
-        applySpectralMapOverlay(map, overlay, spectralOpacityRef.current, PARCELS_LINE);
-      };
-      if (map.isStyleLoaded()) {
-        paint();
-      } else {
-        map.once("style.load", paint);
-      }
-    })();
+        const paint = () => {
+          if (cancelled || !overlay) return;
+          applySpectralMapOverlay(map, overlay, spectralOpacityRef.current, PARCELS_LINE);
+        };
+        if (map.isStyleLoaded()) {
+          paint();
+        } else {
+          map.once("style.load", paint);
+        }
+      })();
+    }, 300);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
     };
   }, [drawMode, selected, selectedId, sideTab, spectralIndexId]);
 

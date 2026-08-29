@@ -10,17 +10,26 @@ import {
   type SpectralScenePersistMode,
 } from "@/domain/spectral/persist-spectral-scene";
 import type { SpectralSceneRegistry } from "@/domain/spectral/scene-history";
+import { vegetationIndicesFromScene } from "@/domain/spectral/vegetation-indices-from-scene";
 import type {
   ParcelVegetationIndices,
   SpectralResult,
   SpectralSource,
 } from "@/domain/spectral/types";
 
+export type SpectralIndicesSource = "live" | "cache" | "auto";
+
 export interface GetParcelSpectralInput {
   authority: AccessSnapshot | null | undefined;
   parcelId: string;
   /** always = refresh same-day scene; new_scene_only = skip if acquisition unchanged. */
   persistMode?: SpectralScenePersistMode;
+  /**
+   * live = CDSE/provider only (default).
+   * cache = latest Neon/offline scene only.
+   * auto = cache if present, else live.
+   */
+  source?: SpectralIndicesSource;
 }
 
 export class GetParcelVegetationIndices {
@@ -57,6 +66,22 @@ export class GetParcelVegetationIndices {
       };
     }
 
+    const sourceMode = input.source ?? "live";
+
+    if (sourceMode === "cache" || sourceMode === "auto") {
+      const cached = await this.readCached(parcel.orgId, parcel.id);
+      if (cached) {
+        return { ok: true, data: cached };
+      }
+      if (sourceMode === "cache") {
+        return {
+          ok: false,
+          reason: "unavailable",
+          message: "No hay escena espectral guardada para esta parcela.",
+        };
+      }
+    }
+
     const result = await this.spectralSource.getVegetationIndices(input.parcelId, {
       latitude: parcel.latitude,
       longitude: parcel.longitude,
@@ -78,5 +103,19 @@ export class GetParcelVegetationIndices {
     }
 
     return result;
+  }
+
+  private async readCached(
+    orgId: string,
+    parcelId: string,
+  ): Promise<ParcelVegetationIndices | null> {
+    if (!this.sceneHistory) {
+      return null;
+    }
+    const latest = await this.sceneHistory.getLatestByParcel({ orgId, parcelId });
+    if (!latest || latest.indices.length === 0) {
+      return null;
+    }
+    return vegetationIndicesFromScene(latest);
   }
 }

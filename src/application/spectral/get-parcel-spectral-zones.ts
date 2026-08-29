@@ -9,6 +9,7 @@ import { clampLegendValue, getSpectralLegend } from "@/domain/spectral/overlay-l
 import { partitionParcelZones } from "@/domain/spectral/partition-zones";
 import type {
   ParcelSpectralZones,
+  SpectralEvidence,
   SpectralResult,
   SpectralSource,
   VegetationIndexId,
@@ -45,6 +46,9 @@ export interface GetParcelSpectralZonesInput {
   authority: AccessSnapshot | null | undefined;
   parcelId: string;
   indexId: VegetationIndexId;
+  /** When set with parcelMean, skips a second vegetation-indices provider call. */
+  acquiredAt?: string;
+  parcelMean?: number | null;
 }
 
 export class GetParcelSpectralZones {
@@ -80,35 +84,59 @@ export class GetParcelSpectralZones {
       };
     }
 
-    const indicesResult = await this.spectralSource.getVegetationIndices(input.parcelId, {
-      latitude: parcel.latitude,
-      longitude: parcel.longitude,
-      geometry: parcel.geometry,
-      timezone: parcel.timezone,
-    });
-    if (!indicesResult.ok) {
-      return indicesResult;
-    }
+    const meta = VEGETATION_INDEX_CATALOG[input.indexId];
+    let parcelMean = input.parcelMean ?? null;
+    let acquiredAt = input.acquiredAt?.trim() || "";
+    let baseEvidence: SpectralEvidence;
 
-    const reading = indicesResult.data.indices.find((item) => item.id === input.indexId);
-    if (!reading) {
-      return {
-        ok: false,
-        reason: "unavailable",
-        message: "Unknown vegetation index.",
+    const canSkipIndices =
+      Boolean(acquiredAt) && input.parcelMean !== undefined && Number.isFinite(Date.parse(acquiredAt));
+
+    if (!canSkipIndices) {
+      const indicesResult = await this.spectralSource.getVegetationIndices(input.parcelId, {
+        latitude: parcel.latitude,
+        longitude: parcel.longitude,
+        geometry: parcel.geometry,
+        timezone: parcel.timezone,
+      });
+      if (!indicesResult.ok) {
+        return indicesResult;
+      }
+      const reading = indicesResult.data.indices.find((item) => item.id === input.indexId);
+      if (!reading) {
+        return {
+          ok: false,
+          reason: "unavailable",
+          message: "Unknown vegetation index.",
+        };
+      }
+      parcelMean = reading.value;
+      baseEvidence = indicesResult.data.evidence;
+      acquiredAt = baseEvidence.acquiredAt;
+    } else {
+      baseEvidence = {
+        sourceId: "client-scene-hint",
+        sourceLabel: "Escena activa (cliente)",
+        acquiredAt,
+        timezone: parcel.timezone,
+        spatialScope: {
+          kind: "point",
+          latitude: parcel.latitude,
+          longitude: parcel.longitude,
+          label: parcel.id,
+        },
+        freshnessStatus: "unknown",
+        freshnessPolicy: "zones_acquired_at_hint",
       };
     }
-
-    const meta = VEGETATION_INDEX_CATALOG[input.indexId];
-    const baseEvidence = indicesResult.data.evidence;
 
     if (this.spectralSource.getIndexZones) {
       const live = await this.spectralSource.getIndexZones({
         parcelId: parcel.id,
         indexId: input.indexId,
         geometry: parcel.geometry,
-        acquiredAt: baseEvidence.acquiredAt,
-        parcelMean: reading.value,
+        acquiredAt,
+        parcelMean,
       });
       if (live.ok) {
         return {
@@ -118,7 +146,7 @@ export class GetParcelSpectralZones {
             indexId: input.indexId,
             label: meta.label,
             methodId: `${meta.methodId}+zones/v1`,
-            parcelMean: live.data.parcelMean ?? reading.value,
+            parcelMean: live.data.parcelMean ?? parcelMean,
             zones: live.data.zones,
             evidence: {
               ...baseEvidence,
@@ -135,7 +163,7 @@ export class GetParcelSpectralZones {
       valuesByCellId: syntheticZoneValues(
         parcel.id,
         input.indexId,
-        reading.value,
+        parcelMean,
         parcel.geometry,
       ),
     });
@@ -147,7 +175,7 @@ export class GetParcelSpectralZones {
         indexId: input.indexId,
         label: meta.label,
         methodId: `${meta.methodId}+zones_synthetic/v1`,
-        parcelMean: reading.value,
+        parcelMean,
         zones,
         evidence: {
           ...baseEvidence,

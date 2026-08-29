@@ -121,3 +121,24 @@ SMOKE_PARCEL_ID=parcel-xxx npm run audit:env
 ```
 
 Compara git, Neon (`spectral_scenes` + parcela smoke), HTTP y presencia de env Vercel.
+
+## Slice Spectral Perf-1/2 (latencia UI)
+
+- Índices: `?source=cache` desde Neon → paint rápido; `?source=live` en background.
+- Historial paralelo (no espera CDSE).
+- Zonas: `acquiredAt` + `parcelMean` evitan segundo fetch de índices.
+- Overlay: debounce 300 ms.
+- ADR-045.
+
+### Costos estimados (tiempo + CDSE)
+
+| Paso | Esfuerzo eng. | Latencia percibida | Calls CDSE / open Espectral | $ (CDSE*) |
+|------|---------------|--------------------|-----------------------------|-----------|
+| **Antes** | — | 8–25 s bloqueado | ~12–20 | alto |
+| **Perf-1** (hecho) | ~0.5 d | &lt;0.3 s con cache; live bg | 1 índices live (bg) | −~50% en revisita |
+| **Perf-2** (hecho) | ~0.3 d | zonas sin +2–8 s de índices | zonas: 9→9 celdas, −1 índices | −1 Statistical / zonas |
+| **Perf-3** Neon/KV zones | 1–2 d | zonas &lt;0.3 s en revisita | 0 si hit | −9 Statistical / revisita |
+| **Perf-4** 1-call multi-celda | 1–2 d | zonas 2–5 s cold | 9→1 | −8 Statistical / cold |
+| **Perf-5** precompute cron | 1–2 d | casi todo &lt;0.3 s | 0 en click | costo a cron |
+
+\*CDSE (Copernicus Data Space) en cuenta gratuita/research suele facturar en *processing units*, no USD fijo; el ahorro real es **cuota + latencia**. En comercial SH clásico, 1 Statistical ≈ fracción de céntimo — el costo dominante es tiempo de usuario y rate limits.
