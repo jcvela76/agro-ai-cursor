@@ -273,6 +273,7 @@ export function AppShell({
   const [detailName, setDetailName] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionBillingHref, setActionBillingHref] = useState<string | null>(null);
   const [drawReady, setDrawReady] = useState(false);
   const [spectralIndexId, setSpectralIndexId] = useState<VegetationIndexId>("ndre");
   const [spectralOpacity, setSpectralOpacity] = useState(0.62);
@@ -737,6 +738,23 @@ export function AppShell({
     : (selected?.name ?? "");
   const summaryAreaHectares =
     selected?.geometry?.type === "Polygon" ? approximateAreaHectares(selected.geometry) : 0;
+  const liveAreaHectares = draftGeometry
+    ? approximateAreaHectares(draftGeometry)
+    : summaryAreaHectares;
+  const areaOverPlanLimit =
+    parcelQuota != null && liveAreaHectares > parcelQuota.maxHaPerParcel;
+  const showBillingCta =
+    Boolean(actionBillingHref) || Boolean(parcelQuota?.blocked) || areaOverPlanLimit;
+
+  const clearActionError = () => {
+    setActionError(null);
+    setActionBillingHref(null);
+  };
+
+  const reportActionError = (message: string, billingHref?: string | null) => {
+    setActionError(message);
+    setActionBillingHref(billingHref ?? null);
+  };
 
   const resetDrawState = (opts?: { restoreSelection?: boolean }) => {
     const editingId = editingParcelIdRef.current;
@@ -746,7 +764,7 @@ export function AppShell({
     editingParcelIdRef.current = null;
     setDraftGeometry(null);
     setDrawMode("idle");
-    setActionError(null);
+    clearActionError();
     if (opts?.restoreSelection !== false && editingId) {
       selectParcel(editingId);
     }
@@ -754,17 +772,18 @@ export function AppShell({
 
   const startDraw = () => {
     if (parcelQuota?.blocked) {
-      setActionError(
+      reportActionError(
         `Cupo de parcelas agotado (${parcelQuota.used}/${parcelQuota.limit}). Mejora el plan en Facturación.`,
+        "/app/billing",
       );
       return;
     }
     const draw = drawRef.current;
     if (!draw) {
-      setActionError("Espera a que el mapa termine de cargar e inténtalo de nuevo");
+      reportActionError("Espera a que el mapa termine de cargar e inténtalo de nuevo");
       return;
     }
-    setActionError(null);
+    clearActionError();
     setDraftGeometry(null);
     selectParcel(null);
     editingParcelIdRef.current = null;
@@ -776,16 +795,16 @@ export function AppShell({
 
   const saveDraft = async () => {
     if (!draftGeometry) {
-      setActionError("Dibuja un polígono cerrado primero");
+      reportActionError("Dibuja un polígono cerrado primero");
       return;
     }
     const name = draftName.trim();
     if (!name) {
-      setActionError("El nombre es obligatorio");
+      reportActionError("El nombre es obligatorio");
       return;
     }
     setBusy(true);
-    setActionError(null);
+    clearActionError();
     try {
       const res = await fetch("/api/parcels", {
         method: "POST",
@@ -799,11 +818,10 @@ export function AppShell({
         billingHref?: string;
       };
       if (!res.ok || json.status !== "OK" || !json.data) {
-        const tip =
-          json.billingHref != null
-            ? ` ${json.message ?? "Límite de plan."} → /app/billing`
-            : (json.message ?? "No se pudo guardar");
-        setActionError(tip);
+        reportActionError(
+          json.message ?? "No se pudo guardar",
+          json.billingHref ?? null,
+        );
         return;
       }
       resetDrawState({ restoreSelection: false });
@@ -811,7 +829,7 @@ export function AppShell({
       // New parcel → Clima as onboarding entry; map re-select keeps the current tab.
       selectParcel(json.data.id);
     } catch {
-      setActionError("No se pudo guardar");
+      reportActionError("No se pudo guardar");
     } finally {
       setBusy(false);
     }
@@ -821,16 +839,16 @@ export function AppShell({
     const draw = drawRef.current;
     const map = mapRef.current;
     if (!draw || !selected?.geometry || selected.geometry.type !== "Polygon") {
-      setActionError("Esta parcela no tiene polígono editable");
+      reportActionError("Esta parcela no tiene polígono editable");
       return;
     }
     if (!drawReady) {
-      setActionError("Espera a que el mapa termine de cargar e inténtalo de nuevo");
+      reportActionError("Espera a que el mapa termine de cargar e inténtalo de nuevo");
       return;
     }
     const geometry = selected.geometry;
     const parcelId = selected.id;
-    setActionError(null);
+    clearActionError();
     editingParcelIdRef.current = parcelId;
     setDrawMode("edit");
     setDraftName(selected.name);
@@ -853,7 +871,7 @@ export function AppShell({
         },
       ]);
       if (validation.some((v) => !v.valid)) {
-        setActionError("No se pudo cargar la geometría para editar");
+        reportActionError("No se pudo cargar la geometría para editar");
         resetDrawState();
         return;
       }
@@ -880,21 +898,21 @@ export function AppShell({
     const featureId = draftFeatureIdRef.current;
     const editingId = editingParcelIdRef.current;
     if (!draw || featureId == null || !editingId) {
-      setActionError("No hay geometría para guardar");
+      reportActionError("No hay geometría para guardar");
       return;
     }
     const feature = draw.getSnapshotFeature(featureId);
     if (!feature || feature.geometry.type !== "Polygon") {
-      setActionError("Geometría inválida");
+      reportActionError("Geometría inválida");
       return;
     }
     const name = draftName.trim();
     if (!name) {
-      setActionError("El nombre es obligatorio");
+      reportActionError("El nombre es obligatorio");
       return;
     }
     setBusy(true);
-    setActionError(null);
+    clearActionError();
     try {
       const res = await fetch(`/api/parcels/${encodeURIComponent(editingId)}`, {
         method: "PATCH",
@@ -908,18 +926,17 @@ export function AppShell({
         billingHref?: string;
       };
       if (!res.ok || json.status !== "OK" || !json.data) {
-        const tip =
-          json.billingHref != null
-            ? ` ${json.message ?? "Límite de plan."} → /app/billing`
-            : (json.message ?? "No se pudo actualizar");
-        setActionError(tip);
+        reportActionError(
+          json.message ?? "No se pudo actualizar",
+          json.billingHref ?? null,
+        );
         return;
       }
       resetDrawState({ restoreSelection: false });
       await reloadParcels();
       selectParcel(json.data.id, { keepTab: true });
     } catch {
-      setActionError("No se pudo actualizar");
+      reportActionError("No se pudo actualizar");
     } finally {
       setBusy(false);
     }
@@ -994,7 +1011,9 @@ export function AppShell({
           {parcelQuota ? (
             <div
               className={
-                parcelQuota.blocked ? styles.parcelQuotaBarBlocked : styles.parcelQuotaBar
+                parcelQuota.blocked || areaOverPlanLimit
+                  ? styles.parcelQuotaBarBlocked
+                  : styles.parcelQuotaBar
               }
               role="status"
               aria-live="polite"
@@ -1018,19 +1037,16 @@ export function AppShell({
                   <span className={styles.parcelQuotaSep} aria-hidden>
                     ·
                   </span>
-                  <span
-                    className={
-                      summaryAreaHectares > parcelQuota.maxHaPerParcel
-                        ? styles.parcelQuotaOver
-                        : undefined
-                    }
-                  >
+                  <span className={areaOverPlanLimit ? styles.parcelQuotaOver : undefined}>
                     Selección {summaryAreaHectares.toFixed(1)} ha
                   </span>
                 </>
               ) : null}
-              {parcelQuota.blocked ? (
-                <Link className={styles.parcelQuotaUpgrade} href="/app/billing">
+              {showBillingCta ? (
+                <Link
+                  className={styles.parcelQuotaUpgrade}
+                  href={actionBillingHref ?? "/app/billing"}
+                >
                   Mejorar plan
                 </Link>
               ) : null}
@@ -1087,8 +1103,74 @@ export function AppShell({
         mapChromeStack
       ) : (
         <header className={styles.chrome}>
-          <p className={styles.brand}>Agro AI</p>
+          <div className={styles.chromeLeft}>
+            <span className={styles.brandMark} aria-hidden />
+            <p className={styles.brand}>Agro AI</p>
+            {parcelQuota ? (
+              <div
+                className={
+                  parcelQuota.blocked || areaOverPlanLimit || actionBillingHref
+                    ? styles.parcelQuotaBarBlocked
+                    : styles.parcelQuotaBar
+                }
+                role="status"
+                aria-live="polite"
+                title={`Plan ${parcelQuota.planSlug}`}
+              >
+                <span className={styles.parcelQuotaPlan}>
+                  {planDisplayLabel(parcelQuota.planSlug)}
+                </span>
+                <span className={styles.parcelQuotaSep} aria-hidden>
+                  ·
+                </span>
+                <span>
+                  Parcelas {parcelQuota.used}/{parcelQuota.limit}
+                </span>
+                <span className={styles.parcelQuotaSep} aria-hidden>
+                  ·
+                </span>
+                <span>Máx {parcelQuota.maxHaPerParcel} ha</span>
+                {draftGeometry || drawMode === "edit" ? (
+                  <>
+                    <span className={styles.parcelQuotaSep} aria-hidden>
+                      ·
+                    </span>
+                    <span className={areaOverPlanLimit ? styles.parcelQuotaOver : undefined}>
+                      {drawMode === "edit" ? "Edición" : "Borrador"}{" "}
+                      {liveAreaHectares.toFixed(1)} ha
+                    </span>
+                  </>
+                ) : null}
+                {showBillingCta ? (
+                  <Link
+                    className={styles.parcelQuotaUpgrade}
+                    href={actionBillingHref ?? "/app/billing"}
+                  >
+                    Mejorar plan
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
+            {actionError ? (
+              <p className={styles.chromeAlert} role="alert">
+                {actionError}
+              </p>
+            ) : null}
+          </div>
           <div className={styles.chromeRight}>
+            <Button
+              type="button"
+              variant="ghost"
+              className={styles.chromeAction}
+              onClick={() =>
+                resetDrawState({
+                  restoreSelection: drawMode === "edit",
+                })
+              }
+              disabled={busy}
+            >
+              {drawMode === "edit" ? "Cancelar edición" : "Cancelar dibujo"}
+            </Button>
             <UserButton />
           </div>
         </header>
@@ -1099,23 +1181,17 @@ export function AppShell({
           {listError}
         </div>
       ) : null}
-      {actionError ? (
+      {mapChromeActive && actionError ? (
         <div className={styles.toast} role="alert">
           {actionError}
-        </div>
-      ) : null}
-
-      {drawMode === "draw" && !draftGeometry ? (
-        <div className={styles.mapToolbar}>
-          <Button type="button" variant="ghost" onClick={() => resetDrawState({ restoreSelection: false })}>
-            Cancelar dibujo
-          </Button>
-        </div>
-      ) : drawMode === "edit" ? (
-        <div className={styles.mapToolbar}>
-          <Button type="button" variant="ghost" onClick={() => resetDrawState()}>
-            Cancelar edición
-          </Button>
+          {actionBillingHref ? (
+            <>
+              {" "}
+              <Link className={styles.toastBillingLink} href={actionBillingHref}>
+                Mejorar plan →
+              </Link>
+            </>
+          ) : null}
         </div>
       ) : null}
 
@@ -1141,6 +1217,17 @@ export function AppShell({
                 : ""}
               .
             </p>
+            {actionError ? (
+              <p className={styles.panelError} role="alert">
+                {actionError}
+                {actionBillingHref ? (
+                  <>
+                    {" "}
+                    <Link href={actionBillingHref}>Mejorar plan →</Link>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
             <div className={styles.actions}>
               <Button type="button" onClick={() => void saveDraft()} disabled={busy}>
                 Guardar parcela
@@ -1170,8 +1257,23 @@ export function AppShell({
               />
             </label>
             <p className={styles.help}>
-              Arrastra vértices o la parcela en el mapa. Guarda para persistir nombre y geometría.
+              Arrastra vértices o la parcela en el mapa. Guarda para persistir nombre y geometría
+              {draftGeometry
+                ? ` · ~${liveAreaHectares.toFixed(1)} ha`
+                : ""}
+              {parcelQuota ? ` · máx ${parcelQuota.maxHaPerParcel} ha` : ""}.
             </p>
+            {actionError ? (
+              <p className={styles.panelError} role="alert">
+                {actionError}
+                {actionBillingHref ? (
+                  <>
+                    {" "}
+                    <Link href={actionBillingHref}>Mejorar plan →</Link>
+                  </>
+                ) : null}
+              </p>
+            ) : null}
             <div className={styles.actions}>
               <Button type="button" onClick={() => void saveEdit()} disabled={busy}>
                 Guardar cambios
