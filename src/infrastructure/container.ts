@@ -101,6 +101,12 @@ import {
 import { NeonAgentChatRegistry } from "@/infrastructure/agent/neon-agent-chat-registry";
 import { OfflineAgentChatRegistry } from "@/infrastructure/agent/offline-agent-chat-registry";
 import {
+  AppendParcelFieldNote,
+  ListParcelFieldNotes,
+} from "@/application/field-note/parcel-field-notes";
+import { NeonParcelFieldNoteRegistry } from "@/infrastructure/field-note/neon-parcel-field-note-registry";
+import { OfflineParcelFieldNoteRegistry } from "@/infrastructure/field-note/offline-parcel-field-note-registry";
+import {
   isPaidWeatherSourceMode,
 } from "@/application/weather/weather-use-case-options";
 
@@ -160,6 +166,13 @@ export function createAgentChatRegistry() {
   return new OfflineAgentChatRegistry();
 }
 
+export function createParcelFieldNoteRegistry() {
+  if (process.env.DATABASE_URL) {
+    return new NeonParcelFieldNoteRegistry(createDb());
+  }
+  return new OfflineParcelFieldNoteRegistry();
+}
+
 export function createDailyBriefingDeliveryPrefsRegistry() {
   if (process.env.DATABASE_URL) {
     return new NeonDailyBriefingDeliveryPrefsRegistry(createDb());
@@ -173,6 +186,7 @@ const traceLotRegistry = createTraceLotRegistry();
 const reviewDecisionRegistry = createReviewDecisionRegistry();
 const reportRegistry = createReportRegistry();
 const agentChatRegistry = createAgentChatRegistry();
+const parcelFieldNoteRegistry = createParcelFieldNoteRegistry();
 const dailyBriefingDeliveryPrefsRegistry = createDailyBriefingDeliveryPrefsRegistry();
 const emailSender = createEmailSender();
 
@@ -421,6 +435,15 @@ export const appendParcelAgentChat = new AppendParcelAgentChat(
   orgMetadataStore,
 );
 export const authorizeParcelAgentChat = new AuthorizeParcelAgentChat(parcelRegistry);
+
+export const listParcelFieldNotes = new ListParcelFieldNotes(
+  parcelRegistry,
+  parcelFieldNoteRegistry,
+);
+export const appendParcelFieldNote = new AppendParcelFieldNote(
+  parcelRegistry,
+  parcelFieldNoteRegistry,
+);
 
 export const getDailyBriefingDeliveryPrefs = new GetDailyBriefingDeliveryPrefs(
   dailyBriefingDeliveryPrefsRegistry,

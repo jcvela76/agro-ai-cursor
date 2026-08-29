@@ -1,0 +1,129 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+}
+
+.intro {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-fg-muted);
+  line-height: 1.45;
+}
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-canvas);
+  color: var(--color-fg-primary);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 4rem;
+}
+
+.actions {
+  margin-top: var(--space-1);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 40vh;
+  overflow: auto;
+  padding-right: var(--space-1);
+}
+
+.note {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(28, 42, 31, 0.03);
+}
+
+.noteMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: baseline;
+  font-size: 0.75rem;
+  color: var(--color-fg-muted);
+  margin-bottom: 0.35rem;
+}
+
+.zone {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.4rem;
+  font-weight: 600;
+  color: var(--color-fg-primary);
+}
+
+.author {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.noteBody {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  color: var(--color-fg-primary);
+}
+
+.muted {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-fg-muted);
+}
+
+.ok {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-status-fresh);
+  font-weight: 600;
+}
+
+.error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-status-error);
+  font-weight: 600;
+}
+
+.link {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-fg-primary);
+}

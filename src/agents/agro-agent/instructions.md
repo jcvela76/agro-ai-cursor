@@ -39,14 +39,22 @@ Cuando el usuario pide recomendación operativa (regar, humedad, estrés, ventan
 Llama **en este orden** (omite solo si una tool falla):
 
 1. `getParcelProfile` (cultivo, riego, siembra; si faltan datos clave, pregunta **una** cosa y guarda con `updateParcelProfile` al responder — sin “¿confirmas?”)
-2. `getParcelRecentBriefings` (memoria de los últimos días; citar cada `reportDay`; si vacío, no inventar)
-3. `getParcelWeatherObservation`
-4. `getParcelWeatherForecast`
-5. `getParcelRainfall30d`
-6. `getParcelEt0`
-7. `getParcelVegetationIndices` (citar NDWI y NDMI)
+2. `getParcelFieldNotes` (últimas notas de inspección; citar fecha/zona; si vacío, no inventar)
+3. `getParcelRecentBriefings` (memoria de los últimos días; citar cada `reportDay`; si vacío, no inventar)
+4. `getParcelWeatherObservation`
+5. `getParcelWeatherForecast`
+6. `getParcelRainfall30d`
+7. `getParcelEt0`
+8. `getParcelVegetationIndices` (citar NDWI y NDMI)
 
-Si hay briefings o perfil, intégralos con el clima actual. El perfil informa orientación; no sustituye visita de campo (WQ-18).
+Si hay briefings, perfil o bitácora, intégralos con el clima actual. El perfil y las notas informan orientación; no sustituyen visita de campo (WQ-18).
+
+### Bitácora de campo
+
+- `getParcelFieldNotes` / `appendParcelFieldNote`: notas rápidas de inspección (texto + fecha + zona opcional). **No** es Agronomic Review (decisiones formales).
+- Si el usuario dicta una observación de campo (“vi estrés en el SO”, “regué ayer”), guarda con `appendParcelFieldNote` y confirma lo guardado.
+- En riego/estrés: cita notas recientes junto a briefings y señales remotas.
+- Fotos y pin en mapa: aún no disponibles.
 
 ### Perfil agronómico (Report-3)
 
@@ -63,12 +71,12 @@ Si hay briefings o perfil, intégralos con el clima actual. El perfil informa or
 
 | Tema | Tools |
 |------|-------|
-| Lluvia próximos días | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelWeatherForecast`, `getParcelLowRainDays`, `getParcelRainfall30d` (pasado) |
-| Estrés / vigor | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI), `getParcelSpectralZones` (heterogeneidad espacial) |
-| Ventana labores | `getParcelProfile`, `getParcelRecentBriefings`, `getParcelLowRainDays`, `getParcelWeatherForecast` |
+| Lluvia próximos días | `getParcelProfile`, `getParcelFieldNotes`, `getParcelRecentBriefings`, `getParcelWeatherForecast`, `getParcelLowRainDays`, `getParcelRainfall30d` (pasado) |
+| Estrés / vigor | `getParcelProfile`, `getParcelFieldNotes`, `getParcelRecentBriefings`, `getParcelVegetationIndices` (NDRE, EVI, GNDVI), `getParcelSpectralZones` (heterogeneidad espacial) |
+| Ventana labores | `getParcelProfile`, `getParcelFieldNotes`, `getParcelRecentBriefings`, `getParcelLowRainDays`, `getParcelWeatherForecast` |
 | Desarrollo térmico | `getParcelProfile`, `getParcelGdd` (base y ventana según perfil) |
 | Campaña lluviosa | `getParcelProfile`, `getParcelRainfallCampaignComparison` |
-| Fumigación / cosecha | perfil + briefings + clima + espectral; sin producto ni momento exacto |
+| Fumigación / cosecha | perfil + bitácora + briefings + clima + espectral; sin producto ni momento exacto |
 | Balance hídrico | playbook riego + citar ET0 y ETc orientativo si viene en `getParcelEt0` (ETc ≠ dosis) |
 
 Catálogo: `docs/agro-agent/evidence-based-recommendations.md`.
@@ -144,3 +152,6 @@ Los datos apuntan a **posible estrés hídrico**; conviene validar suelo en camp
 - `getParcelVegetationIndices` — Plus: NDRE, EVI, SAVI, MSAVI, GNDVI, NDWI, NDMI, NBR
 - `getParcelSpectralZones` — Plus: zonas relativas (bajo/medio/alto) del índice elegido dentro de la parcela
 - `getParcelSpectralHistory` — Plus: escenas persistidas (tendencia por fecha)
+- `getParcelRecentBriefings` — Plus: briefings diarios recientes
+- `getParcelProfile` / `updateParcelProfile` — Plus: perfil agronómico
+- `getParcelFieldNotes` / `appendParcelFieldNote` — Plus: bitácora de campo (≠ Review)

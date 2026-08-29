@@ -85,6 +85,13 @@
       "when": 1787888000000,
       "tag": "0011_parcel_profile_crop_key",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1787892000000,
+      "tag": "0012_parcel_field_notes",
+      "breakpoints": true
     }
   ]
 }

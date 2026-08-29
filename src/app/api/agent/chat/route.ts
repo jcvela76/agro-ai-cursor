@@ -26,6 +26,8 @@ import {
   getParcelSpectralZones,
   getParcelSpectralHistory,
   loadParcelAgentChat,
+  listParcelFieldNotes,
+  appendParcelFieldNote,
   updateParcelAgronomicProfile,
 } from "@/infrastructure/container";
 
@@ -190,6 +192,8 @@ export async function POST(request: Request) {
     recentBriefings: getParcelRecentBriefings,
     getProfile: getParcelAgronomicProfile,
     updateProfile: updateParcelAgronomicProfile,
+    listFieldNotes: listParcelFieldNotes,
+    appendFieldNote: appendParcelFieldNote,
   });
 
   const model = process.env.AI_GATEWAY_MODEL ?? DEFAULT_GATEWAY_MODEL;

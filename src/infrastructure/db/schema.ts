@@ -256,3 +256,24 @@ export const agentChatMessages = pgTable(
   ],
 );
 
+export const parcelFieldNotes = pgTable(
+  "parcel_field_notes",
+  {
+    id: text("id").primaryKey(),
+    orgId: text("org_id").notNull(),
+    parcelId: text("parcel_id").notNull(),
+    body: text("body").notNull(),
+    zoneLabel: text("zone_label"),
+    observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
+    authorUserId: text("author_user_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("parcel_field_notes_org_parcel_observed_idx").on(
+      table.orgId,
+      table.parcelId,
+      table.observedAt,
+    ),
+  ],
+);
+

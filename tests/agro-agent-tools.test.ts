@@ -20,6 +20,11 @@ import { OfflineReportRegistry } from "@/infrastructure/report/offline-report-re
 import { OfflineParcelAgronomicProfileRegistry } from "@/infrastructure/parcel/offline-parcel-agronomic-profile-registry";
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { OfflineSpectralSceneRegistry } from "@/infrastructure/spectral/offline-spectral-scene-registry";
+import { OfflineParcelFieldNoteRegistry } from "@/infrastructure/field-note/offline-parcel-field-note-registry";
+import {
+  AppendParcelFieldNote,
+  ListParcelFieldNotes,
+} from "@/application/field-note/parcel-field-notes";
 import { OfflineWeatherSource } from "@/infrastructure/weather/offline-weather-source";
 
 describe("WA-07 Plus gate for Agro Agent", () => {
@@ -57,6 +62,9 @@ describe("Agro Agent weather tools", () => {
   const recentBriefings = new GetParcelRecentBriefings(registry, new OfflineReportRegistry());
   const getProfile = new GetParcelAgronomicProfile(registry, profiles);
   const updateProfile = new UpdateParcelAgronomicProfile(registry, profiles);
+  const fieldNotes = new OfflineParcelFieldNoteRegistry();
+  const listFieldNotes = new ListParcelFieldNotes(registry, fieldNotes);
+  const appendFieldNote = new AppendParcelFieldNote(registry, fieldNotes);
   const authority = defaultSyntheticSnapshots[4];
 
   function toolsFor(parcelId: string) {
@@ -76,6 +84,8 @@ describe("Agro Agent weather tools", () => {
       recentBriefings,
       getProfile,
       updateProfile,
+      listFieldNotes,
+      appendFieldNote,
     });
   }
 

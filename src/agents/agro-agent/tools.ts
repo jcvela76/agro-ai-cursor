@@ -7,6 +7,10 @@ import type {
   GetParcelAgronomicProfile,
   UpdateParcelAgronomicProfile,
 } from "@/application/parcel/parcel-agronomic-profile";
+import type {
+  AppendParcelFieldNote,
+  ListParcelFieldNotes,
+} from "@/application/field-note/parcel-field-notes";
 import type { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import type { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
 import type { GetParcelSpectralHistory } from "@/application/spectral/get-parcel-spectral-history";
@@ -41,6 +45,8 @@ export const agroAgentToolNames = {
   recentBriefings: "getParcelRecentBriefings",
   getProfile: "getParcelProfile",
   updateProfile: "updateParcelProfile",
+  getFieldNotes: "getParcelFieldNotes",
+  appendFieldNote: "appendParcelFieldNote",
 } as const;
 
 export const plusToolNames = [
@@ -55,6 +61,8 @@ export const plusToolNames = [
   agroAgentToolNames.recentBriefings,
   agroAgentToolNames.getProfile,
   agroAgentToolNames.updateProfile,
+  agroAgentToolNames.getFieldNotes,
+  agroAgentToolNames.appendFieldNote,
 ] as const;
 
 const optionalProfileText = z.string().max(500).nullable().optional();
@@ -75,6 +83,8 @@ export function createAgroAgentTools(input: {
   recentBriefings: GetParcelRecentBriefings;
   getProfile: GetParcelAgronomicProfile;
   updateProfile: UpdateParcelAgronomicProfile;
+  listFieldNotes: ListParcelFieldNotes;
+  appendFieldNote: AppendParcelFieldNote;
 }) {
   const {
     authority,
@@ -92,6 +102,8 @@ export function createAgroAgentTools(input: {
     recentBriefings,
     getProfile,
     updateProfile,
+    listFieldNotes,
+    appendFieldNote,
   } = input;
 
   return {
@@ -267,6 +279,46 @@ export function createAgroAgentTools(input: {
       execute: async (raw) => {
         const fields = parseProfileFields(raw);
         const result = await updateProfile.execute({ authority, parcelId, fields });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    getParcelFieldNotes: tool({
+      description:
+        "Lista notas recientes de la bitácora de campo de la parcela activa (inspección, estrés visto, riego aplicado). No es Agronomic Review. Citar fecha y zona si hay. Requiere Plus. Parámetro opcional limit (1–50, default 10).",
+      inputSchema: z.object({
+        limit: z.number().int().min(1).max(50).optional(),
+      }),
+      execute: async ({ limit }) => {
+        const result = await listFieldNotes.execute({
+          authority,
+          parcelId,
+          limit: limit ?? 10,
+        });
+        if (!result.ok) {
+          return { ok: false as const, reason: result.reason, message: result.message };
+        }
+        return { ok: true as const, data: result.data };
+      },
+    }),
+    appendParcelFieldNote: tool({
+      description:
+        "Guarda una nota de bitácora de campo cuando el usuario dicta una observación (inspección, estrés, riego aplicado, etc.). No uses esto para decisiones formales de Review. body obligatorio (≤2000). zoneLabel opcional (≤80, ej. SO). observedAt ISO opcional. Resume lo guardado. Requiere Plus.",
+      inputSchema: z.object({
+        body: z.string().min(1).max(2000),
+        zoneLabel: z.string().max(80).nullable().optional(),
+        observedAt: z.string().nullable().optional(),
+      }),
+      execute: async ({ body, zoneLabel, observedAt }) => {
+        const result = await appendFieldNote.execute({
+          authority,
+          parcelId,
+          body,
+          zoneLabel: zoneLabel ?? undefined,
+          observedAt: observedAt ?? undefined,
+        });
         if (!result.ok) {
           return { ok: false as const, reason: result.reason, message: result.message };
         }

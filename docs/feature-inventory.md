@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (agronomic profile campaign + agent context) |
+| **Última actualización** | 2026-08-29 (bitácora de campo mínima) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -167,6 +167,17 @@ Gate: `weather` + `weather_plus`.
 | Neon `parcel_agronomic_profiles` | hecho | crop_key, gdd_base_celsius |
 | Briefing usa perfil | hecho | Señales cultivo/siembra/gaps; umbrales piloto + costa árida |
 
+### Bitácora de campo
+| Feature | Estado | Detalle |
+|---------|--------|---------|
+| Tab Campo + lista/form | hecho | Texto + fecha + zona opcional; append-only |
+| API field-notes | hecho | `GET\|POST /api/parcels/[id]/field-notes` |
+| Neon `parcel_field_notes` | hecho | Índice org+parcel+observed_at |
+| Gate Plus | hecho | Igual que Perfil / Agente |
+| Tools agente list/append | hecho | `getParcelFieldNotes` / `appendParcelFieldNote` |
+| Fotos / pin mapa | planificado | Slice 2 |
+| Editar/borrar notas | refuse | Append-only (ADR-051) |
+
 ---
 
 ## 6. Spectral (capacidad Plus; no entitlement aparte)
@@ -273,7 +284,7 @@ Gate: `weather` + `weather_plus`.
 | Feature | Estado | Detalle |
 |---------|--------|---------|
 | Neon + Drizzle migrations | hecho | `drizzle/`, `db:migrate` |
-| Dual registry Neon/offline | hecho | parcels, trace, review, reports, spectral, profiles |
+| Dual registry Neon/offline | hecho | parcels, trace, review, reports, spectral, profiles, field notes |
 | Cron briefings (11:00 UTC) | hecho | `vercel.json` |
 | Cron spectral (cada 6h) | hecho | Plus orgs |
 | Email Resend o stub | hecho | Fallback stub |
@@ -292,6 +303,7 @@ Gate: `weather` + `weather_plus`.
 | Espectral | hecho | Índices, overlay, zonas, historial, backfill |
 | Agente | hecho | Chat Plus + tools |
 | Perfil | hecho | Perfil agronómico |
+| Campo | hecho | Bitácora de campo (texto) |
 | Trazabilidad | hecho | Lotes / eventos / EUDR |
 | Revisión | hecho | Decisiones agronómicas |
 

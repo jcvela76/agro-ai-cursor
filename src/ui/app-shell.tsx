@@ -32,6 +32,7 @@ import { Button } from "@/ui/button";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { Panel } from "@/ui/panel";
 import { ParcelProfilePanel } from "@/ui/parcel-profile-panel";
+import { FieldLogPanel } from "@/ui/field-log-panel";
 import { ReviewPanel } from "@/ui/review-panel";
 import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { SpectralPanel } from "@/ui/spectral-panel";
@@ -54,13 +55,14 @@ const PARCELS_LINE = "agro-parcels-line";
 const PARCEL_DETAIL_MAX_ZOOM = 16;
 
 type DrawMode = "idle" | "draw" | "edit";
-type SideTab = "weather" | "spectral" | "agent" | "profile" | "trace" | "review";
+type SideTab = "weather" | "spectral" | "agent" | "profile" | "field" | "trace" | "review";
 
 const SIDE_TABS: readonly SideTab[] = [
   "weather",
   "spectral",
   "agent",
   "profile",
+  "field",
   "trace",
   "review",
 ];
@@ -1417,6 +1419,15 @@ export function AppShell({
               <button
                 type="button"
                 role="tab"
+                aria-selected={sideTab === "field"}
+                className={sideTab === "field" ? styles.tabActive : styles.tab}
+                onClick={() => goToTab("field")}
+              >
+                Campo
+              </button>
+              <button
+                type="button"
+                role="tab"
                 aria-selected={sideTab === "trace"}
                 className={sideTab === "trace" ? styles.tabActive : styles.tab}
                 onClick={() => goToTab("trace")}
@@ -1454,6 +1465,9 @@ export function AppShell({
             ) : null}
             {sideTab === "profile" ? (
               <ParcelProfilePanel parcel={selected} isAdmin={isAdmin} />
+            ) : null}
+            {sideTab === "field" ? (
+              <FieldLogPanel parcel={selected} isAdmin={isAdmin} />
             ) : null}
             {sideTab === "trace" ? (
               <TraceLotsPanel parcelId={selected.id} isAdmin={isAdmin} />
