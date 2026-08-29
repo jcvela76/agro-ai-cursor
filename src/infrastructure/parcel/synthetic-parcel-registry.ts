@@ -24,6 +24,10 @@ export class SyntheticParcelRegistry implements ParcelRegistry {
       .map((p) => ({ ...p }));
   }
 
+  async listOrgIds(): Promise<string[]> {
+    return [...new Set([...this.parcels.values()].map((p) => p.orgId))].sort();
+  }
+
   async create(input: CreateParcelInput): Promise<Parcel> {
     const parcel: Parcel = { ...input };
     this.parcels.set(parcel.id, parcel);

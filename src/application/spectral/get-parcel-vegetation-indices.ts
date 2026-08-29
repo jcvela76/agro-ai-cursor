@@ -4,16 +4,23 @@ import {
   authorizeWeatherAccess,
   authorizeWeatherPlusAccess,
 } from "@/domain/auth/authorize-weather-access";
+import {
+  buildSpectralSceneUpsert,
+  persistSpectralScene,
+  type SpectralScenePersistMode,
+} from "@/domain/spectral/persist-spectral-scene";
+import type { SpectralSceneRegistry } from "@/domain/spectral/scene-history";
 import type {
   ParcelVegetationIndices,
   SpectralResult,
   SpectralSource,
 } from "@/domain/spectral/types";
-import type { SpectralSceneRegistry } from "@/domain/spectral/scene-history";
 
 export interface GetParcelSpectralInput {
   authority: AccessSnapshot | null | undefined;
   parcelId: string;
+  /** always = refresh same-day scene; new_scene_only = skip if acquisition unchanged. */
+  persistMode?: SpectralScenePersistMode;
 }
 
 export class GetParcelVegetationIndices {
@@ -58,22 +65,15 @@ export class GetParcelVegetationIndices {
     });
 
     if (result.ok && this.sceneHistory) {
+      const mode = input.persistMode ?? "always";
       try {
-        await this.sceneHistory.upsert({
-          orgId: parcel.orgId,
-          parcelId: parcel.id,
-          acquisitionDate: result.data.acquisitionDate,
-          acquiredAt: result.data.evidence.acquiredAt,
-          sourceId: result.data.evidence.sourceId,
-          sourceLabel: result.data.evidence.sourceLabel,
-          indices: result.data.indices.map((item) => ({
-            id: item.id,
-            value: item.value,
-          })),
-          evidence: result.data.evidence,
-        });
+        await persistSpectralScene(
+          this.sceneHistory,
+          buildSpectralSceneUpsert(parcel.orgId, parcel.id, result.data),
+          mode,
+        );
       } catch (error) {
-        console.warn("spectral scene upsert failed", error);
+        console.warn("spectral scene persist failed", error);
       }
     }
 

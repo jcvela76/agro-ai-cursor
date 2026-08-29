@@ -36,6 +36,10 @@ export interface UpsertSpectralSceneInput {
 
 export interface SpectralSceneRegistry {
   upsert(input: UpsertSpectralSceneInput): Promise<SpectralSceneRecord>;
+  getLatestByParcel(input: {
+    orgId: string;
+    parcelId: string;
+  }): Promise<SpectralSceneRecord | null>;
   listByParcel(input: {
     orgId: string;
     parcelId: string;

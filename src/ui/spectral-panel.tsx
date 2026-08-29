@@ -11,6 +11,7 @@ import type {
   VegetationIndexId,
 } from "@/domain/spectral/types";
 import type { SpectralSceneRecord } from "@/domain/spectral/scene-history";
+import { formatSceneCapturedAt } from "@/domain/spectral/persist-spectral-scene";
 import { Badge } from "@/ui/badge";
 import { EvidenceRow } from "@/ui/evidence-row";
 import { StateBanner } from "@/ui/state-banner";
@@ -388,7 +389,13 @@ export function SpectralPanel({
                     const reading = scene.indices.find((item) => item.id === selectedIndexId);
                     return (
                       <li key={scene.id} className={styles.historyRow}>
-                        <span>{scene.acquisitionDate}</span>
+                        <span className={styles.historyDate}>
+                          <span>{scene.acquisitionDate}</span>
+                          <span className={styles.historyCapture}>
+                            Captura (satélite):{" "}
+                            {formatSceneCapturedAt(scene.acquiredAt, parcel.timezone)}
+                          </span>
+                        </span>
                         <span className={styles.historyValue}>
                           {reading?.value == null ? "—" : reading.value.toFixed(2)}
                         </span>
@@ -399,7 +406,7 @@ export function SpectralPanel({
                 <p className={styles.zoneHint}>
                   {historyPayload.data.scenes.length} escena
                   {historyPayload.data.scenes.length === 1 ? "" : "s"} · últimos{" "}
-                  {historyPayload.data.days} días
+                  {historyPayload.data.days} días · hora de captura satelital, no de consulta
                 </p>
               </>
             )}
@@ -409,7 +416,10 @@ export function SpectralPanel({
 
       <div className={styles.evidence}>
         <EvidenceRow label="Fuente" value={data.evidence.sourceLabel} />
-        <EvidenceRow label="Adquirido" value={data.evidence.acquiredAt} />
+        <EvidenceRow
+          label="Captura (satélite)"
+          value={formatSceneCapturedAt(data.evidence.acquiredAt, parcel.timezone)}
+        />
         {data.evidence.satelliteMission ? (
           <EvidenceRow label="Misión" value={data.evidence.satelliteMission} />
         ) : null}

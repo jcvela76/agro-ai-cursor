@@ -26,6 +26,14 @@ export class NeonParcelRegistry implements ParcelRegistry {
     return rows.map((row) => this.toParcel(row));
   }
 
+  async listOrgIds(): Promise<string[]> {
+    const rows = await this.db
+      .selectDistinct({ orgId: parcels.orgId })
+      .from(parcels)
+      .orderBy(parcels.orgId);
+    return rows.map((row) => row.orgId);
+  }
+
   async create(input: CreateParcelInput): Promise<Parcel> {
     const rows = await this.db
       .insert(parcels)

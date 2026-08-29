@@ -176,6 +176,7 @@ Ver `docs/reports/discovery.md`.
 | Spectral-6 zonas | **Hecho 2026-08-28** — fishnet + stats por zona + panel/mapa/tool (ADR-040) |
 | Report-4 zonas en informes | **Hecho 2026-08-28** — NDWI zones en hídrico + briefing (ADR-041) |
 | Spectral-7 historial | **Hecho 2026-08-28** — Neon `spectral_scenes` + sparkline + tool (ADR-042) |
+| Spectral-8 cron escenas | **Hecho 2026-08-28** — poll 6h Plus, solo escena nueva + `acquiredAt` en UI (ADR-043) |
 | **Siguiente** | Legal DRAFT → abogado; Billing live; Production CDSE post ToS; `db:migrate` 0008 |
 
 ## Docs por slice (canónico)

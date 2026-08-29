@@ -21,6 +21,7 @@ import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-ve
 import { GetParcelSpectralOverlay } from "@/application/spectral/get-parcel-spectral-overlay";
 import { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
 import { GetParcelSpectralHistory } from "@/application/spectral/get-parcel-spectral-history";
+import { RunSpectralScenePolling } from "@/application/spectral/run-spectral-scene-polling";
 import { AppendOrgReviewDecision } from "@/application/review/append-org-review-decision";
 import { ListOrgReviewDecisions } from "@/application/review/list-org-review-decisions";
 import { BuildReportContent } from "@/application/report/build-report-content";
@@ -375,6 +376,22 @@ export const runDailyBriefingDelivery = new RunDailyBriefingDelivery(
   orgMetadataStore,
   generateOrgReport,
   emailSender,
+);
+
+function createListOrgIds(registry: ParcelRegistry): (() => Promise<string[]>) | undefined {
+  if (registry instanceof NeonParcelRegistry || registry instanceof SyntheticParcelRegistry) {
+    return () => registry.listOrgIds();
+  }
+  return undefined;
+}
+
+export const runSpectralScenePolling = new RunSpectralScenePolling(
+  parcelRegistry,
+  spectralSource,
+  spectralSceneRegistry,
+  orgMetadataStore,
+  dailyBriefingDeliveryPrefsRegistry,
+  createListOrgIds(parcelRegistry),
 );
 
 export function createAccessResolver(): AccessResolver {

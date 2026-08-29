@@ -236,6 +236,19 @@
   color: var(--color-fg-primary);
 }
 
+.historyDate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.historyCapture {
+  font-size: 0.6875rem;
+  color: var(--color-fg-muted);
+  font-variant-numeric: normal;
+}
+
 .historyValue {
   font-weight: 650;
 }

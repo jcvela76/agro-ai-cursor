@@ -85,3 +85,12 @@ Ya definido en `src/domain/spectral/types.ts`:
 - API `GET .../spectral/history?days=`; panel sparkline + lista; tool `getParcelSpectralHistory`.
 - Offline: registry en memoria. Sin PNG histórico ni GIF (diferido).
 - ADR-042.
+
+## Slice Spectral-8 (cron detección escena nueva)
+
+- Cron Vercel cada 6h: `GET/POST /api/cron/spectral-scenes` (mismo auth `CRON_SECRET` que briefings).
+- Solo orgs Plus con parcelas con geometría; descubrimiento: `SPECTRAL_CRON_ORG_IDS`, prefs briefing habilitadas, o orgs con parcelas en Neon.
+- **No** persiste en cada tick si la escena es la misma (`acquiredAt` + `acquisitionDate` + `sourceId`); solo cuando CDSE devuelve captura nueva.
+- `acquiredAt` = hora satelital de referencia (UI: “Captura (satélite)”), distinto de `updatedAt` de DB.
+- Env opcional: `SPECTRAL_CRON_MAX_PARCELS` (default 25 por ejecución).
+- ADR-043.

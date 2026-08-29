@@ -1,4 +1,4 @@
-import { and, asc, eq, gte } from "drizzle-orm";
+import { and, asc, desc, eq, gte } from "drizzle-orm";
 import {
   createSpectralSceneId,
   type SpectralSceneRecord,
@@ -51,6 +51,22 @@ export class NeonSpectralSceneRegistry implements SpectralSceneRegistry {
       throw new Error("Failed to upsert spectral scene");
     }
     return this.toRecord(row);
+  }
+
+  async getLatestByParcel(input: {
+    orgId: string;
+    parcelId: string;
+  }): Promise<SpectralSceneRecord | null> {
+    const rows = await this.db
+      .select()
+      .from(spectralScenes)
+      .where(
+        and(eq(spectralScenes.orgId, input.orgId), eq(spectralScenes.parcelId, input.parcelId)),
+      )
+      .orderBy(desc(spectralScenes.acquisitionDate), desc(spectralScenes.acquiredAt))
+      .limit(1);
+    const row = rows[0];
+    return row ? this.toRecord(row) : null;
   }
 
   async listByParcel(input: {

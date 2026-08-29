@@ -35,6 +35,19 @@ export class OfflineSpectralSceneRegistry implements SpectralSceneRegistry {
     return record;
   }
 
+  async getLatestByParcel(input: {
+    orgId: string;
+    parcelId: string;
+  }): Promise<SpectralSceneRecord | null> {
+    const matches = [...this.byKey.values()].filter(
+      (row) => row.orgId === input.orgId && row.parcelId === input.parcelId,
+    );
+    if (matches.length === 0) {
+      return null;
+    }
+    return matches.sort((a, b) => b.acquisitionDate.localeCompare(a.acquisitionDate))[0] ?? null;
+  }
+
   async listByParcel(input: {
     orgId: string;
     parcelId: string;
