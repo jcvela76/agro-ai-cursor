@@ -10,16 +10,18 @@ import {
 import { SyntheticParcelRegistry } from "@/infrastructure/parcel/synthetic-parcel-registry";
 import { OfflineSpectralSource } from "@/infrastructure/spectral/offline-spectral-source";
 import { OfflineSpectralSceneRegistry } from "@/infrastructure/spectral/offline-spectral-scene-registry";
+import { OfflineSpectralZoneSnapshotRegistry } from "@/infrastructure/spectral/offline-spectral-zone-snapshot-registry";
 
 const parcels = new SyntheticParcelRegistry();
 const source = new OfflineSpectralSource();
 const scenes = new OfflineSpectralSceneRegistry();
+const zoneSnapshots = new OfflineSpectralZoneSnapshotRegistry();
 
 export const spectralRouteContainerMock = {
   createAccessResolver: () => new SyntheticAccessResolver(defaultSyntheticSnapshots),
   getParcelVegetationIndices: new GetParcelVegetationIndices(parcels, source, scenes),
   getParcelSpectralOverlay: new GetParcelSpectralOverlay(parcels, source),
-  getParcelSpectralZones: new GetParcelSpectralZones(parcels, source),
+  getParcelSpectralZones: new GetParcelSpectralZones(parcels, source, zoneSnapshots),
   getParcelSpectralHistory: new GetParcelSpectralHistory(parcels, scenes),
   backfillParcelSpectralHistory: new BackfillParcelSpectralHistory(parcels, source, scenes),
 };

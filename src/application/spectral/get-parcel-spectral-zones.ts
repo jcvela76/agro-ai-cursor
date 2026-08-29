@@ -15,6 +15,7 @@ import type {
   VegetationIndexId,
 } from "@/domain/spectral/types";
 import { VEGETATION_INDEX_CATALOG } from "@/domain/spectral/vegetation-indices";
+import type { SpectralZoneSnapshotRegistry } from "@/domain/spectral/zone-history";
 
 function deterministicNoise(seed: string): number {
   let hash = 0;
@@ -49,12 +50,17 @@ export interface GetParcelSpectralZonesInput {
   /** When set with parcelMean, skips a second vegetation-indices provider call. */
   acquiredAt?: string;
   parcelMean?: number | null;
+  /** Provider source id for zone cache key (from indices evidence). */
+  sourceId?: string;
+  /** Force CDSE/synthetic recompute and overwrite snapshot. */
+  refresh?: boolean;
 }
 
 export class GetParcelSpectralZones {
   constructor(
     private readonly parcels: ParcelRegistry,
     private readonly spectralSource: SpectralSource,
+    private readonly zoneSnapshots?: SpectralZoneSnapshotRegistry | null,
   ) {}
 
   async execute(input: GetParcelSpectralZonesInput): Promise<SpectralResult<ParcelSpectralZones>> {
@@ -88,9 +94,12 @@ export class GetParcelSpectralZones {
     let parcelMean = input.parcelMean ?? null;
     let acquiredAt = input.acquiredAt?.trim() || "";
     let baseEvidence: SpectralEvidence;
+    let sourceId = input.sourceId?.trim() || "";
 
     const canSkipIndices =
-      Boolean(acquiredAt) && input.parcelMean !== undefined && Number.isFinite(Date.parse(acquiredAt));
+      Boolean(acquiredAt) &&
+      input.parcelMean !== undefined &&
+      Number.isFinite(Date.parse(acquiredAt));
 
     if (!canSkipIndices) {
       const indicesResult = await this.spectralSource.getVegetationIndices(input.parcelId, {
@@ -113,9 +122,10 @@ export class GetParcelSpectralZones {
       parcelMean = reading.value;
       baseEvidence = indicesResult.data.evidence;
       acquiredAt = baseEvidence.acquiredAt;
+      sourceId = baseEvidence.sourceId;
     } else {
       baseEvidence = {
-        sourceId: "client-scene-hint",
+        sourceId: sourceId || "client-scene-hint",
         sourceLabel: "Escena activa (cliente)",
         acquiredAt,
         timezone: parcel.timezone,
@@ -130,6 +140,38 @@ export class GetParcelSpectralZones {
       };
     }
 
+    const acquisitionDate = acquiredAt.slice(0, 10);
+    const cacheSourceId = sourceId && sourceId !== "client-scene-hint" ? sourceId : "";
+
+    if (this.zoneSnapshots && !input.refresh && cacheSourceId && acquisitionDate) {
+      const cached = await this.zoneSnapshots.getBySceneKey({
+        orgId: parcel.orgId,
+        parcelId: parcel.id,
+        acquisitionDate,
+        sourceId: cacheSourceId,
+        indexId: input.indexId,
+      });
+      if (cached) {
+        return {
+          ok: true,
+          data: {
+            kind: "spectral_zones",
+            indexId: input.indexId,
+            label: meta.label,
+            methodId: cached.methodId,
+            parcelMean: cached.parcelMean,
+            zones: cached.zones,
+            evidence: {
+              ...cached.evidence,
+              freshnessPolicy: `${cached.evidence.freshnessPolicy}|zones_cache_read`,
+            },
+          },
+        };
+      }
+    }
+
+    let result: ParcelSpectralZones | null = null;
+
     if (this.spectralSource.getIndexZones) {
       const live = await this.spectralSource.getIndexZones({
         parcelId: parcel.id,
@@ -139,38 +181,33 @@ export class GetParcelSpectralZones {
         parcelMean,
       });
       if (live.ok) {
-        return {
-          ok: true,
-          data: {
-            kind: "spectral_zones",
-            indexId: input.indexId,
-            label: meta.label,
-            methodId: `${meta.methodId}+zones/v1`,
-            parcelMean: live.data.parcelMean ?? parcelMean,
-            zones: live.data.zones,
-            evidence: {
-              ...baseEvidence,
-              freshnessPolicy: `${baseEvidence.freshnessPolicy}|zones_fishnet_3`,
-            },
+        result = {
+          kind: "spectral_zones",
+          indexId: input.indexId,
+          label: meta.label,
+          methodId: `${meta.methodId}+zones/v1`,
+          parcelMean: live.data.parcelMean ?? parcelMean,
+          zones: live.data.zones,
+          evidence: {
+            ...baseEvidence,
+            sourceId: cacheSourceId || baseEvidence.sourceId,
+            freshnessPolicy: `${baseEvidence.freshnessPolicy}|zones_fishnet_3`,
           },
         };
       }
-      // Fall through to synthetic partition if provider zones fail.
     }
 
-    const zones = buildSpectralZones({
-      geometry: parcel.geometry,
-      valuesByCellId: syntheticZoneValues(
-        parcel.id,
-        input.indexId,
-        parcelMean,
-        parcel.geometry,
-      ),
-    });
-
-    return {
-      ok: true,
-      data: {
+    if (!result) {
+      const zones = buildSpectralZones({
+        geometry: parcel.geometry,
+        valuesByCellId: syntheticZoneValues(
+          parcel.id,
+          input.indexId,
+          parcelMean,
+          parcel.geometry,
+        ),
+      });
+      result = {
         kind: "spectral_zones",
         indexId: input.indexId,
         label: meta.label,
@@ -179,9 +216,34 @@ export class GetParcelSpectralZones {
         zones,
         evidence: {
           ...baseEvidence,
+          sourceId: cacheSourceId || baseEvidence.sourceId,
           freshnessPolicy: `${baseEvidence.freshnessPolicy}|zones_synthetic_fishnet`,
         },
-      },
-    };
+      };
+    }
+
+    if (this.zoneSnapshots && acquisitionDate) {
+      const persistSourceId = result.evidence.sourceId;
+      if (persistSourceId && persistSourceId !== "client-scene-hint") {
+        try {
+          await this.zoneSnapshots.upsert({
+            orgId: parcel.orgId,
+            parcelId: parcel.id,
+            acquisitionDate,
+            acquiredAt,
+            sourceId: persistSourceId,
+            indexId: input.indexId,
+            parcelMean: result.parcelMean,
+            methodId: result.methodId,
+            zones: result.zones,
+            evidence: result.evidence,
+          });
+        } catch (error) {
+          console.warn("spectral zone snapshot persist failed", error);
+        }
+      }
+    }
+
+    return { ok: true, data: result };
   }
 }

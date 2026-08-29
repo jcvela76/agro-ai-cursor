@@ -15,6 +15,8 @@ export async function GET(
   const url = new URL(request.url);
   const indexParam = url.searchParams.get("index") ?? "ndre";
   const acquiredAt = url.searchParams.get("acquiredAt") ?? undefined;
+  const sourceId = url.searchParams.get("sourceId") ?? undefined;
+  const refresh = url.searchParams.get("refresh") === "1";
   const meanRaw = url.searchParams.get("parcelMean");
   const parcelMean =
     meanRaw === null || meanRaw === ""
@@ -39,6 +41,8 @@ export async function GET(
     parcelId,
     indexId: indexParam,
     acquiredAt,
+    sourceId,
+    refresh,
     parcelMean:
       parcelMean === undefined
         ? undefined

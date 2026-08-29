@@ -78,6 +78,8 @@ import { SentinelHubStubSpectralSource } from "@/infrastructure/spectral/sentine
 import { SentinelHubSpectralSource } from "@/infrastructure/spectral/sentinel-hub-spectral-source";
 import { NeonSpectralSceneRegistry } from "@/infrastructure/spectral/neon-spectral-scene-registry";
 import { OfflineSpectralSceneRegistry } from "@/infrastructure/spectral/offline-spectral-scene-registry";
+import { NeonSpectralZoneSnapshotRegistry } from "@/infrastructure/spectral/neon-spectral-zone-snapshot-registry";
+import { OfflineSpectralZoneSnapshotRegistry } from "@/infrastructure/spectral/offline-spectral-zone-snapshot-registry";
 import { NeonTraceLotRegistry } from "@/infrastructure/traceability/neon-trace-lot-registry";
 import { OfflineTraceLotRegistry } from "@/infrastructure/traceability/offline-trace-lot-registry";
 import { NeonReportRegistry } from "@/infrastructure/report/neon-report-registry";
@@ -114,6 +116,13 @@ export function createSpectralSceneRegistry() {
     return new NeonSpectralSceneRegistry(createDb());
   }
   return new OfflineSpectralSceneRegistry();
+}
+
+export function createSpectralZoneSnapshotRegistry() {
+  if (process.env.DATABASE_URL) {
+    return new NeonSpectralZoneSnapshotRegistry(createDb());
+  }
+  return new OfflineSpectralZoneSnapshotRegistry();
 }
 
 export function createTraceLotRegistry(): TraceLotRegistry {
@@ -284,6 +293,7 @@ export function createSpectralSource(
 
 const spectralSource = createSpectralSource(process.env.SPECTRAL_SOURCE ?? "offline");
 const spectralSceneRegistry = createSpectralSceneRegistry();
+const spectralZoneSnapshotRegistry = createSpectralZoneSnapshotRegistry();
 
 export const getParcelVegetationIndices = new GetParcelVegetationIndices(
   parcelRegistry,
@@ -299,6 +309,7 @@ export const getParcelSpectralOverlay = new GetParcelSpectralOverlay(
 export const getParcelSpectralZones = new GetParcelSpectralZones(
   parcelRegistry,
   spectralSource,
+  spectralZoneSnapshotRegistry,
 );
 
 export const getParcelSpectralHistory = new GetParcelSpectralHistory(

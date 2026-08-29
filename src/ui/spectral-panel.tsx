@@ -209,6 +209,7 @@ export function SpectralPanel({
     }
 
     const acquiredAt = payload.data.evidence.acquiredAt;
+    const sourceId = payload.data.evidence.sourceId;
     const parcelMean =
       payload.data.indices.find((item) => item.id === selectedIndexId)?.value ?? null;
     const meanParam =
@@ -216,7 +217,7 @@ export function SpectralPanel({
 
     void (async () => {
       const result = await fetchSpectral<ParcelSpectralZones>(
-        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/zones?index=${encodeURIComponent(selectedIndexId)}&acquiredAt=${encodeURIComponent(acquiredAt)}&parcelMean=${meanParam}`,
+        `/api/parcels/${encodeURIComponent(parcel.id)}/spectral/zones?index=${encodeURIComponent(selectedIndexId)}&acquiredAt=${encodeURIComponent(acquiredAt)}&parcelMean=${meanParam}&sourceId=${encodeURIComponent(sourceId)}`,
       );
       if (cancelled) return;
       setZonesPayload(result);
@@ -270,6 +271,8 @@ export function SpectralPanel({
     historyPayload?.status === "OK" ? historyPayload.data.scenes.length : 0;
   const showBackfillButton = !historyLoading && historyScenes <= 3;
   const fromCache = data.evidence.freshnessPolicy.includes("cache_read");
+  const zonesFromCache =
+    zonesOk?.evidence.freshnessPolicy.includes("zones_cache_read") ?? false;
 
   async function runBackfill() {
     setBackfillLoading(true);
@@ -395,7 +398,15 @@ export function SpectralPanel({
       </ul>
 
       <div className={styles.zonesBlock}>
-        <p className={styles.legendTitle}>Zonas · {selectedIndexId.toUpperCase()}</p>
+        <p className={styles.legendTitle}>
+          Zonas · {selectedIndexId.toUpperCase()}
+          {zonesFromCache ? (
+            <span className={styles.freshnessInline}>
+              {" "}
+              <Badge tone="unknown">cache</Badge>
+            </span>
+          ) : null}
+        </p>
         {zonesLoading ? (
           <p className={styles.muted}>Calculando zonas…</p>
         ) : null}
