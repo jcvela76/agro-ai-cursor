@@ -12,7 +12,7 @@ Orientación para producto y prompts. El agente **no ejecuta** acciones ni presc
 
 | Señal | Tool | Uso en la recomendación |
 |-------|------|-------------------------|
-| Lluvia observada reciente | `getParcelWeatherObservation` | Contexto del último día con precipitación/temperatura |
+| Lluvia / T / HR / viento observados | `getParcelWeatherObservation` | Último día: precipitación, temperatura, HR aire 2 m, viento 2 m (HR ≠ suelo) |
 | Pronóstico de precipitación | `getParcelWeatherForecast` | Días sin lluvia esperada en horizonte corto |
 | Lluvia acumulada 30 d | `getParcelRainfall30d` | Déficit o exceso **reciente** (pasado, no futuro) |
 | ET0 acumulada campaña | `getParcelEt0` | Demanda atmosférica de referencia (no ETc del cultivo) |
@@ -65,8 +65,9 @@ Orientación para producto y prompts. El agente **no ejecuta** acciones ni presc
 
 ### 7. Condiciones para fumigación / cosecha (solo clima-espectral)
 
-Sin tool de viento: decirlo. Usar:
+Usar:
 
+- `getParcelWeatherObservation` → HR aire y velocidad de viento del último día (pueden ser `null`; sin dirección)
 - `getParcelLowRainDays` + `getParcelWeatherForecast` → riesgo de lavado por lluvia próxima
 - `getParcelVegetationIndices` (NDRE) → vigor para priorizar visitas, no “cosechar ya”
 
@@ -83,7 +84,7 @@ Sin tool de viento: decirlo. Usar:
 | Alerta de helada / granizo | Proveedor de eventos extremos + WQ-19 boundary |
 | Recomendación de fertilización | Análisis foliar/suelo, normativa |
 | Dosis y volumen de riego | Caudal, eficiencia, tipo de sistema |
-| Ventana de aplicación fitosanitaria | Viento, RH, deriva (no en stack actual) |
+| Ventana de aplicación fitosanitaria | Dirección de viento / umbrales de deriva (velocidad HR ya en obs) |
 | Riesgo de enfermedad (modelo) | Humedad hoja, cultivar, histórico |
 | Priorización de parcelas en la org | Multi-parcela + ranking (fuera de parcela fija) |
 | Trazabilidad / export readiness | Producto Traceability (WQ-17) |

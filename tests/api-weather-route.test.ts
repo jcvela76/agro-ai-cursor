@@ -53,6 +53,8 @@ describe("API /api/parcels/[parcelId]/weather", () => {
     const body = await res.json();
     expect(body.status).toBe("OK");
     expect(body.data.temperatureCelsius).toBe(22.4);
+    expect(body.data.relativeHumidityPercent).toBe(65);
+    expect(body.data.windSpeedMetersPerSecond).toBe(2.5);
     expect(body.data.evidence.freshnessStatus).toBe("fresh");
   });
 

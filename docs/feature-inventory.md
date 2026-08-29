@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (bitácora de campo mínima) |
+| **Última actualización** | 2026-08-29 (HR + viento en observación) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -87,10 +87,13 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 ### Vistas y evidencia
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Vista observación + evidencia | hecho | Fuente, tiempo, scope, frescura |
+| Vista observación + evidencia | hecho | T, precip, HR aire 2 m, viento 2 m; fuente/frescura |
 | Vista pronóstico + evidencia | hecho | p.ej. 7d Open-Meteo |
 | Estados cerrados | hecho | unavailable / stale / unsupported_range / internal_error |
-| Panel Clima (UI) | hecho | Tab Clima en shell |
+| Panel Clima (UI) | hecho | Tab Clima; obs muestra HR + viento |
+| HR / viento en observación | hecho | NASA POWER RH2M + WS2M; null-safe (ADR-052) |
+| HR / viento en pronóstico | refuse | Fuera de slice; Open-Meteo forecast sin HR/WS |
+| Dirección de viento | refuse | Diferido |
 
 ### Fuentes
 | Feature | Estado | Detalle |
@@ -126,7 +129,7 @@ Gate: `weather` + `weather_plus`.
 | Historial chat por parcela | hecho | Neon `agent_chat_messages`; hilo compartido org+parcela (ADR-049) |
 | Retención chat por plan | hecho | Plus 7d / Ops 30d / Full 90d; tope 80 msgs; lazy prune |
 | AI Gateway model path | hecho | ADR-015 |
-| Tool observation / forecast | hecho | Clima base vía tools |
+| Tool observation / forecast | hecho | Obs: T/precip/HR/viento; forecast base |
 | Tool lluvia 30d (WQ-11) | hecho | Agregado precipitación |
 | Tool campaña vs año previo (WQ-12) | hecho | Comparación |
 | Tool días baja lluvia (WQ-13) | hecho | Ranking en horizonte |

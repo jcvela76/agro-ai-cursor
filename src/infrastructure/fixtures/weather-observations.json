@@ -3,6 +3,8 @@
     "kind": "observation",
     "temperatureCelsius": 22.4,
     "precipitationMm": 0.0,
+    "relativeHumidityPercent": 65,
+    "windSpeedMetersPerSecond": 2.5,
     "evidence": {
       "sourceId": "offline-nasa-power-synthetic",
       "sourceLabel": "NASA POWER (offline fixture)",

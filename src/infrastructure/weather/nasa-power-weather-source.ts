@@ -36,11 +36,25 @@ interface NasaPowerResponse {
       T2M_MAX?: Record<string, number>;
       T2M_MIN?: Record<string, number>;
       PRECTOTCORR?: Record<string, number>;
+      RH2M?: Record<string, number>;
+      WS2M?: Record<string, number>;
     };
   };
   header?: {
     fill_value?: number;
   };
+}
+
+function numericOrNull(
+  series: Record<string, number> | undefined,
+  key: string,
+  fillValue: number,
+): number | null {
+  const value = series?.[key];
+  if (typeof value !== "number" || value === fillValue) {
+    return null;
+  }
+  return value;
 }
 
 function isNasaPowerResponse(payload: unknown): payload is NasaPowerResponse {
@@ -135,7 +149,7 @@ export class NasaPowerWeatherSource implements WeatherSource {
     start.setUTCDate(start.getUTCDate() - LOOKBACK_DAYS);
 
     const url = new URL(this.baseUrl);
-    url.searchParams.set("parameters", "T2M,PRECTOTCORR");
+    url.searchParams.set("parameters", "T2M,PRECTOTCORR,RH2M,WS2M");
     url.searchParams.set("community", "AG");
     url.searchParams.set("longitude", String(parcel.longitude));
     url.searchParams.set("latitude", String(parcel.latitude));
@@ -173,6 +187,8 @@ export class NasaPowerWeatherSource implements WeatherSource {
     const fillValue = payload.header?.fill_value ?? -999;
     const temps = payload.properties?.parameter?.T2M ?? {};
     const precips = payload.properties?.parameter?.PRECTOTCORR ?? {};
+    const humidity = payload.properties?.parameter?.RH2M;
+    const wind = payload.properties?.parameter?.WS2M;
     const dates = Object.keys(temps)
       .filter((key) => {
         const t = temps[key];
@@ -204,6 +220,8 @@ export class NasaPowerWeatherSource implements WeatherSource {
         kind: "observation",
         temperatureCelsius: temps[latest],
         precipitationMm: precips[latest],
+        relativeHumidityPercent: numericOrNull(humidity, latest, fillValue),
+        windSpeedMetersPerSecond: numericOrNull(wind, latest, fillValue),
         evidence: {
           sourceId: "nasa-power",
           sourceLabel: "NASA POWER",

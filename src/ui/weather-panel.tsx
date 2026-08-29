@@ -144,6 +144,14 @@ function ObservationView({
   }
 
   const { data } = payload;
+  const humidityLabel =
+    data.relativeHumidityPercent == null
+      ? "—"
+      : `${data.relativeHumidityPercent.toFixed(0)} %`;
+  const windLabel =
+    data.windSpeedMetersPerSecond == null
+      ? "—"
+      : `${data.windSpeedMetersPerSecond.toFixed(1)} m/s`;
   return (
     <div className={styles.content}>
       <div className={styles.metricBlock}>
@@ -159,6 +167,9 @@ function ObservationView({
               {data.evidence.freshnessStatus}
             </Badge>
           </span>
+        </p>
+        <p className={styles.submetric}>
+          HR {humidityLabel} · Viento {windLabel}
         </p>
       </div>
       <EvidenceBlock evidence={data.evidence} />

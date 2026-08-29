@@ -99,6 +99,8 @@ describe("Agro Agent weather tools", () => {
     if ("ok" in result && result.ok) {
       expect(result.data.kind).toBe("observation");
       expect(result.data.evidence.sourceId).toBeTruthy();
+      expect(result.data.relativeHumidityPercent).toBe(65);
+      expect(result.data.windSpeedMetersPerSecond).toBe(2.5);
     }
   });
 

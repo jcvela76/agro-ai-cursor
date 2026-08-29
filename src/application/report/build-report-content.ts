@@ -120,8 +120,32 @@ export class BuildReportContent {
         source: obs.data.evidence.sourceLabel,
         validity: obs.data.evidence.observedAt ?? "—",
       });
+      if (obs.data.relativeHumidityPercent != null) {
+        rows.push({
+          signal: "HR aire (2 m)",
+          value: `${obs.data.relativeHumidityPercent.toFixed(0)} %`,
+          source: obs.data.evidence.sourceLabel,
+          validity: obs.data.evidence.observedAt ?? "—",
+        });
+      }
+      if (obs.data.windSpeedMetersPerSecond != null) {
+        rows.push({
+          signal: "Viento (2 m)",
+          value: `${obs.data.windSpeedMetersPerSecond.toFixed(1)} m/s`,
+          source: obs.data.evidence.sourceLabel,
+          validity: obs.data.evidence.observedAt ?? "—",
+        });
+      }
+      const rhPart =
+        obs.data.relativeHumidityPercent != null
+          ? `, HR ${obs.data.relativeHumidityPercent.toFixed(0)} %`
+          : "";
+      const windPart =
+        obs.data.windSpeedMetersPerSecond != null
+          ? `, viento ${obs.data.windSpeedMetersPerSecond.toFixed(1)} m/s`
+          : "";
       summaryParts.push(
-        `<li>Observación: ${obs.data.temperatureCelsius.toFixed(1)} °C, ${obs.data.precipitationMm.toFixed(1)} mm precip.</li>`,
+        `<li>Observación: ${obs.data.temperatureCelsius.toFixed(1)} °C, ${obs.data.precipitationMm.toFixed(1)} mm precip.${rhPart}${windPart}.</li>`,
       );
     }
 
@@ -224,6 +248,22 @@ export class BuildReportContent {
         source: obs.data.evidence.sourceLabel,
         validity: obs.data.evidence.observedAt ?? "—",
       });
+      if (obs.data.relativeHumidityPercent != null) {
+        rows.push({
+          signal: "HR aire (2 m)",
+          value: `${obs.data.relativeHumidityPercent.toFixed(0)} %`,
+          source: obs.data.evidence.sourceLabel,
+          validity: obs.data.evidence.observedAt ?? "—",
+        });
+      }
+      if (obs.data.windSpeedMetersPerSecond != null) {
+        rows.push({
+          signal: "Viento (2 m)",
+          value: `${obs.data.windSpeedMetersPerSecond.toFixed(1)} m/s`,
+          source: obs.data.evidence.sourceLabel,
+          validity: obs.data.evidence.observedAt ?? "—",
+        });
+      }
     }
 
     if (fc.ok) {

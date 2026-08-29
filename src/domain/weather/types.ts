@@ -30,6 +30,10 @@ export interface WeatherObservation {
   kind: "observation";
   temperatureCelsius: number;
   precipitationMm: number;
+  /** Relative humidity at 2 m (%). Null if provider fill/missing. */
+  relativeHumidityPercent: number | null;
+  /** Wind speed at 2 m (m/s). Null if provider fill/missing. */
+  windSpeedMetersPerSecond: number | null;
   evidence: WeatherEvidence;
 }
 

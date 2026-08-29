@@ -132,6 +132,26 @@ export class CollectParcelSignals {
         source: obs.data.evidence.sourceLabel,
         validity: obs.data.evidence.observedAt ?? "—",
       });
+      if (obs.data.relativeHumidityPercent != null) {
+        signals.push({
+          id: "rh_obs",
+          label: "Humedad relativa (aire 2 m)",
+          value: Number(obs.data.relativeHumidityPercent.toFixed(0)),
+          unit: "%",
+          source: obs.data.evidence.sourceLabel,
+          validity: obs.data.evidence.observedAt ?? "—",
+        });
+      }
+      if (obs.data.windSpeedMetersPerSecond != null) {
+        signals.push({
+          id: "wind_obs",
+          label: "Viento (2 m)",
+          value: Number(obs.data.windSpeedMetersPerSecond.toFixed(1)),
+          unit: "m/s",
+          source: obs.data.evidence.sourceLabel,
+          validity: obs.data.evidence.observedAt ?? "—",
+        });
+      }
       evidenceRows.push(
         {
           signal: "Temperatura",
@@ -146,6 +166,22 @@ export class CollectParcelSignals {
           validity: obs.data.evidence.observedAt ?? "—",
         },
       );
+      if (obs.data.relativeHumidityPercent != null) {
+        evidenceRows.push({
+          signal: "HR aire (2 m)",
+          value: `${obs.data.relativeHumidityPercent.toFixed(0)} %`,
+          source: obs.data.evidence.sourceLabel,
+          validity: obs.data.evidence.observedAt ?? "—",
+        });
+      }
+      if (obs.data.windSpeedMetersPerSecond != null) {
+        evidenceRows.push({
+          signal: "Viento (2 m)",
+          value: `${obs.data.windSpeedMetersPerSecond.toFixed(1)} m/s`,
+          source: obs.data.evidence.sourceLabel,
+          validity: obs.data.evidence.observedAt ?? "—",
+        });
+      }
     }
 
     if (fc.ok) {

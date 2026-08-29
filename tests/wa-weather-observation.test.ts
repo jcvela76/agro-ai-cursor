@@ -19,6 +19,8 @@ describe("WA-01: fresh observation with complete evidence", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.temperatureCelsius).toBe(22.4);
+      expect(result.data.relativeHumidityPercent).toBe(65);
+      expect(result.data.windSpeedMetersPerSecond).toBe(2.5);
       expect(result.data.evidence.sourceId).toBeTruthy();
       expect(result.data.evidence.observedAt).toBeTruthy();
       expect(result.data.evidence.timezone).toBe("America/Lima");

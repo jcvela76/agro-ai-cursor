@@ -24,6 +24,8 @@ describe("Agro Agent instructions", () => {
     expect(text).toContain("getParcelVegetationIndices");
     expect(text).toContain("<details>");
     expect(text).toContain("Ver evidencia consultada");
+    expect(text).toContain("relativeHumidityPercent");
+    expect(text).toContain("windSpeedMetersPerSecond");
     expect(text).toContain("NDWI");
   });
 

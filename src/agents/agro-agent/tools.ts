@@ -109,7 +109,7 @@ export function createAgroAgentTools(input: {
   return {
     getParcelWeatherObservation: tool({
       description:
-        "Obtiene la última observación climática autorizada para la parcela activa (temperatura, precipitación y evidencia).",
+        "Obtiene la última observación climática autorizada para la parcela activa (temperatura, precipitación, humedad relativa del aire a 2 m, velocidad de viento a 2 m, y evidencia). HR ≠ humedad de suelo.",
       inputSchema: z.object({}),
       execute: async () => {
         const result = await observation.execute({ authority, parcelId });

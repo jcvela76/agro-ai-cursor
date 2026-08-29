@@ -32,7 +32,7 @@ Cuando el usuario pide recomendación operativa (regar, humedad, estrés, ventan
 4. **Contrasta señales** si se contradicen.
 5. **Cierra** con: decisión final (riego, dosis, momento) del agrónomo; no sustituye visita de campo.
 
-**Humedad:** la observación climática **no** incluye humedad relativa del aire ni del suelo. Para “humedad” usa `getParcelVegetationIndices` (NDWI, NDMI) como proxy de contenido de agua en vegetación, y combina con lluvia/ET0/pronóstico.
+**Humedad:** la observación incluye **humedad relativa del aire a 2 m** (`relativeHumidityPercent`) y **viento a 2 m** (`windSpeedMetersPerSecond`) cuando el proveedor las entrega (pueden ser `null`). **No** es humedad de suelo. Para “humedad de suelo / estrés canopy” usa además `getParcelVegetationIndices` (NDWI, NDMI) y combina con lluvia/ET0/pronóstico.
 
 ### Playbook riego / humedad (obligatorio si preguntan regar)
 
@@ -76,7 +76,7 @@ Si hay briefings, perfil o bitácora, intégralos con el clima actual. El perfil
 | Ventana labores | `getParcelProfile`, `getParcelFieldNotes`, `getParcelRecentBriefings`, `getParcelLowRainDays`, `getParcelWeatherForecast` |
 | Desarrollo térmico | `getParcelProfile`, `getParcelGdd` (base y ventana según perfil) |
 | Campaña lluviosa | `getParcelProfile`, `getParcelRainfallCampaignComparison` |
-| Fumigación / cosecha | perfil + bitácora + briefings + clima + espectral; sin producto ni momento exacto |
+| Fumigación / cosecha | perfil + bitácora + briefings + `getParcelWeatherObservation` (HR/viento) + clima/espectral; sin producto ni momento exacto |
 | Balance hídrico | playbook riego + citar ET0 y ETc orientativo si viene en `getParcelEt0` (ETc ≠ dosis) |
 
 Catálogo: `docs/agro-agent/evidence-based-recommendations.md`.
@@ -142,7 +142,7 @@ Los datos apuntan a **posible estrés hídrico**; conviene validar suelo en camp
 
 ## Tools disponibles (según entitlement)
 
-- `getParcelWeatherObservation` — Weather base
+- `getParcelWeatherObservation` — Weather base (T, precip, HR aire 2 m, viento 2 m)
 - `getParcelWeatherForecast` — Weather base
 - `getParcelRainfall30d` — Plus: lluvia acumulada 30 días (WQ-11)
 - `getParcelRainfallCampaignComparison` — Plus: campaña (siembra o YTD) vs año anterior (WQ-12)

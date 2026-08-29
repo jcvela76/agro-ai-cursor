@@ -36,6 +36,24 @@ describe("NasaPowerWeatherSource", () => {
               "20260825": -999,
               "20260826": -999,
             },
+            RH2M: {
+              "20260820": -999,
+              "20260821": 70,
+              "20260822": 68,
+              "20260823": 64.2,
+              "20260824": -999,
+              "20260825": -999,
+              "20260826": -999,
+            },
+            WS2M: {
+              "20260820": -999,
+              "20260821": 1.8,
+              "20260822": 2.1,
+              "20260823": 2.7,
+              "20260824": -999,
+              "20260825": -999,
+              "20260826": -999,
+            },
           },
         },
       });
@@ -52,6 +70,8 @@ describe("NasaPowerWeatherSource", () => {
     if (result.ok) {
       expect(result.data.temperatureCelsius).toBe(22.4);
       expect(result.data.precipitationMm).toBe(0);
+      expect(result.data.relativeHumidityPercent).toBe(64.2);
+      expect(result.data.windSpeedMetersPerSecond).toBe(2.7);
       expect(result.data.evidence.sourceId).toBe("nasa-power");
       expect(result.data.evidence.observedAt).toContain("2026-08-23");
       expect(result.data.evidence.freshnessStatus).toBe("stale");
@@ -59,6 +79,33 @@ describe("NasaPowerWeatherSource", () => {
         "latest_available_daily_max_lag_14d",
       );
       expect(result.data.evidence.spatialScope.label).toBe("parcel-lima-norte-001");
+    }
+  });
+
+  it("maps RH/wind null when fill or missing without failing observation", async () => {
+    const fetchFn = async () =>
+      jsonResponse({
+        header: { fill_value: -999 },
+        properties: {
+          parameter: {
+            T2M: { "20260823": 22.4 },
+            PRECTOTCORR: { "20260823": 0.0 },
+            RH2M: { "20260823": -999 },
+          },
+        },
+      });
+
+    const source = new NasaPowerWeatherSource(
+      parcels,
+      fetchFn,
+      "https://power.larc.nasa.gov/api/temporal/daily/point",
+      () => new Date("2026-08-23T18:00:00Z"),
+    );
+    const result = await source.getObservation("parcel-lima-norte-001");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.relativeHumidityPercent).toBeNull();
+      expect(result.data.windSpeedMetersPerSecond).toBeNull();
     }
   });
 
