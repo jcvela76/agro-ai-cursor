@@ -1,7 +1,4 @@
-import {
-  approximateAreaHectares,
-  demoParcelSquare,
-} from "@/domain/parcel/geometry";
+import { approximateAreaHectares } from "@/domain/parcel/geometry";
 import {
   clampLegendValue,
   colorForLegendValue,
@@ -22,18 +19,32 @@ import {
   VEGETATION_INDEX_ORDER,
 } from "@/domain/spectral/vegetation-indices";
 
-/** Valle de Ica — referencia agrícola (smoke Tacama). */
+/** Neon ref: parcel-9d29b6a2-3449-4659-8bf8-3f674153e2f5 — Parcela Ica 2 (valle Tacama). */
+export const LANDING_DEMO_PARCEL_ID = "parcel-9d29b6a2-3449-4659-8bf8-3f674153e2f5";
+
 export const LANDING_DEMO_CENTER = {
   label: "Ica · valle Tacama",
-  longitude: -75.812,
-  latitude: -14.0125,
+  longitude: -75.78006904844328,
+  latitude: -14.017670134346865,
   timezone: "America/Lima",
 } as const;
 
-export const LANDING_DEMO_GEOMETRY: ParcelGeometry = demoParcelSquare(
-  LANDING_DEMO_CENTER.longitude,
-  LANDING_DEMO_CENTER.latitude,
-);
+/** Polígono real de Parcela Ica 2 (workspace piloto, 2026-08-29). */
+export const LANDING_DEMO_GEOMETRY: ParcelGeometry = {
+  type: "Polygon",
+  coordinates: [
+    [
+      [-75.775073093, -14.014537814],
+      [-75.777210159, -14.013331645],
+      [-75.779311862, -14.012157911],
+      [-75.781869777, -14.015703597],
+      [-75.784895991, -14.020694767],
+      [-75.780064348, -14.023277738],
+      [-75.777645105, -14.017863307],
+      [-75.775073093, -14.014537814],
+    ],
+  ],
+};
 
 const DEMO_BBOX = (() => {
   const ring = LANDING_DEMO_GEOMETRY.coordinates[0];
@@ -52,20 +63,124 @@ const DEMO_BBOX = (() => {
 
 export const LANDING_DEMO_RASTER_COORDINATES = bboxImageCoordinates(DEMO_BBOX);
 
-export const LANDING_DEMO_PARCEL_NAME = `Parcela demo · Ica · ~${approximateAreaHectares(LANDING_DEMO_GEOMETRY).toFixed(1)} ha`;
+export const LANDING_DEMO_PARCEL_NAME = "Parcela Ica 2";
+
+export const LANDING_DEMO_PARCEL_META = `~${approximateAreaHectares(LANDING_DEMO_GEOMETRY).toFixed(1)} ha · ${LANDING_DEMO_CENTER.label}`;
 
 export interface LandingDemoScene {
   acquisitionDate: string;
   ndreMean: number;
   seed: number;
+  indices: Array<{ id: VegetationIndexId; value: number }>;
 }
 
+/** Escenas CDSE reales de Parcela Ica 2 (Neon, ago 2026). */
 export const LANDING_DEMO_SCENES: LandingDemoScene[] = [
-  { acquisitionDate: "2026-06-12", ndreMean: 0.25, seed: 1.1 },
-  { acquisitionDate: "2026-06-27", ndreMean: 0.29, seed: 2.4 },
-  { acquisitionDate: "2026-07-13", ndreMean: 0.33, seed: 3.1 },
-  { acquisitionDate: "2026-07-29", ndreMean: 0.37, seed: 3.7 },
-  { acquisitionDate: "2026-08-14", ndreMean: 0.41, seed: 4.2 },
+  {
+    acquisitionDate: "2026-08-07",
+    ndreMean: 0.02138732883195107,
+    seed: 1.1,
+    indices: [
+      { id: "ndre", value: 0.02138732883195107 },
+      { id: "evi", value: 0.5961245803640899 },
+      { id: "savi", value: 0.03165035865237465 },
+      { id: "msavi", value: 0.03363803756541639 },
+      { id: "gndvi", value: 0.013267702497882984 },
+      { id: "ndwi", value: -0.013267702497882984 },
+      { id: "ndmi", value: 0.1006327945061006 },
+      { id: "nbr", value: 0.19381099919671596 },
+    ],
+  },
+  {
+    acquisitionDate: "2026-08-12",
+    ndreMean: 0.491356471246859,
+    seed: 2.2,
+    indices: [
+      { id: "ndre", value: 0.491356471246859 },
+      { id: "evi", value: 0.5715685546379518 },
+      { id: "savi", value: 0.5045880810055472 },
+      { id: "msavi", value: 0.5056100320358246 },
+      { id: "gndvi", value: 0.6565710184653143 },
+      { id: "ndwi", value: -0.6565710184653143 },
+      { id: "ndmi", value: 0.2971774166030562 },
+      { id: "nbr", value: 0.4782878816365624 },
+    ],
+  },
+  {
+    acquisitionDate: "2026-08-14",
+    ndreMean: 0.06351667586329263,
+    seed: 3.1,
+    indices: [
+      { id: "ndre", value: 0.06351667586329263 },
+      { id: "evi", value: 0.4018874741837422 },
+      { id: "savi", value: 0.09216450966602258 },
+      { id: "msavi", value: 0.09414782430595414 },
+      { id: "gndvi", value: 0.07809418220020442 },
+      { id: "ndwi", value: -0.07809418220020442 },
+      { id: "ndmi", value: 0.04023398784028775 },
+      { id: "nbr", value: 0.11315017951051043 },
+    ],
+  },
+  {
+    acquisitionDate: "2026-08-17",
+    ndreMean: 0.029128806277182232,
+    seed: 3.6,
+    indices: [
+      { id: "ndre", value: 0.029128806277182232 },
+      { id: "evi", value: 0.39175253762036727 },
+      { id: "savi", value: 0.02912649889426488 },
+      { id: "msavi", value: 0.0304942669097108 },
+      { id: "gndvi", value: 0.008585326743369709 },
+      { id: "ndwi", value: -0.008585326743369709 },
+      { id: "ndmi", value: 0.20348002406185298 },
+      { id: "nbr", value: 0.3951085749840907 },
+    ],
+  },
+  {
+    acquisitionDate: "2026-08-22",
+    ndreMean: 0.0019445303442719455,
+    seed: 4.0,
+    indices: [
+      { id: "ndre", value: 0.0019445303442719455 },
+      { id: "evi", value: 0.026290236636621712 },
+      { id: "savi", value: -0.0029789807152985756 },
+      { id: "msavi", value: -0.003300017381431264 },
+      { id: "gndvi", value: -0.024109636148927718 },
+      { id: "ndwi", value: 0.024109636148927718 },
+      { id: "ndmi", value: 0.18675102854469156 },
+      { id: "nbr", value: 0.3157261530146259 },
+    ],
+  },
+  {
+    acquisitionDate: "2026-08-24",
+    ndreMean: 0.48928326158767765,
+    seed: 4.5,
+    indices: [
+      { id: "ndre", value: 0.48928326158767765 },
+      { id: "evi", value: 0.5777832795507107 },
+      { id: "savi", value: 0.48925697166871285 },
+      { id: "msavi", value: 0.48717246342541715 },
+      { id: "gndvi", value: 0.6225109417192386 },
+      { id: "ndwi", value: -0.6225109417192386 },
+      { id: "ndmi", value: 0.30034883555744823 },
+      { id: "nbr", value: 0.4668547249927051 },
+    ],
+  },
+  {
+    acquisitionDate: "2026-08-27",
+    ndreMean: -0.0003177099215950004,
+    seed: 5.0,
+    indices: [
+      { id: "ndre", value: -0.0003177099215950004 },
+      { id: "evi", value: 0.06624974511230183 },
+      { id: "savi", value: -0.006911003664841738 },
+      { id: "msavi", value: -0.007684507760123527 },
+      { id: "gndvi", value: -0.026035583247607706 },
+      { id: "ndwi", value: 0.026035583247607706 },
+      { id: "ndmi", value: 0.18687525084621523 },
+      { id: "nbr", value: 0.30169360736423306 },
+    ],
+  },
 ];
 
 export function formatLandingSceneDate(isoDay: string): string {
@@ -88,28 +203,16 @@ export function formatLandingSceneDate(isoDay: string): string {
 }
 
 export function ndreVigorLabel(value: number): string {
-  if (value < 0.28) return "Vigor bajo";
-  if (value < 0.34) return "Vigor medio-bajo";
-  if (value < 0.4) return "Vigor medio";
+  if (value < 0.1) return "Estrés / bajo";
+  if (value < 0.35) return "Vigor medio";
   return "Vigor alto";
 }
-
-const INDEX_OFFSETS: Record<VegetationIndexId, number> = {
-  ndre: 0,
-  evi: 0.03,
-  savi: -0.06,
-  msavi: -0.05,
-  gndvi: 0.02,
-  ndwi: -0.18,
-  ndmi: 0.09,
-  nbr: 0.14,
-};
 
 export function landingDemoIndexValue(
   scene: LandingDemoScene,
   indexId: VegetationIndexId,
 ): number {
-  return scene.ndreMean + INDEX_OFFSETS[indexId];
+  return scene.indices.find((item) => item.id === indexId)?.value ?? scene.ndreMean;
 }
 
 export function landingDemoIndices(scene: LandingDemoScene): VegetationIndexReading[] {

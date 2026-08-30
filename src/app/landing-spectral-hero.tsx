@@ -1,6 +1,6 @@
 "use client";
 
-import { LngLatBounds, Map as MapLibreMap } from "maplibre-gl";
+import { Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
@@ -23,6 +23,7 @@ import {
   applySpectralMapOverlay,
   applySpectralZoneOutlines,
 } from "@/ui/spectral-map-overlay";
+import { fitLandingDemoParcel } from "./landing-hero-layout";
 import styles from "./landing-spectral-hero.module.css";
 
 const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
@@ -36,40 +37,11 @@ function parcelFeatureCollection() {
     features: [
       {
         type: "Feature" as const,
-        properties: { parcelId: "parcel-demo-ica" },
+        properties: { parcelId: "parcel-9d29b6a2-3449-4659-8bf8-3f674153e2f5" },
         geometry: LANDING_DEMO_GEOMETRY,
       },
     ],
   };
-}
-
-function fitDemoParcel(
-  map: MapLibreMap,
-  layout?: { copyRight: number; panelLeft: number },
-) {
-  const bounds = new LngLatBounds();
-  for (const [lng, lat] of LANDING_DEMO_GEOMETRY.coordinates[0]) {
-    bounds.extend([lng, lat]);
-  }
-
-  const width = window.innerWidth;
-  const maxZoom = width >= 1440 ? 17.25 : width >= 1280 ? 17 : width >= 1024 ? 16.5 : 15.5;
-
-  const padding = layout
-    ? {
-        top: width >= 1024 ? 96 : 72,
-        bottom: width >= 1024 ? 72 : 120,
-        left: layout.copyRight + 16,
-        right: width - layout.panelLeft + 16,
-      }
-    : {
-        top: width >= 1024 ? 96 : 72,
-        bottom: width >= 1024 ? 72 : 120,
-        left: width >= 1440 ? 340 : width >= 1280 ? 320 : width >= 1024 ? 300 : 24,
-        right: width >= 1440 ? 320 : width >= 1280 ? 300 : width >= 1024 ? 280 : 24,
-      };
-
-  map.fitBounds(bounds, { padding, maxZoom });
 }
 
 function addParcelLayers(map: MapLibreMap) {
@@ -99,6 +71,7 @@ function addParcelLayers(map: MapLibreMap) {
 }
 
 export function LandingSpectralHero({ children }: { children: ReactNode }) {
+  const shellRef = useRef<HTMLDivElement | null>(null);
   const mapHostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const copySlotRef = useRef<HTMLDivElement | null>(null);
@@ -120,11 +93,12 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     }
     const copyRect = copySlotRef.current?.getBoundingClientRect();
     const panelRect = spectralSlotRef.current?.getBoundingClientRect();
-    if (copyRect && panelRect && window.innerWidth >= 1024) {
-      fitDemoParcel(map, { copyRight: copyRect.right, panelLeft: panelRect.left });
-      return;
-    }
-    fitDemoParcel(map);
+    fitLandingDemoParcel(map, {
+      shell: shellRef.current,
+      copyRight: copyRect?.right,
+      panelLeft: panelRect?.left,
+      spectralHeight: panelRect?.height,
+    });
   };
 
   useEffect(() => {
@@ -232,7 +206,7 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
   }, [isPlaying, scenes.length]);
 
   return (
-    <div className={styles.shell}>
+    <div ref={shellRef} className={styles.shell}>
       <div ref={mapHostRef} className={styles.mapHost} aria-hidden={!mapReady} />
 
       <div className={styles.mapChipSlot}>

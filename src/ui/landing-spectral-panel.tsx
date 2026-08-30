@@ -65,8 +65,8 @@ export function LandingSpectralPanel({
   return (
     <div className={styles.content}>
       <p className={styles.intro}>
-        Índices de vegetación derivados de reflectancia Sentinel-2 L2A. El mapa muestra raster
-        CDSE con contraste local; demostración ilustrativa en Ica.
+        Índices de vegetación derivados de reflectancia Sentinel-2 L2A. Parcela Ica 2 — datos
+        reales de escenas CDSE guardadas en el piloto.
       </p>
       <p className={styles.muted}>
         Escena {scene.acquisitionDate}
