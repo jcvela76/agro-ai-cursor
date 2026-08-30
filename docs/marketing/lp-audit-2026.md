@@ -18,8 +18,8 @@ Leyenda: **OK** · **SUAVIZAR** · **QUITAR** · **AÑADIR** · **MOVER**
 | Ubicación | Copy actual | Estado | Acción / copy propuesto |
 |-----------|-------------|--------|-------------------------|
 | `SITE_TITLE` / meta | «…Lista de espera» | SUAVIZAR | «Clima e índices por parcela en Perú · Piloto» |
-| H1 | «El clima de tu parcela — con fuente y contexto. No del aeropuerto.» | OK | Mantener; subtítulo puede mencionar vigor satelital |
-| Hero support | Open-Meteo · NASA POWER | AÑADIR | «+ índices Sentinel-2 (Plus) con evidencia por captura» |
+| H1 | «El clima y el vigor de tu parcela — con fuente y evidencia.» | OK | **Agente primero** en sub; fuente = confianza, no producto |
+| Hero support | Open-Meteo · NASA POWER | AÑADIR | Línea 1: agente agronómico · Línea 2: fuentes como respaldo |
 | CTA primario | Lista de espera | OK | Coexistir: «Solicitar piloto» + waitlist |
 | Header nav | Plataforma / Productos / Precios | AÑADIR | Nav: «Espectral» o «Inteligencia» ancla `#inteligencia` |
 | Evidence bar | GFS/ICON, ERA5-Land | SUAVIZAR | Separar «fuentes clima» vs «Sentinel-2 L2A (Plus)» |
@@ -167,8 +167,8 @@ Secciones (desktop + mobile):
 
 2. HERO split:
    - Izq: eyebrow geoagro.ai · Perú
-   - H1: «El clima y el vigor de tu parcela — con fuente y evidencia. No del aeropuerto.»
-   - Sub: datos Open-Meteo + NASA POWER; índices Sentinel-2 (Plus) anclados al polígono
+   - H1: «El clima y el vigor de tu parcela — con fuente y evidencia.»
+   - Sub (agente primero): agente agronómico que une clima, Sentinel y Campo para decidir; fuentes en segunda línea
    - CTAs: primario waitlist · secundario scroll
    - Der: mockup browser con mapa claro + overlay verde NDRE + chip «Escena · fuente CDSE»
 

@@ -54,8 +54,8 @@ const PAIN_BLOCKS = [
     body: "Un solo valor NDRE o EVI no dice si el cultivo viene recuperándose o cayendo. Sin historial de escenas y comparación en el tiempo, la decisión queda a ciegas.",
   },
   {
-    title: "Decisiones sin bitácora ni fuente citada",
-    body: "Recomendaciones en WhatsApp o en la memoria del técnico no dejan evidencia auditable. Cada lectura en Agro AI puede citar fuente, fecha y parcela.",
+    title: "Sin un copiloto que una clima, vigor y campo",
+    body: "Preguntas sueltas no cruzan pronóstico, índices satelitales y lo anotado en Campo. El agente responde en lenguaje natural sobre tu parcela —con la fuente a mano cuando la necesitas.",
   },
 ] as const;
 
@@ -71,7 +71,7 @@ const PRODUCTS = [
     title: "Intelligence Plus",
     subtitle: null as string | null,
     disclaimer: null as string | null,
-    body: "Clima, vigor satelital y agente en el contorno de tu parcela. Briefings con señales y evidencia citada —sin prometer alertas oficiales ni dosis.",
+    body: "Clima, vigor satelital y agente en el contorno de tu parcela. Pregunta en lenguaje natural, recibe briefings y respuestas con contexto —sin prometer alertas oficiales ni dosis.",
     features: [
       "Briefing diario con señales climáticas (Plus)",
       "ET0 orientativo e informe hídrico (no dosis)",
@@ -180,23 +180,25 @@ export default function Home() {
         <div className={styles.heroCopy}>
           <p className={styles.eyebrow}>geoagro.ai · Perú</p>
           <h1 className={styles.heroTitle}>
-            El clima de tu parcela —<em>con fuente y contexto.</em>
-            <br />
-            No del aeropuerto.
+            El clima y el vigor de tu parcela —<em>con fuente y evidencia.</em>
           </h1>
           <p className={styles.heroSupport}>
-            Datos climáticos georreferenciados por parcela —con fuente, frescura y
-            alcance espacial explícitos. Fuentes: Open-Meteo · NASA POWER.
+            Un agente agronómico que lee clima, índices Sentinel y tu bitácora en el
+            polígono exacto de tu campo. Te ayuda a decidir —no solo a archivar datos.
+          </p>
+          <p className={styles.heroSupportSecondary}>
+            Open-Meteo · NASA POWER · Sentinel-2 (Plus) · cada lectura con fuente cuando
+            la pides.
           </p>
           <div className={styles.heroCtas}>
             <a href="#lista" className={styles.btnPrimaryLg}>
               Inscribirse en lista de espera
             </a>
-            <a href="#plataforma" className={styles.btnGhost}>
-              Más información
+            <a href="#productos" className={styles.btnGhost}>
+              Conocer el agente
             </a>
           </div>
-          <p className={styles.heroHint}>Te avisamos cuando abra el piloto.</p>
+          <p className={styles.heroHint}>Piloto sin costo para técnicos y productores en Perú.</p>
           <WaitlistForm />
         </div>
 
@@ -221,7 +223,7 @@ export default function Home() {
                 <span>{source}</span>
               </span>
             ))}
-            <span className={styles.evidenceAside}>Datos públicos verificables</span>
+            <span className={styles.evidenceAside}>Citado en el agente cuando lo necesitas</span>
           </div>
         </div>
       </section>
@@ -232,15 +234,15 @@ export default function Home() {
             <div>
               <p className={styles.eyebrow}>El problema</p>
               <h2 className={styles.sectionTitle}>
-                El aeropuerto queda
-                <br />a 80 km. <em>Tu cultivo, no.</em>
+                La estación más cercana
+                <br />está lejos. <em>Tu cultivo, no.</em>
               </h2>
               <div className={styles.prose}>
                 <p>
-                  Los servicios meteorológicos tradicionales reportan el clima de
-                  estaciones urbanas —muchas veces a más de 50 km de distancia y a
-                  otra altitud. En la sierra y la selva alta del Perú, esa diferencia
-                  puede equivaler a 8 °C y 200 mm de lluvia al año.
+                  Muchas decisiones se toman con el clima de la ciudad o del aeropuerto:
+                  otra temperatura, otra humedad, otra radiación. En la sierra y la selva
+                  alta del Perú, esa diferencia puede equivaler a 8 °C y 200 mm de lluvia al
+                  año.
                 </p>
                 <p>
                   Un modelo de ciudad no captura la neblina matutina de tu parcela,
@@ -248,7 +250,8 @@ export default function Home() {
                   2 km de la estación más cercana.
                 </p>
                 <p className={styles.proseAccent}>
-                  Agro AI ancla los datos al contorno exacto de tu campo.
+                  Agro AI ancla clima y vigor al contorno de tu campo —y el agente los usa
+                  para responderte.
                 </p>
               </div>
               <div className={styles.painGrid}>
@@ -299,9 +302,9 @@ export default function Home() {
               Pronóstico. <em>Con fuente y frescura.</em>
             </h2>
             <p className={styles.weatherLead}>
-              Cada dato publicado en Agro AI incluye su fuente, horizonte de
-              actualización y resolución espacial. No ofrecemos promedios sin
-              contexto ni cifras sin respaldo.
+              Clima observado y pronóstico son la base del agente: briefings, consultas y
+              lecturas espectrales parten de datos anclados a tu parcela, con fuente visible
+              cuando importa.
             </p>
           </div>
 

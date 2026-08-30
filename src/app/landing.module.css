@@ -351,11 +351,19 @@
 }
 
 .heroSupport {
-  margin: 0 0 2rem;
+  margin: 0 0 1rem;
   max-width: 32rem;
   font-size: 1.1rem;
   line-height: 1.625;
   color: rgba(28, 42, 31, 0.65);
+}
+
+.heroSupportSecondary {
+  margin: 0 0 2rem;
+  max-width: 32rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: rgba(28, 42, 31, 0.55);
 }
 
 @media (min-width: 768px) {
