@@ -426,7 +426,7 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [mapReady, scenes, selectedIndexId]);
+  }, [mapReady, selectedIndexId]);
 
   useEffect(() => {
     if (!isPlaying || scenes.length < 2 || !mapReady) {
@@ -458,7 +458,7 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [isPlaying, mapReady, scenes, selectedIndexId]);
+  }, [isPlaying, mapReady, selectedIndexId]);
 
   return (
     <div ref={shellRef} className={styles.shell}>
