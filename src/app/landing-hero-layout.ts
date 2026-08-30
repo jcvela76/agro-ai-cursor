@@ -36,9 +36,16 @@ export function fitLandingDemoParcel(
     spectralHeight?: number;
   },
 ) {
+  // Container may still be settling on first paint — sync canvas size before framing.
+  map.resize();
+
   const bounds = new LngLatBounds();
-  for (const [lng, lat] of LANDING_DEMO_GEOMETRY.coordinates[0]) {
-    bounds.extend([lng, lat]);
+  for (const ringPoint of LANDING_DEMO_GEOMETRY.coordinates[0]) {
+    const lng = ringPoint[0];
+    const lat = ringPoint[1];
+    if (typeof lng === "number" && typeof lat === "number") {
+      bounds.extend([lng, lat]);
+    }
   }
 
   const width = window.innerWidth;

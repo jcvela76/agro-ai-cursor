@@ -190,12 +190,40 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     }
     const copyRect = copySlotRef.current?.getBoundingClientRect();
     const panelRect = spectralSlotRef.current?.getBoundingClientRect();
+    // Desktop rails may still be 0×0 on the first paint frame.
+    if (
+      window.innerWidth >= 1024 &&
+      (copyRect == null ||
+        panelRect == null ||
+        copyRect.width < 40 ||
+        panelRect.width < 40)
+    ) {
+      return false;
+    }
     fitLandingDemoParcel(map, {
       shell: shellRef.current,
       copyRight: copyRect?.right,
       panelLeft: panelRect?.left,
       spectralHeight: panelRect?.height,
     });
+    return true;
+  };
+
+  const scheduleLayoutRefits = () => {
+    const delays = [0, 50, 150, 350, 800];
+    const timers: number[] = [];
+    for (const delay of delays) {
+      timers.push(
+        window.setTimeout(() => {
+          refitMapToLayout();
+        }, delay),
+      );
+    }
+    return () => {
+      for (const timer of timers) {
+        window.clearTimeout(timer);
+      }
+    };
   };
 
   useEffect(() => {
@@ -222,9 +250,6 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
 
     map.on("load", () => {
       addParcelLayers(map);
-      requestAnimationFrame(() => {
-        refitMapToLayout();
-      });
       applySpectralMapOverlay(
         map,
         buildLandingDemoOverlay(activeScene, selectedIndexId),
@@ -250,6 +275,12 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (!mapReady) {
+      return;
+    }
+
+    const cancelScheduled = scheduleLayoutRefits();
+
     const onResize = () => {
       window.clearTimeout(resizeTimerRef.current);
       resizeTimerRef.current = window.setTimeout(() => {
@@ -257,19 +288,38 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
       }, 150);
     };
     window.addEventListener("resize", onResize);
+
+    const host = mapHostRef.current;
+    const shell = shellRef.current;
+    const observer =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => {
+            window.clearTimeout(resizeTimerRef.current);
+            resizeTimerRef.current = window.setTimeout(() => {
+              refitMapToLayout();
+            }, 50);
+          })
+        : null;
+    if (observer && host) {
+      observer.observe(host);
+    }
+    if (observer && shell) {
+      observer.observe(shell);
+    }
+    if (observer && copySlotRef.current) {
+      observer.observe(copySlotRef.current);
+    }
+    if (observer && spectralSlotRef.current) {
+      observer.observe(spectralSlotRef.current);
+    }
+
     return () => {
+      cancelScheduled();
       window.removeEventListener("resize", onResize);
       window.clearTimeout(resizeTimerRef.current);
+      observer?.disconnect();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- layout measure only
-  }, [mapReady]);
-
-  useEffect(() => {
-    if (!mapReady) {
-      return;
-    }
-    refitMapToLayout();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- refit after panels paint
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- settle layout once map is ready
   }, [mapReady]);
 
   useEffect(() => {
