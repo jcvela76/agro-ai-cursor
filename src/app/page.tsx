@@ -184,37 +184,37 @@ export default function Home() {
               <span className={styles.heroEyebrowPill}>geoagro.ai · Perú</span>
               <span className={styles.heroEyebrowPillSky}>Piloto 2026</span>
             </div>
-            <h1 className={styles.heroTitleDark}>
+            <h1 className={styles.heroTitle}>
               El clima y el vigor de tu parcela —<em>con fuente y evidencia.</em>
             </h1>
-            <p className={styles.heroSupportDark}>
+            <p className={styles.heroSupport}>
               Un agente agronómico que une clima, índices{" "}
               <strong>Sentinel-2</strong> y bitácora de Campo — todo anclado al polígono
               exacto de tu parcela.
             </p>
-            <p className={styles.heroSupportMutedDark}>
+            <p className={styles.heroSupportSecondary}>
               Fuentes: Open-Meteo, NASA POWER, CDSE — citadas cuando importa.
             </p>
             <div className={styles.heroCtas}>
               <a href="#lista" className={styles.btnPrimaryLg}>
                 Unirse a la lista de espera
               </a>
-              <a href="#productos" className={styles.btnGhostDark}>
+              <a href="#productos" className={styles.btnGhost}>
                 Conocer el agente ↓
               </a>
             </div>
-            <div className={styles.heroTrustRow}>
+            <div className={styles.heroTrustRowLight}>
               <div>
-                <p className={styles.heroTrustLabel}>Clima anclado</p>
-                <p className={styles.heroTrustMeta}>Open-Meteo + NASA POWER</p>
+                <p className={styles.heroTrustLabelLight}>Clima anclado</p>
+                <p className={styles.heroTrustMetaLight}>Open-Meteo + NASA POWER</p>
               </div>
               <div>
-                <p className={styles.heroTrustLabel}>8 índices</p>
-                <p className={styles.heroTrustMeta}>Sentinel-2 · CDSE</p>
+                <p className={styles.heroTrustLabelLight}>8 índices</p>
+                <p className={styles.heroTrustMetaLight}>Sentinel-2 · CDSE</p>
               </div>
               <div>
-                <p className={styles.heroTrustLabel}>Fuente citada</p>
-                <p className={styles.heroTrustMeta}>en cada respuesta</p>
+                <p className={styles.heroTrustLabelLight}>Fuente citada</p>
+                <p className={styles.heroTrustMetaLight}>en cada respuesta</p>
               </div>
             </div>
             <WaitlistForm />

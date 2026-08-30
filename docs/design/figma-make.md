@@ -11,7 +11,7 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
 | Nombre | Slice | fileKey | Estado | Edición | Código / design destino |
 |--------|-------|---------|--------|---------|-------------------------|
 | [Agro AI Landing Page](https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page) | LP / waitlist (SEO-1) | `2SYf8DOtblK84RC6oaNql7` | **Congelado** — Version 2 = waitlist stg | **No editar** (solo lectura / version history) | `/` · `public/landing/` · frame `marketing/lp/full` en `oTT6PqFOAijVxYZb5wztEP` |
-| **Agro AI Landing Page v3** (piloto) | LP-3 pre-piloto | Make `WFrwqsMxk9kTiPUSrOVlCU` · Design `JePdGL6MyrlSU7PGYE9yXb` | **Portado** hero oscuro + mockup | Congelar post QA | `/` · frame Hero `1:7` |
+| **Agro AI Landing Page v3** (piloto) | LP-3 pre-piloto | Make `WFrwqsMxk9kTiPUSrOVlCU` · Design `JePdGL6MyrlSU7PGYE9yXb` | **Portado** hero mapa producto (Ica + panel Espectral) | Congelar post QA | `/` · `landing-spectral-hero` |
 | [Agro AI — Billing & Admin](https://www.figma.com/make/gQ0ta5hxC4FNd5EKaHY5nX/Agro-AI-%E2%80%94-Billing---Admin) | Billing-2 UX | `gQ0ta5hxC4FNd5EKaHY5nX` | **Portado** — código en `stg` (2026-08-27) | **Congelado** (solo lectura) | `/app/admin` · `/app/billing` · `/app/billing/cancel` |
 | [Agro AI — Map & Spectral](https://www.figma.com/make/nusU2o1IuN6xOwgxEqgOv7/Agro-AI-Map---Spectral) | Spectral-2 UX | `nusU2o1IuN6xOwgxEqgOv7` | **Portado** — código en `stg` (2026-08-28) · **Make V4** alineado (2026-08-28) | **Congelado** (solo lectura) | `/app` · `spectral-panel` · `spectral-map-overlay` |
 
@@ -79,7 +79,7 @@ Make **no reproduce** timeline MapLibre ni autoplay del producto. Flujo acordado
 | 2 | Julio | **Copy design** → pegar frame en design file `oTT6PqFOAijVxYZb5wztEP` · `marketing/lp/pilot-v3` |
 | 3 | Julio | Compartir URL Figma con `node-id` del frame hero (desktop + mobile) |
 | 4 | Agent | `get_design_context` (MCP) → ajustar CSS/copy en `src/app/` |
-| 5 | Agent | Hero animado en **código**: `landing-spectral-hero.tsx` (MapLibre + panel Espectral + timeline) |
+| 5 | Agent | Hero en **código**: `landing-spectral-hero.tsx` — mapa fullscreen (Ica Tacama) + panel Espectral producto (Play + slider) |
 
 **Figma define:** grid, tipografía, espaciado, estados estáticos.  
 **Código define:** mapa real, overlay NDRE, slider/play como `/app`.

@@ -1,4 +1,8 @@
 import {
+  approximateAreaHectares,
+  demoParcelSquare,
+} from "@/domain/parcel/geometry";
+import {
   clampLegendValue,
   colorForLegendValue,
   getSpectralLegend,
@@ -7,44 +11,50 @@ import { bboxImageCoordinates } from "@/infrastructure/spectral/sentinel-hub-ind
 import type { ParcelGeometry } from "@/domain/parcel/types";
 import type { ParcelSpectralOverlay } from "@/domain/spectral/types";
 
-export const LANDING_DEMO_PARCEL_NAME = "Parcela demo · 4.2 ha";
+/** Valle de Ica — referencia agrícola (smoke Tacama). */
+export const LANDING_DEMO_CENTER = {
+  label: "Ica · valle Tacama",
+  longitude: -75.812,
+  latitude: -14.0125,
+  timezone: "America/Lima",
+} as const;
 
-export const LANDING_DEMO_GEOMETRY: ParcelGeometry = {
-  type: "Polygon",
-  coordinates: [
-    [
-      [-77.050995, -11.950995],
-      [-77.049005, -11.950995],
-      [-77.049005, -11.949005],
-      [-77.050995, -11.949005],
-      [-77.050995, -11.950995],
-    ],
-  ],
-};
+export const LANDING_DEMO_GEOMETRY: ParcelGeometry = demoParcelSquare(
+  LANDING_DEMO_CENTER.longitude,
+  LANDING_DEMO_CENTER.latitude,
+);
 
-const DEMO_BBOX = {
-  minLng: -77.050995,
-  maxLng: -77.049005,
-  minLat: -11.950995,
-  maxLat: -11.949005,
-};
+const DEMO_BBOX = (() => {
+  const ring = LANDING_DEMO_GEOMETRY.coordinates[0];
+  let minLng = ring[0][0];
+  let maxLng = ring[0][0];
+  let minLat = ring[0][1];
+  let maxLat = ring[0][1];
+  for (const [lng, lat] of ring) {
+    minLng = Math.min(minLng, lng);
+    maxLng = Math.max(maxLng, lng);
+    minLat = Math.min(minLat, lat);
+    maxLat = Math.max(maxLat, lat);
+  }
+  return { minLng, maxLng, minLat, maxLat };
+})();
 
 export const LANDING_DEMO_RASTER_COORDINATES = bboxImageCoordinates(DEMO_BBOX);
+
+export const LANDING_DEMO_PARCEL_NAME = `Parcela demo · Ica · ~${approximateAreaHectares(LANDING_DEMO_GEOMETRY).toFixed(1)} ha`;
 
 export interface LandingDemoScene {
   acquisitionDate: string;
   ndreMean: number;
   seed: number;
-  chipColor: string;
 }
 
-/** Fechas alineadas al frame Figma LP-3 (`JePdGL6MyrlSU7PGYE9yXb` · Hero). */
 export const LANDING_DEMO_SCENES: LandingDemoScene[] = [
-  { acquisitionDate: "2026-06-12", ndreMean: 0.25, seed: 1.1, chipColor: "#a67c52" },
-  { acquisitionDate: "2026-06-27", ndreMean: 0.29, seed: 2.4, chipColor: "#5b8fa8" },
-  { acquisitionDate: "2026-07-13", ndreMean: 0.33, seed: 3.1, chipColor: "#4f6f52" },
-  { acquisitionDate: "2026-07-29", ndreMean: 0.37, seed: 3.7, chipColor: "#2e4030" },
-  { acquisitionDate: "2026-08-14", ndreMean: 0.41, seed: 4.2, chipColor: "#2e4030" },
+  { acquisitionDate: "2026-06-12", ndreMean: 0.25, seed: 1.1 },
+  { acquisitionDate: "2026-06-27", ndreMean: 0.29, seed: 2.4 },
+  { acquisitionDate: "2026-07-13", ndreMean: 0.33, seed: 3.1 },
+  { acquisitionDate: "2026-07-29", ndreMean: 0.37, seed: 3.7 },
+  { acquisitionDate: "2026-08-14", ndreMean: 0.41, seed: 4.2 },
 ];
 
 export function formatLandingSceneDate(isoDay: string): string {
@@ -66,17 +76,28 @@ export function formatLandingSceneDate(isoDay: string): string {
   return `${day} ${months[month - 1]} ${year}`;
 }
 
-export function formatLandingSceneChip(isoDay: string): string {
-  const [, month, day] = isoDay.split("-").map(Number);
-  const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"] as const;
-  return `${day} ${months[month - 1]}`;
-}
-
 export function ndreVigorLabel(value: number): string {
   if (value < 0.28) return "Vigor bajo";
   if (value < 0.34) return "Vigor medio-bajo";
   if (value < 0.4) return "Vigor medio";
   return "Vigor alto";
+}
+
+export function landingDemoSparklinePoints(
+  scenes: LandingDemoScene[],
+): { points: string; values: number[] } {
+  const values = scenes.map((scene) => scene.ndreMean);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 0.01;
+  const w = 120;
+  const h = 28;
+  const coords = values.map((value, index) => {
+    const x = scenes.length === 1 ? w / 2 : (index / (scenes.length - 1)) * w;
+    const y = h - ((value - min) / span) * (h - 4) - 2;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  return { points: coords.join(" "), values };
 }
 
 function rasterPatternValue(
@@ -95,7 +116,7 @@ function rasterPatternValue(
 
 export function buildLandingDemoOverlay(scene: LandingDemoScene): ParcelSpectralOverlay {
   const legend = getSpectralLegend("ndre");
-  const size = 160;
+  const size = 192;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;

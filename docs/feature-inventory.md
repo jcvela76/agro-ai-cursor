@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (LP-3b hero espectral demo) |
+| **Última actualización** | 2026-08-29 (LP-3b hero mapa fullscreen Ica + panel Espectral producto) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -50,7 +50,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Landing multi-sección | hecho | Hero MapLibre + panel Espectral demo (LP-3b); resto secciones |
+| Landing multi-sección | hecho | Hero fullscreen MapLibre (Ica Tacama) + panel Espectral producto (Play + slider); resto secciones |
 | Precios informativos | hecho | No vinculantes (ADR-012); Básico sin overclaim alertas email |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
