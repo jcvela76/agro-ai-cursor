@@ -14,7 +14,7 @@ import {
 } from "@/content/landing/spectral-demo";
 import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import { SPECTRAL_TIMELINE_PLAY_MS } from "@/domain/spectral/timeline-scenes";
-import type { VegetationIndexId } from "@/domain/spectral/types";
+import type { ParcelSpectralOverlay, VegetationIndexId } from "@/domain/spectral/types";
 import { LandingSpectralPanel } from "@/ui/landing-spectral-panel";
 import { MapChip } from "@/ui/map-chip";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
@@ -22,6 +22,7 @@ import { Panel } from "@/ui/panel";
 import {
   applySpectralMapOverlay,
   applySpectralZoneOutlines,
+  setSpectralOverlayOpacity,
 } from "@/ui/spectral-map-overlay";
 import { fitLandingDemoParcel } from "./landing-hero-layout";
 import styles from "./landing-spectral-hero.module.css";
@@ -30,6 +31,26 @@ const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 const PARCELS_SOURCE = "landing-demo-parcels";
 const PARCELS_FILL = "landing-demo-parcels-fill";
 const PARCELS_LINE = "landing-demo-parcels-line";
+
+function overlayCacheKey(indexId: VegetationIndexId, acquisitionDate: string) {
+  return `${indexId}:${acquisitionDate}`;
+}
+
+async function fetchLandingOverlay(
+  indexId: VegetationIndexId,
+  acquisitionDate: string,
+): Promise<ParcelSpectralOverlay | null> {
+  const params = new URLSearchParams({ index: indexId, acquiredAt: acquisitionDate });
+  const res = await fetch(`/api/landing/spectral-overlay?${params}`, { cache: "force-cache" });
+  const json = (await res.json()) as {
+    status: string;
+    data?: ParcelSpectralOverlay;
+  };
+  if (json.status !== "OK" || !json.data) {
+    return null;
+  }
+  return json.data;
+}
 
 function parcelFeatureCollection() {
   return {
@@ -82,6 +103,11 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
   const [mapReady, setMapReady] = useState(false);
   const [selectedIndexId, setSelectedIndexId] = useState<VegetationIndexId>("ndre");
   const [overlayOpacity, setOverlayOpacity] = useState(0.62);
+  const [overlayRendering, setOverlayRendering] = useState<
+    "sentinel_raster" | "synthetic_grid" | null
+  >(null);
+  const overlayCacheRef = useRef(new Map<string, ParcelSpectralOverlay>());
+  const overlayOpacityRef = useRef(0.62);
 
   const scenes = LANDING_DEMO_SCENES;
   const activeScene = scenes[sceneIndex] ?? scenes[0];
@@ -176,16 +202,24 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
   }, [mapReady]);
 
   useEffect(() => {
+    overlayOpacityRef.current = overlayOpacity;
     const map = mapRef.current;
     if (!map || !mapReady) {
       return;
     }
-    applySpectralMapOverlay(
-      map,
-      buildLandingDemoOverlay(activeScene, selectedIndexId),
-      overlayOpacity,
-      PARCELS_LINE,
-    );
+    setSpectralOverlayOpacity(map, overlayOpacity);
+  }, [mapReady, overlayOpacity]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapReady) {
+      return;
+    }
+
+    const cacheKey = overlayCacheKey(selectedIndexId, activeScene.acquisitionDate);
+    const cached = overlayCacheRef.current.get(cacheKey);
+    const placeholder = buildLandingDemoOverlay(activeScene, selectedIndexId);
+    applySpectralMapOverlay(map, cached ?? placeholder, overlayOpacityRef.current, PARCELS_LINE);
     applySpectralZoneOutlines(
       map,
       landingDemoZones(activeScene, selectedIndexId),
@@ -193,7 +227,68 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
       null,
       PARCELS_LINE,
     );
-  }, [activeScene, mapReady, overlayOpacity, selectedIndexId]);
+    setOverlayRendering(cached?.rendering ?? null);
+
+    if (cached?.rendering === "sentinel_raster") {
+      return;
+    }
+
+    let cancelled = false;
+    void (async () => {
+      const overlay = await fetchLandingOverlay(selectedIndexId, activeScene.acquisitionDate);
+      if (cancelled || !overlay) {
+        if (!cancelled && !cached) {
+          setOverlayRendering("synthetic_grid");
+        }
+        return;
+      }
+      overlayCacheRef.current.set(cacheKey, overlay);
+      const liveMap = mapRef.current;
+      if (!liveMap) {
+        return;
+      }
+      applySpectralMapOverlay(liveMap, overlay, overlayOpacityRef.current, PARCELS_LINE);
+      applySpectralZoneOutlines(
+        liveMap,
+        landingDemoZones(activeScene, selectedIndexId),
+        getSpectralLegend(selectedIndexId),
+        null,
+        PARCELS_LINE,
+      );
+      setOverlayRendering(overlay.rendering);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeScene, mapReady, selectedIndexId]);
+
+  useEffect(() => {
+    if (!mapReady) {
+      return;
+    }
+    const timers: number[] = [];
+    scenes.forEach((scene, offset) => {
+      const cacheKey = overlayCacheKey(selectedIndexId, scene.acquisitionDate);
+      if (overlayCacheRef.current.has(cacheKey)) {
+        return;
+      }
+      timers.push(
+        window.setTimeout(() => {
+          void fetchLandingOverlay(selectedIndexId, scene.acquisitionDate).then((overlay) => {
+            if (overlay) {
+              overlayCacheRef.current.set(cacheKey, overlay);
+            }
+          });
+        }, offset * 350),
+      );
+    });
+    return () => {
+      for (const timer of timers) {
+        window.clearTimeout(timer);
+      }
+    };
+  }, [mapReady, scenes, selectedIndexId]);
 
   useEffect(() => {
     if (!isPlaying || scenes.length < 2) {
@@ -238,6 +333,7 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
               scenes={scenes}
               selectedIndexId={selectedIndexId}
               overlayOpacity={overlayOpacity}
+              overlayRendering={overlayRendering}
               isPlaying={isPlaying}
               onIndexChange={setSelectedIndexId}
               onOpacityChange={setOverlayOpacity}

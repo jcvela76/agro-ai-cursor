@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-29 (LP-3b Parcela Ica 2 + hero responsive) |
+| **Última actualización** | 2026-08-30 (LP-3b overlay CDSE real Parcela Ica 2) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -50,7 +50,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Landing multi-sección | hecho | Hero Parcela Ica 2 (geom + escenas CDSE reales); responsive XS–2XL (sheet / float / rail 340px) |
+| Landing multi-sección | hecho | Hero Parcela Ica 2 + overlay CDSE real (`GET /api/landing/spectral-overlay`); fallback grilla |
 | Precios informativos | hecho | No vinculantes (ADR-012); Básico sin overclaim alertas email |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
@@ -194,6 +194,7 @@ Gate: `weather` + `weather_plus`.
 | Sentinel Hub stub | stub | `sentinel_hub_stub` |
 | CDSE live (Statistical API) | hecho | stg; Production post ToS |
 | Overlay mapa (PNG) | hecho | Process PNG + stretch local alrededor de media parcela (contraste en campos áridos) |
+| Overlay PNG landing (Ica 2) | hecho | `GET /api/landing/spectral-overlay` público allowlist; CDSE + cache CDN 24h |
 | Debounce overlay 300ms | hecho | Perf UI |
 | Cache índices (Perf-1/2) | hecho | `source=cache\|live` + refresh |
 

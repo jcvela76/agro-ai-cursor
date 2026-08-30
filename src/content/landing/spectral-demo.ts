@@ -208,6 +208,14 @@ export function ndreVigorLabel(value: number): string {
   return "Vigor alto";
 }
 
+export function findLandingDemoScene(acquisitionDate: string): LandingDemoScene | undefined {
+  return LANDING_DEMO_SCENES.find((scene) => scene.acquisitionDate === acquisitionDate);
+}
+
+export function landingDemoAcquiredAt(scene: LandingDemoScene): string {
+  return `${scene.acquisitionDate}T12:00:00Z`;
+}
+
 export function landingDemoIndexValue(
   scene: LandingDemoScene,
   indexId: VegetationIndexId,

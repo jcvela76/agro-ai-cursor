@@ -19,6 +19,7 @@ import { GetParcelWeatherRainfall30d } from "@/application/weather/get-parcel-ra
 import { GetParcelWeatherRainfallCampaignComparison } from "@/application/weather/get-parcel-rainfall-campaign-comparison";
 import { GetParcelVegetationIndices } from "@/application/spectral/get-parcel-vegetation-indices";
 import { GetParcelSpectralOverlay } from "@/application/spectral/get-parcel-spectral-overlay";
+import { GetLandingDemoSpectralOverlay } from "@/application/spectral/get-landing-demo-spectral-overlay";
 import { GetParcelSpectralZones } from "@/application/spectral/get-parcel-spectral-zones";
 import { GetParcelSpectralHistory } from "@/application/spectral/get-parcel-spectral-history";
 import { BackfillParcelSpectralHistory } from "@/application/spectral/backfill-parcel-spectral-history";
@@ -347,6 +348,8 @@ export const getParcelSpectralOverlay = new GetParcelSpectralOverlay(
   parcelRegistry,
   spectralSource,
 );
+
+export const getLandingDemoSpectralOverlay = new GetLandingDemoSpectralOverlay(spectralSource);
 
 export const getParcelSpectralZones = new GetParcelSpectralZones(
   parcelRegistry,

@@ -10,6 +10,7 @@ const isPublicRoute = createRouteMatcher([
   "/accept-invitation(.*)",
   "/maplibre(.*)",
   "/api/waitlist",
+  "/api/landing/spectral-overlay",
   "/api/webhooks(.*)",
   "/robots.txt",
   "/sitemap.xml",

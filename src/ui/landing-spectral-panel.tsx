@@ -31,6 +31,7 @@ export function LandingSpectralPanel({
   scenes,
   selectedIndexId,
   overlayOpacity,
+  overlayRendering = null,
   isPlaying,
   onIndexChange,
   onOpacityChange,
@@ -42,6 +43,7 @@ export function LandingSpectralPanel({
   scenes: LandingDemoScene[];
   selectedIndexId: VegetationIndexId;
   overlayOpacity: number;
+  overlayRendering?: "sentinel_raster" | "synthetic_grid" | null;
   isPlaying: boolean;
   onIndexChange: (indexId: VegetationIndexId) => void;
   onOpacityChange: (opacity: number) => void;
@@ -65,20 +67,27 @@ export function LandingSpectralPanel({
   return (
     <div className={styles.content}>
       <p className={styles.intro}>
-        Índices de vegetación derivados de reflectancia Sentinel-2 L2A. Parcela Ica 2 — datos
-        reales de escenas CDSE guardadas en el piloto.
+        Índices de vegetación derivados de reflectancia Sentinel-2 L2A. Parcela Ica 2 — overlay
+        CDSE real de las escenas del piloto.
       </p>
       <p className={styles.muted}>
         Escena {scene.acquisitionDate}
         <span className={styles.freshnessInline}>
           <Badge tone="fresh">fresh</Badge>
         </span>
-        <span className={styles.freshnessInline}>
-          <Badge tone="fresh">PNG satélite</Badge>
-        </span>
-        <span className={styles.freshnessInline}>
-          <Badge tone="unknown">demo</Badge>
-        </span>
+        {overlayRendering === "sentinel_raster" ? (
+          <span className={styles.freshnessInline}>
+            <Badge tone="fresh">PNG satélite</Badge>
+          </span>
+        ) : overlayRendering === "synthetic_grid" ? (
+          <span className={styles.freshnessInline}>
+            <Badge tone="stale">grilla indicativa</Badge>
+          </span>
+        ) : (
+          <span className={styles.freshnessInline}>
+            <Badge tone="unknown">overlay…</Badge>
+          </span>
+        )}
       </p>
 
       <div className={styles.indexGrid}>
