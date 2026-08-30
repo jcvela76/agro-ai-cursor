@@ -10,18 +10,21 @@ import {
   LANDING_DEMO_GEOMETRY,
   LANDING_DEMO_PARCEL_NAME,
   LANDING_DEMO_SCENES,
+  LANDING_SPECTRAL_CROSSFADE_MS,
+  LANDING_SPECTRAL_PLAY_MS,
   landingDemoZones,
 } from "@/content/landing/spectral-demo";
 import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
-import { SPECTRAL_TIMELINE_PLAY_MS } from "@/domain/spectral/timeline-scenes";
 import type { ParcelSpectralOverlay, VegetationIndexId } from "@/domain/spectral/types";
 import { LandingSpectralPanel } from "@/ui/landing-spectral-panel";
 import { MapChip } from "@/ui/map-chip";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { Panel } from "@/ui/panel";
 import {
+  applyDualSpectralMapOverlay,
   applySpectralMapOverlay,
   applySpectralZoneOutlines,
+  setDualSpectralOverlayBlend,
   setSpectralOverlayOpacity,
 } from "@/ui/spectral-map-overlay";
 import { fitLandingDemoParcel } from "./landing-hero-layout";
@@ -34,6 +37,23 @@ const PARCELS_LINE = "landing-demo-parcels-line";
 
 function overlayCacheKey(indexId: VegetationIndexId, acquisitionDate: string) {
   return `${indexId}:${acquisitionDate}`;
+}
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+function canCrossfade(
+  earlier: ParcelSpectralOverlay | null,
+  later: ParcelSpectralOverlay,
+): earlier is ParcelSpectralOverlay {
+  return Boolean(
+    earlier &&
+      earlier.rendering === "sentinel_raster" &&
+      later.rendering === "sentinel_raster" &&
+      earlier.raster &&
+      later.raster,
+  );
 }
 
 async function fetchLandingOverlay(
@@ -108,6 +128,10 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
   >(null);
   const overlayCacheRef = useRef(new Map<string, ParcelSpectralOverlay>());
   const overlayOpacityRef = useRef(0.62);
+  const displayedOverlayRef = useRef<ParcelSpectralOverlay | null>(null);
+  const crossfadeFromRef = useRef<ParcelSpectralOverlay | null>(null);
+  const crossfadeBlendRef = useRef(1);
+  const crossfadeRafRef = useRef<number | undefined>(undefined);
 
   const scenes = LANDING_DEMO_SCENES;
   const activeScene = scenes[sceneIndex] ?? scenes[0];
@@ -207,6 +231,10 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     if (!map || !mapReady) {
       return;
     }
+    if (crossfadeFromRef.current) {
+      setDualSpectralOverlayBlend(map, overlayOpacity, crossfadeBlendRef.current);
+      return;
+    }
     setSpectralOverlayOpacity(map, overlayOpacity);
   }, [mapReady, overlayOpacity]);
 
@@ -216,24 +244,90 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
       return;
     }
 
+    let cancelled = false;
+
+    const paintZones = () => {
+      applySpectralZoneOutlines(
+        map,
+        landingDemoZones(activeScene, selectedIndexId),
+        getSpectralLegend(selectedIndexId),
+        null,
+        PARCELS_LINE,
+      );
+    };
+
+    const finishOnOverlay = (overlay: ParcelSpectralOverlay) => {
+      if (cancelled) {
+        return;
+      }
+      if (crossfadeRafRef.current !== undefined) {
+        window.cancelAnimationFrame(crossfadeRafRef.current);
+        crossfadeRafRef.current = undefined;
+      }
+
+      const previous = displayedOverlayRef.current;
+      const opacity = overlayOpacityRef.current;
+
+      if (canCrossfade(previous, overlay) && previous !== overlay) {
+        crossfadeFromRef.current = previous;
+        crossfadeBlendRef.current = 0;
+        applyDualSpectralMapOverlay(map, previous, overlay, opacity, 0, PARCELS_LINE);
+        paintZones();
+        setOverlayRendering(overlay.rendering);
+
+        const startedAt = performance.now();
+        const tick = (now: number) => {
+          if (cancelled) {
+            return;
+          }
+          const progress = Math.min(1, (now - startedAt) / LANDING_SPECTRAL_CROSSFADE_MS);
+          const blend = easeInOutCubic(progress);
+          crossfadeBlendRef.current = blend;
+          setDualSpectralOverlayBlend(map, overlayOpacityRef.current, blend);
+          if (progress < 1) {
+            crossfadeRafRef.current = window.requestAnimationFrame(tick);
+            return;
+          }
+          crossfadeFromRef.current = null;
+          crossfadeBlendRef.current = 1;
+          crossfadeRafRef.current = undefined;
+          applySpectralMapOverlay(map, overlay, overlayOpacityRef.current, PARCELS_LINE);
+          paintZones();
+          displayedOverlayRef.current = overlay;
+        };
+        crossfadeRafRef.current = window.requestAnimationFrame(tick);
+        return;
+      }
+
+      crossfadeFromRef.current = null;
+      crossfadeBlendRef.current = 1;
+      applySpectralMapOverlay(map, overlay, opacity, PARCELS_LINE);
+      paintZones();
+      displayedOverlayRef.current = overlay;
+      setOverlayRendering(overlay.rendering);
+    };
+
     const cacheKey = overlayCacheKey(selectedIndexId, activeScene.acquisitionDate);
     const cached = overlayCacheRef.current.get(cacheKey);
     const placeholder = buildLandingDemoOverlay(activeScene, selectedIndexId);
-    applySpectralMapOverlay(map, cached ?? placeholder, overlayOpacityRef.current, PARCELS_LINE);
-    applySpectralZoneOutlines(
-      map,
-      landingDemoZones(activeScene, selectedIndexId),
-      getSpectralLegend(selectedIndexId),
-      null,
-      PARCELS_LINE,
-    );
-    setOverlayRendering(cached?.rendering ?? null);
 
-    if (cached?.rendering === "sentinel_raster") {
-      return;
+    if (cached) {
+      finishOnOverlay(cached);
+    } else {
+      finishOnOverlay(placeholder);
+      setOverlayRendering(null);
     }
 
-    let cancelled = false;
+    if (cached?.rendering === "sentinel_raster") {
+      return () => {
+        cancelled = true;
+        if (crossfadeRafRef.current !== undefined) {
+          window.cancelAnimationFrame(crossfadeRafRef.current);
+          crossfadeRafRef.current = undefined;
+        }
+      };
+    }
+
     void (async () => {
       const overlay = await fetchLandingOverlay(selectedIndexId, activeScene.acquisitionDate);
       if (cancelled || !overlay) {
@@ -243,23 +337,15 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
         return;
       }
       overlayCacheRef.current.set(cacheKey, overlay);
-      const liveMap = mapRef.current;
-      if (!liveMap) {
-        return;
-      }
-      applySpectralMapOverlay(liveMap, overlay, overlayOpacityRef.current, PARCELS_LINE);
-      applySpectralZoneOutlines(
-        liveMap,
-        landingDemoZones(activeScene, selectedIndexId),
-        getSpectralLegend(selectedIndexId),
-        null,
-        PARCELS_LINE,
-      );
-      setOverlayRendering(overlay.rendering);
+      finishOnOverlay(overlay);
     })();
 
     return () => {
       cancelled = true;
+      if (crossfadeRafRef.current !== undefined) {
+        window.cancelAnimationFrame(crossfadeRafRef.current);
+        crossfadeRafRef.current = undefined;
+      }
     };
   }, [activeScene, mapReady, selectedIndexId]);
 
@@ -296,7 +382,7 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     }
     const timer = window.setInterval(() => {
       setSceneIndex((current) => (current + 1) % scenes.length);
-    }, SPECTRAL_TIMELINE_PLAY_MS);
+    }, LANDING_SPECTRAL_PLAY_MS);
     return () => window.clearInterval(timer);
   }, [isPlaying, scenes.length]);
 

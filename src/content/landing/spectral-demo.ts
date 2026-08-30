@@ -22,6 +22,12 @@ import {
 /** Neon ref: parcel-9d29b6a2-3449-4659-8bf8-3f674153e2f5 — Parcela Ica 2 (valle Tacama). */
 export const LANDING_DEMO_PARCEL_ID = "parcel-9d29b6a2-3449-4659-8bf8-3f674153e2f5";
 
+/** Autoplay hold per scene on the landing hero (product timeline stays at 1200ms). */
+export const LANDING_SPECTRAL_PLAY_MS = 3000;
+
+/** Crossfade duration between consecutive landing overlays. */
+export const LANDING_SPECTRAL_CROSSFADE_MS = 1000;
+
 export const LANDING_DEMO_CENTER = {
   label: "Ica · valle Tacama",
   longitude: -75.78006904844328,

@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-30 (LP-3b overlay CDSE real Parcela Ica 2) |
+| **Última actualización** | 2026-08-30 (LP-3b hero crossfade + autoplay 3s) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -50,7 +50,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Landing multi-sección | hecho | Hero Parcela Ica 2 + overlay CDSE real (`GET /api/landing/spectral-overlay`); fallback grilla |
+| Landing multi-sección | hecho | Hero Parcela Ica 2 + overlay CDSE real; crossfade 1s / autoplay 3s |
 | Precios informativos | hecho | No vinculantes (ADR-012); Básico sin overclaim alertas email |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
