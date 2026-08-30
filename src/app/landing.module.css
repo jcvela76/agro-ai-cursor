@@ -325,6 +325,21 @@
   gap: 0;
 }
 
+.heroCopyEmbedded .heroTitle,
+.heroCopyEmbedded .heroSupport,
+.heroCopyEmbedded .heroSupportSecondary {
+  text-shadow: 0 1px 14px rgba(255, 253, 248, 0.75);
+}
+
+.heroCopyEmbedded .waitlistInput {
+  background: rgba(255, 253, 248, 0.78);
+  border-color: rgba(28, 42, 31, 0.14);
+}
+
+.heroCopyEmbedded .waitlistConsent {
+  color: rgba(28, 42, 31, 0.62);
+}
+
 .heroEyebrowRow {
   display: flex;
   flex-wrap: wrap;

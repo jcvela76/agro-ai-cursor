@@ -7,9 +7,20 @@ import {
   colorForLegendValue,
   getSpectralLegend,
 } from "@/domain/spectral/overlay-legends";
+import { buildSpectralZones } from "@/domain/spectral/build-spectral-zones";
+import { partitionParcelZones } from "@/domain/spectral/partition-zones";
 import { bboxImageCoordinates } from "@/infrastructure/spectral/sentinel-hub-index-evalscript";
 import type { ParcelGeometry } from "@/domain/parcel/types";
-import type { ParcelSpectralOverlay } from "@/domain/spectral/types";
+import type {
+  ParcelSpectralOverlay,
+  SpectralZone,
+  VegetationIndexId,
+  VegetationIndexReading,
+} from "@/domain/spectral/types";
+import {
+  VEGETATION_INDEX_CATALOG,
+  VEGETATION_INDEX_ORDER,
+} from "@/domain/spectral/vegetation-indices";
 
 /** Valle de Ica — referencia agrícola (smoke Tacama). */
 export const LANDING_DEMO_CENTER = {
@@ -83,10 +94,56 @@ export function ndreVigorLabel(value: number): string {
   return "Vigor alto";
 }
 
+const INDEX_OFFSETS: Record<VegetationIndexId, number> = {
+  ndre: 0,
+  evi: 0.03,
+  savi: -0.06,
+  msavi: -0.05,
+  gndvi: 0.02,
+  ndwi: -0.18,
+  ndmi: 0.09,
+  nbr: 0.14,
+};
+
+export function landingDemoIndexValue(
+  scene: LandingDemoScene,
+  indexId: VegetationIndexId,
+): number {
+  return scene.ndreMean + INDEX_OFFSETS[indexId];
+}
+
+export function landingDemoIndices(scene: LandingDemoScene): VegetationIndexReading[] {
+  return VEGETATION_INDEX_ORDER.map((id) => {
+    const meta = VEGETATION_INDEX_CATALOG[id];
+    return {
+      id,
+      label: meta.label,
+      description: meta.description,
+      methodId: meta.methodId,
+      value: landingDemoIndexValue(scene, id),
+    };
+  });
+}
+
+export function landingDemoZones(
+  scene: LandingDemoScene,
+  indexId: VegetationIndexId,
+): SpectralZone[] {
+  const cells = partitionParcelZones(LANDING_DEMO_GEOMETRY);
+  const base = landingDemoIndexValue(scene, indexId);
+  const valuesByCellId = new Map<string, number | null>();
+  cells.forEach((cell, index) => {
+    const angle = (index / cells.length) * Math.PI * 2;
+    valuesByCellId.set(cell.id, base + Math.sin(angle) * 0.12 + (index % 3) * 0.03);
+  });
+  return buildSpectralZones({ geometry: LANDING_DEMO_GEOMETRY, valuesByCellId });
+}
+
 export function landingDemoSparklinePoints(
   scenes: LandingDemoScene[],
+  indexId: VegetationIndexId = "ndre",
 ): { points: string; values: number[] } {
-  const values = scenes.map((scene) => scene.ndreMean);
+  const values = scenes.map((scene) => landingDemoIndexValue(scene, indexId));
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 0.01;
@@ -105,17 +162,22 @@ function rasterPatternValue(
   y: number,
   size: number,
   scene: LandingDemoScene,
+  centerValue: number,
 ): number {
   const nx = x / size;
   const ny = y / size;
   const wave =
     Math.sin((nx * 14 + scene.seed) * Math.PI) * Math.cos((ny * 11 - scene.seed * 0.6) * Math.PI);
   const edge = Math.sin(nx * Math.PI) * Math.sin(ny * Math.PI);
-  return scene.ndreMean + wave * 0.09 * edge + (nx - 0.5) * 0.04;
+  return centerValue + wave * 0.09 * edge + (nx - 0.5) * 0.04;
 }
 
-export function buildLandingDemoOverlay(scene: LandingDemoScene): ParcelSpectralOverlay {
-  const legend = getSpectralLegend("ndre");
+export function buildLandingDemoOverlay(
+  scene: LandingDemoScene,
+  indexId: VegetationIndexId = "ndre",
+): ParcelSpectralOverlay {
+  const legend = getSpectralLegend(indexId);
+  const centerValue = landingDemoIndexValue(scene, indexId);
   const size = 192;
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -127,7 +189,10 @@ export function buildLandingDemoOverlay(scene: LandingDemoScene): ParcelSpectral
 
   for (let y = 0; y < size; y += 1) {
     for (let x = 0; x < size; x += 1) {
-      const value = clampLegendValue(rasterPatternValue(x, y, size, scene), legend);
+      const value = clampLegendValue(
+        rasterPatternValue(x, y, size, scene, centerValue),
+        legend,
+      );
       ctx.fillStyle = colorForLegendValue(value, legend);
       ctx.fillRect(x, y, 1, 1);
     }
@@ -135,9 +200,9 @@ export function buildLandingDemoOverlay(scene: LandingDemoScene): ParcelSpectral
 
   return {
     kind: "spectral_overlay",
-    indexId: "ndre",
-    label: "NDRE",
-    value: scene.ndreMean,
+    indexId,
+    label: VEGETATION_INDEX_CATALOG[indexId].label,
+    value: centerValue,
     legend,
     grid: { type: "FeatureCollection", features: [] },
     raster: {
