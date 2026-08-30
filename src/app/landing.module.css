@@ -275,9 +275,24 @@
 /* ── Hero ───────────────────────────────────────────────── */
 
 .hero {
+  position: relative;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
+}
+
+.heroCopyEmbedded {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.heroCopyEmbedded .heroSupport {
+  margin-bottom: 1rem;
+}
+
+.heroCopyEmbedded .heroSupportSecondary {
+  margin-bottom: 1.5rem;
 }
 
 .heroCopy {
@@ -399,6 +414,9 @@
 }
 
 .evidenceBar {
+  position: relative;
+  z-index: 3;
+  margin-top: auto;
   background: #1c2a1f;
   padding: 0.75rem 1.5rem;
   overflow-x: auto;

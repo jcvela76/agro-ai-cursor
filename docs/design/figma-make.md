@@ -11,7 +11,7 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
 | Nombre | Slice | fileKey | Estado | Edición | Código / design destino |
 |--------|-------|---------|--------|---------|-------------------------|
 | [Agro AI Landing Page](https://www.figma.com/make/2SYf8DOtblK84RC6oaNql7/Agro-AI-Landing-Page) | LP / waitlist (SEO-1) | `2SYf8DOtblK84RC6oaNql7` | **Congelado** — Version 2 = waitlist stg | **No editar** (solo lectura / version history) | `/` · `public/landing/` · frame `marketing/lp/full` en `oTT6PqFOAijVxYZb5wztEP` |
-| **Agro AI Landing Page v3** (piloto) | LP-3 pre-piloto | `WFrwqsMxk9kTiPUSrOVlCU` | **En diseño** — hero fullscreen animado pendiente | Iterar en Make | frame `marketing/lp/pilot-v3` |
+| **Agro AI Landing Page v3** (piloto) | LP-3 pre-piloto | `WFrwqsMxk9kTiPUSrOVlCU` | **En diseño** — export a design file pendiente | Copy design → `marketing/lp/pilot-v3` | `/` hero espectral en código |
 | [Agro AI — Billing & Admin](https://www.figma.com/make/gQ0ta5hxC4FNd5EKaHY5nX/Agro-AI-%E2%80%94-Billing---Admin) | Billing-2 UX | `gQ0ta5hxC4FNd5EKaHY5nX` | **Portado** — código en `stg` (2026-08-27) | **Congelado** (solo lectura) | `/app/admin` · `/app/billing` · `/app/billing/cancel` |
 | [Agro AI — Map & Spectral](https://www.figma.com/make/nusU2o1IuN6xOwgxEqgOv7/Agro-AI-Map---Spectral) | Spectral-2 UX | `nusU2o1IuN6xOwgxEqgOv7` | **Portado** — código en `stg` (2026-08-28) · **Make V4** alineado (2026-08-28) | **Congelado** (solo lectura) | `/app` · `spectral-panel` · `spectral-map-overlay` |
 
@@ -66,3 +66,20 @@ Catálogo de proyectos **Figma Make** (exploración UX/UI). Los archivos **desig
 1. Crear en [figma.com/make](https://www.figma.com/make) o **Copy design** desde uno existente
 2. Registrar fila en la tabla **Catálogo** (nombre, slice, fileKey, URL, estado, destino código)
 3. Al cerrar slice: actualizar estado → **Congelado** o **Portado** y link al design file / PR
+
+---
+
+## LP-3: Make → design file → código (hero espectral)
+
+Make **no reproduce** timeline MapLibre ni autoplay del producto. Flujo acordado:
+
+| Paso | Quién | Qué |
+|------|-------|-----|
+| 1 | Julio | Iterar layout en Make `WFrwqsMxk9kTiPUSrOVlCU` (copy, secciones, tokens) |
+| 2 | Julio | **Copy design** → pegar frame en design file `oTT6PqFOAijVxYZb5wztEP` · `marketing/lp/pilot-v3` |
+| 3 | Julio | Compartir URL Figma con `node-id` del frame hero (desktop + mobile) |
+| 4 | Agent | `get_design_context` (MCP) → ajustar CSS/copy en `src/app/` |
+| 5 | Agent | Hero animado en **código**: `landing-spectral-hero.tsx` (MapLibre + panel Espectral + timeline) |
+
+**Figma define:** grid, tipografía, espaciado, estados estáticos.  
+**Código define:** mapa real, overlay NDRE, slider/play como `/app`.

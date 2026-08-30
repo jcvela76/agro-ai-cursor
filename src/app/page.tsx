@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LEGAL_NAV_LINKS } from "@/content/legal/types";
+import { LandingSpectralHero } from "./landing-spectral-hero";
 import { LandingHeader } from "./landing-header";
 import { LandingJsonLd } from "./landing-json-ld";
 import { LegalFooterLinks } from "@/ui/legal-footer-links";
@@ -177,42 +178,32 @@ export default function Home() {
       <LandingHeader />
 
       <section className={styles.hero}>
-        <div className={styles.heroCopy}>
-          <p className={styles.eyebrow}>geoagro.ai · Perú</p>
-          <h1 className={styles.heroTitle}>
-            El clima y el vigor de tu parcela —<em>con fuente y evidencia.</em>
-          </h1>
-          <p className={styles.heroSupport}>
-            Un agente agronómico que lee clima, índices Sentinel y tu bitácora en el
-            polígono exacto de tu campo. Te ayuda a decidir —no solo a archivar datos.
-          </p>
-          <p className={styles.heroSupportSecondary}>
-            Open-Meteo · NASA POWER · Sentinel-2 (Plus) · cada lectura con fuente cuando
-            la pides.
-          </p>
-          <div className={styles.heroCtas}>
-            <a href="#lista" className={styles.btnPrimaryLg}>
-              Inscribirse en lista de espera
-            </a>
-            <a href="#productos" className={styles.btnGhost}>
-              Conocer el agente
-            </a>
+        <LandingSpectralHero>
+          <div className={styles.heroCopyEmbedded}>
+            <p className={styles.eyebrow}>geoagro.ai · Perú</p>
+            <h1 className={styles.heroTitle}>
+              El clima y el vigor de tu parcela —<em>con fuente y evidencia.</em>
+            </h1>
+            <p className={styles.heroSupport}>
+              Un agente agronómico que lee clima, índices Sentinel y tu bitácora en el
+              polígono exacto de tu campo. Te ayuda a decidir —no solo a archivar datos.
+            </p>
+            <p className={styles.heroSupportSecondary}>
+              Open-Meteo · NASA POWER · Sentinel-2 (Plus) · cada lectura con fuente cuando
+              la pides.
+            </p>
+            <div className={styles.heroCtas}>
+              <a href="#lista" className={styles.btnPrimaryLg}>
+                Inscribirse en lista de espera
+              </a>
+              <a href="#productos" className={styles.btnGhost}>
+                Conocer el agente
+              </a>
+            </div>
+            <p className={styles.heroHint}>Piloto sin costo para técnicos y productores en Perú.</p>
+            <WaitlistForm />
           </div>
-          <p className={styles.heroHint}>Piloto sin costo para técnicos y productores en Perú.</p>
-          <WaitlistForm />
-        </div>
-
-        <div className={styles.heroBleed}>
-          <Image
-            src="/landing/hero.jpg"
-            alt="Andenes agrícolas en la sierra peruana bajo cielo despejado con montañas al fondo"
-            className={styles.heroImg}
-            fill
-            priority
-            sizes="100vw"
-            quality={75}
-          />
-        </div>
+        </LandingSpectralHero>
 
         <div className={styles.evidenceBar}>
           <div className={styles.evidenceInner}>
