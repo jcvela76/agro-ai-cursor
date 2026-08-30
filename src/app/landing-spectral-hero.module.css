@@ -1,8 +1,40 @@
 .shell {
+  --hero-gutter: 1.25rem;
+  --hero-left-rail: 21rem;
+  --hero-right-rail: 19rem;
+  --hero-gap: 1rem;
+
   position: relative;
   min-height: 100svh;
   isolation: isolate;
   background: #c5d4c8;
+}
+
+@media (min-width: 1024px) {
+  .shell {
+    --hero-gutter: 2.5rem;
+    --hero-left-rail: 21rem;
+    --hero-right-rail: 19rem;
+    --hero-gap: 1rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .shell {
+    --hero-gutter: 3rem;
+    --hero-left-rail: 22rem;
+    --hero-right-rail: 20rem;
+    --hero-gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .shell {
+    --hero-gutter: 3.5rem;
+    --hero-left-rail: 23rem;
+    --hero-right-rail: 21.25rem;
+    --hero-gap: 1.5rem;
+  }
 }
 
 .mapHost {
@@ -17,11 +49,25 @@
 
 .mapChipSlot {
   position: absolute;
-  top: 5.25rem;
+  top: 5rem;
   left: 50%;
   z-index: 3;
   transform: translateX(-50%);
   pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .mapChipSlot {
+    top: 5.5rem;
+    left: calc(
+      var(--hero-gutter) + var(--hero-left-rail) + var(--hero-gap) +
+        (
+          100vw - 2 * var(--hero-gutter) - var(--hero-left-rail) - var(--hero-right-rail) -
+            2 * var(--hero-gap)
+        ) / 2
+    );
+    transform: translateX(-50%);
+  }
 }
 
 .grid {
@@ -32,30 +78,28 @@
   grid-template-columns: 1fr;
   align-content: start;
   gap: 1rem;
-  padding: 5.25rem 1rem 1.25rem;
+  padding: 5.25rem var(--hero-gutter) 1.25rem;
   pointer-events: none;
 }
 
 @media (min-width: 1024px) {
   .grid {
-    grid-template-columns: min(26rem, 38vw) 1fr min(21.25rem, 32vw);
+    grid-template-columns:
+      minmax(17.5rem, var(--hero-left-rail))
+      minmax(18rem, 1fr)
+      minmax(17rem, var(--hero-right-rail));
     align-content: center;
     align-items: center;
-    gap: 1.25rem;
-    padding: 5.75rem 1.5rem 1.5rem;
-  }
-}
-
-@media (min-width: 1280px) {
-  .grid {
-    padding-inline: 2rem;
+    column-gap: var(--hero-gap);
+    padding: 5.75rem var(--hero-gutter) 1.5rem;
   }
 }
 
 .copySlot {
   pointer-events: auto;
   order: 1;
-  max-width: 36rem;
+  width: 100%;
+  max-width: 21rem;
   padding: 1.5rem 1.625rem 1.75rem;
   border: 1px solid rgba(255, 253, 248, 0.42);
   border-radius: var(--radius-lg);
@@ -69,10 +113,26 @@
   .copySlot {
     order: 0;
     grid-column: 1;
+    justify-self: start;
     align-self: center;
-    max-height: calc(100svh - 7rem);
+    margin-inline-start: 1.5rem;
+    max-height: calc(100svh - 7.5rem);
     overflow: auto;
-    padding: 2rem 2.125rem 2.25rem;
+    padding: 1.75rem 1.875rem 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .copySlot {
+    max-width: 22rem;
+    margin-inline-start: 2rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .copySlot {
+    max-width: 22.5rem;
+    margin-inline-start: 2.5rem;
   }
 }
 
@@ -82,14 +142,17 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  width: 100%;
 }
 
 @media (min-width: 1024px) {
   .spectralSlot {
     order: 0;
     grid-column: 3;
-    align-self: stretch;
-    max-height: calc(100svh - 7rem);
+    justify-self: end;
+    align-self: center;
+    width: var(--hero-right-rail);
+    max-height: calc(100svh - 7.5rem);
   }
 }
 
@@ -134,6 +197,6 @@
 
 @media (min-width: 1024px) {
   .spectralPanel {
-    max-height: none;
+    max-height: calc(100svh - 8.5rem);
   }
 }

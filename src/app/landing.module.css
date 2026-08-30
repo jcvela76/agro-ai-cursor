@@ -391,8 +391,24 @@
   color: rgba(28, 42, 31, 0.55);
 }
 
-.heroCopyEmbedded .heroSupport {
+.heroCopyEmbedded .heroTitle {
+  font-size: clamp(2rem, 3.8vw, 3.75rem);
+  max-width: 11em;
   margin-bottom: 1rem;
+}
+
+.heroCopyEmbedded .heroSupport {
+  max-width: 21rem;
+  margin-bottom: 0.875rem;
+}
+
+.heroCopyEmbedded .heroSupportSecondary {
+  max-width: 20rem;
+  margin-bottom: 1.25rem;
+}
+
+.heroCopyEmbedded .heroEyebrowRow {
+  margin-bottom: 1.25rem;
 }
 
 .heroCopyEmbedded .heroSupport strong {
@@ -402,10 +418,6 @@
 
 .heroCopyEmbedded .heroCtas {
   margin-bottom: 0;
-}
-
-.heroCopyEmbedded .heroSupportSecondary {
-  margin-bottom: 1.5rem;
 }
 
 .heroCopy {

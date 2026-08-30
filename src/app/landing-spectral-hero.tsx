@@ -43,15 +43,33 @@ function parcelFeatureCollection() {
   };
 }
 
-function fitDemoParcel(map: MapLibreMap) {
+function fitDemoParcel(
+  map: MapLibreMap,
+  layout?: { copyRight: number; panelLeft: number },
+) {
   const bounds = new LngLatBounds();
   for (const [lng, lat] of LANDING_DEMO_GEOMETRY.coordinates[0]) {
     bounds.extend([lng, lat]);
   }
-  map.fitBounds(bounds, {
-    padding: { top: 88, bottom: 64, left: 420, right: 380 },
-    maxZoom: 14.5,
-  });
+
+  const width = window.innerWidth;
+  const maxZoom = width >= 1440 ? 17.25 : width >= 1280 ? 17 : width >= 1024 ? 16.5 : 15.5;
+
+  const padding = layout
+    ? {
+        top: width >= 1024 ? 96 : 72,
+        bottom: width >= 1024 ? 72 : 120,
+        left: layout.copyRight + 16,
+        right: width - layout.panelLeft + 16,
+      }
+    : {
+        top: width >= 1024 ? 96 : 72,
+        bottom: width >= 1024 ? 72 : 120,
+        left: width >= 1440 ? 340 : width >= 1280 ? 320 : width >= 1024 ? 300 : 24,
+        right: width >= 1440 ? 320 : width >= 1280 ? 300 : width >= 1024 ? 280 : 24,
+      };
+
+  map.fitBounds(bounds, { padding, maxZoom });
 }
 
 function addParcelLayers(map: MapLibreMap) {
@@ -83,6 +101,9 @@ function addParcelLayers(map: MapLibreMap) {
 export function LandingSpectralHero({ children }: { children: ReactNode }) {
   const mapHostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const copySlotRef = useRef<HTMLDivElement | null>(null);
+  const spectralSlotRef = useRef<HTMLElement | null>(null);
+  const resizeTimerRef = useRef<number | undefined>(undefined);
   const [sceneIndex, setSceneIndex] = useState(LANDING_DEMO_SCENES.length - 1);
   const [isPlaying, setIsPlaying] = useState(true);
   const [mapReady, setMapReady] = useState(false);
@@ -91,6 +112,20 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
 
   const scenes = LANDING_DEMO_SCENES;
   const activeScene = scenes[sceneIndex] ?? scenes[0];
+
+  const refitMapToLayout = () => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) {
+      return;
+    }
+    const copyRect = copySlotRef.current?.getBoundingClientRect();
+    const panelRect = spectralSlotRef.current?.getBoundingClientRect();
+    if (copyRect && panelRect && window.innerWidth >= 1024) {
+      fitDemoParcel(map, { copyRight: copyRect.right, panelLeft: panelRect.left });
+      return;
+    }
+    fitDemoParcel(map);
+  };
 
   useEffect(() => {
     if (!mapHostRef.current || mapRef.current) {
@@ -116,7 +151,9 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
 
     map.on("load", () => {
       addParcelLayers(map);
-      fitDemoParcel(map);
+      requestAnimationFrame(() => {
+        refitMapToLayout();
+      });
       applySpectralMapOverlay(
         map,
         buildLandingDemoOverlay(activeScene, selectedIndexId),
@@ -140,6 +177,29 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- map mounts once
   }, []);
+
+  useEffect(() => {
+    const onResize = () => {
+      window.clearTimeout(resizeTimerRef.current);
+      resizeTimerRef.current = window.setTimeout(() => {
+        refitMapToLayout();
+      }, 150);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.clearTimeout(resizeTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- layout measure only
+  }, [mapReady]);
+
+  useEffect(() => {
+    if (!mapReady) {
+      return;
+    }
+    refitMapToLayout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- refit after panels paint
+  }, [mapReady]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -183,9 +243,15 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
       </div>
 
       <div className={styles.grid}>
-        <div className={styles.copySlot}>{children}</div>
+        <div ref={copySlotRef} className={styles.copySlot}>
+          {children}
+        </div>
 
-        <aside className={styles.spectralSlot} aria-label="Panel Espectral demo">
+        <aside
+          ref={spectralSlotRef}
+          className={styles.spectralSlot}
+          aria-label="Panel Espectral demo"
+        >
           <div className={styles.spectralTabs} aria-hidden>
             <span className={styles.spectralTabMuted}>Clima</span>
             <span className={styles.spectralTabActive}>Espectral</span>
