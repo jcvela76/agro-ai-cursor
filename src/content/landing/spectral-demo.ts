@@ -35,13 +35,16 @@ export interface LandingDemoScene {
   acquisitionDate: string;
   ndreMean: number;
   seed: number;
+  chipColor: string;
 }
 
+/** Fechas alineadas al frame Figma LP-3 (`JePdGL6MyrlSU7PGYE9yXb` · Hero). */
 export const LANDING_DEMO_SCENES: LandingDemoScene[] = [
-  { acquisitionDate: "2026-08-08", ndreMean: 0.31, seed: 1.1 },
-  { acquisitionDate: "2026-08-15", ndreMean: 0.35, seed: 2.4 },
-  { acquisitionDate: "2026-08-22", ndreMean: 0.38, seed: 3.7 },
-  { acquisitionDate: "2026-08-29", ndreMean: 0.41, seed: 4.2 },
+  { acquisitionDate: "2026-06-12", ndreMean: 0.25, seed: 1.1, chipColor: "#a67c52" },
+  { acquisitionDate: "2026-06-27", ndreMean: 0.29, seed: 2.4, chipColor: "#5b8fa8" },
+  { acquisitionDate: "2026-07-13", ndreMean: 0.33, seed: 3.1, chipColor: "#4f6f52" },
+  { acquisitionDate: "2026-07-29", ndreMean: 0.37, seed: 3.7, chipColor: "#2e4030" },
+  { acquisitionDate: "2026-08-14", ndreMean: 0.41, seed: 4.2, chipColor: "#2e4030" },
 ];
 
 export function formatLandingSceneDate(isoDay: string): string {
@@ -61,6 +64,19 @@ export function formatLandingSceneDate(isoDay: string): string {
     "dic",
   ] as const;
   return `${day} ${months[month - 1]} ${year}`;
+}
+
+export function formatLandingSceneChip(isoDay: string): string {
+  const [, month, day] = isoDay.split("-").map(Number);
+  const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"] as const;
+  return `${day} ${months[month - 1]}`;
+}
+
+export function ndreVigorLabel(value: number): string {
+  if (value < 0.28) return "Vigor bajo";
+  if (value < 0.34) return "Vigor medio-bajo";
+  if (value < 0.4) return "Vigor medio";
+  return "Vigor alto";
 }
 
 function rasterPatternValue(
@@ -111,21 +127,4 @@ export function buildLandingDemoOverlay(scene: LandingDemoScene): ParcelSpectral
     },
     rendering: "sentinel_raster",
   };
-}
-
-export function landingDemoSparklinePoints(
-  scenes: LandingDemoScene[],
-): { points: string; values: number[] } {
-  const values = scenes.map((scene) => scene.ndreMean);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || 0.01;
-  const w = 120;
-  const h = 28;
-  const coords = values.map((value, index) => {
-    const x = scenes.length === 1 ? w / 2 : (index / (scenes.length - 1)) * w;
-    const y = h - ((value - min) / span) * (h - 4) - 2;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-  return { points: coords.join(" "), values };
 }

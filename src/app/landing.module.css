@@ -34,6 +34,37 @@
   box-shadow: 0 1px 2px rgba(28, 42, 31, 0.04);
 }
 
+.headerOverHero {
+  background: transparent;
+}
+
+.headerOverHero .brand,
+.headerOverHero .navLink,
+.headerOverHero .navEnter {
+  color: rgba(238, 233, 222, 0.92);
+}
+
+.headerOverHero .navLink:hover,
+.headerOverHero .navEnter:hover {
+  color: #fffdf8;
+}
+
+.headerOverHero .menuBar {
+  background: #eee9de;
+}
+
+.headerMenuOpen {
+  background: rgba(28, 42, 31, 0.98);
+  backdrop-filter: blur(12px);
+}
+
+.headerMenuOpen .brand,
+.headerMenuOpen .navLink,
+.headerMenuOpen .mobileLink,
+.headerMenuOpen .mobileEnter {
+  color: #eee9de;
+}
+
 .headerInner {
   max-width: 1440px;
   margin: 0 auto;
@@ -285,6 +316,118 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  gap: 0;
+}
+
+.heroEyebrowRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.heroEyebrowPill,
+.heroEyebrowPillSky {
+  display: inline-flex;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.heroEyebrowPill {
+  color: #7aae7e;
+  background: rgba(79, 111, 82, 0.2);
+  border: 1px solid rgba(79, 111, 82, 0.4);
+}
+
+.heroEyebrowPillSky {
+  color: #7bb4cc;
+  background: rgba(91, 143, 168, 0.15);
+  border: 1px solid rgba(91, 143, 168, 0.3);
+}
+
+.heroTitleDark {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #eee9de;
+}
+
+.heroTitleDark em {
+  font-style: italic;
+  font-weight: 500;
+  color: #8dc490;
+}
+
+.heroSupportDark {
+  margin: 0 0 0.75rem;
+  max-width: 28rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: #a0b8a4;
+}
+
+.heroSupportDark strong {
+  font-weight: 500;
+  color: #c5d8c6;
+}
+
+.heroSupportMutedDark {
+  margin: 0 0 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #5a7a5e;
+}
+
+.btnGhostDark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid rgba(79, 111, 82, 0.4);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #8dc490;
+  text-decoration: none;
+  background: transparent;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.btnGhostDark:hover {
+  border-color: rgba(141, 196, 144, 0.65);
+  color: #c5d8c6;
+}
+
+.heroTrustRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.heroTrustLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #8dc490;
+}
+
+.heroTrustMeta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #4a6a4e;
+}
+
+.heroCopyEmbedded .heroCtas {
+  margin-bottom: 0;
 }
 
 .heroCopyEmbedded .heroSupport {

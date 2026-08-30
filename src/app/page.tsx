@@ -180,27 +180,43 @@ export default function Home() {
       <section className={styles.hero}>
         <LandingSpectralHero>
           <div className={styles.heroCopyEmbedded}>
-            <p className={styles.eyebrow}>geoagro.ai · Perú</p>
-            <h1 className={styles.heroTitle}>
+            <div className={styles.heroEyebrowRow}>
+              <span className={styles.heroEyebrowPill}>geoagro.ai · Perú</span>
+              <span className={styles.heroEyebrowPillSky}>Piloto 2026</span>
+            </div>
+            <h1 className={styles.heroTitleDark}>
               El clima y el vigor de tu parcela —<em>con fuente y evidencia.</em>
             </h1>
-            <p className={styles.heroSupport}>
-              Un agente agronómico que lee clima, índices Sentinel y tu bitácora en el
-              polígono exacto de tu campo. Te ayuda a decidir —no solo a archivar datos.
+            <p className={styles.heroSupportDark}>
+              Un agente agronómico que une clima, índices{" "}
+              <strong>Sentinel-2</strong> y bitácora de Campo — todo anclado al polígono
+              exacto de tu parcela.
             </p>
-            <p className={styles.heroSupportSecondary}>
-              Open-Meteo · NASA POWER · Sentinel-2 (Plus) · cada lectura con fuente cuando
-              la pides.
+            <p className={styles.heroSupportMutedDark}>
+              Fuentes: Open-Meteo, NASA POWER, CDSE — citadas cuando importa.
             </p>
             <div className={styles.heroCtas}>
               <a href="#lista" className={styles.btnPrimaryLg}>
-                Inscribirse en lista de espera
+                Unirse a la lista de espera
               </a>
-              <a href="#productos" className={styles.btnGhost}>
-                Conocer el agente
+              <a href="#productos" className={styles.btnGhostDark}>
+                Conocer el agente ↓
               </a>
             </div>
-            <p className={styles.heroHint}>Piloto sin costo para técnicos y productores en Perú.</p>
+            <div className={styles.heroTrustRow}>
+              <div>
+                <p className={styles.heroTrustLabel}>Clima anclado</p>
+                <p className={styles.heroTrustMeta}>Open-Meteo + NASA POWER</p>
+              </div>
+              <div>
+                <p className={styles.heroTrustLabel}>8 índices</p>
+                <p className={styles.heroTrustMeta}>Sentinel-2 · CDSE</p>
+              </div>
+              <div>
+                <p className={styles.heroTrustLabel}>Fuente citada</p>
+                <p className={styles.heroTrustMeta}>en cada respuesta</p>
+              </div>
+            </div>
             <WaitlistForm />
           </div>
         </LandingSpectralHero>

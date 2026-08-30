@@ -217,5 +217,6 @@ Cada slice cerrado: actualizar filas LP en `docs/feature-inventory.md` + commit 
 - [x] Agent: **LP-3c** problema ampliado + métricas obs/fcst
 - [x] Agent: **LP-3e** productos + roadmap + closing copy
 - [ ] Julio: **Copy design** → nuevo Make LP-3 con brief §4  
-- [ ] Julio: export LP-3 Make → frame `marketing/lp/pilot-v3` + URL node hero
-- [ ] Agent: pulir layout vía Figma MCP + capturas reales stg para overlays
+- [x] Julio: export LP-3 → Figma `JePdGL6MyrlSU7PGYE9yXb` (Hero `1:7`)
+- [x] Agent: hero oscuro + mockup MapLibre + chips escena (Figma MCP)
+- [ ] Capturas reales stg para overlays PNG (opcional, mejora visual)

@@ -2,19 +2,17 @@
 
 import { LngLatBounds, Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   buildLandingDemoOverlay,
+  formatLandingSceneChip,
   formatLandingSceneDate,
   LANDING_DEMO_GEOMETRY,
   LANDING_DEMO_PARCEL_NAME,
   LANDING_DEMO_SCENES,
-  landingDemoSparklinePoints,
+  ndreVigorLabel,
 } from "@/content/landing/spectral-demo";
-import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import { SPECTRAL_TIMELINE_PLAY_MS } from "@/domain/spectral/timeline-scenes";
-import { Badge } from "@/ui/badge";
-import { MapChip } from "@/ui/map-chip";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { applySpectralMapOverlay } from "@/ui/spectral-map-overlay";
 import styles from "./landing-spectral-hero.module.css";
@@ -23,8 +21,6 @@ const STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
 const PARCELS_SOURCE = "landing-demo-parcels";
 const PARCELS_FILL = "landing-demo-parcels-fill";
 const PARCELS_LINE = "landing-demo-parcels-line";
-
-const INDEX_CHIPS = ["NDRE", "EVI", "NDWI", "SAVI"] as const;
 
 function parcelFeatureCollection() {
   return {
@@ -44,7 +40,7 @@ function fitDemoParcel(map: MapLibreMap) {
   for (const [lng, lat] of LANDING_DEMO_GEOMETRY.coordinates[0]) {
     bounds.extend([lng, lat]);
   }
-  map.fitBounds(bounds, { padding: { top: 96, bottom: 72, left: 360, right: 420 }, maxZoom: 15 });
+  map.fitBounds(bounds, { padding: 48, maxZoom: 15 });
 }
 
 function addParcelLayers(map: MapLibreMap) {
@@ -59,7 +55,7 @@ function addParcelLayers(map: MapLibreMap) {
     source: PARCELS_SOURCE,
     paint: {
       "fill-color": "#4F6F52",
-      "fill-opacity": 0.38,
+      "fill-opacity": 0.22,
     },
   });
   map.addLayer({
@@ -68,7 +64,7 @@ function addParcelLayers(map: MapLibreMap) {
     source: PARCELS_SOURCE,
     paint: {
       "line-color": "#1C2A1F",
-      "line-width": 2.5,
+      "line-width": 2,
     },
   });
 }
@@ -76,14 +72,12 @@ function addParcelLayers(map: MapLibreMap) {
 export function LandingSpectralHero({ children }: { children: ReactNode }) {
   const mapHostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
-  const [sceneIndex, setSceneIndex] = useState(0);
+  const [sceneIndex, setSceneIndex] = useState(1);
   const [isPlaying, setIsPlaying] = useState(true);
   const [mapReady, setMapReady] = useState(false);
 
   const scenes = LANDING_DEMO_SCENES;
   const activeScene = scenes[sceneIndex] ?? scenes[0];
-  const legend = getSpectralLegend("ndre");
-  const sparkline = useMemo(() => landingDemoSparklinePoints(scenes), [scenes]);
 
   useEffect(() => {
     if (!mapHostRef.current || mapRef.current) {
@@ -97,24 +91,16 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
       center: [-77.05, -11.95],
       zoom: 14,
       attributionControl: false,
-      interactive: true,
-      dragRotate: false,
-      pitchWithRotate: false,
-      touchPitch: false,
+      interactive: false,
     });
 
     mapRef.current = map;
-    map.scrollZoom.disable();
-    map.doubleClickZoom.disable();
-    map.boxZoom.disable();
-    map.keyboard.disable();
-    map.touchZoomRotate.disableRotation();
 
     map.on("load", () => {
       addParcelLayers(map);
       fitDemoParcel(map);
       const overlay = buildLandingDemoOverlay(activeScene);
-      applySpectralMapOverlay(map, overlay, 0.62, PARCELS_LINE);
+      applySpectralMapOverlay(map, overlay, 0.68, PARCELS_LINE);
       setMapReady(true);
     });
 
@@ -132,7 +118,7 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
       return;
     }
     const overlay = buildLandingDemoOverlay(activeScene);
-    applySpectralMapOverlay(map, overlay, 0.62, PARCELS_LINE);
+    applySpectralMapOverlay(map, overlay, 0.68, PARCELS_LINE);
   }, [activeScene, mapReady]);
 
   useEffect(() => {
@@ -147,129 +133,77 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
 
   return (
     <div className={styles.shell}>
-      <div ref={mapHostRef} className={styles.mapHost} aria-hidden={!mapReady} />
-      <div className={styles.mapVignette} />
-
-      <div className={styles.mapChipSlot}>
-        <MapChip label={`Escena · ${formatLandingSceneDate(activeScene.acquisitionDate)}`} variant="spectral" />
-      </div>
-
       <div className={styles.grid}>
-        <aside className={styles.spectralSlot} aria-label="Demostración Espectral">
-          <div className={styles.spectralPanel}>
-            <div className={styles.tabs} aria-hidden>
-              <span className={styles.tab}>Clima</span>
-              <span className={styles.tabActive}>Espectral</span>
-              <span className={styles.tab}>Agente</span>
-            </div>
-
-            <p className={styles.panelMeta}>
-              {LANDING_DEMO_PARCEL_NAME} · índices Sentinel-2 L2A anclados al polígono.
-            </p>
-
-            <div className={styles.badgeRow}>
-              <Badge tone="fresh">PNG satélite</Badge>
-              <Badge tone="unknown">ilustrativo</Badge>
-            </div>
-
-            <div className={styles.indexGrid} aria-hidden>
-              {INDEX_CHIPS.map((chip) => (
-                <span
-                  key={chip}
-                  className={chip === "NDRE" ? styles.indexChipActive : styles.indexChip}
-                >
-                  {chip}
-                </span>
-              ))}
-            </div>
-
-            <div>
-              <p className={styles.legendTitle}>Leyenda NDRE</p>
-              <div className={styles.legendBar}>
-                {legend.stops.map((stop) => (
-                  <span
-                    key={stop.value}
-                    className={styles.legendStop}
-                    style={{ background: stop.color }}
-                  />
-                ))}
-              </div>
-              <div className={styles.legendLabels}>
-                <span>{legend.minLabel}</span>
-                <span>{legend.maxLabel}</span>
-              </div>
-            </div>
-
-            <div>
-              <p className={styles.historyTitle}>Historial · NDRE</p>
-              <div className={styles.mapSceneBanner}>
-                <span>Mapa: {activeScene.acquisitionDate} (histórico)</span>
-              </div>
-              {sparkline.points ? (
-                <svg
-                  className={styles.sparkline}
-                  viewBox="0 0 120 28"
-                  role="img"
-                  aria-label="Tendencia NDRE ilustrativa"
-                >
-                  <polyline
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    points={sparkline.points}
-                  />
-                </svg>
-              ) : null}
-
-              <div className={styles.timelineBlock}>
-                <div className={styles.timelineControls}>
-                  <button
-                    type="button"
-                    className={styles.timelinePlayButton}
-                    onClick={() => setIsPlaying((playing) => !playing)}
-                    aria-pressed={isPlaying}
-                  >
-                    {isPlaying ? "Pausa" : "Play"}
-                  </button>
-                  <input
-                    type="range"
-                    className={styles.timelineSlider}
-                    min={0}
-                    max={scenes.length - 1}
-                    step={1}
-                    value={sceneIndex}
-                    onChange={(event) => {
-                      setIsPlaying(false);
-                      setSceneIndex(Number(event.target.value));
-                    }}
-                    aria-label="Escena espectral"
-                  />
-                </div>
-                <div className={styles.timelineLabels}>
-                  <span>{formatLandingSceneDate(scenes[0].acquisitionDate)}</span>
-                  <span>{formatLandingSceneDate(scenes[scenes.length - 1].acquisitionDate)}</span>
-                </div>
-                <p className={styles.timelineCurrent}>
-                  {formatLandingSceneDate(activeScene.acquisitionDate)} · fuente CDSE
-                </p>
-              </div>
-
-              <div className={styles.ndreReadout}>
-                <span>NDRE promedio</span>
-                <span className={styles.ndreValue}>{activeScene.ndreMean.toFixed(2)}</span>
-              </div>
-            </div>
-
-            <p className={styles.demoHint}>
-              Demostración ilustrativa · no en tiempo real. El producto usa las mismas capas en
-              `/app`.
-            </p>
-          </div>
-        </aside>
-
-        <div className={styles.spacer} aria-hidden />
-
         <div className={styles.copySlot}>{children}</div>
+
+        <div className={styles.mockup} aria-label="Demostración mapa espectral">
+          <div className={styles.mockupChrome}>
+            <span className={`${styles.traffic} ${styles.trafficClose}`} aria-hidden />
+            <span className={`${styles.traffic} ${styles.trafficMin}`} aria-hidden />
+            <span className={`${styles.traffic} ${styles.trafficMax}`} aria-hidden />
+            <span className={styles.urlBar}>geoagro.ai/parcela/demo</span>
+            <span className={styles.plusBadge}>Campo · Plus</span>
+          </div>
+
+          <div className={styles.mapStage}>
+            <div ref={mapHostRef} className={styles.mapHost} />
+
+            <div className={styles.mapOverlayTopLeft}>
+              {formatLandingSceneDate(activeScene.acquisitionDate)}
+              <span> · Sentinel-2</span>
+            </div>
+
+            <div className={styles.mapOverlayTopRight}>
+              <span className={styles.cdseDot} aria-hidden />
+              fuente CDSE
+            </div>
+
+            <div className={styles.mapOverlayReadout}>
+              <p className={styles.readoutLabel}>NDRE promedio</p>
+              <p className={styles.readoutValue}>{activeScene.ndreMean.toFixed(2)}</p>
+              <p className={styles.readoutTier}>{ndreVigorLabel(activeScene.ndreMean)}</p>
+            </div>
+
+            <div className={styles.mapOverlayBottomLeft}>
+              <p className={styles.legendMiniLabel}>NDRE · Vigor</p>
+              <div className={styles.legendMiniRow}>
+                <span className={styles.legendMiniBar} aria-hidden />
+                <span className={styles.legendMiniEnds}>Bajo → Alto</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.sceneRail} role="tablist" aria-label="Escenas Sentinel">
+            {scenes.map((scene, index) => {
+              const active = index === sceneIndex;
+              return (
+                <button
+                  key={scene.acquisitionDate}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  className={active ? styles.sceneChipActive : styles.sceneChip}
+                  onClick={() => {
+                    setIsPlaying(false);
+                    setSceneIndex(index);
+                  }}
+                >
+                  <span
+                    className={styles.sceneDot}
+                    style={{ background: scene.chipColor }}
+                    aria-hidden
+                  />
+                  {formatLandingSceneChip(scene.acquisitionDate)}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className={styles.mockupFooter}>
+            <span>{LANDING_DEMO_PARCEL_NAME}</span>
+            <span>Open-Meteo · NASA POWER · CDSE</span>
+          </div>
+        </div>
       </div>
     </div>
   );

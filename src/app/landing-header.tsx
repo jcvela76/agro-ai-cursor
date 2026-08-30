@@ -21,8 +21,16 @@ export function LandingHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const headerClass = [
+    styles.header,
+    scrolled ? styles.headerScrolled : styles.headerOverHero,
+    menuOpen ? styles.headerMenuOpen : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ""}`}>
+    <header className={headerClass}>
       <div className={styles.headerInner}>
         <a href="#" className={styles.brand}>
           Agro AI
