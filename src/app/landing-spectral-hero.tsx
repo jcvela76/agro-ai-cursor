@@ -11,6 +11,7 @@ import {
   LANDING_DEMO_PARCEL_NAME,
   LANDING_DEMO_SCENES,
   LANDING_SPECTRAL_CROSSFADE_MS,
+  LANDING_SPECTRAL_NEXT_READY_MS,
   LANDING_SPECTRAL_PLAY_MS,
   landingDemoZones,
 } from "@/content/landing/spectral-demo";
@@ -70,6 +71,12 @@ async function fetchLandingOverlay(
     return null;
   }
   return json.data;
+}
+
+function sleep(ms: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 }
 
 function parcelFeatureCollection() {
@@ -132,9 +139,49 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
   const crossfadeFromRef = useRef<ParcelSpectralOverlay | null>(null);
   const crossfadeBlendRef = useRef(1);
   const crossfadeRafRef = useRef<number | undefined>(undefined);
+  const sceneIndexRef = useRef(sceneIndex);
+  const selectedIndexIdRef = useRef(selectedIndexId);
+  sceneIndexRef.current = sceneIndex;
+  selectedIndexIdRef.current = selectedIndexId;
 
   const scenes = LANDING_DEMO_SCENES;
   const activeScene = scenes[sceneIndex] ?? scenes[0];
+
+  const cacheOverlay = (indexId: VegetationIndexId, acquisitionDate: string, overlay: ParcelSpectralOverlay) => {
+    overlayCacheRef.current.set(overlayCacheKey(indexId, acquisitionDate), overlay);
+  };
+
+  const getCachedRaster = (indexId: VegetationIndexId, acquisitionDate: string) => {
+    const hit = overlayCacheRef.current.get(overlayCacheKey(indexId, acquisitionDate));
+    return hit?.rendering === "sentinel_raster" ? hit : null;
+  };
+
+  const ensureRasterOverlay = async (
+    indexId: VegetationIndexId,
+    acquisitionDate: string,
+    timeoutMs: number,
+  ): Promise<ParcelSpectralOverlay | null> => {
+    const cached = getCachedRaster(indexId, acquisitionDate);
+    if (cached) {
+      return cached;
+    }
+    const startedAt = performance.now();
+    while (performance.now() - startedAt < timeoutMs) {
+      const overlay = await fetchLandingOverlay(indexId, acquisitionDate);
+      if (overlay) {
+        cacheOverlay(indexId, acquisitionDate, overlay);
+        if (overlay.rendering === "sentinel_raster") {
+          return overlay;
+        }
+      }
+      await sleep(250);
+      const retry = getCachedRaster(indexId, acquisitionDate);
+      if (retry) {
+        return retry;
+      }
+    }
+    return overlayCacheRef.current.get(overlayCacheKey(indexId, acquisitionDate)) ?? null;
+  };
 
   const refitMapToLayout = () => {
     const map = mapRef.current;
@@ -353,38 +400,65 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     if (!mapReady) {
       return;
     }
-    const timers: number[] = [];
-    scenes.forEach((scene, offset) => {
-      const cacheKey = overlayCacheKey(selectedIndexId, scene.acquisitionDate);
-      if (overlayCacheRef.current.has(cacheKey)) {
-        return;
+    let cancelled = false;
+    const order = [
+      ...scenes.slice(sceneIndexRef.current),
+      ...scenes.slice(0, sceneIndexRef.current),
+    ];
+    void (async () => {
+      for (const scene of order) {
+        if (cancelled) {
+          return;
+        }
+        const indexId = selectedIndexIdRef.current;
+        if (getCachedRaster(indexId, scene.acquisitionDate)) {
+          continue;
+        }
+        const overlay = await fetchLandingOverlay(indexId, scene.acquisitionDate);
+        if (cancelled) {
+          return;
+        }
+        if (overlay) {
+          cacheOverlay(indexId, scene.acquisitionDate, overlay);
+        }
       }
-      timers.push(
-        window.setTimeout(() => {
-          void fetchLandingOverlay(selectedIndexId, scene.acquisitionDate).then((overlay) => {
-            if (overlay) {
-              overlayCacheRef.current.set(cacheKey, overlay);
-            }
-          });
-        }, offset * 350),
-      );
-    });
+    })();
     return () => {
-      for (const timer of timers) {
-        window.clearTimeout(timer);
-      }
+      cancelled = true;
     };
   }, [mapReady, scenes, selectedIndexId]);
 
   useEffect(() => {
-    if (!isPlaying || scenes.length < 2) {
+    if (!isPlaying || scenes.length < 2 || !mapReady) {
       return;
     }
-    const timer = window.setInterval(() => {
-      setSceneIndex((current) => (current + 1) % scenes.length);
-    }, LANDING_SPECTRAL_PLAY_MS);
-    return () => window.clearInterval(timer);
-  }, [isPlaying, scenes.length]);
+    let cancelled = false;
+
+    const run = async () => {
+      while (!cancelled) {
+        await sleep(LANDING_SPECTRAL_PLAY_MS);
+        if (cancelled) {
+          return;
+        }
+        const nextIndex = (sceneIndexRef.current + 1) % scenes.length;
+        const nextScene = scenes[nextIndex]!;
+        await ensureRasterOverlay(
+          selectedIndexIdRef.current,
+          nextScene.acquisitionDate,
+          LANDING_SPECTRAL_NEXT_READY_MS,
+        );
+        if (cancelled) {
+          return;
+        }
+        setSceneIndex(nextIndex);
+      }
+    };
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [isPlaying, mapReady, scenes, selectedIndexId]);
 
   return (
     <div ref={shellRef} className={styles.shell}>
