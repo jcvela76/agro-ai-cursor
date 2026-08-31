@@ -357,11 +357,12 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
               "weather_plus (Profesional / Weather Intelligence Plus): USD 29/mes · hasta 5 miembros · weather + weather_plus.",
               "operations (Empresa / Operations): USD 79/mes · hasta 15 miembros · weather, weather_plus, traceability, agronomic_review.",
               "full: USD 99/mes · hasta 25 miembros · mismos entitlements que operations (alias comercial; no añade productos adicionales).",
+              "Dedicado (enterprise / integraciones): sin precio en checkout web · alcance y tarifa tras auditoría tecnológica de datos y sistemas (IoT, ERP, APIs) · contrato aparte.",
             ],
           },
           {
             type: "paragraph",
-            text: "En la landing pública, «Básico», «Profesional» y «Empresa» corresponden a los slugs anteriores. Los nombres comerciales pueden variar; prevalece el plan y precio del checkout.",
+            text: "En la landing pública, «Básico», «Profesional» y «Empresa» corresponden a los slugs self-serve anteriores; «Dedicado» es modalidad comercial bajo propuesta tras auditoría. Los nombres comerciales pueden variar; en checkout web prevalece el plan y precio mostrados al suscribirse.",
           },
         ],
       },

@@ -1186,9 +1186,18 @@
 }
 
 @media (min-width: 768px) {
-  .productGrid,
-  .priceGrid {
+  .productGrid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .priceGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .priceGrid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -1341,6 +1350,20 @@
 .pricingNotice strong {
   color: #4f6f52;
   font-weight: 600;
+}
+
+.priceDisclaimer {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: rgba(28, 42, 31, 0.62);
+  border-left: 2px solid rgba(79, 111, 82, 0.35);
+  padding-left: 0.75rem;
+}
+
+.priceHighlight .priceDisclaimer {
+  color: rgba(255, 253, 248, 0.62);
+  border-left-color: rgba(255, 253, 248, 0.25);
 }
 
 .priceCard {

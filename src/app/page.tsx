@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LEGAL_NAV_LINKS, LEGAL_OPERATOR_LEGAL_NAME, LEGAL_OPERATOR_RUC } from "@/content/legal/types";
 import { LANDING_DEMO_PARCEL_DEMO_LINE } from "@/content/landing/spectral-demo";
+import { LANDING_PRICING, LANDING_PRICING_SAAS_SOURCE } from "@/content/landing/pricing";
 import { LandingAgentDemo } from "@/ui/landing-agent-demo";
 import { LandingSpectralHero } from "./landing-spectral-hero";
 import { LandingHeader } from "./landing-header";
@@ -116,51 +117,6 @@ const PRODUCTS = [
     ],
     coffee: false,
     skyDots: false,
-  },
-] as const;
-
-const PRICING = [
-  {
-    tier: "Básico",
-    desc: "Para productores individuales",
-    price: "Gratis",
-    period: "Weather Intelligence base",
-    features: [
-      "Datos climáticos por parcela",
-      "Pronóstico a varios días",
-      "Observación y pronóstico con fuente citada",
-      "Parcelas limitadas",
-    ],
-    highlight: false,
-    cta: "Solicitar acceso al piloto",
-  },
-  {
-    tier: "Profesional",
-    desc: "Para técnicos y consultores",
-    price: "USD 29",
-    period: "/mes al lanzamiento · sin costo en piloto",
-    features: [
-      "Todo en Básico",
-      "Weather Intelligence Plus",
-      "Hasta 5 miembros (plan Profesional)",
-      "Soporte por correo durante piloto",
-    ],
-    highlight: true,
-    cta: "Solicitar acceso al piloto →",
-  },
-  {
-    tier: "Empresa",
-    desc: "Cooperativas y exportadores",
-    price: "Desde USD 79",
-    period: "/mes · Operations Intelligence",
-    features: [
-      "Trazabilidad y Revisión Agronómica",
-      "Hasta 15–25 miembros según plan",
-      "Soporte y onboarding (sin SLA salvo contrato)",
-      "Capacitación sujeta a disponibilidad",
-    ],
-    highlight: false,
-    cta: "Contactar",
   },
 ] as const;
 
@@ -482,13 +438,17 @@ export default function Home() {
           <p className={styles.eyebrow}>Precios</p>
           <div className={styles.pricingIntro}>
             <h2 className={styles.sectionTitle}>
-              Desde USD 29/mes. <em>Referencia orientativa.</em>
+              Desde USD {LANDING_PRICING_SAAS_SOURCE.weatherPlusUsd}/mes.{" "}
+              <em>Referencia orientativa.</em>
             </h2>
             <p className={styles.pricingNotice}>
-              <strong>Aviso legal:</strong> Los montos son orientativos y están detallados en{" "}
-              <Link href="/legal/subscription">Términos de suscripción</Link>. No constituyen
-              oferta vinculante hasta completar el checkout en un workspace autenticado. El
-              piloto y la lista de espera no requieren pago ni tarjeta.
+              <strong>Aviso legal:</strong> Los montos SaaS (USD{" "}
+              {LANDING_PRICING_SAAS_SOURCE.weatherPlusUsd} /{" "}
+              {LANDING_PRICING_SAAS_SOURCE.operationsUsd} /{" "}
+              {LANDING_PRICING_SAAS_SOURCE.fullUsd} mensuales) siguen{" "}
+              <Link href="/legal/subscription">Términos de suscripción</Link> y los planes
+              Clerk documentados en ops — no constituyen oferta vinculante hasta el checkout.
+              El piloto y la lista de espera no requieren pago ni tarjeta.
             </p>
             <p className={styles.pricingNotice}>
               Consulte{" "}
@@ -503,7 +463,7 @@ export default function Home() {
           </div>
 
           <div className={styles.priceGrid}>
-            {PRICING.map((tier) => (
+            {LANDING_PRICING.map((tier) => (
               <article
                 key={tier.tier}
                 className={`${styles.priceCard} ${tier.highlight ? styles.priceHighlight : ""}`}
@@ -516,6 +476,9 @@ export default function Home() {
                   <span className={styles.priceAmount}>{tier.price}</span>
                   <span className={styles.pricePeriod}>{tier.period}</span>
                 </div>
+                {tier.disclaimer ? (
+                  <p className={styles.priceDisclaimer}>{tier.disclaimer}</p>
+                ) : null}
                 <ul className={styles.featureList}>
                   {tier.features.map((feature) => (
                     <li key={feature}>
@@ -525,7 +488,7 @@ export default function Home() {
                   ))}
                 </ul>
                 <a
-                  href="#lista"
+                  href={tier.ctaHref ?? "#lista"}
                   className={
                     tier.highlight ? styles.btnOnDark : styles.btnOutline
                   }
