@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
   "/maplibre(.*)",
   "/api/waitlist",
   "/api/landing/spectral-overlay",
+  "/api/debug/sentry-test",
   "/api/webhooks(.*)",
   "/robots.txt",
   "/sitemap.xml",

@@ -103,6 +103,11 @@ export function PilotHub() {
           Guía corta, checklist de las primeras semanas y formularios. Los fallos y el
           feedback se guardan para análisis (sin spam al chat de soporte).
         </p>
+        <p className={styles.note}>
+          Si es tu primera vez en el mapa, la orientación de la interfaz está en{" "}
+          <strong>Guía</strong> (arriba a la derecha en <Link href="/app">/app</Link>) —
+          no sustituye este checklist.
+        </p>
         <p className={styles.links}>
           <Link href="/app">← Volver al mapa</Link>
           <a href="mailto:hola@geoagro.ai">hola@geoagro.ai</a>

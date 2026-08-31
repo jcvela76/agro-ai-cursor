@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-31 (Pilot-ops-2: tabs, admin, Sentry, SOW/NDA) |
+| **Última actualización** | 2026-08-31 (UI tour shell primer uso) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -66,10 +66,11 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Guía participante | docs | `docs/pilot/participant-guide.md` |
 | Programa ops (taxonomía) | docs | `docs/ops/pilot-program.md` |
 | Hub `/app/piloto` | hecho | Checklist + formularios inicio/semanal/fallo |
+| Tour shell vs piloto | hecho | Guía UI en `/app` (Guía); checklist/feedback solo en hub — storage separado |
 | Telemetría Neon | hecho | `pilot_events`, `pilot_feedback`, `pilot_error_logs` · APIs `/api/pilot/*` |
 | Instrumentación tabs + agente | hecho | `*.panel_open` en shell; send/fail agente |
 | Vista admin feedback | hecho | `/app/admin` · eventos / feedback / errores (org-scoped) |
-| Sentry APM | parcial | SDK `@sentry/nextjs` cableado; falta crear proyecto + DSN en Vercel (`docs/ops/sentry.md`) |
+| Sentry APM | hecho | Proyecto `agro-ai` + DSN local/Vercel; smoke `/api/debug/sentry-test` |
 | SOW + NDA auditoría Dedicado | docs | DRAFT counsel: `sow-dedicated-audit-pilot.md` · `nda-dedicated-audit-draft.md` |
 
 ---
@@ -83,6 +84,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Geometría Point | hecho | Centroide lat/lng para clima |
 | Geometría Polygon / MultiPolygon | hecho | Contorno de parcela |
 | MapLibre fullscreen shell | hecho | `/app` + OpenFreeMap |
+| Tour shell primer uso | hecho | Overlay 4 pasos; `agro-ai-shell-tour-v1`; botón Guía; no marca checklist piloto |
 | Terra Draw create/edit | hecho | Dibujar/editar polígonos |
 | Markers / fill / fitBounds | hecho | Visualización y zoom |
 | Área aproximada (ha) | hecho | Estimación de hectáreas |

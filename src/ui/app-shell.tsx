@@ -37,6 +37,7 @@ import { ReviewPanel } from "@/ui/review-panel";
 import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { SpectralPanel } from "@/ui/spectral-panel";
 import { trackPilotEvent } from "@/ui/pilot/track-pilot";
+import { ShellTour } from "@/ui/shell-tour";
 import {
   applySpectralMapOverlay,
   applyDualSpectralMapOverlay,
@@ -276,6 +277,7 @@ export function AppShell({
   const [selectedId, setSelectedId] = useState<string | null>(initialParcelId);
   const [drawMode, setDrawMode] = useState<DrawMode>("idle");
   const [sideTab, setSideTab] = useState<SideTab>(() => parseSideTab(initialTab));
+  const [shellTourOpen, setShellTourOpen] = useState(false);
   const [draftName, setDraftName] = useState("Nueva parcela");
   const [draftGeometry, setDraftGeometry] = useState<ParcelGeometry | null>(null);
   const [detailName, setDetailName] = useState("");
@@ -1393,6 +1395,13 @@ export function AppShell({
           ) : null}
         </div>
         <div className={styles.chromeRight}>
+          <button
+            type="button"
+            className={styles.adminLink}
+            onClick={() => setShellTourOpen(true)}
+          >
+            Guía
+          </button>
           <Link className={styles.adminLink} href="/app/piloto">
             Piloto
           </Link>
@@ -1440,6 +1449,11 @@ export function AppShell({
   return (
     <div className={styles.shell}>
       <div ref={mapContainerRef} className={styles.map} />
+      <ShellTour
+        open={shellTourOpen}
+        onOpenChange={setShellTourOpen}
+        autoStart
+      />
 
       {mapChromeActive ? (
         mapChromeStack

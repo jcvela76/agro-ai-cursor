@@ -332,6 +332,9 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
   background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: inherit;
 }
 
 .adminLink:hover {

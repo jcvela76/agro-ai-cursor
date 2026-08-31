@@ -43,6 +43,12 @@ Todos requieren sesión Clerk + org. Se guardan en `pilot_feedback`.
 | `agent.chat_fail` | Error stream/API agente |
 | `spectral.overlay_fail` | Fallo overlay / PNG |
 | `report.generate_fail` | Fallo informe |
+| `shell.tour_start` | Abre tour shell (auto o replay Guía) |
+| `shell.tour_step` | Avanza un paso del tour |
+| `shell.tour_complete` | Termina tour (Listo o CTA Piloto) |
+| `shell.tour_skip` | Omite / Escape / backdrop |
+
+**Tour shell ≠ checklist piloto:** la guía de interfaz (`Guía` en `/app`, storage `agro-ai-shell-tour-v1`) no marca ítems del checklist (`agro-ai-pilot-checklist-v1`).
 
 Payload JSON acotado (≤ 4 KB): `{ parcelId?, tab?, code?, ms? }` — sin PII de terceros.
 

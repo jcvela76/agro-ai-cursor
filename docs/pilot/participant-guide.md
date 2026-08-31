@@ -24,7 +24,8 @@ Acceso anticipado **sin cobro** a Weather Intelligence Plus (clima, índices Sen
 | 1 | Aceptar invitación Clerk (correo) y entrar en https://geoagro.ai o https://stg.geoagro.ai según te indiquen |
 | 2 | Confirmar que ves **tu organización** (workspace) — una sola org por cliente |
 | 3 | Tener a mano: polígono o croquis de la parcela, cultivo principal, zona (costa/sierra/selva) |
-| 4 | Abrir `/app/piloto` y enviar el **formulario de inicio** (5 min) |
+| 4 | En `/app`, si aparece la **Guía** rápida del mapa, completala u omítela (solo orienta la UI; no es el checklist) |
+| 5 | Abrir `/app/piloto` y enviar el **formulario de inicio** (5 min) |
 
 ---
 
