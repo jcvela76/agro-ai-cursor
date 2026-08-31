@@ -40,6 +40,8 @@ Crear **Features** con slugs idénticos a nuestros entitlements:
 | `operations`    | $79              | las cuatro                                              | Trace + Review (+ trial) |
 | `full`          | $99              | las cuatro                                              | Alias comercial (+ trial) |
 
+**Plan Dedicado (no en PricingTable):** cotización tras auditoría tecnológica (IoT / ERP / APIs). Draft de alcance: [`docs/ops/dedicated-plan-audit.md`](dedicated-plan-audit.md). No crear slug Clerk hasta que exista SOW + billing aparte.
+
 No crear `weather_base` en Dashboard: Clerk exige mín. $1 en planes custom; el tier weather-only queda cubierto por `free_org`.
 
 ### Límites de miembros (piloto — flat org, sin per-seat)

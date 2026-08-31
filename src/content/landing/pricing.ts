@@ -13,6 +13,7 @@ import { LEGAL_CONTACT_EMAIL } from "@/content/legal/types";
  * - Profesional → weather_plus (USD 29/mes)
  * - Empresa → operations (USD 79/mes) o full (USD 99/mes, alias)
  * - Dedicado → no autopserve; cotización tras auditoría tecnológica
+ *   (draft interno: docs/ops/dedicated-plan-audit.md)
  */
 export const LANDING_PRICING_SAAS_SOURCE = {
   weatherPlusUsd: 29,
