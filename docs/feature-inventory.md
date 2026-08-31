@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-30 (LP-4 demo agente landing) |
+| **Última actualización** | 2026-08-30 (Agent-parity-1 AgentChatView + chips) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -51,7 +51,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Feature | Estado | Detalle |
 |---------|--------|---------|
 | Landing multi-sección | hecho | Hero Ica 2 CDSE; crossfade 1s; autoplay 4s; sección `#agente` demo scriptada |
-| LP demo Agro Agent | hecho | 3 escenarios Parcela Ica 2; chips + autoplay; reutiliza bubbles/Markdown del producto |
+| LP demo Agro Agent | hecho | `AgentChatView` compartido con producto; 3 escenarios Ica 2 + autoplay |
 | Precios informativos | hecho | No vinculantes (ADR-012); Básico sin overclaim alertas email |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
@@ -124,7 +124,7 @@ Gate: `weather` + `weather_plus`.
 ### Agro Agent
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Tab Agente (chat UI) | hecho | Shell; carga historial por parcela; badge retención |
+| Tab Agente (chat UI) | hecho | `AgentChatView`; chips sugeridos; tool note durante stream; badge retención |
 | API chat streaming | hecho | `POST /api/agent/chat`; persiste turno user+assistant |
 | Historial chat por parcela | hecho | Neon `agent_chat_messages`; hilo compartido org+parcela (ADR-049) |
 | Retención chat por plan | hecho | Plus 7d / Ops 30d / Full 90d; tope 80 msgs; lazy prune |

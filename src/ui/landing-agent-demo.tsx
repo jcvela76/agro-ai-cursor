@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LANDING_AGENT_CHAR_MS,
   LANDING_AGENT_HOLD_MS,
@@ -12,8 +12,11 @@ import {
   nextLandingAgentScenarioId,
 } from "@/content/landing/agent-demo";
 import { LANDING_DEMO_PARCEL_NAME } from "@/content/landing/spectral-demo";
-import { AgentMessageContent } from "@/ui/agent-message-content";
-import chatStyles from "@/ui/agent-chat-panel.module.css";
+import {
+  AgentChatView,
+  type AgentChatViewMessage,
+} from "@/ui/agent-chat/agent-chat-view";
+import viewStyles from "@/ui/agent-chat/agent-chat-view.module.css";
 import styles from "./landing-agent-demo.module.css";
 
 type Phase = "idle" | "user" | "tool" | "assistant" | "hold";
@@ -148,10 +151,38 @@ export function LandingAgentDemo() {
     playScenario(id);
   };
 
-  const showUser = phase !== "idle";
-  const showTool = phase === "tool" || phase === "assistant" || phase === "hold";
-  const showAssistant = phase === "assistant" || phase === "hold";
-  const streamedMarkdown = assistantText.slice(0, visibleChars);
+  const viewMessages = useMemo((): AgentChatViewMessage[] => {
+    if (phase === "idle") return [];
+
+    const items: AgentChatViewMessage[] = [
+      {
+        id: `${scenarioId}-user`,
+        role: "user",
+        text: scenario.userQuestion,
+      },
+    ];
+
+    if (phase === "tool" || phase === "assistant" || phase === "hold") {
+      const streamedMarkdown = assistantText.slice(0, visibleChars);
+      items.push({
+        id: `${scenarioId}-assistant`,
+        role: "assistant",
+        text: phase === "tool" ? "" : streamedMarkdown,
+        toolNote: scenario.toolNote,
+        showToolNoteWithText:
+          phase === "assistant" && visibleChars < assistantText.length,
+      });
+    }
+
+    return items;
+  }, [assistantText, phase, scenario.userQuestion, scenario.toolNote, scenarioId, visibleChars]);
+
+  const suggestions = LANDING_AGENT_SCENARIOS.map((item) => ({
+    id: item.id,
+    label: item.chipLabel,
+    prompt: item.userQuestion,
+    active: item.id === scenarioId,
+  }));
 
   return (
     <div
@@ -168,74 +199,44 @@ export function LandingAgentDemo() {
         }
       }}
     >
-      <div className={styles.introRow}>
-        <p className={styles.intro}>
-          Pregunta sobre observación o pronóstico de <strong>{LANDING_DEMO_PARCEL_NAME}</strong>.
-          Cito fuente y frescura; no invento datos.
-        </p>
-        <span className={styles.retentionBadge}>Historial · 7 días</span>
-      </div>
-
-      <div className={styles.messages} aria-live="polite" aria-label="Demo del Agro Agent">
-        {showUser ? (
-          <div className={chatStyles.userBubble}>
-            <p className={chatStyles.bubbleText}>{scenario.userQuestion}</p>
-          </div>
-        ) : null}
-
-        {showTool ? (
-          <div className={chatStyles.assistantBubble}>
-            {!showAssistant ? <p className={chatStyles.toolNote}>{scenario.toolNote}</p> : null}
-            {showAssistant ? (
-              <>
-                {phase === "assistant" && visibleChars < assistantText.length ? (
-                  <p className={chatStyles.toolNote}>{scenario.toolNote}</p>
-                ) : null}
-                <AgentMessageContent text={streamedMarkdown} />
-              </>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-
-      <div className={styles.chips} role="group" aria-label="Preguntas de ejemplo">
-        {LANDING_AGENT_SCENARIOS.map((item) => (
+      <AgentChatView
+        parcelName={LANDING_DEMO_PARCEL_NAME}
+        retentionDays={7}
+        messages={viewMessages}
+        messagesClassName={styles.messagesTall}
+        messagesMaxHeight="28rem"
+        suggestions={suggestions}
+        onSuggestionClick={(suggestion) => onChipClick(suggestion.id)}
+        suggestionExtras={
           <button
-            key={item.id}
             type="button"
-            className={`${styles.chip} ${item.id === scenarioId ? styles.chipActive : ""}`}
-            onClick={() => onChipClick(item.id)}
+            className={`${viewStyles.suggestionChip} ${styles.pauseChip}`}
+            onClick={() => {
+              setManualPaused((value) => {
+                const next = !value;
+                if (next) {
+                  cancelRun();
+                } else if (inView) {
+                  startedRef.current = true;
+                  playScenario(scenarioId);
+                }
+                return next;
+              });
+            }}
+            aria-pressed={manualPaused}
           >
-            {item.chipLabel}
+            {manualPaused ? "Reanudar demo" : "Pausar"}
           </button>
-        ))}
-        <button
-          type="button"
-          className={styles.chip}
-          onClick={() => {
-            setManualPaused((value) => {
-              const next = !value;
-              if (next) {
-                cancelRun();
-              } else if (inView) {
-                startedRef.current = true;
-                playScenario(scenarioId);
-              }
-              return next;
-            });
-          }}
-          aria-pressed={manualPaused}
-        >
-          {manualPaused ? "Reanudar demo" : "Pausar"}
-        </button>
-      </div>
-
-      <div className={styles.composerMock} aria-hidden>
-        <p className={styles.inputMock}>Escribe tu pregunta…</p>
-        <span className={styles.sendMock}>Enviar</span>
-      </div>
-
-      <p className={styles.disclaimer}>Demo ilustrativa · no en tiempo real</p>
+        }
+        emptyState={false}
+        footer={<p className={styles.disclaimer}>Demo ilustrativa · no en tiempo real</p>}
+        composer={
+          <div className={styles.composerMock} aria-hidden>
+            <p className={styles.inputMock}>Escribe tu pregunta…</p>
+            <span className={styles.sendMock}>Enviar</span>
+          </div>
+        }
+      />
     </div>
   );
 }

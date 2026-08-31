@@ -4,9 +4,13 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { AGENT_SUGGESTED_PROMPTS } from "@/content/agent/suggested-prompts";
 import type { Parcel } from "@/domain/parcel/types";
+import {
+  AgentChatView,
+  type AgentChatViewMessage,
+} from "@/ui/agent-chat/agent-chat-view";
 import { Button } from "@/ui/button";
-import { AgentMessageContent } from "@/ui/agent-message-content";
 import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./agent-chat-panel.module.css";
@@ -16,6 +20,47 @@ type LoadedChatMessage = {
   role: "user" | "assistant" | "system";
   parts: Array<{ type: "text"; text: string }>;
 };
+
+function toViewMessages(
+  messages: Array<{
+    id: string;
+    role: "user" | "assistant" | "system";
+    parts: Array<{ type: string; text?: string }>;
+  }>,
+  busy: boolean,
+): AgentChatViewMessage[] {
+  const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
+
+  return messages
+    .filter((message) => message.role === "user" || message.role === "assistant")
+    .map((message) => {
+      const toolParts = message.parts.filter((part) => part.type.startsWith("tool-"));
+      const textParts = message.parts.filter((part) => part.type === "text");
+      const text = textParts
+        .map((part) => part.text ?? "")
+        .join("\n")
+        .trim();
+
+      if (message.role === "user") {
+        return {
+          id: message.id,
+          role: "user" as const,
+          text,
+        };
+      }
+
+      const isStreamingAssistant = busy && message.id === lastAssistantId;
+      const hasToolActivity = toolParts.length > 0;
+
+      return {
+        id: message.id,
+        role: "assistant" as const,
+        text,
+        toolNote: hasToolActivity ? "Consultando evidencia climática…" : null,
+        showToolNoteWithText: isStreamingAssistant && hasToolActivity,
+      };
+    });
+}
 
 export function AgentChatPanel({
   parcel,
@@ -122,16 +167,22 @@ export function AgentChatPanel({
     return { question, answer };
   }, [messages]);
 
+  const sendText = async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || busy) return;
+    setGateError(null);
+    try {
+      await sendMessage({ text: trimmed });
+    } catch (err) {
+      setGateError(err instanceof Error ? err.message : "No se pudo enviar");
+    }
+  };
+
   const onSend = async () => {
     const text = input.trim();
     if (!text || busy) return;
     setInput("");
-    setGateError(null);
-    try {
-      await sendMessage({ text });
-    } catch (err) {
-      setGateError(err instanceof Error ? err.message : "No se pudo enviar");
-    }
+    await sendText(text);
   };
 
   if (plusEnabled === null || !historyLoaded) {
@@ -157,90 +208,57 @@ export function AgentChatPanel({
     );
   }
 
+  const viewMessages = toViewMessages(messages, busy);
+
   return (
-    <div className={styles.chat}>
-      <div className={styles.introRow}>
-        <p className={styles.intro}>
-          Pregunta sobre observación o pronóstico de <strong>{parcel.name}</strong>. Cito fuente y
-          frescura; no invento datos.
-        </p>
-        {retentionDays != null && retentionDays > 0 ? (
-          <span className={styles.retentionBadge}>Historial · {retentionDays} días</span>
-        ) : null}
-      </div>
-
-      <div className={styles.messages} aria-live="polite">
-        {messages.length === 0 ? (
-          <p className={styles.muted}>
-            Sin mensajes en la ventana de retención. Ej.: ¿Cuál es la última temperatura
-            disponible?
-          </p>
-        ) : null}
-        {messages.map((message) => {
-          const toolParts = message.parts.filter((part) => part.type.startsWith("tool-"));
-          const textParts = message.parts.filter((part) => part.type === "text");
-          const showToolNote =
-            message.role === "assistant" && toolParts.length > 0 && textParts.length === 0;
-
-          return (
-            <div
-              key={message.id}
-              className={message.role === "user" ? styles.userBubble : styles.assistantBubble}
-            >
-              {showToolNote ? (
-                <p className={styles.toolNote}>Consultando evidencia climática…</p>
-              ) : null}
-              {textParts.map((part, index) =>
-                message.role === "assistant" ? (
-                  <AgentMessageContent key={`${message.id}-text-${index}`} text={part.text} />
-                ) : (
-                  <p key={`${message.id}-text-${index}`} className={styles.bubbleText}>
-                    {part.text}
-                  </p>
-                ),
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {lastBriefing && !busy ? (
-        <ReportExportAction
-          reportType="agent_briefing"
-          label="Exportar respuesta como informe (PDF)"
-          parcelId={parcel.id}
-          agentQuestion={lastBriefing.question}
-          agentAnswerMarkdown={lastBriefing.answer}
-          isAdmin={isAdmin}
-        />
-      ) : null}
-
-      {(error || gateError) && (
-        <StateBanner
-          title={gateError ?? error?.message ?? "Error del agente"}
-          tone="error"
-        />
-      )}
-
-      <form
-        className={styles.composer}
-        onSubmit={(event) => {
-          event.preventDefault();
-          void onSend();
-        }}
-      >
-        <input
-          className={styles.input}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Escribe tu pregunta…"
-          disabled={busy}
-          aria-label="Mensaje al Agro Agent"
-        />
-        <Button type="submit" disabled={busy || !input.trim()}>
-          Enviar
-        </Button>
-      </form>
-    </div>
+    <AgentChatView
+      parcelName={parcel.name}
+      retentionDays={retentionDays}
+      messages={viewMessages}
+      suggestions={AGENT_SUGGESTED_PROMPTS}
+      onSuggestionClick={(suggestion) => void sendText(suggestion.prompt)}
+      busy={busy}
+      footer={
+        <>
+          {lastBriefing && !busy ? (
+            <ReportExportAction
+              reportType="agent_briefing"
+              label="Exportar respuesta como informe (PDF)"
+              parcelId={parcel.id}
+              agentQuestion={lastBriefing.question}
+              agentAnswerMarkdown={lastBriefing.answer}
+              isAdmin={isAdmin}
+            />
+          ) : null}
+          {(error || gateError) && (
+            <StateBanner
+              title={gateError ?? error?.message ?? "Error del agente"}
+              tone="error"
+            />
+          )}
+        </>
+      }
+      composer={
+        <form
+          className={styles.composer}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void onSend();
+          }}
+        >
+          <input
+            className={styles.input}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Escribe tu pregunta…"
+            disabled={busy}
+            aria-label="Mensaje al Agro Agent"
+          />
+          <Button type="submit" disabled={busy || !input.trim()}>
+            Enviar
+          </Button>
+        </form>
+      }
+    />
   );
 }
