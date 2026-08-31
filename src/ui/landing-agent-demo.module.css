@@ -67,19 +67,6 @@
   composes: glassPanel from "./agent-chat/agent-chat-glass.module.css";
   flex: 1;
   min-height: 0;
-  max-height: min(72svh, 40rem);
   display: flex;
   flex-direction: column;
-}
-
-@media (max-width: 767px) {
-  .panelHero {
-    max-height: calc(var(--hero-spectral-sheet-h) - 2.5rem);
-  }
-}
-
-@media (min-width: 1024px) {
-  .panelHero {
-    max-height: calc(100svh - 8.5rem);
-  }
 }

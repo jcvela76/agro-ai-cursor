@@ -1,6 +1,6 @@
 # LP responsive mockup — mobile & tablet (LP-5)
 
-**Fecha:** 2026-08-30  
+**Fecha:** 2026-08-30 (LP-5b stacked hero)  
 **Rama:** `stg`  
 **Prerequisito:** audit UI/UX (hero rails, sheet, breakpoint split 768 vs 1024)  
 **Objetivo:** coherencia visual y de interacción en **320–767px** (mobile) y **768–1023px** (tablet) antes de pulir desktop.
@@ -33,40 +33,33 @@
 - Drawer **mismo fondo que header** cuando abierto (no panel claro con texto claro).
 - Body scroll lock mientras menú abierto.
 
-### 2.2 Hero — layout objetivo
+### 2.2 Hero — layout objetivo (LP-5b: dos bloques)
 
 ```
 ┌─────────────────────────────────────┐
 │ header                              │
-│ ┌─ glass copy (scroll) ─────────┐   │
-│ │ eyebrow · H1 · support        │   │
-│ │ CTAs · trust (2 cols)         │   │
-│ │ waitlist COL (no row <768)    │   │
-│ └───────────────────────────────┘   │
-│         [ Escena · CDSE ]           │  ← chip sobre mapa
-│                                     │
-│            MAPA (parcela)           │
-│                                     │
-│ ┌─ bottom sheet (en hero) ───────┐  │
-│ │ Clima | Espectral | Agente    │  │
-│ │ ┌─ panel scroll ─────────────┐ │  │
-│ │ │ índices / agent demo       │ │  │
-│ │ └────────────────────────────┘ │  │
+│ ┌─ copy sólido (#fffdf8) ────────┐  │  ← bloque 1: sin mapa detrás
+│ │ eyebrow · H1 · support         │  │
+│ │ CTAs · trust · waitlist COL    │  │
 │ └────────────────────────────────┘  │
-│ ▓ safe-area-inset-bottom            │
+│ ┌─ map stage (~40svh) ───────────┐  │  ← bloque 2
+│ │     [ Escena · CDSE ]          │  │
+│ │            MAPA                │  │
+│ └────────────────────────────────┘  │
+│ ┌─ panel Espectral/Agente ───────┐  │
+│ │ tabs · índices / agent demo    │  │
+│ └────────────────────────────────┘  │
 └─────────────────────────────────────┘
 │ evidence bar                        │
 ```
 
-**Cambios vs hoy**
+**Cambios vs overlay (LP-5a)**
 
-| Issue | Fix mockup |
-|-------|------------|
-| Sheet `position:fixed` flota sobre Problem/Weather | Sheet **`absolute` dentro `.shell`**; sale con el hero |
-| Copy tapa sheet | `padding-bottom` en grid = altura sheet + safe-area |
-| Copy sin scroll | `max-height` + `overflow:auto` en copy card |
-| Waitlist row a 640px en card estrecha | Waitlist **columna hasta 768px** solo en hero |
-| Sin safe-area iOS | `env(safe-area-inset-bottom)` en sheet |
+| Issue | Fix LP-5b |
+|-------|-----------|
+| Copy glass sobre mapa → polígono tapa texto | **Bloque 1** copy con fondo sólido, fuera del mapa |
+| Sheet/panel flotando sobre mapa | Panel **debajo** del map stage en flujo normal |
+| Hero 100svh fuerza solapamiento | `min-height: 100svh` solo ≥1024px |
 
 ### 2.3 Hero — tab Agente (mobile)
 
@@ -94,23 +87,27 @@
 
 ## 3. Tablet mockup (768–1023px)
 
-### 3.1 Hero — overlay tier
+### 3.1 Hero — stacked tier (LP-5b)
+
+Mismo patrón que mobile: **copy arriba → map stage → panel abajo**. Sin overlay glass sobre mapa hasta ≥1024px.
 
 ```
 ┌──────────────────────────────────────────────────┐
 │ header                                           │
-│ ┌copy glass────┐     [chip]    ┌─panel 20rem──┐ │
-│ │ scroll       │      MAPA     │ Espectral/   │ │
-│ │              │               │ Agente       │ │
-│ └──────────────┘               └──────────────┘ │
+│ ┌──────── copy sólido (max ~40rem) ────────────┐ │
+│ │ H1 · CTAs · waitlist                         │ │
+│ └──────────────────────────────────────────────┘ │
+│ ┌──────── map stage (~46svh) ──────────────────┐ │
+│ │              [chip] · MAPA                   │ │
+│ └──────────────────────────────────────────────┘ │
+│ ┌──────── panel Espectral/Agente ──────────────┐ │
+│ └──────────────────────────────────────────────┘ │
 │ evidence bar                                     │
 └──────────────────────────────────────────────────┘
 ```
 
-- Copy: `max-width ~42vw`, scroll interno.
-- Panel: `min(20rem, vw - copy - gutters)`, bottom-right.
-- `fitBounds`: padding **derecho medido** del panel (no hardcode 336px).
-- Map chip: centrado en franja entre copy y panel.
+- `fitBounds` en stacked: padding simétrico (sin medir rails).
+- Desktop ≥1024px conserva grid 3-rail con glass overlay.
 
 ### 3.2 Secciones tablet
 
@@ -141,8 +138,8 @@
 
 | Slice | Scope | Prioridad |
 |-------|--------|-----------|
-| **LP-5a** | Hero mobile: sheet absolute, safe-area, copy scroll, waitlist hero, header drawer | P0 |
-| **LP-5b** | Hero tablet: fitBounds medido, chip/panel tuning | P0 |
+| **LP-5a** | Hero mobile: safe-area, copy scroll, waitlist hero, header drawer | hecho |
+| **LP-5b** | Hero mobile/tablet: **dos bloques** (copy → map → panel); sin overlay &lt;1024px | hecho |
 | **LP-5c** | Secciones: padding mobile, evidence hint, agent `#agente` heights, touch agent | P1 |
 | **LP-5d** | Spectral panel density mobile (chips scroll, zones wrap) | P2 |
 

@@ -123,6 +123,7 @@ type HeroRailTab = "spectral" | "agent";
 
 export function LandingSpectralHero({ children }: { children: ReactNode }) {
   const shellRef = useRef<HTMLDivElement | null>(null);
+  const mapStageRef = useRef<HTMLDivElement | null>(null);
   const mapHostRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const copySlotRef = useRef<HTMLDivElement | null>(null);
@@ -215,6 +216,8 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
       copyRight: copyRect?.right,
       panelLeft: panelRect?.left,
       spectralHeight: panelRect?.height,
+      mapStageHeight: mapStageRef.current?.getBoundingClientRect().height,
+      stacked: window.innerWidth < 1024,
     });
     return true;
   };
@@ -321,6 +324,9 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
     }
     if (observer && spectralSlotRef.current) {
       observer.observe(spectralSlotRef.current);
+    }
+    if (observer && mapStageRef.current) {
+      observer.observe(mapStageRef.current);
     }
 
     return () => {
@@ -522,22 +528,25 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
 
   return (
     <div ref={shellRef} className={styles.shell}>
-      <div ref={mapHostRef} className={styles.mapHost} aria-hidden={!mapReady} />
-
-      <div className={styles.mapChipSlot}>
-        <MapChip
-          label={
-            heroRailTab === "spectral"
-              ? `Escena · ${formatLandingSceneDate(activeScene.acquisitionDate)} · CDSE`
-              : "Agro Agent · demo Parcela Ica 2"
-          }
-          variant="spectral"
-        />
-      </div>
-
-      <div className={styles.grid}>
+      <div className={styles.copyBlock}>
         <div ref={copySlotRef} className={styles.copySlot}>
           {children}
+        </div>
+      </div>
+
+      <div className={styles.mapBlock}>
+        <div ref={mapStageRef} className={styles.mapStage}>
+          <div ref={mapHostRef} className={styles.mapHost} aria-hidden={!mapReady} />
+          <div className={styles.mapChipSlot}>
+            <MapChip
+              label={
+                heroRailTab === "spectral"
+                  ? `Escena · ${formatLandingSceneDate(activeScene.acquisitionDate)} · CDSE`
+                  : "Agro Agent · demo Parcela Ica 2"
+              }
+              variant="spectral"
+            />
+          </div>
         </div>
 
         <aside

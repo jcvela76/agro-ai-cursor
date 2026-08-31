@@ -321,9 +321,14 @@
 
 .hero {
   position: relative;
-  min-height: 100svh;
   display: flex;
   flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    min-height: 100svh;
+  }
 }
 
 .heroCopyEmbedded {
@@ -336,7 +341,15 @@
 .heroCopyEmbedded .heroTitle,
 .heroCopyEmbedded .heroSupport,
 .heroCopyEmbedded .heroSupportSecondary {
-  text-shadow: 0 1px 14px rgba(255, 253, 248, 0.75);
+  text-shadow: none;
+}
+
+@media (min-width: 1024px) {
+  .heroCopyEmbedded .heroTitle,
+  .heroCopyEmbedded .heroSupport,
+  .heroCopyEmbedded .heroSupportSecondary {
+    text-shadow: 0 1px 14px rgba(255, 253, 248, 0.75);
+  }
 }
 
 .heroCopyEmbedded .waitlistInput {

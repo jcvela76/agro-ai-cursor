@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-30 (LP-5a responsive mobile/tablet hero) |
+| **Última actualización** | 2026-08-30 (LP-5b hero stacked mobile/tablet) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -50,7 +50,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Landing multi-sección | hecho | LP-5a mobile/tablet; hero sheet en shell; mockup `lp-responsive-mockup-2026-08.md` |
+| Landing multi-sección | hecho | LP-5b hero stacked &lt;1024px (copy → map → panel); desktop 3-rail; mockup `lp-responsive-mockup-2026-08.md` |
 | LP demo Agro Agent | hecho | Tab hero + sección; `AgentChatView`; glass compartido; autoplay |
 | Precios informativos | hecho | No vinculantes (ADR-012); Básico sin overclaim alertas email |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon |

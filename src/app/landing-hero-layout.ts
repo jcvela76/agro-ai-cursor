@@ -18,8 +18,8 @@ function maxZoomForTier(tier: HeroLayoutTier): number {
   if (tier === "xl") return 17;
   if (tier === "lg") return 16.5;
   if (tier === "md") return 16;
-  if (tier === "sm") return 15.5;
-  return 15;
+  if (tier === "sm") return 15.75;
+  return 15.5;
 }
 
 function parsePx(value: string): number {
@@ -34,9 +34,10 @@ export function fitLandingDemoParcel(
     copyRight?: number;
     panelLeft?: number;
     spectralHeight?: number;
+    mapStageHeight?: number;
+    stacked?: boolean;
   },
 ) {
-  // Container may still be settling on first paint — sync canvas size before framing.
   map.resize();
 
   const bounds = new LngLatBounds();
@@ -50,12 +51,13 @@ export function fitLandingDemoParcel(
 
   const width = window.innerWidth;
   const tier = heroLayoutTier(width);
+  const stacked = options?.stacked ?? width < 1024;
   const shellStyles = options?.shell ? getComputedStyle(options.shell) : null;
   const gutter = shellStyles ? parsePx(shellStyles.getPropertyValue("--hero-gutter")) : 24;
 
   let padding: { top: number; bottom: number; left: number; right: number };
 
-  if (tier === "lg" || tier === "xl" || tier === "2xl") {
+  if (!stacked && (tier === "lg" || tier === "xl" || tier === "2xl")) {
     if (options?.copyRight != null && options?.panelLeft != null) {
       padding = {
         top: tier === "2xl" ? 104 : 96,
@@ -71,17 +73,12 @@ export function fitLandingDemoParcel(
         right: tier === "2xl" ? 360 : tier === "xl" ? 340 : 300,
       };
     }
-  } else if (tier === "md") {
-    const copyInset = options?.copyRight ?? gutter + Math.min(width * 0.42, 416);
-    const rightPad =
-      options?.panelLeft != null
-        ? Math.max(width - options.panelLeft + 16, gutter + 16)
-        : gutter + Math.min(320, width * 0.35);
+  } else if (stacked) {
     padding = {
-      top: 88,
-      bottom: 88,
-      left: copyInset + 16,
-      right: rightPad,
+      top: 56,
+      bottom: 56,
+      left: gutter + 12,
+      right: gutter + 12,
     };
   } else {
     const sheetHeight = options?.spectralHeight ?? Math.min(window.innerHeight * 0.55, 448);
