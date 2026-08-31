@@ -1,6 +1,8 @@
 .markdown {
   font-size: 0.875rem;
   line-height: 1.45;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .markdown :global(h2) {
@@ -27,7 +29,8 @@
 }
 
 .markdown :global(table) {
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   border-collapse: collapse;
   font-size: 0.8125rem;
   margin: var(--space-2) 0;

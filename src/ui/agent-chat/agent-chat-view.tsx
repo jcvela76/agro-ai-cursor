@@ -11,6 +11,8 @@ export type AgentChatViewMessage = {
   toolNote?: string | null;
   /** Keep tool note visible while assistant text is still streaming in. */
   showToolNoteWithText?: boolean;
+  /** Render plain text until the stream finishes (avoids broken HTML/tables mid-chunk). */
+  streaming?: boolean;
 };
 
 export type AgentChatSuggestion = {
@@ -92,7 +94,11 @@ export function AgentChatView({
             >
               {showToolNote ? <p className={styles.toolNote}>{message.toolNote}</p> : null}
               {message.role === "assistant" && message.text ? (
-                <AgentMessageContent text={message.text} />
+                message.streaming ? (
+                  <p className={styles.bubbleText}>{message.text}</p>
+                ) : (
+                  <AgentMessageContent text={message.text} />
+                )
               ) : null}
               {message.role === "user" ? (
                 <p className={styles.bubbleText}>{message.text}</p>

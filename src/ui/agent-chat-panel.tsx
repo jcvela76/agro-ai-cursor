@@ -57,7 +57,8 @@ function toViewMessages(
         role: "assistant" as const,
         text,
         toolNote: hasToolActivity ? "Consultando evidencia climática…" : null,
-        showToolNoteWithText: isStreamingAssistant && hasToolActivity,
+        showToolNoteWithText: isStreamingAssistant && hasToolActivity && !text,
+        streaming: isStreamingAssistant,
       };
     });
 }

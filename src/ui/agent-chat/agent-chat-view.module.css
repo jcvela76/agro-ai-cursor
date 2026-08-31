@@ -63,6 +63,8 @@
   background: rgba(28, 42, 31, 0.06);
   color: var(--color-fg-primary);
   max-width: 95%;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .bubbleText {

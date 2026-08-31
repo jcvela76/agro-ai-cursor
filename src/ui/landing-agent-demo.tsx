@@ -169,8 +169,8 @@ export function LandingAgentDemo() {
         role: "assistant",
         text: phase === "tool" ? "" : streamedMarkdown,
         toolNote: scenario.toolNote,
-        showToolNoteWithText:
-          phase === "assistant" && visibleChars < assistantText.length,
+        showToolNoteWithText: phase === "tool",
+        streaming: phase === "assistant" && visibleChars < assistantText.length,
       });
     }
 
