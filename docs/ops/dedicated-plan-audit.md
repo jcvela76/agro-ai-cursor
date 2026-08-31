@@ -105,9 +105,9 @@ Contador arranca cuando el cliente entrega **accesos o muestras** acordados en k
 
 ---
 
-## 7. Precio orientativo (interno — DRAFT)
+## 7. Precio orientativo (interno — validado Julio 2026-08-31)
 
-> No publicar en LP hasta validar con Julio / counsel. Cifras para conversación comercial.
+> No publicar en LP hasta decisión explícita de marketing/counsel. Rangos orientativos para conversación comercial.
 
 ### Auditoría (fee único)
 
@@ -158,7 +158,7 @@ Lead «Agendar auditoría»
 
 ## 10. Pendiente para cerrar este draft
 
-- [ ] Validar rangos USD con Julio
+- [x] Validar rangos USD con Julio (2026-08-31 — razonable)
 - [ ] Decidir si la auditoría se ofrece **gratis** en leads piloto estratégicos
 - [ ] Plantilla SOW + NDA (counsel)
 - [ ] Página o anexo público mínimo (sin precios) vs solo mailto
