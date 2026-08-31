@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-31 (draft auditoría Plan Dedicado) |
+| **Última actualización** | 2026-08-31 (auditoría Dedicado en piloto sin fee) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -52,7 +52,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 |---------|--------|---------|
 | Landing multi-sección | hecho | LP-5b hero stacked &lt;1024px (copy → map → panel); desktop 3-rail; mockup `lp-responsive-mockup-2026-08.md` |
 | LP demo Agro Agent | hecho | Tab hero + sección; `AgentChatView`; glass compartido; autoplay |
-| Precios informativos | hecho | USD 29/79/99 Clerk/legal; Dedicado a cotizar; draft auditoría `docs/ops/dedicated-plan-audit.md` |
+| Precios informativos | hecho | USD 29/79/99; Dedicado a cotizar; auditoría piloto sin fee (cupo) — `dedicated-plan-audit.md` |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon; rol/región/cultivo opcionales (LP-copy-3) |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |

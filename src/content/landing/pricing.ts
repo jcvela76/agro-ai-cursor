@@ -87,7 +87,7 @@ export const LANDING_PRICING: readonly LandingPricingTier[] = [
     price: "A cotizar",
     period: "tras auditoría tecnológica",
     features: [
-      "Auditoría tecnológica de datos y sistemas (previo)",
+      "Auditoría tecnológica en piloto (sin fee, sujetos a cupo)",
       "Workspace adaptable a sus fuentes (IoT, ERP, APIs)",
       "Flujos e informes personalizados por contrato",
       "Operations Intelligence o superior como base",
@@ -96,6 +96,6 @@ export const LANDING_PRICING: readonly LandingPricingTier[] = [
     cta: "Agendar auditoría",
     ctaHref: `mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent(DEDICATED_MAIL_SUBJECT)}`,
     disclaimer:
-      "No disponible en checkout web; alcance, integraciones y precio según informe de auditoría.",
+      "No disponible en checkout web. En fase piloto la auditoría puede ser sin cargo si hay cupo y fit; implementación Dedicado se cotiza aparte.",
   },
 ] as const;

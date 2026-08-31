@@ -107,9 +107,27 @@ Contador arranca cuando el cliente entrega **accesos o muestras** acordados en k
 
 ## 7. Precio orientativo (interno — validado Julio 2026-08-31)
 
-> No publicar en LP hasta decisión explícita de marketing/counsel. Rangos orientativos para conversación comercial.
+> Rangos SaaS comerciales: no publicar en LP hasta decisión marketing/counsel.  
+> **Piloto 2026:** la auditoría tecnológica **puede ofrecerse sin fee** (ver §7.1).
 
-### Auditoría (fee único)
+### 7.1 Auditoría en fase piloto (decisión 2026-08-31)
+
+Durante el piloto abierto, Agro AI puede incluir una **auditoría tecnológica sin cargo** para leads calificados que evalúan el Plan Dedicado.
+
+| Regla | Detalle |
+|-------|---------|
+| **Quién** | Productores / cooperativas / exportadores en lista de espera o referidos piloto (Perú) |
+| **Cupo** | Limitado; priorizar fit (IoT/ERP real + horizonte de implementación) |
+| **Tamaño típico** | Preferir **S**; **M** solo si hay samples y TI disponible |
+| **L** | No gratis por defecto — cotizar o partir en fases |
+| **Qué recibe** | Mismos entregables §4 (informe, diagrama, matriz, backlog v0) |
+| **Qué no incluye** | Implementación de conectores, UI custom ni retainer |
+| **Propuesta post-auditoría** | Implementación Dedicado sigue a cotizar; fee de auditoría comercial (tabla abajo) aplica **después** del piloto |
+| **Documentación** | SOW corto de auditoría piloto (NDA si hay datos sensibles) |
+
+Si el lead no califica o el alcance es L, usar la tabla de fee único (§7.2).
+
+### 7.2 Auditoría (fee único — post-piloto / no calificado)
 
 | Tamaño | Rango USD (orientativo) |
 |--------|-------------------------|
@@ -119,7 +137,7 @@ Contador arranca cuando el cliente entrega **accesos o muestras** acordados en k
 
 Puede **acreditarse parcialmente** contra el primer hito de implementación (política a definir por contrato).
 
-### Post-auditoría (fuera de este draft, solo marco)
+### 7.3 Post-auditoría (fuera de este draft, solo marco)
 
 | Concepto | Orientación |
 |----------|-------------|
@@ -134,7 +152,9 @@ Puede **acreditarse parcialmente** contra el primer hito de implementación (pol
 ```text
 Lead «Agendar auditoría»
   → intake (rol, sistemas, plazos)
-  → SOW de auditoría (fee + fechas)
+  → ¿piloto calificado?
+        sí → SOW auditoría piloto (sin fee) + NDA si aplica
+        no → SOW con fee S/M/L
   → kickoff + acceso a samples
   → informe + propuesta Dedicado
   → contrato implementación / retainer
@@ -152,16 +172,17 @@ Lead «Agendar auditoría»
 - [ ] Sistemas a integrar (nombre, versión, API sí/no)
 - [ ] Datos sensibles / requisitos de residencia
 - [ ] Plazo deseado de piloto
-- [ ] Presupuesto aproximado (banda) si el cliente lo comparte
+- [ ] ¿Califica auditoría piloto sin fee? (fit IoT/ERP + cupo)
+- [ ] Presupuesto aproximado (banda) si el cliente lo comparte — no obligatorio en piloto
 
 ---
 
 ## 10. Pendiente para cerrar este draft
 
 - [x] Validar rangos USD con Julio (2026-08-31 — razonable)
-- [ ] Decidir si la auditoría se ofrece **gratis** en leads piloto estratégicos
-- [ ] Plantilla SOW + NDA (counsel)
-- [ ] Página o anexo público mínimo (sin precios) vs solo mailto
+- [x] Auditoría **sin fee** en piloto para leads calificados (2026-08-31)
+- [ ] Plantilla SOW + NDA (counsel) — variante «auditoría piloto»
+- [ ] Página o anexo público mínimo (sin precios de fee) vs solo mailto
 - [ ] ADR corto si Dedicado se convierte en producto formal (entitlements / billing fuera de Clerk PricingTable)
 
 ---
