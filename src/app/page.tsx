@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LEGAL_NAV_LINKS } from "@/content/legal/types";
+import { LEGAL_NAV_LINKS, LEGAL_OPERATOR_LEGAL_NAME, LEGAL_OPERATOR_RUC } from "@/content/legal/types";
 import { LandingAgentDemo } from "@/ui/landing-agent-demo";
 import { LandingSpectralHero } from "./landing-spectral-hero";
 import { LandingHeader } from "./landing-header";
@@ -57,7 +57,7 @@ const PAIN_BLOCKS = [
   },
   {
     title: "Sin un copiloto que una clima, vigor y campo",
-    body: "Preguntas sueltas no cruzan pronóstico, índices satelitales y lo anotado en Campo. El agente responde en lenguaje natural sobre tu parcela —con la fuente a mano cuando la necesitas.",
+    body: "Preguntas sueltas no cruzan pronóstico, índices satelitales y lo anotado en campo. El copiloto responde en lenguaje natural sobre tu parcela —con la fuente a mano cuando la necesitas.",
   },
 ] as const;
 
@@ -79,7 +79,7 @@ const PRODUCTS = [
       "ET0 orientativo e informe hídrico (no dosis)",
       "8 índices (NDRE, EVI, …) con overlay Sentinel/CDSE",
       "Zonas fishnet, historial de escenas y timeline",
-      "Agente con citas a NASA POWER y CDSE",
+      "Agro Agent (copiloto) con citas a NASA POWER y CDSE",
       "Bitácora Campo con foto opcional",
       "Exportación de datos (API y CSV en roadmap)",
     ],
@@ -122,8 +122,8 @@ const PRICING = [
   {
     tier: "Básico",
     desc: "Para productores individuales",
-    price: "Consultar",
-    period: "tarifa al lanzamiento",
+    price: "Gratis",
+    period: "Weather Intelligence base",
     features: [
       "Datos climáticos por parcela",
       "Pronóstico a varios días",
@@ -131,13 +131,13 @@ const PRICING = [
       "Parcelas limitadas",
     ],
     highlight: false,
-    cta: "Consultar",
+    cta: "Solicitar acceso al piloto",
   },
   {
     tier: "Profesional",
     desc: "Para técnicos y consultores",
-    price: "Incluido",
-    period: "en piloto · sin costo",
+    price: "USD 29",
+    period: "/mes al lanzamiento · sin costo en piloto",
     features: [
       "Todo en Básico",
       "Weather Intelligence Plus",
@@ -145,13 +145,13 @@ const PRICING = [
       "Soporte por correo durante piloto",
     ],
     highlight: true,
-    cta: "Lista de espera →",
+    cta: "Solicitar acceso al piloto →",
   },
   {
     tier: "Empresa",
     desc: "Cooperativas y exportadores",
-    price: "Consultar",
-    period: "volumen + soporte dedicado",
+    price: "Desde USD 79",
+    period: "/mes · Operations Intelligence",
     features: [
       "Trazabilidad y Revisión Agronómica",
       "Hasta 15–25 miembros según plan",
@@ -189,7 +189,7 @@ export default function Home() {
               El clima y el vigor de tu parcela —<em>con fuente y evidencia.</em>
             </h1>
             <p className={styles.heroSupport}>
-              Un agente agronómico que une clima, índices{" "}
+              Un copiloto con evidencia que une clima, índices{" "}
               <strong>Sentinel-2</strong> y bitácora de campo — anclado al contorno de tu
               parcela.
             </p>
@@ -199,7 +199,7 @@ export default function Home() {
             </p>
             <div className={styles.heroCtas}>
               <a href="#lista" className={styles.btnPrimaryLg}>
-                Unirse a la lista de espera
+                Solicitar acceso al piloto
               </a>
               <a href="#agente" className={styles.btnGhost}>
                 Conocer el agente ↓
@@ -219,7 +219,7 @@ export default function Home() {
                 <p className={styles.heroTrustMetaLight}>en cada respuesta</p>
               </div>
             </div>
-            <WaitlistForm />
+            <WaitlistForm hint="Sin tarjeta · respondemos en 48 h hábiles en días laborables." />
           </div>
         </LandingSpectralHero>
 
@@ -350,7 +350,8 @@ export default function Home() {
               ))}
             </div>
             <span className={styles.sampleAside}>
-              Valores ilustrativos · no en tiempo real
+              Valores ilustrativos · no en tiempo real · T y HR a 2 m (obs); viento a 10 m
+              (pronóstico)
             </span>
           </div>
         </div>
@@ -368,16 +369,17 @@ export default function Home() {
               <em>con fuente y contexto de parcela.</em>
             </h2>
             <p className={styles.agentLead}>
-              El Agro Agent cruza clima, índices Sentinel y bitácora de Campo. Cita
-              proveedor y ventana temporal; no inventa datos ni sustituye la visita de
-              campo.
+              El Agro Agent es un copiloto conversacional: cruza clima, índices Sentinel y
+              bitácora de campo. Cita proveedor y ventana temporal; no inventa datos, no
+              prescribe dosis ni sustituye la visita de campo ni el registro formal de
+              Revisión Agronómica.
             </p>
           </div>
 
           <div className={styles.agentGrid}>
             <div className={styles.agentCopy}>
               <ul className={styles.agentBullets}>
-                <li>Respuestas en Markdown con tablas y citas a CDSE / Open-Meteo</li>
+                <li>Tablas y citas a CDSE / Open-Meteo en cada respuesta</li>
                 <li>Orientación basada en evidencia — sin prescripciones ciegas</li>
                 <li>Historial por parcela según plan contratado</li>
               </ul>
@@ -455,13 +457,13 @@ export default function Home() {
           <p className={styles.eyebrow}>Precios</p>
           <div className={styles.pricingIntro}>
             <h2 className={styles.sectionTitle}>
-              Referencia en USD. <em>Sin contratación en la web pública.</em>
+              Desde USD 29/mes. <em>Referencia orientativa.</em>
             </h2>
             <p className={styles.pricingNotice}>
-              <strong>Aviso legal:</strong> Los montos mostrados son orientativos para
-              comparar planes. No constituyen oferta vinculante hasta completar el checkout en
-              un workspace autenticado. El piloto y la lista de espera no requieren pago ni
-              tarjeta.
+              <strong>Aviso legal:</strong> Los montos son orientativos y están detallados en{" "}
+              <Link href="/legal/subscription">Términos de suscripción</Link>. No constituyen
+              oferta vinculante hasta completar el checkout en un workspace autenticado. El
+              piloto y la lista de espera no requieren pago ni tarjeta.
             </p>
             <p className={styles.pricingNotice}>
               Consulte{" "}
@@ -525,11 +527,16 @@ export default function Home() {
                 cerremos la fase piloto.
               </p>
               <p className={styles.closingHint}>
-                Te avisamos cuando abra el piloto
+                Sin tarjeta · respondemos en 48 h hábiles en días laborables
               </p>
-              <WaitlistForm dark id="lista-form" />
+              <WaitlistForm
+                dark
+                id="lista-form"
+                hint="Plan Profesional sin costo durante el piloto."
+              />
               <p className={styles.closingFine}>
-                Sin spam. Sin compromiso. Solo aviso de apertura.
+                Sin spam. Sin compromiso. Consulta nuestra{" "}
+                <Link href="/legal/privacy">Política de privacidad</Link>.
               </p>
             </div>
 
@@ -561,7 +568,8 @@ export default function Home() {
         <div className={styles.footerInner}>
           <span className={styles.footerBrand}>Agro AI · geoagro.ai</span>
           <span className={styles.footerCopy}>
-            © 2026 Agro AI. Todos los derechos reservados. Perú.
+            © 2026 Agro AI · Operado por {LEGAL_OPERATOR_LEGAL_NAME} (RUC {LEGAL_OPERATOR_RUC})
+            · Perú.
           </span>
           <LegalFooterLinks showContact className={styles.footerLinks} />
         </div>

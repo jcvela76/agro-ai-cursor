@@ -49,15 +49,15 @@ export const SPECTRAL_INDEX_LEGENDS: Record<VegetationIndexId, SpectralLegend> =
   ndwi: {
     min: -1,
     max: 1,
-    minLabel: "Seco",
-    maxLabel: "Húmedo",
+    minLabel: "Menos agua en copa",
+    maxLabel: "Más agua en copa",
     stops: STRESS_TO_HEALTHY,
   },
   ndmi: {
     min: -1,
     max: 1,
-    minLabel: "Seco",
-    maxLabel: "Húmedo",
+    minLabel: "Menos agua en copa",
+    maxLabel: "Más agua en copa",
     stops: STRESS_TO_HEALTHY,
   },
   nbr: {

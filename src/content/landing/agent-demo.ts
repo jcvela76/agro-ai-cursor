@@ -65,7 +65,7 @@ const LABORS_MARKDOWN = `Revisé pronóstico, lluvia reciente e índices en **${
 
 **Señales que convergen**
 - Pronóstico: varios días con precipitación moderada — ventana seca limitada.
-- NDRE en escenas recientes: zonas con valores **< 0,35** en el fishnet sugieren revisar vigor en campo (no humedad de suelo).
+- Mapa NDRE: zonas **por debajo del promedio de la parcela** sugieren revisar vigor en campo (no humedad de suelo).
 - HR del aire ~80 % — considera viento y evaporación al planificar labores foliares.
 
 **Orientación:** la evidencia sugiere **priorizar inspección** en sectores SO del polígono y reprogramar labores sensibles a viento/lluvia si el pronóstico se confirma. La decisión de momento y dosis queda con el agrónomo en visita.

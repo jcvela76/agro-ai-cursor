@@ -61,7 +61,7 @@ export function LandingHeader() {
             Entrar
           </Link>
           <a href="#lista" className={styles.btnPrimary}>
-            Lista de espera
+            Solicitar piloto
           </a>
         </div>
 
@@ -99,7 +99,7 @@ export function LandingHeader() {
               className={styles.btnPrimaryBlock}
               onClick={() => setMenuOpen(false)}
             >
-              Lista de espera
+              Solicitar acceso al piloto
             </a>
           </div>
         </div>

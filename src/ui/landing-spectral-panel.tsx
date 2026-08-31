@@ -124,6 +124,9 @@ export function LandingSpectralPanel({
             {legend.max}+ {legend.maxLabel}
           </span>
         </div>
+        {selectedIndexId === "ndwi" || selectedIndexId === "ndmi" ? (
+          <p className={styles.muted}>Agua en vegetación — no humedad de suelo.</p>
+        ) : null}
       </div>
 
       <label className={styles.opacityField}>

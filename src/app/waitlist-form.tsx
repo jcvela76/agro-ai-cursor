@@ -13,7 +13,7 @@ type Props = {
 export function WaitlistForm({
   dark = false,
   id,
-  hint = "Te avisamos cuando abra el piloto.",
+  hint = "Sin tarjeta · respondemos en 48 h hábiles en días laborables.",
 }: Props) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
@@ -77,7 +77,7 @@ export function WaitlistForm({
         type="submit"
         disabled={status === "loading"}
       >
-        {status === "loading" ? "Enviando…" : "Inscribirse →"}
+        {status === "loading" ? "Enviando…" : "Solicitar acceso →"}
       </button>
       {message ? (
         <p className={styles.waitlistError} role="status">

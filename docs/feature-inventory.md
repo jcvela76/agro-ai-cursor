@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-30 (LP-copy-1 auditoría P0) |
+| **Última actualización** | 2026-08-30 (LP-copy-2 auditoría P1) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -56,7 +56,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
-| LP copy alineado a producto | hecho | LP-copy-1: sin jerga interna (WQ-18, entitlements), naming Weather Intelligence Plus, claims ~9 km |
+| LP copy alineado a producto | hecho | LP-copy-1/2: claims ~9 km, naming Plus, CTAs piloto, precios USD, operador legal, NDRE relativo |
 | LP “Export EUDR / API pública v1” | planificado | Roadmap landing `done: false` |
 
 ---
