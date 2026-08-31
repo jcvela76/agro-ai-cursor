@@ -1,3 +1,5 @@
+import { agroAgentToolNames } from "@/agents/agro-agent/tools";
+import { agentToolNoteForName } from "@/content/agent/tool-notes";
 import {
   LANDING_DEMO_PARCEL_NAME,
   LANDING_DEMO_SCENES,
@@ -82,21 +84,21 @@ export const LANDING_AGENT_SCENARIOS: LandingAgentScenario[] = [
     id: "ndre-trend",
     chipLabel: "¿Cómo viene el vigor?",
     userQuestion: "¿Cómo viene el vigor en las últimas escenas de NDRE?",
-    toolNote: "Consultando índices de vegetación…",
+    toolNote: agentToolNoteForName(agroAgentToolNames.vegetationIndices),
     assistantMarkdown: ndreTrendMarkdown(),
   },
   {
     id: "weather-parcel",
     chipLabel: "¿Clima en parcela?",
     userQuestion: "¿Qué temperatura y humedad hay en la parcela hoy?",
-    toolNote: "Consultando evidencia climática…",
+    toolNote: agentToolNoteForName(agroAgentToolNames.observation),
     assistantMarkdown: WEATHER_MARKDOWN,
   },
   {
     id: "field-window",
     chipLabel: "¿Ventana para labores?",
     userQuestion: "¿Hay ventana para labores esta semana en Parcela Ica 2?",
-    toolNote: "Consultando pronóstico y zonas espectrales…",
+    toolNote: agentToolNoteForName(agroAgentToolNames.forecast),
     assistantMarkdown: LABORS_MARKDOWN,
   },
 ];

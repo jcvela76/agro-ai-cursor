@@ -35,7 +35,7 @@ function usePrefersReducedMotion(): boolean {
   return reduced;
 }
 
-export function LandingAgentDemo() {
+export function LandingAgentDemo({ variant = "section" }: { variant?: "section" | "hero" }) {
   const [scenarioId, setScenarioId] = useState(LANDING_AGENT_SCENARIOS[0].id);
   const [phase, setPhase] = useState<Phase>("idle");
   const [visibleChars, setVisibleChars] = useState(0);
@@ -187,7 +187,7 @@ export function LandingAgentDemo() {
   return (
     <div
       ref={rootRef}
-      className={styles.panel}
+      className={variant === "hero" ? styles.panelHero : styles.panel}
       onMouseEnter={() => {
         setHoverPaused(true);
         cancelRun();

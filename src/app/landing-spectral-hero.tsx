@@ -18,6 +18,7 @@ import {
 import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import type { ParcelSpectralOverlay, VegetationIndexId } from "@/domain/spectral/types";
 import { LandingSpectralPanel } from "@/ui/landing-spectral-panel";
+import { LandingAgentDemo } from "@/ui/landing-agent-demo";
 import { MapChip } from "@/ui/map-chip";
 import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { Panel } from "@/ui/panel";
@@ -118,6 +119,8 @@ function addParcelLayers(map: MapLibreMap) {
   });
 }
 
+type HeroRailTab = "spectral" | "agent";
+
 export function LandingSpectralHero({ children }: { children: ReactNode }) {
   const shellRef = useRef<HTMLDivElement | null>(null);
   const mapHostRef = useRef<HTMLDivElement | null>(null);
@@ -125,6 +128,7 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
   const copySlotRef = useRef<HTMLDivElement | null>(null);
   const spectralSlotRef = useRef<HTMLElement | null>(null);
   const resizeTimerRef = useRef<number | undefined>(undefined);
+  const [heroRailTab, setHeroRailTab] = useState<HeroRailTab>("spectral");
   const [sceneIndex, setSceneIndex] = useState(LANDING_DEMO_SCENES.length - 1);
   const [isPlaying, setIsPlaying] = useState(true);
   const [mapReady, setMapReady] = useState(false);
@@ -146,6 +150,12 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
 
   const scenes = LANDING_DEMO_SCENES;
   const activeScene = scenes[sceneIndex] ?? scenes[0];
+
+  useEffect(() => {
+    if (heroRailTab === "agent") {
+      setIsPlaying(false);
+    }
+  }, [heroRailTab]);
 
   const cacheOverlay = (indexId: VegetationIndexId, acquisitionDate: string, overlay: ParcelSpectralOverlay) => {
     overlayCacheRef.current.set(overlayCacheKey(indexId, acquisitionDate), overlay);
@@ -516,7 +526,11 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
 
       <div className={styles.mapChipSlot}>
         <MapChip
-          label={`Escena · ${formatLandingSceneDate(activeScene.acquisitionDate)} · CDSE`}
+          label={
+            heroRailTab === "spectral"
+              ? `Escena · ${formatLandingSceneDate(activeScene.acquisitionDate)} · CDSE`
+              : "Agro Agent · demo Parcela Ica 2"
+          }
           variant="spectral"
         />
       </div>
@@ -529,28 +543,54 @@ export function LandingSpectralHero({ children }: { children: ReactNode }) {
         <aside
           ref={spectralSlotRef}
           className={styles.spectralSlot}
-          aria-label="Panel Espectral demo"
+          aria-label={heroRailTab === "spectral" ? "Panel Espectral demo" : "Panel Agente demo"}
         >
-          <div className={styles.spectralTabs} aria-hidden>
-            <span className={styles.spectralTabMuted}>Clima</span>
-            <span className={styles.spectralTabActive}>Espectral</span>
-            <span className={styles.spectralTabMuted}>Agente</span>
+          <div className={styles.spectralTabs} role="tablist" aria-label="Demo del producto">
+            <span className={styles.spectralTabDisabled} title="Disponible en la app">
+              Clima
+            </span>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={heroRailTab === "spectral"}
+              className={
+                heroRailTab === "spectral" ? styles.spectralTabActive : styles.spectralTabButton
+              }
+              onClick={() => setHeroRailTab("spectral")}
+            >
+              Espectral
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={heroRailTab === "agent"}
+              className={
+                heroRailTab === "agent" ? styles.spectralTabActive : styles.spectralTabButton
+              }
+              onClick={() => setHeroRailTab("agent")}
+            >
+              Agente
+            </button>
           </div>
-          <Panel title={LANDING_DEMO_PARCEL_NAME} className={styles.spectralPanel} density="compact">
-            <LandingSpectralPanel
-              scene={activeScene}
-              sceneIndex={sceneIndex}
-              scenes={scenes}
-              selectedIndexId={selectedIndexId}
-              overlayOpacity={overlayOpacity}
-              overlayRendering={overlayRendering}
-              isPlaying={isPlaying}
-              onIndexChange={setSelectedIndexId}
-              onOpacityChange={setOverlayOpacity}
-              onSceneIndexChange={setSceneIndex}
-              onPlayingChange={setIsPlaying}
-            />
-          </Panel>
+          {heroRailTab === "spectral" ? (
+            <Panel title={LANDING_DEMO_PARCEL_NAME} className={styles.spectralPanel} density="compact">
+              <LandingSpectralPanel
+                scene={activeScene}
+                sceneIndex={sceneIndex}
+                scenes={scenes}
+                selectedIndexId={selectedIndexId}
+                overlayOpacity={overlayOpacity}
+                overlayRendering={overlayRendering}
+                isPlaying={isPlaying}
+                onIndexChange={setSelectedIndexId}
+                onOpacityChange={setOverlayOpacity}
+                onSceneIndexChange={setSceneIndex}
+                onPlayingChange={setIsPlaying}
+              />
+            </Panel>
+          ) : (
+            <LandingAgentDemo variant="hero" />
+          )}
         </aside>
       </div>
     </div>

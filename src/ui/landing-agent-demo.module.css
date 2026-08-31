@@ -1,11 +1,5 @@
 .panel {
-  padding: 1.25rem 1.375rem;
-  background: rgba(255, 253, 248, 0.92);
-  border: 1px solid rgba(255, 253, 248, 0.55);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(28, 42, 31, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  composes: glassPanel from "./agent-chat/agent-chat-glass.module.css";
 }
 
 .messagesTall {
@@ -50,4 +44,25 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: rgba(28, 42, 31, 0.45);
+}
+
+.panelHero {
+  composes: glassPanel from "./agent-chat/agent-chat-glass.module.css";
+  flex: 1;
+  min-height: 0;
+  max-height: min(72svh, 40rem);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 767px) {
+  .panelHero {
+    max-height: calc(var(--hero-spectral-sheet-h) - 2.5rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .panelHero {
+    max-height: calc(100svh - 8.5rem);
+  }
 }

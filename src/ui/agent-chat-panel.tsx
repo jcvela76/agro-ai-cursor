@@ -4,14 +4,16 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { AGENT_SUGGESTED_PROMPTS } from "@/content/agent/suggested-prompts";
+import {
+  buildAgentSuggestedPrompts,
+} from "@/content/agent/suggested-prompts";
+import type { CropKey } from "@/domain/parcel/crop-catalog";
+import type { ParcelAgronomicProfile } from "@/domain/parcel/agronomic-profile";
 import type { Parcel } from "@/domain/parcel/types";
 import { AgentChatExpandOverlay } from "@/ui/agent-chat/agent-chat-expand-overlay";
-import {
-  AgentChatView,
-  type AgentChatViewMessage,
-} from "@/ui/agent-chat/agent-chat-view";
+import { AgentChatView } from "@/ui/agent-chat/agent-chat-view";
 import viewStyles from "@/ui/agent-chat/agent-chat-view.module.css";
+import { mapAgentChatToViewMessages } from "@/ui/agent-chat/map-view-messages";
 import { Button } from "@/ui/button";
 import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
@@ -22,48 +24,6 @@ type LoadedChatMessage = {
   role: "user" | "assistant" | "system";
   parts: Array<{ type: "text"; text: string }>;
 };
-
-function toViewMessages(
-  messages: Array<{
-    id: string;
-    role: "user" | "assistant" | "system";
-    parts: Array<{ type: string; text?: string }>;
-  }>,
-  busy: boolean,
-): AgentChatViewMessage[] {
-  const lastAssistantId = [...messages].reverse().find((m) => m.role === "assistant")?.id;
-
-  return messages
-    .filter((message) => message.role === "user" || message.role === "assistant")
-    .map((message) => {
-      const toolParts = message.parts.filter((part) => part.type.startsWith("tool-"));
-      const textParts = message.parts.filter((part) => part.type === "text");
-      const text = textParts
-        .map((part) => part.text ?? "")
-        .join("\n")
-        .trim();
-
-      if (message.role === "user") {
-        return {
-          id: message.id,
-          role: "user" as const,
-          text,
-        };
-      }
-
-      const isStreamingAssistant = busy && message.id === lastAssistantId;
-      const hasToolActivity = toolParts.length > 0;
-
-      return {
-        id: message.id,
-        role: "assistant" as const,
-        text,
-        toolNote: hasToolActivity ? "Consultando evidencia climática…" : null,
-        showToolNoteWithText: isStreamingAssistant && hasToolActivity && !text,
-        streaming: isStreamingAssistant,
-      };
-    });
-}
 
 export function AgentChatPanel({
   parcel,
@@ -78,6 +38,7 @@ export function AgentChatPanel({
   const [input, setInput] = useState("");
   const [gateError, setGateError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [cropKey, setCropKey] = useState<CropKey | null>(null);
 
   const transport = useMemo(
     () =>
@@ -93,6 +54,11 @@ export function AgentChatPanel({
     transport,
   });
 
+  const suggestions = useMemo(
+    () => buildAgentSuggestedPrompts({ cropKey }),
+    [cropKey],
+  );
+
   useEffect(() => {
     let cancelled = false;
     setPlusEnabled(null);
@@ -101,14 +67,16 @@ export function AgentChatPanel({
     setInput("");
     setGateError(null);
     setExpanded(false);
+    setCropKey(null);
     setMessages([]);
 
     (async () => {
       try {
-        const res = await fetch(
-          `/api/agent/chat?parcelId=${encodeURIComponent(parcel.id)}`,
-        );
-        const json = (await res.json()) as {
+        const [chatRes, profileRes] = await Promise.all([
+          fetch(`/api/agent/chat?parcelId=${encodeURIComponent(parcel.id)}`),
+          fetch(`/api/parcels/${encodeURIComponent(parcel.id)}/profile`),
+        ]);
+        const json = (await chatRes.json()) as {
           status: string;
           message?: string;
           data?: {
@@ -118,6 +86,16 @@ export function AgentChatPanel({
           };
         };
         if (cancelled) return;
+
+        if (profileRes.ok) {
+          const profileJson = (await profileRes.json()) as {
+            status: string;
+            data?: ParcelAgronomicProfile;
+          };
+          if (profileJson.status === "OK" && profileJson.data?.cropKey) {
+            setCropKey(profileJson.data.cropKey);
+          }
+        }
 
         if (json.status === "OK" && json.data) {
           setPlusEnabled(json.data.plusEnabled);
@@ -213,14 +191,14 @@ export function AgentChatPanel({
     );
   }
 
-  const viewMessages = toViewMessages(messages, busy);
+  const viewMessages = mapAgentChatToViewMessages(messages, busy);
 
   const chatView = (
     <AgentChatView
       parcelName={parcel.name}
       retentionDays={retentionDays}
       messages={viewMessages}
-      suggestions={AGENT_SUGGESTED_PROMPTS}
+      suggestions={suggestions}
       onSuggestionClick={(suggestion) => void sendText(suggestion.prompt)}
       busy={busy}
       layout={expanded ? "expanded" : "inline"}
