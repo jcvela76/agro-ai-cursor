@@ -192,6 +192,10 @@ export function LandingAgentDemo({ variant = "section" }: { variant?: "section" 
         setHoverPaused(true);
         cancelRun();
       }}
+      onTouchStart={() => {
+        setHoverPaused(true);
+        cancelRun();
+      }}
       onMouseLeave={() => {
         setHoverPaused(false);
         if (inView && phase === "hold" && !manualPaused) {
@@ -204,7 +208,6 @@ export function LandingAgentDemo({ variant = "section" }: { variant?: "section" 
         retentionDays={7}
         messages={viewMessages}
         messagesClassName={styles.messagesTall}
-        messagesMaxHeight="28rem"
         suggestions={suggestions}
         onSuggestionClick={(suggestion) => onChipClick(suggestion.id)}
         suggestionExtras={

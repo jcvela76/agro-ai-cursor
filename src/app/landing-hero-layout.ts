@@ -73,11 +73,15 @@ export function fitLandingDemoParcel(
     }
   } else if (tier === "md") {
     const copyInset = options?.copyRight ?? gutter + Math.min(width * 0.42, 416);
+    const rightPad =
+      options?.panelLeft != null
+        ? Math.max(width - options.panelLeft + 16, gutter + 16)
+        : gutter + Math.min(320, width * 0.35);
     padding = {
       top: 88,
       bottom: 88,
       left: copyInset + 16,
-      right: 336,
+      right: rightPad,
     };
   } else {
     const sheetHeight = options?.spectralHeight ?? Math.min(window.innerHeight * 0.55, 448);

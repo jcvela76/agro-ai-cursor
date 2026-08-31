@@ -385,7 +385,9 @@ export default function Home() {
                 espectral, perfil y notas de Campo.
               </p>
             </div>
-            <LandingAgentDemo />
+            <div className={styles.agentDemoSlot}>
+              <LandingAgentDemo />
+            </div>
           </div>
         </div>
       </section>

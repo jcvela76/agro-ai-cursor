@@ -3,7 +3,24 @@
 }
 
 .messagesTall {
-  min-height: 14rem;
+  min-height: 10rem;
+  max-height: min(14rem, 32vh) !important;
+}
+
+@media (min-width: 768px) {
+  .messagesTall {
+    max-height: min(22rem, 45vh) !important;
+  }
+}
+
+.panelHero .messagesTall {
+  max-height: min(12rem, 28vh) !important;
+}
+
+@media (min-width: 768px) {
+  .panelHero .messagesTall {
+    max-height: min(18rem, 38vh) !important;
+  }
 }
 
 .pauseChip {

@@ -65,10 +65,18 @@
 }
 
 .headerMenuOpen .brand,
-.headerMenuOpen .navLink,
+.headerMenuOpen .navLink {
+  color: #eee9de;
+}
+
+.headerMenuOpen .mobileDrawer {
+  background: rgba(28, 42, 31, 0.98);
+  border-top-color: rgba(255, 253, 248, 0.12);
+}
+
 .headerMenuOpen .mobileLink,
 .headerMenuOpen .mobileEnter {
-  color: #eee9de;
+  color: rgba(255, 253, 248, 0.82);
 }
 
 .headerInner {
@@ -340,6 +348,19 @@
   color: rgba(28, 42, 31, 0.62);
 }
 
+.heroCopyEmbedded .waitlistForm {
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+@media (min-width: 768px) {
+  .heroCopyEmbedded .waitlistForm {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+}
+
 .heroEyebrowRow {
   display: flex;
   flex-wrap: wrap;
@@ -565,6 +586,20 @@
   background: #1c2a1f;
   padding: 0.75rem 1.5rem;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.evidenceBar::after {
+  content: "";
+  position: sticky;
+  right: 0;
+  top: 0;
+  float: right;
+  width: 2rem;
+  height: 100%;
+  margin-left: -2rem;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, #1c2a1f);
 }
 
 @media (min-width: 768px) {
@@ -633,7 +668,7 @@
 .section,
 .sectionPanel,
 .closing {
-  padding: 6rem 1.5rem;
+  padding: 4rem 1.5rem;
 }
 
 @media (min-width: 768px) {
@@ -908,6 +943,11 @@
   .agentGrid {
     display: flex;
     flex-direction: column-reverse;
+  }
+
+  .agentDemoSlot {
+    max-height: min(70vh, 36rem);
+    overflow: auto;
   }
 }
 
