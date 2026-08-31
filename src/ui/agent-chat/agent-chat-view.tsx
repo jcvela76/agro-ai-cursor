@@ -36,6 +36,9 @@ export function AgentChatView({
   messagesClassName,
   messagesMaxHeight,
   className = "",
+  layout = "inline",
+  onExpand,
+  onCollapse,
 }: {
   parcelName: string;
   retentionDays?: number | null;
@@ -51,19 +54,51 @@ export function AgentChatView({
   messagesClassName?: string;
   messagesMaxHeight?: string;
   className?: string;
+  layout?: "inline" | "expanded";
+  onExpand?: () => void;
+  onCollapse?: () => void;
 }) {
   const showSuggestions = suggestions != null && suggestions.length > 0;
+  const shellClass = [
+    styles.shell,
+    layout === "expanded" ? styles.shellExpanded : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <div className={`${styles.shell} ${className}`.trim()}>
+    <div className={shellClass}>
       <div className={styles.introRow}>
         <p className={styles.intro}>
           Pregunta sobre observación o pronóstico de <strong>{parcelName}</strong>. Cito fuente y
           frescura; no invento datos.
         </p>
-        {retentionDays != null && retentionDays > 0 ? (
-          <span className={styles.retentionBadge}>Historial · {retentionDays} días</span>
-        ) : null}
+        <div className={styles.introActions}>
+          {retentionDays != null && retentionDays > 0 ? (
+            <span className={styles.retentionBadge}>Historial · {retentionDays} días</span>
+          ) : null}
+          {layout === "inline" && onExpand ? (
+            <button
+              type="button"
+              className={styles.chromeBtn}
+              onClick={onExpand}
+              aria-label="Agrandar chat del agente"
+            >
+              Agrandar
+            </button>
+          ) : null}
+          {layout === "expanded" && onCollapse ? (
+            <button
+              type="button"
+              className={styles.chromeBtn}
+              onClick={onCollapse}
+              aria-label="Cerrar ventana ampliada"
+            >
+              Cerrar
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <div

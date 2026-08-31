@@ -6,10 +6,12 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AGENT_SUGGESTED_PROMPTS } from "@/content/agent/suggested-prompts";
 import type { Parcel } from "@/domain/parcel/types";
+import { AgentChatExpandOverlay } from "@/ui/agent-chat/agent-chat-expand-overlay";
 import {
   AgentChatView,
   type AgentChatViewMessage,
 } from "@/ui/agent-chat/agent-chat-view";
+import viewStyles from "@/ui/agent-chat/agent-chat-view.module.css";
 import { Button } from "@/ui/button";
 import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
@@ -75,6 +77,7 @@ export function AgentChatPanel({
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [input, setInput] = useState("");
   const [gateError, setGateError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   const transport = useMemo(
     () =>
@@ -97,6 +100,7 @@ export function AgentChatPanel({
     setHistoryLoaded(false);
     setInput("");
     setGateError(null);
+    setExpanded(false);
     setMessages([]);
 
     (async () => {
@@ -211,7 +215,7 @@ export function AgentChatPanel({
 
   const viewMessages = toViewMessages(messages, busy);
 
-  return (
+  const chatView = (
     <AgentChatView
       parcelName={parcel.name}
       retentionDays={retentionDays}
@@ -219,6 +223,10 @@ export function AgentChatPanel({
       suggestions={AGENT_SUGGESTED_PROMPTS}
       onSuggestionClick={(suggestion) => void sendText(suggestion.prompt)}
       busy={busy}
+      layout={expanded ? "expanded" : "inline"}
+      onExpand={() => setExpanded(true)}
+      onCollapse={() => setExpanded(false)}
+      messagesClassName={expanded ? viewStyles.messagesExpanded : undefined}
       footer={
         <>
           {lastBriefing && !busy ? (
@@ -261,5 +269,23 @@ export function AgentChatPanel({
         </form>
       }
     />
+  );
+
+  return (
+    <>
+      {expanded ? (
+        <p className={styles.expandedHint}>
+          Chat ampliado abierto.{" "}
+          <button type="button" className={styles.expandedHintBtn} onClick={() => setExpanded(false)}>
+            Volver al panel
+          </button>
+        </p>
+      ) : (
+        chatView
+      )}
+      {expanded ? (
+        <AgentChatExpandOverlay onClose={() => setExpanded(false)}>{chatView}</AgentChatExpandOverlay>
+      ) : null}
+    </>
   );
 }
