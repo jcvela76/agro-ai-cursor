@@ -1389,6 +1389,9 @@ export function AppShell({
           ) : null}
         </div>
         <div className={styles.chromeRight}>
+          <Link className={styles.adminLink} href="/app/piloto">
+            Piloto
+          </Link>
           {isAdmin ? (
             <Link className={styles.adminLink} href="/app/admin">
               Admin

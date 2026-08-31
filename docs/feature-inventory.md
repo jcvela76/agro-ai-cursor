@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-31 (auditoría Dedicado en piloto sin fee) |
+| **Última actualización** | 2026-08-31 (Pilot-ops-1: guía, hub, telemetría) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -58,6 +58,18 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
 | LP copy alineado a producto | hecho | LP-copy-1/2/3: claims, CTAs, precios, testimonio piloto, waitlist cualificación |
 | LP “Export EUDR / API pública v1” | planificado | Roadmap landing `done: false` |
+
+### Piloto (ops)
+
+| Feature | Estado | Detalle |
+|---------|--------|---------|
+| Guía participante | docs | `docs/pilot/participant-guide.md` |
+| Programa ops (taxonomía) | docs | `docs/ops/pilot-program.md` |
+| Hub `/app/piloto` | hecho | Checklist + formularios inicio/semanal/fallo |
+| Telemetría Neon | hecho | `pilot_events`, `pilot_feedback`, `pilot_error_logs` · APIs `/api/pilot/*` |
+| Instrumentación agente | parcial | send/fail client + persist error server |
+| Vista admin feedback | planificado | Hoy: SQL en ops doc |
+| Sentry APM | planificado | Post-piloto o en paralelo |
 
 ---
 

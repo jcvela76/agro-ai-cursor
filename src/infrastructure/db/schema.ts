@@ -282,3 +282,56 @@ export const parcelFieldNotes = pgTable(
   ],
 );
 
+/** Pilot program telemetry — events, feedback forms, client/server errors. */
+export const pilotEvents = pgTable(
+  "pilot_events",
+  {
+    id: text("id").primaryKey(),
+    orgId: text("org_id").notNull(),
+    userId: text("user_id").notNull(),
+    eventName: text("event_name").notNull(),
+    payload: jsonb("payload").$type<Record<string, unknown> | null>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("pilot_events_org_created_idx").on(table.orgId, table.createdAt),
+    index("pilot_events_name_created_idx").on(table.eventName, table.createdAt),
+  ],
+);
+
+export const pilotFeedback = pgTable(
+  "pilot_feedback",
+  {
+    id: text("id").primaryKey(),
+    orgId: text("org_id").notNull(),
+    userId: text("user_id").notNull(),
+    kind: text("kind").notNull(),
+    rating: text("rating"),
+    flow: text("flow"),
+    body: text("body").notNull(),
+    meta: jsonb("meta").$type<Record<string, unknown> | null>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("pilot_feedback_org_created_idx").on(table.orgId, table.createdAt)],
+);
+
+export const pilotErrorLogs = pgTable(
+  "pilot_error_logs",
+  {
+    id: text("id").primaryKey(),
+    orgId: text("org_id"),
+    userId: text("user_id"),
+    source: text("source").notNull(),
+    message: text("message").notNull(),
+    stack: text("stack"),
+    route: text("route"),
+    userAgent: text("user_agent"),
+    severity: text("severity").notNull().default("error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("pilot_error_logs_created_idx").on(table.createdAt),
+    index("pilot_error_logs_source_created_idx").on(table.source, table.createdAt),
+  ],
+);
+

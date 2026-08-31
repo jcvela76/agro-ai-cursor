@@ -17,6 +17,7 @@ import { mapAgentChatToViewMessages } from "@/ui/agent-chat/map-view-messages";
 import { Button } from "@/ui/button";
 import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
+import { reportPilotError, trackPilotEvent } from "@/ui/pilot/track-pilot";
 import styles from "./agent-chat-panel.module.css";
 
 type LoadedChatMessage = {
@@ -155,9 +156,17 @@ export function AgentChatPanel({
     if (!trimmed || busy) return;
     setGateError(null);
     try {
+      void trackPilotEvent("agent.chat_send", { parcelId: parcel.id });
       await sendMessage({ text: trimmed });
     } catch (err) {
-      setGateError(err instanceof Error ? err.message : "No se pudo enviar");
+      const message = err instanceof Error ? err.message : "No se pudo enviar";
+      setGateError(message);
+      void trackPilotEvent("agent.chat_fail", { parcelId: parcel.id });
+      void reportPilotError({
+        source: "agent.chat_send",
+        message,
+        stack: err instanceof Error ? err.stack : undefined,
+      });
     }
   };
 

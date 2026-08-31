@@ -243,6 +243,19 @@ export async function POST(request: Request) {
         });
       } catch (error) {
         console.error("[agent/chat] failed to persist turn", error);
+        void import("@/infrastructure/pilot/neon-pilot-telemetry")
+          .then(({ insertPilotError }) =>
+            insertPilotError({
+              orgId: authority.orgId,
+              userId: userId ?? null,
+              source: "agent.chat_persist",
+              message: error instanceof Error ? error.message : "persist_turn_failed",
+              stack: error instanceof Error ? error.stack : null,
+              route: "/api/agent/chat",
+              severity: "error",
+            }),
+          )
+          .catch(() => undefined);
       }
     },
   });

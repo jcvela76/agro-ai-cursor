@@ -78,6 +78,8 @@ Cuenta: miembro de **Lima Coffee** (o org piloto) con `weather` + `weather_plus`
 
 **Veredicto:** anotar en `~/Projects/context/agro-ai/session-log.md` con fecha + PASS/FAIL + issues.
 
+**Durante el piloto:** participantes usan `/app/piloto` (checklist + feedback). Ops: [`docs/ops/pilot-program.md`](pilot-program.md) · guía [`docs/pilot/participant-guide.md`](../pilot/participant-guide.md).
+
 ---
 
 ## Fallos típicos
