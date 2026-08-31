@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-30 (LP-3b autoplay 4s + wait PNG cache) |
+| **Última actualización** | 2026-08-30 (LP-4 demo agente landing) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -50,7 +50,8 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Landing multi-sección | hecho | Hero Ica 2 CDSE; crossfade 1s; autoplay 4s espera PNG en cache antes de avanzar |
+| Landing multi-sección | hecho | Hero Ica 2 CDSE; crossfade 1s; autoplay 4s; sección `#agente` demo scriptada |
+| LP demo Agro Agent | hecho | 3 escenarios Parcela Ica 2; chips + autoplay; reutiliza bubbles/Markdown del producto |
 | Precios informativos | hecho | No vinculantes (ADR-012); Básico sin overclaim alertas email |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |

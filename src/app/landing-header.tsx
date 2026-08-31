@@ -6,6 +6,7 @@ import styles from "./landing.module.css";
 
 const NAV_LINKS = [
   { href: "#plataforma", label: "Plataforma" },
+  { href: "#agente", label: "Agente" },
   { href: "#productos", label: "Productos" },
   { href: "#precios", label: "Precios" },
 ] as const;

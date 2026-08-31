@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LEGAL_NAV_LINKS } from "@/content/legal/types";
+import { LandingAgentDemo } from "@/ui/landing-agent-demo";
 import { LandingSpectralHero } from "./landing-spectral-hero";
 import { LandingHeader } from "./landing-header";
 import { LandingJsonLd } from "./landing-json-ld";
@@ -199,7 +200,7 @@ export default function Home() {
               <a href="#lista" className={styles.btnPrimaryLg}>
                 Unirse a la lista de espera
               </a>
-              <a href="#productos" className={styles.btnGhost}>
+              <a href="#agente" className={styles.btnGhost}>
                 Conocer el agente ↓
               </a>
             </div>
@@ -350,6 +351,41 @@ export default function Home() {
             <span className={styles.sampleAside}>
               Valores ilustrativos · no en tiempo real
             </span>
+          </div>
+        </div>
+      </section>
+
+      <div className={styles.divider} />
+
+      <section id="agente" className={styles.section}>
+        <div className={styles.sectionWide}>
+          <p className={styles.eyebrow}>El agente</p>
+          <div className={styles.agentIntro}>
+            <h2 className={styles.sectionTitle}>
+              Pregunta en lenguaje natural —
+              <br />
+              <em>con fuente y contexto de parcela.</em>
+            </h2>
+            <p className={styles.agentLead}>
+              El Agro Agent cruza clima, índices Sentinel y bitácora de Campo. Cita
+              proveedor y ventana temporal; no inventa datos ni sustituye la visita de
+              campo.
+            </p>
+          </div>
+
+          <div className={styles.agentGrid}>
+            <div className={styles.agentCopy}>
+              <ul className={styles.agentBullets}>
+                <li>Respuestas en Markdown con tablas y citas a CDSE / Open-Meteo</li>
+                <li>Orientación basada en evidencia (WQ-18) — sin prescripciones ciegas</li>
+                <li>Historial por parcela según plan (Plus, Ops, Full)</li>
+              </ul>
+              <p className={styles.agentNote}>
+                En la app, el agente consulta tools autorizadas en el mismo turno — clima,
+                espectral, perfil y notas de Campo.
+              </p>
+            </div>
+            <LandingAgentDemo />
           </div>
         </div>
       </section>

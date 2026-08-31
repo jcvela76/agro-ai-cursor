@@ -870,6 +870,79 @@
   color: rgba(28, 42, 31, 0.72);
 }
 
+/* ── Agent demo ─────────────────────────────────────────── */
+
+.agentIntro {
+  display: grid;
+  gap: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .agentIntro {
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    margin-bottom: 4rem;
+    align-items: end;
+  }
+
+  .agentIntro .sectionTitle {
+    margin-bottom: 0;
+  }
+}
+
+.agentLead {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.625;
+  color: rgba(28, 42, 31, 0.72);
+}
+
+.agentGrid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+@media (max-width: 767px) {
+  .agentGrid {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+}
+
+@media (min-width: 768px) {
+  .agentGrid {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 3.5rem;
+  }
+}
+
+.agentCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 28rem;
+}
+
+.agentBullets {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: rgba(28, 42, 31, 0.78);
+}
+
+.agentNote {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: rgba(28, 42, 31, 0.55);
+}
+
 .pillarGrid {
   display: grid;
   border: 1px solid rgba(28, 42, 31, 0.12);
