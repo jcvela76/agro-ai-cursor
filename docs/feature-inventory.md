@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-31 (Pilot-ops-1: guía, hub, telemetría) |
+| **Última actualización** | 2026-08-31 (Pilot-ops-2: tabs, admin, Sentry, SOW/NDA) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -67,9 +67,10 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Programa ops (taxonomía) | docs | `docs/ops/pilot-program.md` |
 | Hub `/app/piloto` | hecho | Checklist + formularios inicio/semanal/fallo |
 | Telemetría Neon | hecho | `pilot_events`, `pilot_feedback`, `pilot_error_logs` · APIs `/api/pilot/*` |
-| Instrumentación agente | parcial | send/fail client + persist error server |
-| Vista admin feedback | planificado | Hoy: SQL en ops doc |
-| Sentry APM | planificado | Post-piloto o en paralelo |
+| Instrumentación tabs + agente | hecho | `*.panel_open` en shell; send/fail agente |
+| Vista admin feedback | hecho | `/app/admin` · eventos / feedback / errores (org-scoped) |
+| Sentry APM | parcial | SDK `@sentry/nextjs` cableado; falta crear proyecto + DSN en Vercel (`docs/ops/sentry.md`) |
+| SOW + NDA auditoría Dedicado | docs | DRAFT counsel: `sow-dedicated-audit-pilot.md` · `nda-dedicated-audit-draft.md` |
 
 ---
 

@@ -70,6 +70,35 @@
   text-decoration: underline;
 }
 
+.pilotList {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pilotItem {
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-canvas);
+}
+
+.pilotMeta {
+  margin: 0 0 var(--space-1);
+  font-size: 0.75rem;
+  color: var(--color-fg-muted);
+}
+
+.pilotBody {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
 .section {
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-5);

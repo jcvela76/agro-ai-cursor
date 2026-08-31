@@ -181,7 +181,7 @@ Lead «Agendar auditoría»
 
 - [x] Validar rangos USD con Julio (2026-08-31 — razonable)
 - [x] Auditoría **sin fee** en piloto para leads calificados (2026-08-31)
-- [ ] Plantilla SOW + NDA (counsel) — variante «auditoría piloto»
+- [x] Plantilla SOW + NDA (DRAFT) — `sow-dedicated-audit-pilot.md` · `nda-dedicated-audit-draft.md` (counsel pendiente)
 - [ ] Página o anexo público mínimo (sin precios de fee) vs solo mailto
 - [ ] ADR corto si Dedicado se convierte en producto formal (entitlements / billing fuera de Clerk PricingTable)
 

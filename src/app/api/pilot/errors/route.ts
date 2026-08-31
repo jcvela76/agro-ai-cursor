@@ -1,10 +1,45 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { insertPilotError } from "@/infrastructure/pilot/neon-pilot-telemetry";
+import { requireOrgAdmin } from "@/lib/require-org-admin";
+import {
+  insertPilotError,
+  listPilotErrors,
+  listPilotEventCounts,
+} from "@/infrastructure/pilot/neon-pilot-telemetry";
+
+export async function GET(request: Request) {
+  const gate = await requireOrgAdmin();
+  if (!gate.ok) {
+    return NextResponse.json({ ok: false, error: gate.message }, { status: gate.status });
+  }
+
+  const url = new URL(request.url);
+  const limit = Number(url.searchParams.get("limit") ?? "40");
+  const days = Number(url.searchParams.get("days") ?? "7");
+
+  try {
+    const [errors, events] = await Promise.all([
+      listPilotErrors({ orgId: gate.orgId, limit }),
+      listPilotEventCounts({ orgId: gate.orgId, days }),
+    ]);
+    return NextResponse.json({
+      ok: true,
+      data: {
+        errors: errors.map((row) => ({
+          ...row,
+          createdAt: row.createdAt.toISOString(),
+        })),
+        eventCounts: events,
+        days,
+      },
+    });
+  } catch {
+    return NextResponse.json({ ok: false, error: "No se pudo listar." }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   const { userId, orgId } = await auth();
-  // Allow authenticated users without org for client crashes during org switch — still log.
   if (!userId) {
     return NextResponse.json({ ok: false, error: "Auth requerida." }, { status: 401 });
   }

@@ -24,6 +24,17 @@ export async function reportPilotError(input: {
   severity?: "info" | "warn" | "error";
 }): Promise<void> {
   try {
+    const { captureMessage, captureException } = await import("@sentry/nextjs");
+    if (input.severity === "error") {
+      captureException(new Error(`[${input.source}] ${input.message}`));
+    } else {
+      captureMessage(`[${input.source}] ${input.message}`, input.severity ?? "error");
+    }
+  } catch {
+    // Sentry optional
+  }
+
+  try {
     await fetch("/api/pilot/errors", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

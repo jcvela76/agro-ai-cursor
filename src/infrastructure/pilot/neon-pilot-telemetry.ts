@@ -1,3 +1,4 @@
+import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { createDb, type Db } from "@/infrastructure/db/client";
 import { pilotErrorLogs, pilotEvents, pilotFeedback } from "@/infrastructure/db/schema";
 
@@ -107,4 +108,103 @@ export async function insertPilotError(input: PilotErrorInput): Promise<{ ok: bo
     severity: input.severity ?? "error",
   });
   return { ok: true };
+}
+
+export async function listPilotFeedback(input: {
+  orgId: string;
+  limit?: number;
+}): Promise<
+  Array<{
+    id: string;
+    kind: string;
+    rating: string | null;
+    flow: string | null;
+    body: string;
+    meta: Record<string, unknown> | null;
+    userId: string;
+    createdAt: Date;
+  }>
+> {
+  const db = getDb();
+  if (!db) {
+    return [];
+  }
+  const limit = Math.min(Math.max(input.limit ?? 40, 1), 100);
+  const rows = await db
+    .select()
+    .from(pilotFeedback)
+    .where(eq(pilotFeedback.orgId, input.orgId))
+    .orderBy(desc(pilotFeedback.createdAt))
+    .limit(limit);
+  return rows.map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    rating: row.rating,
+    flow: row.flow,
+    body: row.body,
+    meta: row.meta,
+    userId: row.userId,
+    createdAt: row.createdAt,
+  }));
+}
+
+export async function listPilotErrors(input: {
+  orgId: string;
+  limit?: number;
+}): Promise<
+  Array<{
+    id: string;
+    source: string;
+    message: string;
+    route: string | null;
+    severity: string;
+    userId: string | null;
+    createdAt: Date;
+  }>
+> {
+  const db = getDb();
+  if (!db) {
+    return [];
+  }
+  const limit = Math.min(Math.max(input.limit ?? 40, 1), 100);
+  const rows = await db
+    .select()
+    .from(pilotErrorLogs)
+    .where(eq(pilotErrorLogs.orgId, input.orgId))
+    .orderBy(desc(pilotErrorLogs.createdAt))
+    .limit(limit);
+  return rows.map((row) => ({
+    id: row.id,
+    source: row.source,
+    message: row.message,
+    route: row.route,
+    severity: row.severity,
+    userId: row.userId,
+    createdAt: row.createdAt,
+  }));
+}
+
+export async function listPilotEventCounts(input: {
+  orgId: string;
+  days?: number;
+}): Promise<Array<{ eventName: string; count: number }>> {
+  const db = getDb();
+  if (!db) {
+    return [];
+  }
+  const days = Math.min(Math.max(input.days ?? 7, 1), 90);
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const rows = await db
+    .select({
+      eventName: pilotEvents.eventName,
+      count: sql<number>`count(*)::int`,
+    })
+    .from(pilotEvents)
+    .where(and(eq(pilotEvents.orgId, input.orgId), gte(pilotEvents.createdAt, since)))
+    .groupBy(pilotEvents.eventName)
+    .orderBy(desc(sql`count(*)`));
+  return rows.map((row) => ({
+    eventName: row.eventName,
+    count: Number(row.count),
+  }));
 }

@@ -11,6 +11,7 @@ import { BillingWorkspaceNav } from "@/ui/billing-workspace-nav";
 import { Button } from "@/ui/button";
 import { DailyBriefingDeliveryPanel } from "@/ui/daily-briefing-delivery-panel";
 import { OrgMembersPanel } from "@/ui/org-members-panel";
+import { PilotAdminSection } from "@/ui/pilot-admin-section";
 import styles from "./admin-panel.module.css";
 
 const ENTITLEMENT_OPTIONS: { id: ProductEntitlement; label: string; hint: string }[] = [
@@ -176,6 +177,8 @@ export function AdminPanel() {
                 </Link>
               </p>
             </section>
+
+            <PilotAdminSection />
 
             <section className={styles.section}>
               <div className={styles.sectionHeading}>

@@ -5,10 +5,37 @@ import {
   PILOT_FEEDBACK_KINDS,
   type PilotFeedbackKind,
 } from "@/content/pilot/checklist";
-import { insertPilotFeedback } from "@/infrastructure/pilot/neon-pilot-telemetry";
+import { requireOrgAdmin } from "@/lib/require-org-admin";
+import {
+  insertPilotFeedback,
+  listPilotFeedback,
+} from "@/infrastructure/pilot/neon-pilot-telemetry";
 
 const KINDS = new Set(PILOT_FEEDBACK_KINDS.map((k) => k.id));
 const FLOWS = new Set(PILOT_BUG_FLOWS);
+
+export async function GET(request: Request) {
+  const gate = await requireOrgAdmin();
+  if (!gate.ok) {
+    return NextResponse.json({ ok: false, error: gate.message }, { status: gate.status });
+  }
+
+  const url = new URL(request.url);
+  const limit = Number(url.searchParams.get("limit") ?? "40");
+
+  try {
+    const rows = await listPilotFeedback({ orgId: gate.orgId, limit });
+    return NextResponse.json({
+      ok: true,
+      data: rows.map((row) => ({
+        ...row,
+        createdAt: row.createdAt.toISOString(),
+      })),
+    });
+  } catch {
+    return NextResponse.json({ ok: false, error: "No se pudo listar." }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   const { userId, orgId } = await auth();

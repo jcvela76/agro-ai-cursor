@@ -92,7 +92,17 @@ Anotar hallazgos en `~/Projects/context/agro-ai/session-log.md`.
 
 ## 7. Pendiente
 
-- [ ] Instrumentar más tabs del shell (weather/spectral open)  
-- [ ] Vista admin de feedback (hoy: SQL)  
-- [ ] Sentry (errores prod) enlazado a release  
+- [x] Instrumentar tabs del shell (weather/spectral/agent/…) — Pilot-ops-2  
+- [x] Vista admin de feedback (`/app/admin` · PilotAdminSection)  
+- [x] Sentry SDK cableado — crear proyecto + DSN (`docs/ops/sentry.md`)  
 - [ ] Export CSV semanal automatizado  
+- [ ] Counsel: aprobar SOW/NDA DRAFT  
+
+---
+
+## Referencias
+
+- Guía participante: `docs/pilot/participant-guide.md`
+- SOW piloto: `docs/ops/sow-dedicated-audit-pilot.md`
+- NDA DRAFT: `docs/ops/nda-dedicated-audit-draft.md`
+- Sentry: `docs/ops/sentry.md`

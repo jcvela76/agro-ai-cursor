@@ -36,6 +36,7 @@ import { FieldLogPanel } from "@/ui/field-log-panel";
 import { ReviewPanel } from "@/ui/review-panel";
 import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { SpectralPanel } from "@/ui/spectral-panel";
+import { trackPilotEvent } from "@/ui/pilot/track-pilot";
 import {
   applySpectralMapOverlay,
   applyDualSpectralMapOverlay,
@@ -333,6 +334,9 @@ export function AppShell({
       if (tab !== "spectral" && tab !== "field") {
         setActiveSpectralZoneId(null);
       }
+      void trackPilotEvent(`${tab}.panel_open`, {
+        parcelId: selectedIdRef.current,
+      });
       router.replace(buildAppUrl(selectedIdRef.current, tab), { scroll: false });
     },
     [router],
