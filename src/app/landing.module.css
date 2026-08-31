@@ -368,9 +368,7 @@
 
 @media (min-width: 768px) {
   .heroCopyEmbedded .waitlistForm {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: stretch;
+    max-width: 100%;
   }
 }
 
@@ -1561,18 +1559,43 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  max-width: 28rem;
+  max-width: 36rem;
+}
+
+.waitlistPrimaryRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.waitlistQualifiers {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  width: 100%;
 }
 
 @media (min-width: 640px) {
   .waitlistForm {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+
+  .waitlistPrimaryRow {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: stretch;
   }
 
-  .waitlistInput {
+  .waitlistPrimaryRow .waitlistInput {
     flex: 1;
+    min-width: 12rem;
+  }
+
+  .waitlistQualifiers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .waitlistHintMobile {
@@ -1598,6 +1621,28 @@
 .waitlistInput:focus {
   border-color: #4f6f52;
   box-shadow: 0 0 0 1px #4f6f52;
+}
+
+.waitlistSelect {
+  font-size: 0.875rem;
+  padding: 0.625rem 1rem;
+  border-radius: 2px;
+  border: 1px solid rgba(28, 42, 31, 0.2);
+  background: #fffdf8;
+  color: #1c2a1f;
+  outline: none;
+  font-family: inherit;
+}
+
+.waitlistSelect:focus {
+  border-color: #4f6f52;
+  box-shadow: 0 0 0 1px #4f6f52;
+}
+
+.waitlistDark .waitlistSelect {
+  background: rgba(255, 253, 248, 0.1);
+  border-color: rgba(255, 253, 248, 0.2);
+  color: #fffdf8;
 }
 
 .waitlistDark .waitlistInput {
@@ -1653,6 +1698,53 @@
   width: 100%;
   font-size: 0.8125rem;
   color: #a33b2b;
+}
+
+/* ── Pilot testimonial ───────────────────────────────────── */
+
+.pilotQuoteSection {
+  padding: 2.5rem 1.5rem;
+  background: #f3f0e8;
+  border-block: 1px solid rgba(28, 42, 31, 0.08);
+}
+
+@media (min-width: 768px) {
+  .pilotQuoteSection {
+    padding-inline: 3.5rem;
+    padding-block: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pilotQuoteSection {
+    padding-inline: 6rem;
+  }
+}
+
+.pilotQuote {
+  margin: 0;
+  max-width: 42rem;
+}
+
+.pilotQuote p {
+  margin: 0;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+  line-height: 1.55;
+  color: #1c2a1f;
+}
+
+.pilotQuoteMeta {
+  margin: 1rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(28, 42, 31, 0.72);
+}
+
+.pilotQuoteNote {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: rgba(28, 42, 31, 0.5);
 }
 
 /* ── Footer ─────────────────────────────────────────────── */

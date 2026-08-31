@@ -99,6 +99,13 @@
       "when": 1787896000000,
       "tag": "0013_parcel_field_notes_photo",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1787900000000,
+      "tag": "0014_waitlist_qualification",
+      "breakpoints": true
     }
   ]
 }

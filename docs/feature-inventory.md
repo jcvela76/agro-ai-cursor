@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-30 (LP-copy-2 auditoría P1) |
+| **Última actualización** | 2026-08-31 (LP-copy-3 auditoría P2) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -53,10 +53,10 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Landing multi-sección | hecho | LP-5b hero stacked &lt;1024px (copy → map → panel); desktop 3-rail; mockup `lp-responsive-mockup-2026-08.md` |
 | LP demo Agro Agent | hecho | Tab hero + sección; `AgentChatView`; glass compartido; autoplay |
 | Precios informativos | hecho | No vinculantes (ADR-012); Básico sin overclaim alertas email |
-| Waitlist form + API | hecho | `POST /api/waitlist` → Neon |
+| Waitlist form + API | hecho | `POST /api/waitlist` → Neon; rol/región/cultivo opcionales (LP-copy-3) |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
-| LP copy alineado a producto | hecho | LP-copy-1/2: claims ~9 km, naming Plus, CTAs piloto, precios USD, operador legal, NDRE relativo |
+| LP copy alineado a producto | hecho | LP-copy-1/2/3: claims, CTAs, precios, testimonio piloto, waitlist cualificación |
 | LP “Export EUDR / API pública v1” | planificado | Roadmap landing `done: false` |
 
 ---

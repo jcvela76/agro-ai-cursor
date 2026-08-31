@@ -19,7 +19,7 @@ import {
   VEGETATION_INDEX_ORDER,
 } from "@/domain/spectral/vegetation-indices";
 
-/** Neon ref: parcel-9d29b6a2-3449-4659-8bf8-3f674153e2f5 — Parcela Ica 2 (valle Tacama). */
+/** Neon ref: parcel-9d29b6a2-3449-4659-8bf8-3f674153e2f5 — Fundo San Juan (valle Tacama, Ica). */
 export const LANDING_DEMO_PARCEL_ID = "parcel-9d29b6a2-3449-4659-8bf8-3f674153e2f5";
 
 /** Autoplay hold per scene on the landing hero (product timeline stays at 1200ms). */
@@ -38,7 +38,7 @@ export const LANDING_DEMO_CENTER = {
   timezone: "America/Lima",
 } as const;
 
-/** Polígono real de Parcela Ica 2 (workspace piloto, 2026-08-29). */
+/** Polígono real del piloto en valle Tacama (workspace, 2026-08-29). */
 export const LANDING_DEMO_GEOMETRY: ParcelGeometry = {
   type: "Polygon",
   coordinates: [
@@ -72,9 +72,13 @@ const DEMO_BBOX = (() => {
 
 export const LANDING_DEMO_RASTER_COORDINATES = bboxImageCoordinates(DEMO_BBOX);
 
-export const LANDING_DEMO_PARCEL_NAME = "Parcela Ica 2";
+export const LANDING_DEMO_PARCEL_NAME = "Fundo San Juan";
+
+export const LANDING_DEMO_PARCEL_CROP = "Viticultura";
 
 export const LANDING_DEMO_PARCEL_META = `~${approximateAreaHectares(LANDING_DEMO_GEOMETRY).toFixed(1)} ha · ${LANDING_DEMO_CENTER.label}`;
+
+export const LANDING_DEMO_PARCEL_DEMO_LINE = `Parcela demo · ${LANDING_DEMO_PARCEL_NAME} · ${LANDING_DEMO_PARCEL_META} · ${LANDING_DEMO_PARCEL_CROP.toLowerCase()} (piloto)`;
 
 export interface LandingDemoScene {
   acquisitionDate: string;
@@ -83,7 +87,7 @@ export interface LandingDemoScene {
   indices: Array<{ id: VegetationIndexId; value: number }>;
 }
 
-/** Escenas CDSE reales de Parcela Ica 2 (Neon, ago 2026). */
+/** Escenas CDSE reales del piloto (Neon, ago 2026). */
 export const LANDING_DEMO_SCENES: LandingDemoScene[] = [
   {
     acquisitionDate: "2026-08-07",

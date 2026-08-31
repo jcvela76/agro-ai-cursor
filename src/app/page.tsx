@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LEGAL_NAV_LINKS, LEGAL_OPERATOR_LEGAL_NAME, LEGAL_OPERATOR_RUC } from "@/content/legal/types";
+import { LANDING_DEMO_PARCEL_DEMO_LINE } from "@/content/landing/spectral-demo";
 import { LandingAgentDemo } from "@/ui/landing-agent-demo";
 import { LandingSpectralHero } from "./landing-spectral-hero";
 import { LandingHeader } from "./landing-header";
@@ -163,6 +164,14 @@ const PRICING = [
   },
 ] as const;
 
+const PILOT_TESTIMONIAL = {
+  quote:
+    "Antes comparaba el clima de la ciudad con el fundo; ahora veo la serie NDRE y el pronóstico en el mismo mapa — y sé de dónde sale cada número.",
+  role: "Técnico de campo",
+  region: "Ica · valle Tacama",
+  note: "Cita anónima · piloto 2026",
+} as const;
+
 const ROADMAP = [
   { done: true, label: "Integración Open-Meteo + NASA POWER" },
   { done: true, label: "Índices Sentinel y overlay CDSE (Plus)" },
@@ -258,9 +267,15 @@ export default function Home() {
                   la helada nocturna del fondo del valle, ni el aguacero que cayó a
                   2 km de la estación más cercana.
                 </p>
+                <p>
+                  En la costa sur —Ica, Pisco, Chincha— el viento de tarde, la garúa
+                  matutina y el contraste entre valle regado y loma seca cambian el riego y
+                  la ventana de labores aunque la estación oficial diga lo mismo que en la
+                  ciudad.
+                </p>
                 <p className={styles.proseAccent}>
-                  Agro AI ancla clima y vigor al contorno de tu campo —y el agente los usa
-                  para responderte.
+                  Agro AI ancla clima y vigor al contorno de tu campo —y el copiloto los
+                  usa para responderte.
                 </p>
               </div>
               <div className={styles.painGrid}>
@@ -291,7 +306,7 @@ export default function Home() {
                 <div className={styles.compareParcel}>
                   <p className={styles.compareLabelOnDark}>Tu parcela</p>
                   <p className={styles.compareValueOnDark}>17 °C</p>
-                  <p className={styles.compareMetaOnDark}>Agro AI · parcela demo</p>
+                  <p className={styles.compareMetaOnDark}>Fundo San Juan · demo</p>
                 </div>
               </div>
             </div>
@@ -308,12 +323,12 @@ export default function Home() {
             <h2 className={styles.sectionTitle}>
               Observación +
               <br />
-              Pronóstico. <em>Con fuente y frescura.</em>
+              Pronóstico. <em>Anclado a tu parcela.</em>
             </h2>
             <p className={styles.weatherLead}>
-              Clima observado y pronóstico son la base del agente: briefings, consultas y
-              lecturas espectrales parten de datos anclados a tu parcela, con fuente visible
-              cuando importa.
+              Clima observado y pronóstico son la base del copiloto: briefings, consultas y
+              lecturas espectrales parten de datos en tu parcela, con proveedor y fecha
+              visibles cuando importa.
             </p>
           </div>
 
@@ -338,9 +353,7 @@ export default function Home() {
           </div>
 
           <div className={styles.sampleBar}>
-            <span className={styles.sampleLabel}>
-              Muestra ilustrativa · parcela demo
-            </span>
+            <span className={styles.sampleLabel}>{LANDING_DEMO_PARCEL_DEMO_LINE}</span>
             <div className={styles.sampleMetrics}>
               {SAMPLE_METRICS.map(([value, label]) => (
                 <div key={label}>
@@ -366,7 +379,7 @@ export default function Home() {
             <h2 className={styles.sectionTitle}>
               Pregunta en lenguaje natural —
               <br />
-              <em>con fuente y contexto de parcela.</em>
+              <em>con contexto de tu parcela.</em>
             </h2>
             <p className={styles.agentLead}>
               El Agro Agent es un copiloto conversacional: cruza clima, índices Sentinel y
@@ -392,6 +405,18 @@ export default function Home() {
               <LandingAgentDemo />
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className={styles.pilotQuoteSection} aria-label="Voz del piloto">
+        <div className={styles.sectionWide}>
+          <blockquote className={styles.pilotQuote}>
+            <p>{PILOT_TESTIMONIAL.quote}</p>
+          </blockquote>
+          <p className={styles.pilotQuoteMeta}>
+            {PILOT_TESTIMONIAL.role} · {PILOT_TESTIMONIAL.region}
+          </p>
+          <p className={styles.pilotQuoteNote}>{PILOT_TESTIMONIAL.note}</p>
         </div>
       </section>
 

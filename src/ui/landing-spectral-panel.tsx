@@ -5,7 +5,7 @@ import {
   landingDemoIndices,
   landingDemoSparklinePoints,
   landingDemoZones,
-  LANDING_DEMO_PARCEL_NAME,
+  LANDING_DEMO_PARCEL_DEMO_LINE,
   ndreVigorLabel,
   type LandingDemoScene,
 } from "@/content/landing/spectral-demo";
@@ -68,7 +68,8 @@ export function LandingSpectralPanel({
   return (
     <div className={styles.content}>
       <p className={styles.intro}>
-        Parcela demo · {LANDING_DEMO_PARCEL_NAME} — overlay CDSE de escenas del piloto.
+        {LANDING_DEMO_PARCEL_DEMO_LINE} — índices Sentinel-2 L2A con overlay CDSE de escenas
+        del piloto.
       </p>
       <p className={styles.muted}>
         Escena {scene.acquisitionDate}
