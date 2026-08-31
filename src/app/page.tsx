@@ -70,7 +70,7 @@ const SAMPLE_METRICS = [
 
 const PRODUCTS = [
   {
-    title: "Intelligence Plus",
+    title: "Weather Intelligence Plus",
     subtitle: null as string | null,
     disclaimer: null as string | null,
     body: "Clima, vigor satelital y agente en el contorno de tu parcela. Pregunta en lenguaje natural, recibe briefings y respuestas con contexto —sin prometer alertas oficiales ni dosis.",
@@ -91,9 +91,9 @@ const PRODUCTS = [
     subtitle: "Café · EUDR",
     disclaimer:
       "Herramienta de apoyo documental; no constituye certificación EUDR ni due diligence legal.",
-    body: "Registro georreferenciado de origen y apoyo documental para exportadores. Combina datos de campo, clima y cadena de custodia en el workspace.",
+    body: "Registro georreferenciado de origen y apoyo documental para exportadores. Combina datos de campo, clima y cadena de custodia en la cuenta de equipo.",
     features: [
-      "Polígonos de parcela en workspace",
+      "Polígonos de parcela en la cuenta de equipo",
       "Cadena de custodia por lote (piloto)",
       "Exportables orientados a EUDR (en desarrollo)",
       "Referencia al Reglamento EU 2023/1115",
@@ -105,12 +105,12 @@ const PRODUCTS = [
     title: "Revisión Agronómica",
     subtitle: null,
     disclaimer: null,
-    body: "Decisiones agronómicas formales con trazabilidad en workspace. Complementa la bitácora de Campo con registro identificado del agrónomo —append-only, sin firma criptográfica.",
+    body: "Decisiones agronómicas formales con trazabilidad en la cuenta de equipo. Complementa la bitácora de campo con registro identificado del agrónomo —sin edición posterior, sin firma criptográfica.",
     features: [
-      "Decisiones formales (entitlement agronomic_review)",
+      "Registro formal de decisiones (plan Empresa)",
       "Registro inmutable de intervenciones",
       "Identificación del agrónomo responsable",
-      "Historial auditable en workspace",
+      "Historial auditable en la cuenta de equipo",
       "Plan Operations Intelligence y superiores",
     ],
     coffee: false,
@@ -141,7 +141,7 @@ const PRICING = [
     features: [
       "Todo en Básico",
       "Weather Intelligence Plus",
-      "Hasta 5 miembros (plan weather_plus)",
+      "Hasta 5 miembros (plan Profesional)",
       "Soporte por correo durante piloto",
     ],
     highlight: true,
@@ -167,7 +167,7 @@ const ROADMAP = [
   { done: true, label: "Integración Open-Meteo + NASA POWER" },
   { done: true, label: "Índices Sentinel y overlay CDSE (Plus)" },
   { done: true, label: "Piloto con productores en curso" },
-  { done: true, label: "Trazabilidad piloto en workspace" },
+  { done: true, label: "Trazabilidad piloto en cuenta de equipo" },
   { done: false, label: "Export EUDR y API pública v1" },
   { done: false, label: "Lanzamiento comercial" },
 ] as const;
@@ -190,11 +190,12 @@ export default function Home() {
             </h1>
             <p className={styles.heroSupport}>
               Un agente agronómico que une clima, índices{" "}
-              <strong>Sentinel-2</strong> y bitácora de Campo — todo anclado al polígono
-              exacto de tu parcela.
+              <strong>Sentinel-2</strong> y bitácora de campo — anclado al contorno de tu
+              parcela.
             </p>
             <p className={styles.heroSupportSecondary}>
-              Fuentes: Open-Meteo, NASA POWER, CDSE — citadas cuando importa.
+              Datos públicos (~9 km) interpolados al polígono · Open-Meteo, NASA POWER, CDSE —
+              citados cuando importa.
             </p>
             <div className={styles.heroCtas}>
               <a href="#lista" className={styles.btnPrimaryLg}>
@@ -377,12 +378,12 @@ export default function Home() {
             <div className={styles.agentCopy}>
               <ul className={styles.agentBullets}>
                 <li>Respuestas en Markdown con tablas y citas a CDSE / Open-Meteo</li>
-                <li>Orientación basada en evidencia (WQ-18) — sin prescripciones ciegas</li>
-                <li>Historial por parcela según plan (Plus, Ops, Full)</li>
+                <li>Orientación basada en evidencia — sin prescripciones ciegas</li>
+                <li>Historial por parcela según plan contratado</li>
               </ul>
               <p className={styles.agentNote}>
-                En la app, el agente consulta tools autorizadas en el mismo turno — clima,
-                espectral, perfil y notas de Campo.
+                En la app, el agente consulta en el mismo turno clima, espectral, perfil y
+                notas de campo.
               </p>
             </div>
             <div className={styles.agentDemoSlot}>
@@ -401,7 +402,7 @@ export default function Home() {
             </div>
             <p className={styles.productsAside}>
               Módulos en evolución para productores y técnicos en Perú. Las capacidades
-              dependen del plan y entitlements del workspace.
+              dependen del plan contratado en tu cuenta de equipo.
             </p>
           </div>
 
@@ -470,8 +471,7 @@ export default function Home() {
                   <Link href={link.href}>{link.label}</Link>
                 </span>
               ))}
-              . Sandbox (stg): admins pueden probar{" "}
-              <Link href="/app/billing">planes de prueba</Link> sin cobro live en Perú.
+              .
             </p>
           </div>
 

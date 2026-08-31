@@ -44,7 +44,7 @@ ${rows.join("\n")}
 
 **Lectura:** picos de vigor alrededor de **0,49** (12 y 24 ago). La escena del **${formatLandingSceneDate(latest.acquisitionDate)}** muestra NDRE **${latestNdre.toFixed(2)}** — posible nubosidad o sombra en la adquisición; contrasta con la escena previa antes de concluir estrés.
 
-**Fuente:** CDSE Sentinel-2 · media parcela · escenas allowlisted del workspace piloto.`;
+**Fuente:** CDSE Sentinel-2 · media parcela · escenas del piloto.`;
 }
 
 const WEATHER_MARKDOWN = `**Temperatura a 2 m en parcela:** 17,4 °C (interpolado al polígono).
@@ -68,14 +68,14 @@ const LABORS_MARKDOWN = `Revisé pronóstico, lluvia reciente e índices en **${
 - NDRE en escenas recientes: zonas con valores **< 0,35** en el fishnet sugieren revisar vigor en campo (no humedad de suelo).
 - HR del aire ~80 % — considera viento y evaporación al planificar labores foliares.
 
-**Orientación (WQ-18):** la evidencia sugiere **priorizar inspección** en sectores SO del polígono y reprogramar labores sensibles a viento/lluvia si el pronóstico se confirma. La decisión de momento y dosis queda con el agrónomo en visita.
+**Orientación:** la evidencia sugiere **priorizar inspección** en sectores SO del polígono y reprogramar labores sensibles a viento/lluvia si el pronóstico se confirma. La decisión de momento y dosis queda con el agrónomo en visita.
 
 <details>
 <summary>Evidencia consultada</summary>
 
-- \`getParcelWeatherForecast\` · Open-Meteo (GFS/ICON)
-- \`getParcelVegetationIndices\` · CDSE Sentinel-2
-- \`getParcelSpectralZones\` · fishnet NDRE
+- Pronóstico · Open-Meteo (GFS/ICON)
+- Índices de vegetación · CDSE Sentinel-2
+- Mapa de zonas · NDRE
 
 </details>`;
 
@@ -97,7 +97,7 @@ export const LANDING_AGENT_SCENARIOS: LandingAgentScenario[] = [
   {
     id: "field-window",
     chipLabel: "¿Ventana para labores?",
-    userQuestion: "¿Hay ventana para labores esta semana en Parcela Ica 2?",
+    userQuestion: `¿Hay ventana para labores esta semana en ${LANDING_DEMO_PARCEL_NAME}?`,
     toolNote: agentToolNoteForName(agroAgentToolNames.forecast),
     assistantMarkdown: LABORS_MARKDOWN,
   },
