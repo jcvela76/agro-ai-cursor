@@ -11,12 +11,12 @@ export const SHELL_TOUR_STEPS = [
   {
     id: "parcel",
     title: "Elegí o creá una parcela",
-    body: "Arriba podés cambiar de parcela con el selector. Con «+ Nueva parcela» dibujás un polígono. Clima, espectral y agente usan la parcela seleccionada.",
+    body: "Arriba podés cambiar de parcela con el selector. Con «+ Nueva parcela» dibujás un polígono. En Free el clima usa esa parcela; Espectral y Agente requieren Enterprise o un piloto con Plus.",
   },
   {
     id: "panels",
     title: "Paneles a la derecha",
-    body: "Con una parcela activa aparecen las pestañas: Clima, Espectral, Agente y, según tu plan, perfil, bitácora, trazabilidad o revisión.",
+    body: "Con una parcela activa ves Clima. Espectral, Agente, Perfil, Campo, Trazabilidad y Revisión aparecen bloqueados en Free — tocá la pestaña para ver cómo avanzar a Enterprise o activar un piloto.",
   },
   {
     id: "pilot",

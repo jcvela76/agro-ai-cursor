@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-10-22 (MapLibre shell height: mapFrame wrapper) |
+| **Última actualización** | 2026-10-22 (ADR-061.3 Gates UX Free) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -35,6 +35,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 |---------|--------|---------|
 | Access resolver (Clerk metadata) | hecho | `entitlements`, parcelas autorizadas, plan |
 | Entitlements de producto | hecho | weather, weather_plus, traceability, agronomic_review |
+| Gates UX Free (shell tabs) | hecho | ADR-061.3 · SSR capabilities · tabs locked + `PlanFeatureUpsell` Enterprise · skip spectral fetches |
 | Deny-before-provider | hecho | Deniega antes de llamar proveedores |
 | Allowlist parcelas Weather | hecho | Vacío = todas del org |
 | Synthetic access resolver | hecho | Acceso fake para tests/offline |

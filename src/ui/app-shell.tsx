@@ -22,6 +22,12 @@ import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import type { Parcel, ParcelGeometry } from "@/domain/parcel/types";
 import { approximateAreaHectares } from "@/domain/parcel/geometry";
 import { planDisplayLabel } from "@/domain/billing/plan-display";
+import {
+  isSideTabEntitled,
+  upsellKeyForSideTab,
+  type WorkspaceCapabilities,
+  type WorkspaceSideTab,
+} from "@/domain/auth/workspace-capabilities";
 import type { ParcelSpectralOverlay, SpectralZone, VegetationIndexId } from "@/domain/spectral/types";
 import { getSpectralLegend } from "@/domain/spectral/overlay-legends";
 import { MapChip } from "@/ui/map-chip";
@@ -33,6 +39,7 @@ import { ensureMapLibreWorker } from "@/ui/maplibre-worker";
 import { Panel } from "@/ui/panel";
 import { ParcelProfilePanel } from "@/ui/parcel-profile-panel";
 import { FieldLogPanel } from "@/ui/field-log-panel";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { ReviewPanel } from "@/ui/review-panel";
 import { TraceLotsPanel } from "@/ui/trace-lots-panel";
 import { SpectralPanel } from "@/ui/spectral-panel";
@@ -59,7 +66,7 @@ const PARCELS_LINE = "agro-parcels-line";
 const PARCEL_DETAIL_MAX_ZOOM = 16;
 
 type DrawMode = "idle" | "draw" | "edit";
-type SideTab = "weather" | "spectral" | "agent" | "profile" | "field" | "trace" | "review";
+type SideTab = WorkspaceSideTab;
 
 const SIDE_TABS: readonly SideTab[] = [
   "weather",
@@ -71,9 +78,29 @@ const SIDE_TABS: readonly SideTab[] = [
   "review",
 ];
 
-function parseSideTab(raw: string | null | undefined): SideTab {
+const TAB_LABELS: Record<SideTab, string> = {
+  weather: "Clima",
+  spectral: "Espectral",
+  agent: "Agente",
+  profile: "Perfil",
+  field: "Campo",
+  trace: "Trazabilidad",
+  review: "Revisión",
+};
+
+function parseSideTab(
+  raw: string | null | undefined,
+  capabilities: WorkspaceCapabilities,
+): SideTab {
   if (raw && (SIDE_TABS as readonly string[]).includes(raw)) {
-    return raw as SideTab;
+    const tab = raw as SideTab;
+    if (isSideTabEntitled(tab, capabilities)) {
+      return tab;
+    }
+    // Deep-link to a locked tab: stay on that tab so upsell shows (no API panel).
+    if (tab !== "weather") {
+      return tab;
+    }
   }
   return "weather";
 }
@@ -236,14 +263,16 @@ function syncParcelLayers(
 export function AppShell({
   initialParcelId,
   initialTab,
+  capabilities,
 }: {
   initialParcelId: string | null;
   initialTab?: string | null;
+  capabilities: WorkspaceCapabilities;
 }) {
   const router = useRouter();
   const { has } = useAuth();
   const { organization } = useOrganization();
-  const isAdmin = has?.({ role: "org:admin" }) ?? false;
+  const isAdmin = capabilities.isAdmin || (has?.({ role: "org:admin" }) ?? false);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const drawRef = useRef<TerraDraw | null>(null);
@@ -262,7 +291,9 @@ export function AppShell({
   >(() => {});
   const setActiveSpectralZoneIdRef = useRef<(zoneId: string | null) => void>(() => {});
   const selectedIdRef = useRef<string | null>(initialParcelId);
-  const sideTabRef = useRef<SideTab>(parseSideTab(initialTab));
+  const sideTabRef = useRef<SideTab>(parseSideTab(initialTab, capabilities));
+  const capabilitiesRef = useRef(capabilities);
+  capabilitiesRef.current = capabilities;
 
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [parcelQuota, setParcelQuota] = useState<{
@@ -276,7 +307,9 @@ export function AppShell({
   const [listError, setListError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(initialParcelId);
   const [drawMode, setDrawMode] = useState<DrawMode>("idle");
-  const [sideTab, setSideTab] = useState<SideTab>(() => parseSideTab(initialTab));
+  const [sideTab, setSideTab] = useState<SideTab>(() =>
+    parseSideTab(initialTab, capabilities),
+  );
   const [shellTourOpen, setShellTourOpen] = useState(false);
   const [draftName, setDraftName] = useState("Nueva parcela");
   const [draftGeometry, setDraftGeometry] = useState<ParcelGeometry | null>(null);
@@ -338,6 +371,7 @@ export function AppShell({
       }
       void trackPilotEvent(`${tab}.panel_open`, {
         parcelId: selectedIdRef.current,
+        locked: !isSideTabEntitled(tab, capabilitiesRef.current),
       });
       router.replace(buildAppUrl(selectedIdRef.current, tab), { scroll: false });
     },
@@ -349,6 +383,9 @@ export function AppShell({
       acquiredAt: string;
       means: Partial<Record<VegetationIndexId, number | null>>;
     }) => {
+      if (!capabilitiesRef.current.weatherPlus) {
+        return;
+      }
       const parcelId = selectedIdRef.current;
       if (!parcelId || sideTabRef.current !== "spectral") {
         return;
@@ -726,7 +763,13 @@ export function AppShell({
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || drawMode !== "idle" || !selectedId || !selected?.geometry) {
+    if (
+      !map ||
+      drawMode !== "idle" ||
+      !selectedId ||
+      !selected?.geometry ||
+      !capabilities.weatherPlus
+    ) {
       if (map) {
         clearSpectralMapOverlay(map);
       }
@@ -855,6 +898,7 @@ export function AppShell({
       window.clearTimeout(timer);
     };
   }, [
+    capabilities.weatherPlus,
     drawMode,
     selectedId,
     selected?.geometry,
@@ -869,6 +913,7 @@ export function AppShell({
     const map = mapRef.current;
     if (
       !map ||
+      !capabilities.weatherPlus ||
       drawMode !== "idle" ||
       !selectedId ||
       !selected?.geometry ||
@@ -985,6 +1030,7 @@ export function AppShell({
       window.clearTimeout(timer);
     };
   }, [
+    capabilities.weatherPlus,
     drawMode,
     selectedId,
     selected?.geometry,
@@ -997,7 +1043,8 @@ export function AppShell({
   // Fishnet outlines for Espectral + Campo (zone pin).
   useEffect(() => {
     const map = mapRef.current;
-    const showZones = sideTab === "spectral" || sideTab === "field";
+    const showZones =
+      capabilities.weatherPlus && (sideTab === "spectral" || sideTab === "field");
     if (!map || !showZones || !spectralZones?.length) {
       if (map) {
         clearSpectralZoneOutlines(map);
@@ -1013,12 +1060,18 @@ export function AppShell({
     } else {
       map.once("style.load", paint);
     }
-  }, [activeSpectralZoneId, sideTab, spectralIndexId, spectralZones]);
+  }, [
+    activeSpectralZoneId,
+    capabilities.weatherPlus,
+    sideTab,
+    spectralIndexId,
+    spectralZones,
+  ]);
 
   // Cold Campo: load NDRE zones if fishnet not already in memory (e.g. after Espectral visit).
   const fieldZonesFetchRef = useRef<string | null>(null);
   useEffect(() => {
-    if (sideTab !== "field" || !selectedId) {
+    if (!capabilities.weatherPlus || sideTab !== "field" || !selectedId) {
       return;
     }
     if (spectralZones?.length) {
@@ -1052,7 +1105,7 @@ export function AppShell({
     return () => {
       cancelled = true;
     };
-  }, [sideTab, selectedId, spectralZones?.length]);
+  }, [capabilities.weatherPlus, sideTab, selectedId, spectralZones?.length]);
 
   useEffect(() => {
     spectralOpacityRef.current = spectralOpacity;
@@ -1068,12 +1121,19 @@ export function AppShell({
   }, [spectralCompareBlend, spectralCompareHint, spectralOpacity]);
 
   const spectralActive =
-    drawMode === "idle" && sideTab === "spectral" && Boolean(selected?.geometry);
+    capabilities.weatherPlus &&
+    drawMode === "idle" &&
+    sideTab === "spectral" &&
+    Boolean(selected?.geometry);
   const mapChromeActive = drawMode === "idle";
   const fieldMapZoneLabel =
-    sideTab === "field" && activeSpectralZoneId && spectralZones
+    capabilities.weatherPlus &&
+    sideTab === "field" &&
+    activeSpectralZoneId &&
+    spectralZones
       ? (spectralZones.find((z) => z.id === activeSpectralZoneId)?.label ?? null)
       : null;
+  const sideTabEntitled = isSideTabEntitled(sideTab, capabilities);
   const summaryTitle = organization?.name
     ? shortOrgDisplayName(organization.name)
     : (selected?.name ?? "");
@@ -1663,72 +1723,53 @@ export function AppShell({
               />
             </label>
             <div className={styles.tabs} role="tablist" aria-label="Secciones de parcela">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sideTab === "weather"}
-                className={sideTab === "weather" ? styles.tabActive : styles.tab}
-                onClick={() => goToTab("weather")}
-              >
-                Clima
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sideTab === "spectral"}
-                className={sideTab === "spectral" ? styles.tabActive : styles.tab}
-                onClick={() => goToTab("spectral")}
-              >
-                Espectral
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sideTab === "agent"}
-                className={sideTab === "agent" ? styles.tabActive : styles.tab}
-                onClick={() => goToTab("agent")}
-              >
-                Agente
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sideTab === "profile"}
-                className={sideTab === "profile" ? styles.tabActive : styles.tab}
-                onClick={() => goToTab("profile")}
-              >
-                Perfil
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sideTab === "field"}
-                className={sideTab === "field" ? styles.tabActive : styles.tab}
-                onClick={() => goToTab("field")}
-              >
-                Campo
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sideTab === "trace"}
-                className={sideTab === "trace" ? styles.tabActive : styles.tab}
-                onClick={() => goToTab("trace")}
-              >
-                Trazabilidad
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sideTab === "review"}
-                className={sideTab === "review" ? styles.tabActive : styles.tab}
-                onClick={() => goToTab("review")}
-              >
-                Revisión
-              </button>
+              {SIDE_TABS.map((tab) => {
+                const entitled = isSideTabEntitled(tab, capabilities);
+                const active = sideTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    aria-disabled={!entitled}
+                    title={entitled ? undefined : "No incluido en Free — Enterprise / piloto"}
+                    className={
+                      active
+                        ? entitled
+                          ? styles.tabActive
+                          : `${styles.tabActive} ${styles.tabLocked}`
+                        : entitled
+                          ? styles.tab
+                          : `${styles.tab} ${styles.tabLocked}`
+                    }
+                    onClick={() => goToTab(tab)}
+                  >
+                    {TAB_LABELS[tab]}
+                    {!entitled ? (
+                      <span className={styles.tabLockMark} aria-hidden>
+                        {" "}
+                        ·
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
             </div>
-            {sideTab === "weather" ? <WeatherPanel parcel={selected} isAdmin={isAdmin} /> : null}
-            {sideTab === "spectral" ? (
+            {!sideTabEntitled && sideTab !== "weather" ? (
+              <PlanFeatureUpsell
+                feature={upsellKeyForSideTab(sideTab)}
+                isAdmin={isAdmin}
+              />
+            ) : null}
+            {sideTabEntitled && sideTab === "weather" ? (
+              <WeatherPanel
+                parcel={selected}
+                isAdmin={isAdmin}
+                weatherPlus={capabilities.weatherPlus}
+              />
+            ) : null}
+            {sideTabEntitled && sideTab === "spectral" ? (
               <SpectralPanel
                 parcel={selected}
                 selectedIndexId={spectralIndexId}
@@ -1736,6 +1777,7 @@ export function AppShell({
                 overlayRendering={spectralRendering}
                 overlayFallbackReason={spectralFallbackReason}
                 activeZoneId={activeSpectralZoneId}
+                isAdmin={isAdmin}
                 onIndexChange={setSpectralIndexId}
                 onOpacityChange={setSpectralOpacity}
                 onZonesChange={(zones) => setSpectralZones(zones)}
@@ -1747,13 +1789,13 @@ export function AppShell({
                 onCompareBlendChange={setSpectralCompareBlend}
               />
             ) : null}
-            {sideTab === "agent" ? (
+            {sideTabEntitled && sideTab === "agent" ? (
               <AgentChatPanel parcel={selected} isAdmin={isAdmin} />
             ) : null}
-            {sideTab === "profile" ? (
+            {sideTabEntitled && sideTab === "profile" ? (
               <ParcelProfilePanel parcel={selected} isAdmin={isAdmin} />
             ) : null}
-            {sideTab === "field" ? (
+            {sideTabEntitled && sideTab === "field" ? (
               <FieldLogPanel
                 parcel={selected}
                 isAdmin={isAdmin}
@@ -1761,10 +1803,10 @@ export function AppShell({
                 onClearMapZone={() => setActiveSpectralZoneId(null)}
               />
             ) : null}
-            {sideTab === "trace" ? (
+            {sideTabEntitled && sideTab === "trace" ? (
               <TraceLotsPanel parcelId={selected.id} isAdmin={isAdmin} />
             ) : null}
-            {sideTab === "review" ? (
+            {sideTabEntitled && sideTab === "review" ? (
               <ReviewPanel parcelId={selected.id} isAdmin={isAdmin} />
             ) : null}
             <div className={styles.panelFooter}>

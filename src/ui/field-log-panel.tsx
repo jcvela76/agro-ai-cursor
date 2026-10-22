@@ -5,6 +5,7 @@ import type { Parcel } from "@/domain/parcel/types";
 import type { ParcelFieldNote } from "@/domain/field-note/types";
 import { FIELD_NOTE_PHOTO_MAX_BYTES } from "@/domain/field-note/types";
 import { Button } from "@/ui/button";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./field-log-panel.module.css";
 
@@ -174,18 +175,7 @@ export function FieldLogPanel({
   if (denied) {
     return (
       <div className={styles.root}>
-        <StateBanner
-          title="Bitácora requiere Weather Intelligence Plus"
-          detail="Notas de inspección por parcela para contrastar con clima y espectral."
-          tone="unavailable"
-        />
-        {isAdmin ? (
-          <a className={styles.link} href="/app/billing">
-            Subir a Plus →
-          </a>
-        ) : (
-          <p className={styles.muted}>Pide a un admin que active Plus.</p>
-        )}
+        <PlanFeatureUpsell feature="field" isAdmin={isAdmin} />
       </div>
     );
   }

@@ -32,6 +32,9 @@ export type LandingPricingTier = {
 
 const ENTERPRISE_MAIL_SUBJECT = "Enterprise — auditoría tecnológica Agro AI";
 
+/** Same CTA as LP Enterprise card — Free upsell in `/app` (ADR-060). */
+export const ENTERPRISE_AUDIT_MAILTO = `mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent(ENTERPRISE_MAIL_SUBJECT)}`;
+
 export const LANDING_PRICING: readonly LandingPricingTier[] = [
   {
     tier: "Free",
@@ -61,7 +64,7 @@ export const LANDING_PRICING: readonly LandingPricingTier[] = [
     ],
     highlight: false,
     cta: "Agendar auditoría",
-    ctaHref: `mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent(ENTERPRISE_MAIL_SUBJECT)}`,
+    ctaHref: ENTERPRISE_AUDIT_MAILTO,
     disclaimer:
       "Enterprise no tiene checkout web: Free demuestra el clima; el camino B2B es la auditoría (sin fee en piloto si hay cupo). La implementación se cotiza aparte.",
   },

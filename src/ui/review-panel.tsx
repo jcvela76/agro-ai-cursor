@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   REVIEW_DECISION_KINDS,
@@ -8,6 +7,7 @@ import {
   type ReviewDecisionKind,
 } from "@/domain/review/types";
 import { Button } from "@/ui/button";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./review-panel.module.css";
 
@@ -121,20 +121,7 @@ export function ReviewPanel({
   if (state.kind === "denied") {
     return (
       <div className={styles.list}>
-        <StateBanner
-          title="Agronomic Review requerido"
-          detail={
-            isAdmin ? (
-              <>
-                Actívalo en <Link href="/admin">Admin</Link> (entitlement{" "}
-                <code>agronomic_review</code>).
-              </>
-            ) : (
-              "Pide al operador del workspace que active Agronomic Review."
-            )
-          }
-          tone="unavailable"
-        />
+        <PlanFeatureUpsell feature="review" isAdmin={isAdmin} />
       </div>
     );
   }

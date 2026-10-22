@@ -12,6 +12,7 @@ import { EvidenceRow } from "@/ui/evidence-row";
 import { StateBanner } from "@/ui/state-banner";
 import { ReportExportAction } from "@/ui/report-export-action";
 import { DailyBriefingAction } from "@/ui/daily-briefing-action";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import styles from "./weather-panel.module.css";
 
 type WeatherOk<T> = { status: "OK"; data: T };
@@ -40,7 +41,15 @@ async function fetchWeather<T>(url: string): Promise<WeatherOk<T> | WeatherLimit
   return (await res.json()) as WeatherOk<T> | WeatherLimited;
 }
 
-export function WeatherPanel({ parcel, isAdmin }: { parcel: Parcel; isAdmin: boolean }) {
+export function WeatherPanel({
+  parcel,
+  isAdmin,
+  weatherPlus = true,
+}: {
+  parcel: Parcel;
+  isAdmin: boolean;
+  weatherPlus?: boolean;
+}) {
   const [tab, setTab] = useState<Tab>("observation");
   const [observation, setObservation] = useState<WeatherOk<WeatherObservation> | WeatherLimited | null>(
     null,
@@ -104,26 +113,32 @@ export function WeatherPanel({ parcel, isAdmin }: { parcel: Parcel; isAdmin: boo
         {!loading && tab === "forecast" && forecast ? <ForecastView payload={forecast} /> : null}
       </div>
 
-      <DailyBriefingAction
-        key={parcel.id}
-        parcelId={parcel.id}
-        isAdmin={isAdmin}
-        disabled={loading}
-      />
-      <ReportExportAction
-        reportType="weather_climate"
-        label="Generar informe climático (PDF)"
-        parcelId={parcel.id}
-        isAdmin={isAdmin}
-        disabled={loading}
-      />
-      <ReportExportAction
-        reportType="water_balance"
-        label="Generar informe hídrico (PDF)"
-        parcelId={parcel.id}
-        isAdmin={isAdmin}
-        disabled={loading}
-      />
+      {weatherPlus ? (
+        <>
+          <DailyBriefingAction
+            key={parcel.id}
+            parcelId={parcel.id}
+            isAdmin={isAdmin}
+            disabled={loading}
+          />
+          <ReportExportAction
+            reportType="weather_climate"
+            label="Generar informe climático (PDF)"
+            parcelId={parcel.id}
+            isAdmin={isAdmin}
+            disabled={loading}
+          />
+          <ReportExportAction
+            reportType="water_balance"
+            label="Generar informe hídrico (PDF)"
+            parcelId={parcel.id}
+            isAdmin={isAdmin}
+            disabled={loading}
+          />
+        </>
+      ) : (
+        <PlanFeatureUpsell feature="briefings" isAdmin={isAdmin} />
+      )}
     </div>
   );
 }

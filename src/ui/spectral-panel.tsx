@@ -31,6 +31,7 @@ import { VEGETATION_INDEX_ORDER } from "@/domain/spectral/vegetation-indices";
 import { formatSceneCapturedAt } from "@/domain/spectral/persist-spectral-scene";
 import { Badge } from "@/ui/badge";
 import { EvidenceRow } from "@/ui/evidence-row";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./spectral-panel.module.css";
 
@@ -117,6 +118,7 @@ export function SpectralPanel({
   overlayRendering = null,
   overlayFallbackReason = null,
   activeZoneId,
+  isAdmin = false,
   onIndexChange,
   onOpacityChange,
   onZonesChange,
@@ -133,6 +135,7 @@ export function SpectralPanel({
   overlayRendering?: "sentinel_raster" | "synthetic_grid" | null;
   overlayFallbackReason?: string | null;
   activeZoneId: string | null;
+  isAdmin?: boolean;
   onIndexChange: (indexId: VegetationIndexId) => void;
   onOpacityChange: (opacity: number) => void;
   onZonesChange: (zones: SpectralZone[] | null, legendIndexId: VegetationIndexId) => void;
@@ -533,6 +536,9 @@ export function SpectralPanel({
   }
 
   if (payload.status !== "OK") {
+    if (/plus|intelligence/i.test(payload.message)) {
+      return <PlanFeatureUpsell feature="spectral" isAdmin={isAdmin} />;
+    }
     return (
       <StateBanner
         title={payload.message}

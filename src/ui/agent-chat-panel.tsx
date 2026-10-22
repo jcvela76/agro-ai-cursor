@@ -2,7 +2,6 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   buildAgentSuggestedPrompts,
@@ -15,6 +14,7 @@ import { AgentChatView } from "@/ui/agent-chat/agent-chat-view";
 import viewStyles from "@/ui/agent-chat/agent-chat-view.module.css";
 import { mapAgentChatToViewMessages } from "@/ui/agent-chat/map-view-messages";
 import { Button } from "@/ui/button";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
 import { reportPilotError, trackPilotEvent } from "@/ui/pilot/track-pilot";
@@ -184,18 +184,7 @@ export function AgentChatPanel({
   if (!plusEnabled) {
     return (
       <div className={styles.gate}>
-        <StateBanner
-          title="Weather Intelligence Plus requerido"
-          detail="El Agro Agent solo está disponible con entitlement weather_plus."
-          tone="unavailable"
-        />
-        {isAdmin ? (
-          <Link className={styles.adminCta} href="/app/admin">
-            Activar en Admin →
-          </Link>
-        ) : (
-          <p className={styles.muted}>Pide a un admin del workspace que active Plus.</p>
-        )}
+        <PlanFeatureUpsell feature="agent" isAdmin={isAdmin} />
       </div>
     );
   }

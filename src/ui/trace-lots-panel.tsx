@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   TRACE_EVENT_TYPES,
@@ -9,6 +8,7 @@ import {
   type TraceLotView,
 } from "@/domain/traceability/types";
 import { Button } from "@/ui/button";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { ReportExportAction } from "@/ui/report-export-action";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./trace-lots-panel.module.css";
@@ -234,20 +234,7 @@ export function TraceLotsPanel({
   if (state.kind === "denied") {
     return (
       <div className={styles.gate}>
-        <StateBanner
-          title="Traceability requerido"
-          detail="La lista de lotes solo está disponible con entitlement traceability."
-          tone="unavailable"
-        />
-        {isAdmin ? (
-          <Link className={styles.adminCta} href="/app/admin">
-            Activar en Admin →
-          </Link>
-        ) : (
-          <p className={styles.muted}>
-            Pide a un admin del workspace que active Traceability.
-          </p>
-        )}
+        <PlanFeatureUpsell feature="trace" isAdmin={isAdmin} />
       </div>
     );
   }

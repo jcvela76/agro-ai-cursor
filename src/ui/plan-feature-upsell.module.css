@@ -1,0 +1,39 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.primary {
+  font-size: 0.875rem;
+  font-weight: 650;
+  color: var(--color-accent-field);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.primary:hover {
+  color: var(--color-fg-primary);
+}
+
+.secondary {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-fg-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-fg-muted);
+}

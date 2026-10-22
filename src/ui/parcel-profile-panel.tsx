@@ -5,6 +5,7 @@ import type { Parcel } from "@/domain/parcel/types";
 import type { ParcelAgronomicProfile } from "@/domain/parcel/agronomic-profile";
 import { CROP_KEYS, CROP_LABELS, type CropKey } from "@/domain/parcel/crop-catalog";
 import { Button } from "@/ui/button";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./parcel-profile-panel.module.css";
 
@@ -149,18 +150,7 @@ export function ParcelProfilePanel({
   if (denied) {
     return (
       <div className={styles.root}>
-        <StateBanner
-          title="Perfil requiere Weather Intelligence Plus"
-          detail="Cultivo, riego y siembra se guardan por parcela para orientar al agente."
-          tone="unavailable"
-        />
-        {isAdmin ? (
-          <a className={styles.link} href="/app/billing">
-            Subir a Plus →
-          </a>
-        ) : (
-          <p className={styles.muted}>Pide a un admin que active Plus.</p>
-        )}
+        <PlanFeatureUpsell feature="profile" isAdmin={isAdmin} />
       </div>
     );
   }

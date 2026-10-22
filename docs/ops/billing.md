@@ -222,6 +222,8 @@ Si `SMOKE_FREE_WAIT_WEBHOOK` hace timeout: en Svix/Dashboard confirmar endpoint 
 | Sign-up browser `stg.geoagro.ai` → org nueva | `billingPlanSlug=free_org`, `entitlements=["weather"]`, `maxAllowedMemberships=2` **sin patch manual** |
 | `/app` UI | Weather Intelligence (base) · Parcelas 0/2 · Máx 25 ha |
 
+**Gates UX Free (ADR-061.3):** shell recibe capabilities SSR; tabs Espectral/Agente/Perfil/Campo/Trace/Review quedan locked en `free_org` con upsell Enterprise (`mailto` LP) + Admin piloto. Sin CTA primario a mid-tier `/app/billing`. Sin overlay/zones spectral si `!weatherPlus`.
+
 Helper stg Dashboard: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
 
 Production: `./scripts/clerk-webhook-prod.sh` — ver `docs/ops/clerk-webhook-production.md`.

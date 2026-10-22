@@ -407,6 +407,15 @@
   color: var(--color-fg-muted);
 }
 
+.tabLocked {
+  opacity: 0.72;
+}
+
+.tabLockMark {
+  font-weight: 700;
+  opacity: 0.55;
+}
+
 .tabActive {
   color: var(--color-accent-field);
   background: transparent;

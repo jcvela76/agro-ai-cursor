@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { ReportType } from "@/domain/report/types";
 import { REPORT_TYPE_LABELS } from "@/domain/report/types";
 import { Button } from "@/ui/button";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./report-export-action.module.css";
 
@@ -108,18 +108,7 @@ export function ReportExportAction({
   if (!quota.plusEnabled) {
     return (
       <div className={styles.block}>
-        <StateBanner
-          title="Informes requieren Weather Intelligence Plus"
-          detail="Genera informes HTML/PDF con evidencia completa y cuota mensual según tu plan."
-          tone="unavailable"
-        />
-        {isAdmin ? (
-          <Link className={styles.billingLink} href="/app/billing">
-            Subir a Plus →
-          </Link>
-        ) : (
-          <p className={styles.muted}>Pide a un admin que active Plus en billing.</p>
-        )}
+        <PlanFeatureUpsell feature="reports" isAdmin={isAdmin} />
       </div>
     );
   }

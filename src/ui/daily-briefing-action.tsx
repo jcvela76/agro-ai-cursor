@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/ui/button";
+import { PlanFeatureUpsell } from "@/ui/plan-feature-upsell";
 import { StateBanner } from "@/ui/state-banner";
 import styles from "./report-export-action.module.css";
 
@@ -110,18 +111,7 @@ export function DailyBriefingAction({
   if (!quota.plusEnabled) {
     return (
       <div className={styles.block}>
-        <StateBanner
-          title="Briefing diario requiere Weather Intelligence Plus"
-          detail="Un resumen diario por parcela con delta vs el día anterior y evidencia consultada."
-          tone="unavailable"
-        />
-        {isAdmin ? (
-          <Link className={styles.billingLink} href="/app/billing">
-            Subir a Plus →
-          </Link>
-        ) : (
-          <p className={styles.muted}>Pide a un admin que active Plus en billing.</p>
-        )}
+        <PlanFeatureUpsell feature="briefings" isAdmin={isAdmin} />
       </div>
     );
   }

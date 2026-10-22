@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { WorkspaceCapabilities } from "@/domain/auth/workspace-capabilities";
 
 const AppShell = dynamic(
   () => import("@/ui/app-shell").then((m) => m.AppShell),
@@ -25,9 +26,17 @@ const AppShell = dynamic(
 export function AppShellLoader({
   initialParcelId,
   initialTab,
+  capabilities,
 }: {
   initialParcelId: string | null;
   initialTab?: string | null;
+  capabilities: WorkspaceCapabilities;
 }) {
-  return <AppShell initialParcelId={initialParcelId} initialTab={initialTab ?? null} />;
+  return (
+    <AppShell
+      initialParcelId={initialParcelId}
+      initialTab={initialTab ?? null}
+      capabilities={capabilities}
+    />
+  );
 }
