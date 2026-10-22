@@ -118,68 +118,21 @@ def render_front(fonts: dict) -> Image.Image:
 
 
 def render_back(fonts: dict) -> Image.Image:
+    """Back: QR only, centered — maximum scan target, no copy."""
+    del fonts  # unused; signature kept for call-site symmetry
     img = Image.new("RGB", (W, H), CANVAS)
-    draw = ImageDraw.Draw(img)
 
-    # Soft top band
-    draw.rectangle([BLEED, BLEED, W - BLEED, BLEED + int(2.2 * MM)], fill=FIELD)
-
-    left = BLEED + int(8 * MM)
-    top = BLEED + int(9 * MM)
-
-    draw.text((left, top), "Prueba Free", font=fonts["display_md"], fill=CHROME)
-    draw.text(
-        (left, top + int(11 * MM)),
-        "Escanea y crea tu cuenta",
-        font=fonts["body_sm"],
-        fill=MUTED,
-    )
-
-    bullets = [
-        "Clima por tu parcela",
-        "Fuente y frescura claras",
-        "Sin tarjeta · empieza Free",
-    ]
-    by = top + int(20 * MM)
-    for line in bullets:
-        draw.ellipse([left, by + 7, left + 7, by + 14], fill=FIELD)
-        draw.text((left + 14, by), line, font=fonts["body_sm"], fill=CHROME)
-        by += int(7.2 * MM)
-
-    draw.text(
-        (left, H - BLEED - int(7 * MM)),
-        "geoagro.ai/sign-up",
-        font=fonts["micro"],
-        fill=MUTED,
-    )
-
-    # QR — large, high contrast
-    qr_size = int(36 * MM)
+    # Fit largest square QR with quiet margin inside trim
+    margin = int(5 * MM)
+    qr_size = min(W_TRIM, H_TRIM) - 2 * margin
     qr = make_qr(qr_size)
-    pad = int(2.8 * MM)
+    pad = int(2.5 * MM)
     panel = Image.new("RGB", (qr_size + 2 * pad, qr_size + 2 * pad), WHITE)
     panel.paste(qr, (pad, pad))
-    pdraw = ImageDraw.Draw(panel)
-    pdraw.rectangle(
-        [0, 0, panel.width - 1, panel.height - 1],
-        outline=FIELD,
-        width=max(2, int(0.35 * MM)),
-    )
 
-    px = W - BLEED - panel.width - int(6 * MM)
-    py = BLEED + int(7 * MM)
+    px = (W - panel.width) // 2
+    py = (H - panel.height) // 2
     img.paste(panel, (px, py))
-
-    cap = "Escanea · Free"
-    bbox = draw.textbbox((0, 0), cap, font=fonts["micro"])
-    cw = bbox[2] - bbox[0]
-    draw.text(
-        (px + (panel.width - cw) // 2, py + panel.height + int(1.5 * MM)),
-        cap,
-        font=fonts["micro"],
-        fill=FIELD,
-    )
-
     return img
 
 
