@@ -353,16 +353,14 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
           {
             type: "bullets",
             items: [
-              "free_org (Básico / Weather Intelligence base): sin cargo de suscripción · hasta 2 miembros · entitlement weather.",
-              "weather_plus (Profesional / Weather Intelligence Plus): USD 29/mes · hasta 5 miembros · weather + weather_plus.",
-              "operations (Empresa / Operations): USD 79/mes · hasta 15 miembros · weather, weather_plus, traceability, agronomic_review.",
-              "full: USD 99/mes · hasta 25 miembros · mismos entitlements que operations (alias comercial; no añade productos adicionales).",
-              "Dedicado (enterprise / integraciones): sin precio en checkout web · alcance y tarifa tras auditoría tecnológica de datos y sistemas (IoT, ERP, APIs) · contrato aparte.",
+              "Free / free_org (Weather Intelligence base): sin cargo de suscripción · hasta 2 miembros · entitlement weather · oferta de adquisición en la web pública.",
+              "weather_plus / operations / full: planes mid de Clerk (USD 29 / 79 / 99) para piloto o checkout interno; no son la oferta comercial principal de la landing.",
+              "Enterprise (antes Dedicado / integraciones): sin precio en checkout web · alcance y tarifa tras auditoría tecnológica (IoT, ERP, APIs) · contrato aparte. Durante la fase piloto, la auditoría puede ofrecerse sin cargo sujeto a cupo y calificación; la implementación Enterprise se cotiza aparte.",
             ],
           },
           {
             type: "paragraph",
-            text: "En la landing pública, «Básico», «Profesional» y «Empresa» corresponden a los slugs self-serve anteriores; «Dedicado» es modalidad comercial bajo propuesta tras auditoría. Los nombres comerciales pueden variar; en checkout web prevalece el plan y precio mostrados al suscribirse.",
+            text: "En la landing pública se promocionan «Free» y «Enterprise». Los slugs mid y el precio mostrado en un checkout Clerk, si aplica, prevalecen sobre nombres comerciales de marketing.",
           },
         ],
       },

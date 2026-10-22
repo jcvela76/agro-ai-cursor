@@ -29,18 +29,21 @@ Crear **Features** con slugs idénticos a nuestros entitlements:
 
 ## Planes para Organizations (slugs)
 
-**Modelo producto:** el tier **free no requiere suscripción** — org en `free_org` (Clerk) con `weather` vía metadata default / mapper `free`. Los planes de pago en `<PricingTable />` llevan **free trial** (sandbox: p. ej. 14 días) antes del cobro.
+**Modelo producto (ADR-060):** oferta pública = **Free** + **Enterprise**.  
+- **Free** no requiere suscripción — org en `free_org` con `weather`.  
+- **Enterprise** (ex Dedicado) no está en PricingTable; cotización tras auditoría ([`dedicated-plan-audit.md`](dedicated-plan-audit.md)).  
+- Mid-tiers (`weather_plus` / `operations` / `full`) quedan para **piloto / prueba interna** del stack con límites; no se venden en la LP.
 
-**Moneda:** precios en **USD** (internacional). Clerk Billing Development gateway cobra en USD; montos en Dashboard: $29 / $79 / $99 mensuales.
+**Moneda:** precios mid en **USD** (internacional). Clerk Billing Development gateway cobra en USD; montos en Dashboard: $29 / $79 / $99 mensuales.
 
 | Plan slug       | Precio (USD/mes) | Features incluidas                                      | Uso |
 |-----------------|------------------|---------------------------------------------------------|-----|
-| `free` / `free_org` | — (sin suscripción) | `weather`                                          | Base |
-| `weather_plus`  | $29              | `weather`, `weather_plus`                               | Plus (+ trial) |
-| `operations`    | $79              | las cuatro                                              | Trace + Review (+ trial) |
-| `full`          | $99              | las cuatro                                              | Alias comercial (+ trial) |
+| `free` / `free_org` | — (sin suscripción) | `weather`                                          | **Free** (LP) |
+| `weather_plus`  | $29              | `weather`, `weather_plus`                               | Piloto / interno (+ trial) |
+| `operations`    | $79              | las cuatro                                              | Piloto / interno (+ trial) |
+| `full`          | $99              | las cuatro                                              | Piloto / interno (alias) |
 
-**Plan Dedicado (no en PricingTable):** cotización tras auditoría tecnológica (IoT / ERP / APIs). Draft de alcance: [`docs/ops/dedicated-plan-audit.md`](dedicated-plan-audit.md). No crear slug Clerk hasta que exista SOW + billing aparte.
+**Enterprise (no en PricingTable):** cotización tras auditoría tecnológica (IoT / ERP / APIs). Draft: [`docs/ops/dedicated-plan-audit.md`](dedicated-plan-audit.md). Sin slug Clerk `enterprise` hasta SOW + billing aparte.
 
 No crear `weather_base` en Dashboard: Clerk exige mín. $1 en planes custom; el tier weather-only queda cubierto por `free_org`.
 

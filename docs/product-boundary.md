@@ -15,15 +15,24 @@ Agro AI ayuda a equipos agrícolas autorizados a entender y gestionar parcelas u
 - Revisión agronómica humana y decisiones append-only
 - Registros de auditoría que explican quién decidió qué y con qué evidencia
 
-### Límites de producto
+### Oferta comercial (ADR-060)
+
+| Producto comercial | Rol |
+|--------------------|-----|
+| **Free** | Adquisición: Weather base (`free_org`) — clima por parcela con límites (2 parcelas × 25 ha, 2 asientos). Funnel hacia Enterprise. |
+| **Enterprise** | B2B dedicado (antes «Plan Dedicado»): software adaptado a IoT/ERP/APIs; cotización tras auditoría tecnológica. No checkout web. |
+
+La landing pública muestra **solo Free + Enterprise**. Los planes Clerk mid (`weather_plus`, `operations`, `full`) siguen existiendo para **piloto / prueba interna** con restricciones, no como oferta de marketing.
+
+### Límites de producto (plataforma)
 
 | Producto | Rol |
 |----------|-----|
 | **Parcel Core** | Capacidad compartida de plataforma — no se vende ni activa como producto |
-| **Weather** | Primer producto implementable |
-| **Weather Intelligence Plus** | Add-on de pago/trial dentro de Weather — posterior a Weather base |
-| **Traceability** | Producto separado (piloto coffee/EUDR) |
-| **Agronomic Review** | Producto separado — Review-1 (append-only) |
+| **Weather** | Capacidad Free y base de todo lo demás |
+| **Weather Intelligence Plus** | Plataforma interna / piloto (slug `weather_plus`) o capa en contrato Enterprise |
+| **Traceability** | Plataforma interna / piloto o capa Enterprise |
+| **Agronomic Review** | Plataforma interna / piloto o capa Enterprise |
 
 El runtime de AI conversacional es **infraestructura compartida**, no un producto omnipotente. Weather autoriza las tools que expone al agente.
 

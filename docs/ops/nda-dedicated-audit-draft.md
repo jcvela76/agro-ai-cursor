@@ -15,7 +15,7 @@
 
 ## 2. Propósito
 
-Evaluar e intercambiar información necesaria para una **auditoría tecnológica** y eventual propuesta de **Plan Dedicado** (integraciones IoT, ERP, APIs, datos de parcela/campo), sin constituir por sí misma un contrato de servicios de implementación.
+Evaluar e intercambiar información necesaria para una **auditoría tecnológica** y eventual propuesta **Enterprise** / Plan Dedicado (integraciones IoT, ERP, APIs, datos de parcela/campo), sin constituir por sí misma un contrato de servicios de implementación.
 
 ## 3. Información confidencial
 

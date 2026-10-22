@@ -438,17 +438,18 @@ export default function Home() {
           <p className={styles.eyebrow}>Precios</p>
           <div className={styles.pricingIntro}>
             <h2 className={styles.sectionTitle}>
-              Desde USD {LANDING_PRICING_SAAS_SOURCE.weatherPlusUsd}/mes.{" "}
-              <em>Referencia orientativa.</em>
+              Free para empezar. <em>Enterprise para tu operación.</em>
             </h2>
             <p className={styles.pricingNotice}>
-              <strong>Aviso legal:</strong> Los montos SaaS (USD{" "}
+              <strong>Aviso legal:</strong> La oferta pública es Free (Weather base) y
+              Enterprise (cotización tras auditoría). Planes mid de Clerk (p. ej. USD{" "}
               {LANDING_PRICING_SAAS_SOURCE.weatherPlusUsd} /{" "}
               {LANDING_PRICING_SAAS_SOURCE.operationsUsd} /{" "}
-              {LANDING_PRICING_SAAS_SOURCE.fullUsd} mensuales) siguen{" "}
-              <Link href="/legal/subscription">Términos de suscripción</Link> y los planes
-              Clerk documentados en ops — no constituyen oferta vinculante hasta el checkout.
-              El piloto y la lista de espera no requieren pago ni tarjeta.
+              {LANDING_PRICING_SAAS_SOURCE.fullUsd}) pueden usarse en piloto o checkout
+              interno y siguen{" "}
+              <Link href="/legal/subscription">Términos de suscripción</Link> — no
+              constituyen oferta vinculante en esta página. El piloto y la lista de espera
+              no requieren pago ni tarjeta.
             </p>
             <p className={styles.pricingNotice}>
               Consulte{" "}
@@ -520,7 +521,7 @@ export default function Home() {
               <WaitlistForm
                 dark
                 id="lista-form"
-                hint="Plan Profesional sin costo durante el piloto."
+                hint="Free (clima) en piloto; Enterprise por auditoría si califica."
               />
               <p className={styles.closingFine}>
                 Sin spam. Sin compromiso. Consulta nuestra{" "}

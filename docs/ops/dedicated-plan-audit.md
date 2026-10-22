@@ -1,19 +1,19 @@
-# Plan Dedicado — auditoría tecnológica (DRAFT)
+# Enterprise (Plan Dedicado) — auditoría tecnológica (DRAFT)
 
 **Estado:** borrador interno · no es oferta vinculante  
-**Fecha:** 2026-08-31  
-**Relacionado:** LP tarjeta «Dedicado» · `src/content/landing/pricing.ts` · `/legal/subscription`  
+**Fecha:** 2026-08-31 · marca comercial **Enterprise** (ADR-060, 2026-10-21)  
+**Relacionado:** LP tarjeta «Enterprise» · `src/content/landing/pricing.ts` · `/legal/subscription`  
 **Contacto comercial:** `hola@geoagro.ai`
 
 ---
 
 ## 1. Propósito
 
-El **Plan Dedicado** sirve cuando el cliente necesita Agro AI **adaptado a sus sistemas** (IoT, ERP, APIs, sensores, hojas de campo, etc.), no solo el SaaS self-serve (Básico / Profesional / Empresa).
+**Enterprise** (antes Plan Dedicado) es el producto B2B cuando el cliente necesita Agro AI **adaptado a sus sistemas** (IoT, ERP, APIs, sensores, hojas de campo, etc.), no el Free de adquisición ni los mid-tiers de piloto.
 
-La **auditoría tecnológica** es el paso previo obligatorio: entiende qué datos existen, cómo fluyen, qué se puede integrar con seguridad y qué conviene construir a medida. El precio del plan Dedicado **no se publica** en checkout; sale de la propuesta post-auditoría.
+La **auditoría tecnológica** es el paso previo obligatorio: entiende qué datos existen, cómo fluyen, qué se puede integrar con seguridad y qué conviene construir a medida. El precio **no se publica** en checkout; sale de la propuesta post-auditoría.
 
-**Base de producto:** Operations Intelligence (`operations` / `full`) o superior — clima, Plus, trazabilidad y revisión agronómica como plataforma; encima, capas custom.
+**Base de producto:** Operations Intelligence (`operations` / `full`) o superior como plataforma de referencia en piloto; encima, capas custom bajo contrato Enterprise.
 
 ---
 
@@ -27,7 +27,7 @@ La **auditoría tecnológica** es el paso previo obligatorio: entiende qué dato
 | Requisitos de marca | Branding, roles y flujos distintos al producto estándar |
 | Compliance / volumen | Multi-fundo, multi-país, SLA contractual, SSO corporativo |
 
-**No aplica** si el cliente solo necesita el SaaS estándar → planes Profesional / Empresa.
+**No aplica** si el cliente solo necesita Free (clima) o un mid-tier de piloto sin integraciones custom.
 
 ---
 

@@ -15,7 +15,7 @@
 
 ## Objeto
 
-Realizar una **auditoría tecnológica** de sistemas y datos del Cliente (IoT, ERP, APIs u otras fuentes) para evaluar viabilidad de un **Plan Dedicado** Agro AI.
+Realizar una **auditoría tecnológica** de sistemas y datos del Cliente (IoT, ERP, APIs u otras fuentes) para evaluar viabilidad de **Enterprise** (Plan Dedicado) Agro AI.
 
 Durante la **fase piloto 2026**, este SOW puede ejecutarse **sin fee de auditoría** si el Cliente califica (cupo; tamaño S preferente; M con samples/TI). La **implementación** Dedicado **no** está incluida y se cotiza en propuesta aparte.
 

@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-08-31 (UI tour shell primer uso) |
+| **Última actualización** | 2026-10-21 (ADR-060 Free + Enterprise LP) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -52,7 +52,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 |---------|--------|---------|
 | Landing multi-sección | hecho | LP-5b hero stacked &lt;1024px (copy → map → panel); desktop 3-rail; mockup `lp-responsive-mockup-2026-08.md` |
 | LP demo Agro Agent | hecho | Tab hero + sección; `AgentChatView`; glass compartido; autoplay |
-| Precios informativos | hecho | USD 29/79/99; Dedicado a cotizar; auditoría piloto sin fee (cupo) — `dedicated-plan-audit.md` |
+| Precios informativos | hecho | LP Free + Enterprise (ADR-060); mid USD 29/79/99 solo piloto/interno; auditoría Enterprise sin fee en piloto (cupo) |
 | Waitlist form + API | hecho | `POST /api/waitlist` → Neon; rol/región/cultivo opcionales (LP-copy-3) |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
@@ -71,7 +71,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Instrumentación tabs + agente | hecho | `*.panel_open` en shell; send/fail agente |
 | Vista admin feedback | hecho | `/app/admin` · eventos / feedback / errores (org-scoped) |
 | Sentry APM | hecho | Proyecto `agro-ai` + DSN local/Vercel; smoke `/api/debug/sentry-test` |
-| SOW + NDA auditoría Dedicado | docs | DRAFT counsel: `sow-dedicated-audit-pilot.md` · `nda-dedicated-audit-draft.md` |
+| SOW + NDA auditoría Enterprise | docs | DRAFT counsel: `sow-dedicated-audit-pilot.md` · `nda-dedicated-audit-draft.md` (marca Enterprise) |
 
 ---
 
@@ -280,7 +280,8 @@ Gate: `weather` + `weather_plus`.
 | Feature | Estado | Detalle |
 |---------|--------|---------|
 | Mapper plan → entitlements | hecho | free, weather_base, weather_plus, operations, full |
-| Clerk Billing sandbox + PricingTable | hecho | `/app/billing` |
+| Oferta comercial Free + Enterprise | hecho | ADR-060 · LP 2 cards · mid-tiers Clerk no en LP |
+| Clerk Billing sandbox + PricingTable | hecho | `/app/billing` · mid-tiers para piloto/interno |
 | Webhook sync entitlements | hecho | `POST /api/webhooks/clerk` |
 | Cancel flow | hecho | `/app/billing/cancel` |
 | Cuotas miembros / reportes / briefings / parcelas | hecho | `plan-limits.ts` |

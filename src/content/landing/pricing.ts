@@ -1,21 +1,16 @@
 import { LEGAL_CONTACT_EMAIL } from "@/content/legal/types";
 
 /**
- * Landing pricing cards — orientativos hasta checkout live.
+ * Landing pricing — oferta comercial Free + Enterprise (ADR-060).
  *
- * Fuente de verdad (SaaS self-serve):
- * - `docs/ops/billing.md` · `docs/ops/clerk-billing-plans.json`
- * - `src/domain/billing/plan-display.ts` (USD/mes)
- * - `/legal/subscription` (counsel 2026-08-29)
+ * Mid-tiers Clerk (`weather_plus` / `operations` / `full`) no se venden en LP;
+ * siguen en billing para piloto/prueba interna. Ver `docs/ops/billing.md`.
  *
- * Mapeo LP → slug Clerk:
- * - Básico → free_org (gratis, weather)
- * - Profesional → weather_plus (USD 29/mes)
- * - Empresa → operations (USD 79/mes) o full (USD 99/mes, alias)
- * - Dedicado → no autopserve; cotización tras auditoría tecnológica
- *   (draft interno: docs/ops/dedicated-plan-audit.md)
+ * Free → `free_org` (weather). Enterprise → cotización post-auditoría
+ * (`docs/ops/dedicated-plan-audit.md`).
  */
 export const LANDING_PRICING_SAAS_SOURCE = {
+  /** Referencia interna / piloto; no se muestra como oferta LP. */
   weatherPlusUsd: 29,
   operationsUsd: 79,
   fullUsd: 99,
@@ -35,67 +30,38 @@ export type LandingPricingTier = {
   disclaimer?: string;
 };
 
-const DEDICATED_MAIL_SUBJECT = "Plan Dedicado — auditoría tecnológica";
+const ENTERPRISE_MAIL_SUBJECT = "Enterprise — auditoría tecnológica Agro AI";
 
 export const LANDING_PRICING: readonly LandingPricingTier[] = [
   {
-    tier: "Básico",
-    desc: "Para productores individuales",
+    tier: "Free",
+    desc: "Para probar clima real en tu parcela",
     price: "Gratis",
     period: "Weather Intelligence base",
     features: [
-      "Datos climáticos por parcela",
+      "Datos climáticos por parcela (fuente citada)",
       "Pronóstico a varios días",
-      "Observación y pronóstico con fuente citada",
-      "Parcelas limitadas",
+      "Hasta 2 parcelas · máx. 25 ha cada una",
+      "Hasta 2 miembros en el workspace",
     ],
-    highlight: false,
+    highlight: true,
     cta: "Solicitar acceso al piloto",
   },
   {
-    tier: "Profesional",
-    desc: "Para técnicos y consultores",
-    price: `USD ${LANDING_PRICING_SAAS_SOURCE.weatherPlusUsd}`,
-    period: "/mes al lanzamiento · sin costo en piloto",
-    features: [
-      "Todo en Básico",
-      "Weather Intelligence Plus",
-      "Hasta 5 miembros (plan Profesional)",
-      "Soporte por correo durante piloto",
-    ],
-    highlight: true,
-    cta: "Solicitar acceso al piloto →",
-  },
-  {
-    tier: "Empresa",
-    desc: "Cooperativas y exportadores",
-    price: `Desde USD ${LANDING_PRICING_SAAS_SOURCE.operationsUsd}`,
-    period: `/mes · Operations Intelligence (hasta USD ${LANDING_PRICING_SAAS_SOURCE.fullUsd} Full)`,
-    features: [
-      "Trazabilidad y Revisión Agronómica",
-      "Hasta 15–25 miembros según plan",
-      "Soporte y onboarding (sin SLA salvo contrato)",
-      "Capacitación sujeta a disponibilidad",
-    ],
-    highlight: false,
-    cta: "Contactar",
-    ctaHref: `mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent("Plan Empresa — Agro AI")}`,
-  },
-  {
-    tier: "Dedicado",
-    desc: "IoT, ERP e integraciones a medida",
+    tier: "Enterprise",
+    desc: "Software B2B dedicado para tu operación",
     price: "A cotizar",
     period: "tras auditoría tecnológica",
     features: [
-      "Auditoría tecnológica en piloto (sin fee, sujetos a cupo)",
-      "Workspace adaptable a sus fuentes (IoT, ERP, APIs)",
+      "Auditoría tecnológica (piloto: sin fee, sujetos a cupo)",
+      "Integraciones a medida (IoT, ERP, APIs)",
       "Flujos e informes personalizados por contrato",
-      "Operations Intelligence o superior como base",
+      "Workspace alineado a tus fuentes y compliance",
     ],
     highlight: false,
     cta: "Agendar auditoría",
-    ctaHref: `mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent(DEDICATED_MAIL_SUBJECT)}`,
+    ctaHref: `mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent(ENTERPRISE_MAIL_SUBJECT)}`,
     disclaimer:
-      "No disponible en checkout web. En fase piloto la auditoría puede ser sin cargo si hay cupo y fit; implementación Dedicado se cotiza aparte.",
+      "No disponible en checkout web. Free demuestra el valor del clima; Enterprise es el camino B2B. En piloto la auditoría puede ser sin cargo si hay cupo y fit; la implementación se cotiza aparte.",
   },
 ] as const;

@@ -60,9 +60,10 @@ Si algo falla: usá **Reportar fallo** en `/app/piloto` (o el botón de error si
 
 ---
 
-## 6. Plan Dedicado (opcional)
+## 6. Enterprise (opcional)
 
-Si tenés IoT, ERP u otras fuentes propias, podés solicitar **auditoría tecnológica en piloto** (sin fee, sujetos a cupo). Ver tarjeta Dedicado en la LP o escribinos a hola@geoagro.ai.
+La oferta pública es **Free** (clima) + **Enterprise** (software B2B dedicado).  
+Si tenés IoT, ERP u otras fuentes propias, podés solicitar **auditoría tecnológica en piloto** (sin fee, sujetos a cupo). Ver tarjeta Enterprise en la LP o escribinos a hola@geoagro.ai.
 
 ---
 

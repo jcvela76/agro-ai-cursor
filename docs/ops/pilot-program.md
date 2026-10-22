@@ -3,7 +3,7 @@
 **Estado:** Pilot-ops-1 · 2026-08-31  
 **App:** `/app/piloto` · APIs `/api/pilot/*`  
 **Guía participante:** [`docs/pilot/participant-guide.md`](../pilot/participant-guide.md)  
-**Auditoría Dedicado:** [`docs/ops/dedicated-plan-audit.md`](dedicated-plan-audit.md)
+**Auditoría Enterprise (Dedicado):** [`docs/ops/dedicated-plan-audit.md`](dedicated-plan-audit.md) · oferta LP: Free + Enterprise (ADR-060)
 
 ---
 

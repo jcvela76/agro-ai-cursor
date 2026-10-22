@@ -110,6 +110,9 @@ export function PilotHub() {
         </p>
         <p className={styles.links}>
           <Link href="/app">← Volver al mapa</Link>
+          <a href="mailto:hola@geoagro.ai?subject=Enterprise%20%E2%80%94%20auditor%C3%ADa%20tecnol%C3%B3gica%20Agro%20AI">
+            Agendar auditoría Enterprise
+          </a>
           <a href="mailto:hola@geoagro.ai">hola@geoagro.ai</a>
         </p>
       </header>
@@ -118,10 +121,15 @@ export function PilotHub() {
         <h2>Qué hacer</h2>
         <ol className={styles.steps}>
           <li>Completá el formulario de <strong>Inicio</strong> (día 1).</li>
-          <li>Probá clima, espectral y agente en tu parcela.</li>
+          <li>Probá clima, espectral y agente en tu parcela (según tu plan de piloto).</li>
           <li>Marcá el checklist; al fallar usá <strong>Reportar fallo</strong>.</li>
           <li>Fin de semana: <strong>Feedback semanal</strong>.</li>
         </ol>
+        <p className={styles.note}>
+          Free demuestra clima; si necesitás IoT/ERP o un workspace a medida, pedí{" "}
+          <strong>auditoría Enterprise</strong> (sin fee en piloto, sujetos a cupo). Mid-tiers
+          de billing son solo para prueba interna del stack.
+        </p>
         <p className={styles.note}>
           Recuerda: el copiloto orienta con evidencia; no prescribe dosis. Clima ≈ modelo
           ~9 km al polígono.

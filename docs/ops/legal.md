@@ -87,7 +87,7 @@ Hasta completar 4–7: **ningún cobro live** en apex.
 
 - Modelo `blocks` para orden párrafos/listas
 - Tabla planes alineada con `billing.md` (USD + miembros + slugs Clerk)
-- Glosario LP (Básico/Profesional/Empresa) ↔ slugs
+- Glosario LP: Free + Enterprise (ADR-060); mid-tiers ↔ slugs internos/piloto
 - Disclaimer EUDR, piloto/beta, API/CSV en términos
 - Waitlist: consentimiento → `/legal/privacy`
 - Placeholders operador (razón social / RUC) — reemplazados en Legal-1.3
