@@ -10,7 +10,7 @@
 
 | | |
 |--|--|
-| **Prestador** | RAW CODE S.A.C. (RUC 20614132206), operando Agro AI / geoagro.ai — contacto: hola@geoagro.ai |
+| **Prestador** | RAW CODE S.A.C. (RUC 20614132206), operando Agro AI / geoagro.ai — contacto: me@juliovela.com |
 | **Cliente** | _[Razón social / nombre]_ · _[RUC]_ · contacto: _[email]_ |
 
 ## Objeto

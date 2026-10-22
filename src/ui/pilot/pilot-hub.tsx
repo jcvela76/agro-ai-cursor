@@ -8,6 +8,8 @@ import {
   PILOT_FEEDBACK_KINDS,
   type PilotFeedbackKind,
 } from "@/content/pilot/checklist";
+import { ENTERPRISE_AUDIT_MAILTO } from "@/content/landing/pricing";
+import { LEGAL_CONTACT_EMAIL } from "@/content/legal/types";
 import { reportPilotError, trackPilotEvent } from "@/ui/pilot/track-pilot";
 import styles from "./pilot-hub.module.css";
 
@@ -110,10 +112,8 @@ export function PilotHub() {
         </p>
         <p className={styles.links}>
           <Link href="/app">← Volver al mapa</Link>
-          <a href="mailto:hola@geoagro.ai?subject=Enterprise%20%E2%80%94%20auditor%C3%ADa%20tecnol%C3%B3gica%20Agro%20AI">
-            Agendar auditoría Enterprise
-          </a>
-          <a href="mailto:hola@geoagro.ai">hola@geoagro.ai</a>
+          <a href={ENTERPRISE_AUDIT_MAILTO}>Agendar auditoría Enterprise</a>
+          <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>
         </p>
       </header>
 

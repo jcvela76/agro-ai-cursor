@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-10-22 (Go-live Free Production + privacy scope) |
+| **Última actualización** | 2026-10-22 (contacto legal → me@juliovela.com) |
 | **Rama de referencia** | `main` (= `stg`) |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -303,7 +303,7 @@ Gate: `weather` + `weather_plus`.
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| `/legal/terms\|privacy\|refunds\|subscription` | hecho | Counsel-approved; privacy 2026-10-22 = capas Free/Plus + «qué no hacemos» |
+| `/legal/terms\|privacy\|refunds\|subscription` | hecho | Counsel-approved; privacy capas Free/Plus; contacto `me@juliovela.com` (provisional) |
 | Footer links LP / auth / billing | hecho | `LegalFooterLinks` |
 | Aprobación counsel | hecho | 2026-08-29; `docs/ops/legal.md` |
 | RUC / dirección operador | hecho | RAW CODE S.A.C. · 20614132206 · Surquillo |

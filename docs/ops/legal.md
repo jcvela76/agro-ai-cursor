@@ -42,7 +42,7 @@ Fuente en código: `src/content/legal/documents.ts`
 | Razón social | RAW CODE S.A.C. |
 | RUC | 20614132206 |
 | Domicilio fiscal | Cal. Las Gaviotas 117, Dpto. 201, Urb. Limatambo, Surquillo, Lima, Perú |
-| Contacto | `hola@geoagro.ai` |
+| Contacto | `me@juliovela.com` (provisional hasta mailbox `@geoagro.ai`) |
 
 ## Avisos en producto
 
@@ -69,6 +69,11 @@ Hasta completar 4–7: **ningún cobro live** en apex.
 2. Actualizar `LEGAL_LAST_UPDATED` y, cuando aplique, `LEGAL_OPERATOR_*` en `types.ts`
 3. Commit slice Legal-1.x si es cambio sustantivo
 4. Tras cambios materiales de precios/cobro, re-validar con asesor legal
+
+## Legal-1.5 (2026-10-22) — contacto público provisional
+
+- `LEGAL_CONTACT_EMAIL` → `me@juliovela.com` (aún no hay mailbox `hola@geoagro.ai`).
+- Legal, footer, LP Enterprise mailto, JSON-LD y hub piloto usan la constante.
 
 ## Legal-1.4 (2026-10-22) — alcance de datos en Privacidad
 

@@ -3,7 +3,7 @@
 **Estado:** borrador interno · no es oferta vinculante  
 **Fecha:** 2026-08-31 · marca comercial **Enterprise** (ADR-060, 2026-10-21)  
 **Relacionado:** LP tarjeta «Enterprise» · `src/content/landing/pricing.ts` · `/legal/subscription`  
-**Contacto comercial:** `hola@geoagro.ai`
+**Contacto comercial:** `me@juliovela.com`
 
 ---
 

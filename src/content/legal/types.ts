@@ -16,7 +16,8 @@ export type LegalDocument = {
 };
 
 export const LEGAL_LAST_UPDATED = "2026-10-22";
-export const LEGAL_CONTACT_EMAIL = "hola@geoagro.ai";
+/** Contacto público provisional hasta tener mailbox en @geoagro.ai. */
+export const LEGAL_CONTACT_EMAIL = "me@juliovela.com";
 export const LEGAL_OPERATOR = "Agro AI";
 export const LEGAL_JURISDICTION = "República del Perú";
 

@@ -2,7 +2,7 @@
 
 **Producto:** geoagro.ai · Piloto 2026  
 **Público:** productores, técnicos y consultores invitados  
-**Soporte:** hola@geoagro.ai · respuesta en ~48 h hábiles  
+**Soporte:** me@juliovela.com · respuesta en ~48 h hábiles  
 
 Esta guía resume qué hacer en las primeras 2 semanas. La versión interactiva (checklist + formularios) está en la app: **`/app/piloto`**.
 
@@ -63,12 +63,12 @@ Si algo falla: usá **Reportar fallo** en `/app/piloto` (o el botón de error si
 ## 6. Enterprise (opcional)
 
 La oferta pública es **Free** (clima) + **Enterprise** (software B2B dedicado).  
-Si tenés IoT, ERP u otras fuentes propias, podés solicitar **auditoría tecnológica en piloto** (sin fee, sujetos a cupo). Ver tarjeta Enterprise en la LP o escribinos a hola@geoagro.ai.
+Si tenés IoT, ERP u otras fuentes propias, podés solicitar **auditoría tecnológica en piloto** (sin fee, sujetos a cupo). Ver tarjeta Enterprise en la LP o escribinos a me@juliovela.com.
 
 ---
 
 ## 7. Contacto y privacidad
 
-- Soporte piloto: hola@geoagro.ai  
+- Soporte piloto: me@juliovela.com  
 - Legal: /legal/privacy · /legal/terms  
 - Operador: RAW CODE S.A.C. (RUC 20614132206)

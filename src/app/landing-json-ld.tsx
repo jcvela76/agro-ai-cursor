@@ -1,3 +1,4 @@
+import { LEGAL_CONTACT_EMAIL } from "@/content/legal/types";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -15,7 +16,7 @@ export function LandingJsonLd() {
         "@id": `${SITE_URL}/#organization`,
         name: SITE_NAME,
         url: SITE_URL,
-        email: "hola@geoagro.ai",
+        email: LEGAL_CONTACT_EMAIL,
         description: SITE_DESCRIPTION,
         areaServed: {
           "@type": "Country",
