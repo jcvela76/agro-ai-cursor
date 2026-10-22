@@ -62,6 +62,6 @@ export const LANDING_PRICING: readonly LandingPricingTier[] = [
     cta: "Agendar auditoría",
     ctaHref: `mailto:${LEGAL_CONTACT_EMAIL}?subject=${encodeURIComponent(ENTERPRISE_MAIL_SUBJECT)}`,
     disclaimer:
-      "No disponible en checkout web. Free demuestra el valor del clima; Enterprise es el camino B2B. En piloto la auditoría puede ser sin cargo si hay cupo y fit; la implementación se cotiza aparte.",
+      "Enterprise no tiene checkout web: Free demuestra el clima; el camino B2B es la auditoría (sin fee en piloto si hay cupo). La implementación se cotiza aparte.",
   },
 ] as const;

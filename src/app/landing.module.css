@@ -1185,19 +1185,21 @@
   border: 1px solid rgba(28, 42, 31, 0.12);
 }
 
+.priceGrid {
+  /* Free + Enterprise only (ADR-060) — never 4-col leftovers */
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+  align-items: stretch;
+}
+
 @media (min-width: 768px) {
   .productGrid {
     grid-template-columns: repeat(3, 1fr);
   }
 
   .priceGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .priceGrid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1321,20 +1323,31 @@
 /* ── Pricing ────────────────────────────────────────────── */
 
 .pricingIntro {
-  display: grid;
-  gap: 2.5rem;
-  margin-bottom: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
 }
 
 @media (min-width: 768px) {
   .pricingIntro {
-    grid-template-columns: 1fr 1fr;
-    gap: 6rem;
-    align-items: end;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    column-gap: 3.5rem;
+    row-gap: 1rem;
+    align-items: start;
+    margin-bottom: 3rem;
   }
 
   .pricingIntro .sectionTitle {
+    grid-column: 1;
+    grid-row: 1 / -1;
     margin-bottom: 0;
+    align-self: start;
+  }
+
+  .pricingIntro .pricingNotice {
+    grid-column: 2;
   }
 }
 
@@ -1369,9 +1382,11 @@
 .priceCard {
   display: flex;
   flex-direction: column;
+  height: 100%;
   padding: 2rem;
   background: #fffdf8;
   border-bottom: 1px solid rgba(28, 42, 31, 0.12);
+  box-sizing: border-box;
 }
 
 .priceCard:last-child {
@@ -1380,7 +1395,7 @@
 
 @media (min-width: 768px) {
   .priceCard {
-    padding: 2.5rem;
+    padding: 2.25rem 2.5rem;
     border-bottom: 0;
     border-right: 1px solid rgba(28, 42, 31, 0.12);
   }
@@ -1396,6 +1411,10 @@
 
 .priceHighlight .featureList li {
   color: rgba(255, 253, 248, 0.7);
+}
+
+.priceHighlight .dot {
+  background: rgba(255, 253, 248, 0.55);
 }
 
 .priceHead {
@@ -1415,18 +1434,23 @@
 }
 
 .priceHead p {
-  margin: 0.25rem 0 0;
+  margin: 0.35rem 0 0;
   font-size: 0.875rem;
-  color: rgba(28, 42, 31, 0.45);
+  line-height: 1.4;
+  color: rgba(28, 42, 31, 0.55);
 }
 
 .priceHighlight .priceHead p {
-  color: rgba(255, 253, 248, 0.45);
+  color: rgba(255, 253, 248, 0.55);
 }
 
 .priceAmountRow {
-  margin-bottom: 2rem;
-  padding-bottom: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
   border-bottom: 1px solid rgba(28, 42, 31, 0.1);
 }
 
@@ -1438,6 +1462,7 @@
   font-family: var(--font-display);
   font-size: 2.25rem;
   font-weight: 300;
+  line-height: 1.1;
   color: #1c2a1f;
 }
 
@@ -1446,18 +1471,35 @@
 }
 
 .pricePeriod {
-  margin-left: 0.5rem;
-  font-size: 0.875rem;
-  color: rgba(28, 42, 31, 0.45);
+  margin-left: 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: rgba(28, 42, 31, 0.5);
 }
 
 .priceHighlight .pricePeriod {
-  color: rgba(255, 253, 248, 0.45);
+  color: rgba(255, 253, 248, 0.5);
+}
+
+.priceCard .featureList {
+  flex: 1 1 auto;
+  margin: 0;
 }
 
 .priceCard .btnOutline,
 .priceCard .btnOnDark {
-  margin-top: 2.5rem;
+  margin-top: 1.75rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.priceFootnote {
+  max-width: 48rem;
+  margin: 1.25rem auto 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: rgba(28, 42, 31, 0.58);
+  text-align: center;
 }
 
 /* ── Closing / waitlist ─────────────────────────────────── */

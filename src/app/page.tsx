@@ -477,9 +477,6 @@ export default function Home() {
                   <span className={styles.priceAmount}>{tier.price}</span>
                   <span className={styles.pricePeriod}>{tier.period}</span>
                 </div>
-                {tier.disclaimer ? (
-                  <p className={styles.priceDisclaimer}>{tier.disclaimer}</p>
-                ) : null}
                 <ul className={styles.featureList}>
                   {tier.features.map((feature) => (
                     <li key={feature}>
@@ -499,6 +496,11 @@ export default function Home() {
               </article>
             ))}
           </div>
+          {LANDING_PRICING.some((tier) => tier.disclaimer) ? (
+            <p className={styles.priceFootnote}>
+              {LANDING_PRICING.find((tier) => tier.disclaimer)?.disclaimer}
+            </p>
+          ) : null}
         </div>
       </section>
 
