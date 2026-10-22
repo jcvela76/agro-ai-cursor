@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
+import { notifyWaitlistSignup } from "@/application/waitlist/notify-waitlist-signup";
+import { createEmailSender } from "@/infrastructure/email/email-sender";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const QUALIFIER_MAX = 80;
@@ -75,7 +77,18 @@ export async function POST(request: Request) {
         region = COALESCE(EXCLUDED.region, waitlist_signups.region),
         crop = COALESCE(EXCLUDED.crop, waitlist_signups.crop)
     `;
-    return NextResponse.json({ ok: true, persisted: true });
+
+    const notify = await notifyWaitlistSignup(createEmailSender(), {
+      email,
+      role,
+      region,
+      crop,
+    });
+    if (!notify.ok) {
+      console.warn("Waitlist notify failed:", notify.error ?? "unknown");
+    }
+
+    return NextResponse.json({ ok: true, persisted: true, notified: notify.ok });
   } catch {
     return NextResponse.json(
       { ok: false, error: "No se pudo guardar. Intenta más tarde." },
