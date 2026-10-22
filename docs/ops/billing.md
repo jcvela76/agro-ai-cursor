@@ -253,10 +253,12 @@ Tarjeta de prueba Stripe (development gateway): usar números de test de Stripe 
 | Paso | Estado |
 |------|--------|
 | Código webhook + mapper + `/app/billing` | ✅ en `main` |
-| Webhook Production `https://geoagro.ai/api/webhooks/clerk` | ✅ Ops 2026-08-28 — `docs/ops/clerk-webhook-production.md` |
-| `CLERK_WEBHOOK_SIGNING_SECRET` Vercel Production | ✅ 2026-08-28 |
+| Webhook Production `https://geoagro.ai/api/webhooks/clerk` | ✅ Free event list + `organization.created` (2026-10-22 go-live) — `docs/ops/clerk-webhook-production.md` |
+| `CLERK_WEBHOOK_SIGNING_SECRET` Vercel Production | ✅ re-sync Svix 2026-10-22 (firma OK; deliveries Free 200) |
+| `WEATHER_SOURCE=free` Vercel Production | ✅ 2026-10-22 (clima apex NASA POWER / Open-Meteo, no offline) |
+| `NEXT_PUBLIC_APP_URL` en Vercel Production | ✅ `https://geoagro.ai` |
+| Smoke Free Production (webhook + UX) | ✅ 2026-10-22 — `SMOKE_FREE_WAIT_WEBHOOK=1` PASS; `/app` mapa + Clima live + gates Enterprise |
 | Smoke member limits Production (Lima Coffee) | ✅ 2026-08-28 |
-| `NEXT_PUBLIC_APP_URL` en Vercel Production | **Verificar** `https://geoagro.ai` |
 | Billing enabled + Stripe **account propia** en instancia Production | Pendiente (counsel OK 2026-08-29; falta Stripe Production) |
 | Montos vinculantes / cobro live en Perú | Pendiente checklist Stripe / smoke cobro |
 
@@ -268,7 +270,7 @@ El webhook Production puede configurarse **antes** de cobro live (org member lim
 - [x] Precios LP con aviso legal explícito + enlaces a `/legal/subscription`, `/legal/terms`, `/legal/privacy`
 - [x] Revisión y **aprobación** por abogado (Perú) — 2026-08-29; operador RAW CODE S.A.C. RUC 20614132206; ver `docs/ops/legal.md`
 - [ ] Stripe account Production conectada en Clerk Production (no reusar gateway dev)
-- [x] Webhook Production + `CLERK_WEBHOOK_SIGNING_SECRET` en Vercel Production (Billing-ops-prod, 2026-08-28; smoke member limits OK)
+- [x] Webhook Production + `CLERK_WEBHOOK_SIGNING_SECRET` en Vercel Production (Billing-ops-prod 2026-08-28; re-sync + Free go-live 2026-10-22)
 - [ ] Smoke cobro real con monto mínimo controlado y reverso/cancelación documentados
 - [ ] Confirmación explícita de Julio en session-log / ops (cobro live)
 

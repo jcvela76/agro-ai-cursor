@@ -5,8 +5,8 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-10-22 (ADR-061.3 Gates UX Free) |
-| **Rama de referencia** | `stg` |
+| **Última actualización** | 2026-10-22 (Go-live Free Production + privacy scope) |
+| **Rama de referencia** | `main` (= `stg`) |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
 Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomic_review`.
@@ -19,11 +19,12 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Feature | Estado | Detalle |
 |---------|--------|---------|
 | Sign-in / Sign-up (Clerk) | hecho | Login y registro; redirect post-auth → `/app` |
-| Free self-serve signup | hecho | ADR-061 · LP CTA → `/sign-up` · webhook Free metadata · verificado stg sin patch |
+| Free self-serve signup | hecho | ADR-061 · LP CTA → `/sign-up` · webhook Free metadata · stg + Production (`geoagro.ai`) sin patch |
 | Session task choose-organization | hecho | Camino principal · `taskUrls` + copy Free · middleware pending → task · touch si org ya activa |
 | Free org onboarding fallback | hecho | `/app` sin orgId · mismo copy · `CreateOrganization` |
-| Smoke Free self-serve | hecho | `npm run smoke:free-selfserve` · `SMOKE_FREE_WAIT_WEBHOOK=1` PASS stg |
+| Smoke Free self-serve | hecho | `npm run smoke:free-selfserve` · `SMOKE_FREE_WAIT_WEBHOOK=1` PASS stg + Production |
 | Webhook Clerk Preview (stg) | hecho | Svix `organization.created` + `CLERK_WEBHOOK_SIGNING_SECRET` Preview |
+| Webhook Clerk Production | hecho | `https://geoagro.ai/api/webhooks/clerk` · Free event list · secret alineado Svix (2026-10-22) |
 | Webhook local relay | docs | `scripts/clerk-webhook-local.sh` (`clerk webhooks listen`) |
 | Orgs = workspaces | hecho | Organización Clerk = workspace |
 | Organization switcher | hecho | Cambio de workspace en el shell |
@@ -302,7 +303,7 @@ Gate: `weather` + `weather_plus`.
 
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| `/legal/terms\|privacy\|refunds\|subscription` | hecho | Counsel-approved; sin banner DRAFT |
+| `/legal/terms\|privacy\|refunds\|subscription` | hecho | Counsel-approved; privacy 2026-10-22 = capas Free/Plus + «qué no hacemos» |
 | Footer links LP / auth / billing | hecho | `LegalFooterLinks` |
 | Aprobación counsel | hecho | 2026-08-29; `docs/ops/legal.md` |
 | RUC / dirección operador | hecho | RAW CODE S.A.C. · 20614132206 · Surquillo |

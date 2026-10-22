@@ -112,7 +112,8 @@ Checklist de estabilización funcional (antes de polish visual). Cada fase cierr
 | Neon persistence | `SMOKE_NEON=1 npm run smoke:all` (requiere `DATABASE_URL`) | ☐ manual |
 | Seed Neon | `npm run db:seed` (+ trace/review seeds) | ☐ manual |
 | E2E visual `/app` | Browser smoke Lima Coffee (post-polygon fix) | ☐ manual |
-| Promote `stg` → `main` | `main` = `stg` @ `5735fe0` (2026-08-29 Legal-1.3) | ☑ |
+| Promote `stg` → `main` | `main` = `stg` @ `41ddb9a` (2026-10-22 Go-live Free + privacy scope) | ☑ |
+| Free apex Production | `SMOKE_CLERK=1 SMOKE_FREE_WAIT_WEBHOOK=1` + browser `/app` Clima NASA POWER + gates Enterprise | ☑ 2026-10-22 |
 
 ## Pre-client (antes de usuarios reales)
 
