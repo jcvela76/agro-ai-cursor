@@ -35,6 +35,8 @@
 
 ## Post 1 — Problema → Free (publicar primero)
 
+**Pack listo (imagen + copy + tags + DM):** [`linkedin-post1-ready.md`](linkedin-post1-ready.md) · assets en [`assets/`](assets/).
+
 Clima de estación o promedio regional no es el clima de *tu* parcela.
 
 En Agro AI el plan Free te da clima georreferenciado por parcela, con fuente y frescura explícitas (Open-Meteo y NASA POWER). Sin cobro en esta fase.
