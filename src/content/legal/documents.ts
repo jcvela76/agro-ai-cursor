@@ -167,31 +167,101 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
       },
       {
         id: "datos",
-        heading: "2. Datos que tratamos",
+        heading: "2. Datos que tratamos (por capa)",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "El alcance depende de lo que usted use. Free (clima por parcela) no implica captura de bitácora, chat, espectral ni cobro. A continuación, por capas:",
+          },
+          {
+            type: "paragraph",
+            text: "Cuenta y workspace (Clerk, al registrarse o iniciar sesión):",
+          },
+          {
+            type: "bullets",
+            items: [
+              "Correo, nombre de perfil y datos de autenticación gestionados por Clerk.",
+              "Organización (workspace), rol (p. ej. org:admin) y membresías / invitaciones.",
+              "Logs técnicos e IP necesarios para seguridad y operación del servicio (hosting).",
+            ],
+          },
+          {
+            type: "paragraph",
+            text: "Free — si usa `/app` con plan Free (`free_org`, entitlement weather):",
+          },
+          {
+            type: "bullets",
+            items: [
+              "Parcelas que usted crea: nombre, geometría (polígono / centroide) y zona horaria.",
+              "Consultas de clima a proveedores (Open-Meteo, NASA POWER): enviamos latitud/longitud o área de interés de la parcela para obtener observación y pronóstico; no enviamos su nombre ni correo a esos proveedores.",
+              "Metadatos de plan en el workspace (p. ej. `billingPlanSlug`, entitlements, cupo de parcelas) para aplicar límites Free.",
+            ],
+          },
+          {
+            type: "paragraph",
+            text: "Opcional en la landing (lista de espera / lead Enterprise):",
+          },
+          {
+            type: "bullets",
+            items: [
+              "Correo y, si los completa, rol, región y cultivo — solo si se inscribe voluntariamente en el formulario de waitlist.",
+            ],
+          },
+          {
+            type: "paragraph",
+            text: "Plus, productos piloto u hub `/app/piloto` — solo si su workspace tiene el entitlement correspondiente o usted usa esas funciones:",
+          },
+          {
+            type: "bullets",
+            items: [
+              "Chat del Agro Agent: mensajes y retención según plan (Plus).",
+              "Bitácora de campo: notas y, si adjunta, foto almacenada en almacenamiento de objetos (Blob).",
+              "Perfil agronómico de parcela, índices/overlays espectrales e informes o briefings generados.",
+              "Trazabilidad y revisión agronómica: lotes, eventos y decisiones que usted registre.",
+              "Telemetría del programa piloto: eventos de uso, formularios de feedback y reportes de fallo (org-scoped) en Neon.",
+              "Diagnóstico de errores vía Sentry (contexto técnico del fallo; no usamos esto para publicidad).",
+            ],
+          },
+          {
+            type: "paragraph",
+            text: "Facturación — solo cuando el cobro live esté habilitado y contrate un plan de pago:",
+          },
+          {
+            type: "bullets",
+            items: [
+              "Estado de suscripción y plan vía Clerk Billing / Stripe; no almacenamos el número completo de tarjeta.",
+              "El plan Free self-serve no exige tarjeta ni suscripción de pago.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "limites",
+        heading: "3. Qué no hacemos y límites de alcance",
         blocks: [
           {
             type: "bullets",
             items: [
-              "Identificación y contacto: nombre, correo, organización (vía proveedor de autenticación Clerk).",
-              "Datos de uso: logs técnicos, dirección IP, eventos de producto necesarios para operación y seguridad.",
-              "Datos de workspace: parcelas, geometrías, decisiones de revisión, lotes de trazabilidad y metadatos asociados.",
-              "Facturación: estado de suscripción y plan (procesado por Clerk Billing / Stripe cuando aplique); no almacenamos números completos de tarjeta.",
-              "Lista de espera: correo proporcionado voluntariamente al inscribirse en el piloto.",
+              "No vendemos datos personales ni usamos publicidad comportamental de terceros en la plataforma.",
+              "Free no incluye espectral, agente, bitácora de campo, trazabilidad ni revisión agronómica; esas funciones requieren plan/piloto con entitlement o contrato Enterprise.",
+              "Los proveedores de clima reciben ubicación de la parcela (coordenadas / AOI), no el perfil personal del usuario.",
+              "La oferta comercial pública es Free + Enterprise (cotización). Los planes mid de Clerk (Plus / Operations / Full) son para piloto o uso interno, no la oferta principal de la landing.",
+              "No rastreamos con cookies de marketing; el almacenamiento local del tour de la interfaz (p. ej. `agro-ai-shell-tour-v1`) solo recuerda si ya vio la guía.",
             ],
           },
         ],
       },
       {
         id: "finalidades",
-        heading: "3. Finalidades",
+        heading: "4. Finalidades",
         blocks: [
           {
             type: "bullets",
             items: [
-              "Prestar el servicio, autenticar usuarios y administrar workspaces.",
-              "Gestionar suscripciones y entitlements cuando el cliente contrate un plan de pago.",
-              "Comunicar novedades del piloto y acceso a la lista de espera.",
-              "Mejorar seguridad, soporte y calidad del producto.",
+              "Free / servicio base: autenticar, administrar workspaces, guardar parcelas y mostrar clima por parcela con evidencia de fuente.",
+              "Planes de pago o piloto (si aplica): entitlements, agente, espectral, informes, bitácora y productos asociados.",
+              "Lista de espera / Enterprise: contactar sobre acceso, auditoría o novedades del programa cuando usted se haya inscrito.",
+              "Seguridad, soporte, calidad del producto y telemetría de piloto cuando use esas herramientas.",
               "Cumplir obligaciones legales aplicables en Perú.",
             ],
           },
@@ -199,7 +269,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
       },
       {
         id: "base-legal",
-        heading: "4. Base legal (Perú)",
+        heading: "5. Base legal (Perú)",
         blocks: [
           {
             type: "paragraph",
@@ -209,25 +279,27 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
       },
       {
         id: "cookies",
-        heading: "5. Cookies y tecnologías",
+        heading: "6. Cookies y tecnologías",
         blocks: [
           {
             type: "paragraph",
-            text: "Usamos cookies y almacenamiento local necesarios para autenticación (Clerk) y operación segura de la sesión. No usamos publicidad comportamental de terceros en la plataforma.",
+            text: "Usamos cookies y almacenamiento local necesarios para autenticación (Clerk) y operación segura de la sesión. En el navegador podemos guardar preferencias mínimas de interfaz (p. ej. si ya completó el tour del mapa). No usamos publicidad comportamental de terceros.",
           },
         ],
       },
       {
         id: "terceros",
-        heading: "6. Encargados y transferencias",
+        heading: "7. Encargados y transferencias",
         blocks: [
           {
             type: "bullets",
             items: [
               "Clerk (autenticación y organizaciones).",
               "Vercel (hosting) y Neon (base de datos).",
-              "Proveedores de clima (Open-Meteo, NASA POWER, SENAMHI u otros según plan y contrato).",
-              "Clerk Billing / Stripe para pagos cuando estén habilitados.",
+              "Proveedores de clima (Open-Meteo, NASA POWER; SENAMHI u otros solo según plan y contrato).",
+              "Sentry (diagnóstico de errores), cuando está configurado.",
+              "Almacenamiento de objetos (Vercel Blob) para fotos de bitácora Plus, cuando use esa función.",
+              "Clerk Billing / Stripe para pagos cuando el cobro live esté habilitado.",
             ],
           },
           {
@@ -238,7 +310,7 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
       },
       {
         id: "derechos",
-        heading: "7. Derechos del titular",
+        heading: "8. Derechos del titular",
         blocks: [
           {
             type: "paragraph",
@@ -248,11 +320,11 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDocument> = {
       },
       {
         id: "conservacion",
-        heading: "8. Conservación y seguridad",
+        heading: "9. Conservación y seguridad",
         blocks: [
           {
             type: "paragraph",
-            text: "Conservamos los datos mientras exista la relación contractual o sea necesario para las finalidades descritas, y luego por los plazos legales aplicables.",
+            text: "Conservamos los datos mientras exista la relación contractual o sea necesario para las finalidades descritas, y luego por los plazos legales aplicables. Los datos de piloto y diagnóstico se conservan el tiempo necesario para soporte y mejora, con acceso restringido al workspace u operadores autorizados.",
           },
           {
             type: "paragraph",

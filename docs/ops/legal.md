@@ -8,7 +8,7 @@
 
 - [x] Paquete legal enviado / revisado por abogado (Perú)
 - [x] Identidad del operador completada (`LEGAL_OPERATOR_*` desde ficha RUC SUNAT)
-- [x] Texto vigente en `documents.ts` + `LEGAL_LAST_UPDATED=2026-08-29`
+- [x] Texto vigente en `documents.ts` + `LEGAL_LAST_UPDATED=2026-10-22` (alcance de datos aclarado; operador sin cambio)
 - [x] Confirmación en session-log (desbloquea checklist billing § aprobación counsel)
 
 **Qué se envió / revisó:**
@@ -69,6 +69,12 @@ Hasta completar 4–7: **ningún cobro live** en apex.
 2. Actualizar `LEGAL_LAST_UPDATED` y, cuando aplique, `LEGAL_OPERATOR_*` en `types.ts`
 3. Commit slice Legal-1.x si es cambio sustantivo
 4. Tras cambios materiales de precios/cobro, re-validar con asesor legal
+
+## Legal-1.4 (2026-10-22) — alcance de datos en Privacidad
+
+- Aclaración en `/legal/privacy`: capas Cuenta / Free / waitlist / Plus·piloto / facturación; sección «Qué no hacemos».
+- Sin cambio de operador ni de cobro live (sigue diferido).
+- Re-revisión counsel: **asíncrona** si Julio la solicita; no bloquea go-live Free.
 
 ## Legal-1.3 (2026-08-29)
 
