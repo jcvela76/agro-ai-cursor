@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-10-21 (ADR-061 Free self-serve) |
+| **Última actualización** | 2026-10-21 (ADR-061.1 Free onboarding unify + smoke) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -19,8 +19,11 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Feature | Estado | Detalle |
 |---------|--------|---------|
 | Sign-in / Sign-up (Clerk) | hecho | Login y registro; redirect post-auth → `/app` |
-| Free self-serve signup | hecho | ADR-061 · LP CTA → `/sign-up` · CreateOrganization si sin org · webhook Free metadata |
-| Session task choose-organization | hecho | `taskUrls` → `/session-tasks/choose-organization` (`TaskChooseOrganization`) · middleware pending → task |
+| Free self-serve signup | hecho | ADR-061 · LP CTA → `/sign-up` · webhook Free metadata |
+| Session task choose-organization | hecho | Camino principal · `taskUrls` + copy Free · middleware pending → task |
+| Free org onboarding fallback | hecho | `/app` sin orgId · mismo copy · `CreateOrganization` |
+| Smoke Free self-serve | hecho | `npm run smoke:free-selfserve` · opcional `SMOKE_CLERK` / `SMOKE_FREE_WAIT_WEBHOOK` |
+| Webhook local relay | docs | `scripts/clerk-webhook-local.sh` (`clerk webhooks listen`) |
 | Orgs = workspaces | hecho | Organización Clerk = workspace |
 | Organization switcher | hecho | Cambio de workspace en el shell |
 | Middleware protect `/app` + `/api/*` | hecho | Públicas: `/`, `/legal/*`, waitlist, webhooks, SEO, accept-invitation |

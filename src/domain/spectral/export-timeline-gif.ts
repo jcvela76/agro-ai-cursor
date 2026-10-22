@@ -97,7 +97,9 @@ export async function encodeGifFromRgbaFrames(
 }
 
 export function downloadGif(bytes: Uint8Array, filename: string) {
-  const blob = new Blob([bytes], { type: "image/gif" });
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  const blob = new Blob([copy], { type: "image/gif" });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;

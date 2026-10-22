@@ -33,6 +33,7 @@
     "tally:report-suggestion-labels": "npx tsx scripts/tally-report-suggestion-labels.ts",
     "smoke:agent": "npx tsx scripts/smoke-agent.ts",
     "smoke:admin": "npx tsx scripts/smoke-admin.ts",
+    "smoke:free-selfserve": "npx tsx scripts/smoke-free-selfserve.ts",
     "smoke:all": "npx tsx scripts/smoke-all.ts",
     "audit:env": "npx tsx scripts/audit-environments.ts",
     "qa:regression": "npm test && npm run lint && SMOKE_SENAMHI=1 SMOKE_SENTINEL_STUB=1 npm run smoke:all",

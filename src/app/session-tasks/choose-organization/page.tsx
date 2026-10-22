@@ -1,14 +1,16 @@
 import { TaskChooseOrganization } from "@clerk/nextjs";
 import { LegalFooterLinks } from "@/ui/legal-footer-links";
+import { FreeWorkspaceIntro } from "@/ui/free-workspace-intro";
 import styles from "../../auth-legal.module.css";
 
 /**
- * Completes Clerk session task `choose-organization` (Personal Accounts off).
- * Wired via ClerkProvider taskUrls — ADR-061 Free self-serve.
+ * Camino principal post sign-up/sign-in (Personal Accounts off).
+ * ClerkProvider.taskUrls → aquí; webhook aplica Free (ADR-061).
  */
 export default function ChooseOrganizationTaskPage() {
   return (
     <main className={styles.main}>
+      <FreeWorkspaceIntro />
       <TaskChooseOrganization redirectUrlComplete="/app" />
       <LegalFooterLinks />
     </main>

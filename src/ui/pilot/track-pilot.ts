@@ -28,7 +28,8 @@ export async function reportPilotError(input: {
     if (input.severity === "error") {
       captureException(new Error(`[${input.source}] ${input.message}`));
     } else {
-      captureMessage(`[${input.source}] ${input.message}`, input.severity ?? "error");
+      const level = input.severity === "warn" ? "warning" : "info";
+      captureMessage(`[${input.source}] ${input.message}`, level);
     }
   } catch {
     // Sentry optional

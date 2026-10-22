@@ -193,11 +193,24 @@ En app **agro-ai-auth** (Development y Production cuando aplique):
 
 1. **Organizations** habilitadas.
 2. Users pueden **crear organizaciones** (no solo admins/ops).
-3. Webhook incluye `organization.created` (arriba). Local: tunnel/ngrok apuntando a `/api/webhooks/clerk` o metadata no se aplica hasta sync.
+3. Webhook incluye `organization.created` (arriba).
 4. Tras crear org sin plan de pago: metadata `billingPlanSlug=free_org`, `entitlements=["weather"]`, tope 2 asientos.
-5. App: `ClerkProvider.taskUrls['choose-organization']` → `/session-tasks/choose-organization` (Personal Accounts off exige esta task).
+5. App: `ClerkProvider.taskUrls['choose-organization']` → `/session-tasks/choose-organization` (camino principal). Fallback `/app` sin org: `CreateOrganization` (mismo copy Free).
 
-Helper: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
+**Onboarding unificado:** la task Clerk es el camino post auth; no usar `forceRedirectUrl` hacia `/app` (rompe pending → `/sign-in/tasks`). Sign-in/up usan solo `fallbackRedirectUrl=/app`.
+
+**Webhook local:** `./scripts/clerk-webhook-local.sh` → preferir `npx clerk webhooks listen --forward-to http://localhost:3000/api/webhooks/clerk` (o ngrok). Sin relay, Free metadata no llega en local.
+
+**Smoke:**
+
+```bash
+npm run smoke:free-selfserve
+SMOKE_CLERK=1 npm run smoke:free-selfserve
+# Espera organization.created en endpoints suscritos (stg/local):
+SMOKE_CLERK=1 SMOKE_FREE_WAIT_WEBHOOK=1 npm run smoke:free-selfserve
+```
+
+Helper stg Dashboard: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
 
 Production: `./scripts/clerk-webhook-prod.sh` — ver `docs/ops/clerk-webhook-production.md`.
 
