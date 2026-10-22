@@ -64,7 +64,8 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Waitlist form + API | hecho | Neon `waitlist_signups` + notify Resend (`noreply@updates.geoagro.ai`) a `WAITLIST_NOTIFY_TO` / `LEGAL_CONTACT_EMAIL` |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 · meta/JSON-LD Free · kit LinkedIn · GSC indexed |
 | Web Analytics + Speed Insights | hecho | `@vercel/analytics` + `@vercel/speed-insights` · ops `docs/ops/analytics.md` |
-| Tarjeta FICAFÉ (arte + QR UTM) | hecho | `docs/marketing/assets/ficafe-card/` · 90×50 mm @300dpi · script `scripts/render-ficafe-card.py` · QR → `/sign-up` UTM ficafe |
+| Tarjeta FICAFÉ (arte + QR UTM) | hecho | Originales en `docs/marketing/assets/ficafe-card/` · propuesta editable en `docs/marketing/assets/ficafe-card-v2/` (tamaño provisional 90×50 mm) |
+| Ruta corta pública FICAFÉ | parcial | `GET /f26` → 307 a `/sign-up` con `utm_source=ficafe`, `utm_medium=card`, `utm_campaign=ficafe_cusco_202611`; pendiente publicación y prueba pública |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
 | LP copy alineado a producto | hecho | LP-copy-1/2/3: claims, CTAs, precios, testimonio piloto, waitlist cualificación |
 | LP “Export EUDR / API pública v1” | planificado | Roadmap landing `done: false` |
