@@ -9,7 +9,7 @@ export type WaitlistLead = {
 };
 
 export function resolveWaitlistNotifyTo(
-  env: NodeJS.ProcessEnv = process.env,
+  env: Record<string, string | undefined> = process.env,
 ): string {
   const override = env.WAITLIST_NOTIFY_TO?.trim();
   if (override && override.includes("@")) {
@@ -55,7 +55,7 @@ function escapeHtml(value: string): string {
 export async function notifyWaitlistSignup(
   email: EmailSender,
   lead: WaitlistLead,
-  env: NodeJS.ProcessEnv = process.env,
+  env: Record<string, string | undefined> = process.env,
 ): Promise<{ attempted: boolean; ok: boolean; error?: string }> {
   if (!env.RESEND_API_KEY?.trim()) {
     return { attempted: false, ok: false, error: "RESEND_API_KEY missing" };
