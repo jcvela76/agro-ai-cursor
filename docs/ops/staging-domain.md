@@ -4,7 +4,7 @@
 
 | Ambiente | Git | Host | Notas |
 |----------|-----|------|--------|
-| Production | `main` | `https://geoagro.ai` (+ `www`, `agro-ai-cursor.vercel.app`) | LP waitlist + SEO indexable |
+| Production | `main` | `https://geoagro.ai` (+ `www`, `agro-ai-cursor.vercel.app`) | LP Free + SEO indexable |
 | Staging | `stg` | `https://stg.geoagro.ai` | Preview; `robots Disallow: /` |
 
 ## Flujo

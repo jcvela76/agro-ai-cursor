@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-10-22 (Resend From → updates.geoagro.ai) |
+| **Última actualización** | 2026-10-22 (SEO Free copy + kit LinkedIn) |
 | **Rama de referencia** | `main` (= `stg`) |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -62,7 +62,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | LP demo Agro Agent | hecho | Tab hero + sección; `AgentChatView`; glass compartido; autoplay |
 | Precios informativos | hecho | LP Free + Enterprise (ADR-060); Free CTA → `/sign-up` (ADR-061); mid USD 29/79/99 solo piloto/interno |
 | Waitlist form + API | hecho | Neon `waitlist_signups` + notify Resend (`noreply@updates.geoagro.ai`) a `WAITLIST_NOTIFY_TO` / `LEGAL_CONTACT_EMAIL` |
-| SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
+| SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 · meta/JSON-LD Free (no waitlist-first) · kit LinkedIn `docs/marketing/linkedin-free-testers.md` |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
 | LP copy alineado a producto | hecho | LP-copy-1/2/3: claims, CTAs, precios, testimonio piloto, waitlist cualificación |
 | LP “Export EUDR / API pública v1” | planificado | Roadmap landing `done: false` |

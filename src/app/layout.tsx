@@ -39,12 +39,13 @@ export const metadata: Metadata = {
   keywords: [
     "Agro AI",
     "clima agrícola",
+    "clima por parcela",
     "parcela",
     "Perú",
     "Open-Meteo",
     "NASA POWER",
+    "agronomía digital",
     "geoagro",
-    "lista de espera",
   ],
   alternates: {
     canonical: "/",

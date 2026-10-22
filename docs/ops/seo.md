@@ -33,11 +33,18 @@ Rutas SEO públicas en Clerk middleware: `/robots.txt`, `/sitemap.xml`, icon/OG 
 - LCP: hero `priority` + formatos modernos; sin bloquear crawl
 - No indexar `/app`, `/api`, auth (`robots.txt`)
 
+## Copy indexable (Free go-live)
+
+Meta y JSON-LD apuntan a **Free Weather** (no «lista de espera»). Constantes en `src/lib/site.ts`; Offer + `featureList` en `landing-json-ld.tsx`. El form waitlist de la LP sigue para leads Enterprise/piloto.
+
+Tras cambiar title/description en Production: en GSC → URL Inspection → `https://geoagro.ai/` → **Solicitar indexación**.
+
 ## Pendiente ops
 
 1. ~~Search Console / Bing verification~~ — Domain `sc-domain:geoagro.ai` verificado (DNS TXT en Vercel); sitemap `https://geoagro.ai/sitemap.xml` submitted (Success).
 2. Monitor Core Web Vitals en GSC tras indexación
 3. Bing Webmaster (opcional)
+4. Tras deploy copy Free: solicitar indexación homepage (manual)
 
 ## Search Console
 
