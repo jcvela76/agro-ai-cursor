@@ -44,7 +44,8 @@ Tras cambiar title/description en Production: en GSC → URL Inspection → `htt
 1. ~~Search Console / Bing verification~~ — Domain `sc-domain:geoagro.ai` verificado (DNS TXT en Vercel); sitemap `https://geoagro.ai/sitemap.xml` submitted (Success).
 2. Monitor Core Web Vitals en GSC tras indexación
 3. Bing Webmaster (opcional)
-4. Tras deploy copy Free: solicitar indexación homepage (manual)
+4. ~~Tras deploy copy Free: solicitar indexación homepage~~ — GSC 2026-10-22: `https://geoagro.ai/` **URL is on Google** / Page is indexed (re-request ok tras cambios de copy)
+5. Visitas: ver [`docs/ops/analytics.md`](analytics.md) (Vercel Web Analytics + Speed Insights + GSC Performance)
 
 ## Search Console
 

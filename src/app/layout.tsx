@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
 import {
   isSearchIndexable,
@@ -25,6 +27,11 @@ const sourceSans = Source_Sans_3({
 });
 
 const indexable = isSearchIndexable();
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -97,7 +104,11 @@ export default function RootLayout({
       }}
     >
       <html lang="es" className={`${fraunces.variable} ${sourceSans.variable}`}>
-        <body>{children}</body>
+        <body>
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </body>
       </html>
     </ClerkProvider>
   );
