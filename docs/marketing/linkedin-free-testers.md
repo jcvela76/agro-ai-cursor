@@ -1,8 +1,12 @@
-# LinkedIn — reclutar testers Free
+# Campaña LinkedIn — testers Free (2 semanas)
 
-**Objetivo:** 1–3 testers Free (agrónomos / ops / dueños de finca en Perú).  
-**Canal:** LinkedIn orgánico (sin ads en esta fase).  
-**Producto:** Weather Free en `https://geoagro.ai` (Open-Meteo + NASA POWER).
+| Campo | Valor |
+|-------|--------|
+| **Inicio** | 2026-10-22 |
+| **Cierre / review** | ~2026-11-05 (junto con SEO + Analytics) |
+| **Objetivo** | 1–3 testers Free (agrónomos / ops / dueños de finca en Perú) |
+| **Canal** | LinkedIn orgánico (sin ads) |
+| **Producto** | Weather Free · `https://geoagro.ai` |
 
 ## URLs con UTM
 
@@ -11,6 +15,17 @@
 | Landing | `https://geoagro.ai/?utm_source=linkedin&utm_medium=organic&utm_campaign=free_testers_202610` |
 | Sign-up | `https://geoagro.ai/sign-up?utm_source=linkedin&utm_medium=organic&utm_campaign=free_testers_202610` |
 
+## Calendario
+
+| Día | Acción |
+|-----|--------|
+| **D0 (hoy)** | Publicar **Post 1** · 5–10 DMs a contactos cercanos |
+| **D+2** | **Post 2** · +5 DMs |
+| **D+5** | **Post 3** (o solo DMs si ya hay respuestas) |
+| **D+7** | Revisar Analytics (pageviews `/`, `/sign-up`, utm_campaign) + leads |
+| **D+10** | Segunda ola DMs (10–15) si faltan testers |
+| **~D+14 (5-nov)** | Review conjunto: Analytics + GSC Performance + nº testers activos |
+
 ## Qué no afirmar
 
 - Cobro Stripe live / precios mid como oferta pública vinculante
@@ -18,7 +33,7 @@
 - SENAMHI live
 - ML, alertas SMS, certificación EUDR automática
 
-## Post 1 — Problema → Free
+## Post 1 — Problema → Free (publicar primero)
 
 Clima de estación o promedio regional no es el clima de *tu* parcela.
 
@@ -54,11 +69,19 @@ Landing: https://geoagro.ai/?utm_source=linkedin&utm_medium=organic&utm_campaign
 
 Hola [nombre] — estoy lanzando Agro AI Free: clima por parcela en Perú (fuente y frescura explícitas). Busco 1–3 testers para feedback corto. ¿Te interesa probar? Registro: https://geoagro.ai/sign-up?utm_source=linkedin&utm_medium=organic&utm_campaign=free_testers_202610 — si prefieres, te cuento en 2 mensajes qué incluye Free vs Enterprise.
 
-## Checklist
+## Checklist operativo
 
-1. Publicar Post 1 desde perfil (o página empresa si aplica).
-2. Día +2: Post 2; día +5: Post 3 (o solo DMs si ya hay respuestas).
-3. 10–20 DMs a contactos agrónomos/ops (Ica, Piura, Lima, valle).
-4. Responder en menos de 24 h hábiles.
-5. Anotar leads (DM / waitlist Neon / sheet propio).
-6. Tras signup: confirmar que ven clima en `/app` (no forzar Plus).
+1. Publicar Post 1 desde perfil (o página empresa).
+2. 10–20 DMs totales en la quincena (Ica, Piura, Lima, valle).
+3. Responder en menos de 24 h hábiles.
+4. Anotar leads (DM / waitlist Neon / sheet).
+5. Tras signup: confirmar clima en `/app` (no forzar Plus).
+6. ~5-nov: review Analytics + GSC + testers (SEO deferred).
+
+## Dónde medir
+
+| Señal | Dónde |
+|-------|--------|
+| Visitas LP / signup | Vercel → Analytics · filtro `utm_campaign=free_testers_202610` |
+| Búsqueda orgánica | GSC → Performance (impresiones/clics) |
+| Testers | Signups Free + feedback cualitativo |
