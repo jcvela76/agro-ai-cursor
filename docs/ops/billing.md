@@ -193,8 +193,9 @@ En app **agro-ai-auth** (Development y Production cuando aplique):
 
 1. **Organizations** habilitadas.
 2. Users pueden **crear organizaciones** (no solo admins/ops).
-3. Webhook incluye `organization.created` (arriba).
+3. Webhook incluye `organization.created` (arriba). Local: tunnel/ngrok apuntando a `/api/webhooks/clerk` o metadata no se aplica hasta sync.
 4. Tras crear org sin plan de pago: metadata `billingPlanSlug=free_org`, `entitlements=["weather"]`, tope 2 asientos.
+5. App: `ClerkProvider.taskUrls['choose-organization']` → `/session-tasks/choose-organization` (Personal Accounts off exige esta task).
 
 Helper: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
 

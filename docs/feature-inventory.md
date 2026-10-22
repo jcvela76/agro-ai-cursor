@@ -20,6 +20,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 |---------|--------|---------|
 | Sign-in / Sign-up (Clerk) | hecho | Login y registro; redirect post-auth → `/app` |
 | Free self-serve signup | hecho | ADR-061 · LP CTA → `/sign-up` · CreateOrganization si sin org · webhook Free metadata |
+| Session task choose-organization | hecho | `taskUrls` → `/session-tasks/choose-organization` (`TaskChooseOrganization`) · middleware pending → task |
 | Orgs = workspaces | hecho | Organización Clerk = workspace |
 | Organization switcher | hecho | Cambio de workspace en el shell |
 | Middleware protect `/app` + `/api/*` | hecho | Públicas: `/`, `/legal/*`, waitlist, webhooks, SEO, accept-invitation |

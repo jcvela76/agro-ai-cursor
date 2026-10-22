@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
   "/legal(.*)",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/session-tasks(.*)",
   "/accept-invitation(.*)",
   "/maplibre(.*)",
   "/api/waitlist",
@@ -29,11 +30,23 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(url);
   }
 
+  const { userId, sessionStatus } = await auth({ treatPendingAsSignedOut: false });
+
+  // Pending session tasks (e.g. choose-organization) must finish before /app.
+  if (
+    sessionStatus === "pending" &&
+    (req.nextUrl.pathname === "/app" || req.nextUrl.pathname.startsWith("/app/"))
+  ) {
+    return NextResponse.redirect(new URL("/session-tasks/choose-organization", req.url));
+  }
+
   // Keep `/` statically cacheable: redirect signed-in users here, not in page.tsx.
   if (req.nextUrl.pathname === "/") {
-    const { userId } = await auth();
-    if (userId) {
+    if (userId && sessionStatus === "active") {
       return NextResponse.redirect(new URL("/app", req.url));
+    }
+    if (userId && sessionStatus === "pending") {
+      return NextResponse.redirect(new URL("/session-tasks/choose-organization", req.url));
     }
   }
 

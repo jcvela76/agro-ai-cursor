@@ -90,7 +90,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      taskUrls={{
+        "choose-organization": "/session-tasks/choose-organization",
+      }}
+    >
       <html lang="es" className={`${fraunces.variable} ${sourceSans.variable}`}>
         <body>{children}</body>
       </html>
