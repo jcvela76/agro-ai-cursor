@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-10-22 (waitlist notify → me@juliovela.com) |
+| **Última actualización** | 2026-10-22 (Resend From → updates.geoagro.ai) |
 | **Rama de referencia** | `main` (= `stg`) |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -61,7 +61,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | Landing multi-sección | hecho | LP-5b hero stacked &lt;1024px (copy → map → panel); desktop 3-rail; mockup `lp-responsive-mockup-2026-08.md` |
 | LP demo Agro Agent | hecho | Tab hero + sección; `AgentChatView`; glass compartido; autoplay |
 | Precios informativos | hecho | LP Free + Enterprise (ADR-060); Free CTA → `/sign-up` (ADR-061); mid USD 29/79/99 solo piloto/interno |
-| Waitlist form + API | hecho | Neon `waitlist_signups` + notify Resend a `LEGAL_CONTACT_EMAIL` / `WAITLIST_NOTIFY_TO` |
+| Waitlist form + API | hecho | Neon `waitlist_signups` + notify Resend (`noreply@updates.geoagro.ai`) a `WAITLIST_NOTIFY_TO` / `LEGAL_CONTACT_EMAIL` |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
 | LP copy alineado a producto | hecho | LP-copy-1/2/3: claims, CTAs, precios, testimonio piloto, waitlist cualificación |

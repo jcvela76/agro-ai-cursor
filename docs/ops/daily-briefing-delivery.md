@@ -29,7 +29,7 @@ API admin: `GET|PUT /api/reports/daily-briefing-delivery`
 |----------|-----|
 | `CRON_SECRET` | Obligatorio en Vercel para el cron |
 | `RESEND_API_KEY` | Envío real; sin ella → stub (log en memoria) |
-| `REPORT_EMAIL_FROM` | From Resend (default `Agro AI <noreply@geoagro.ai>`) |
+| `REPORT_EMAIL_FROM` | From Resend (Prod: `Agro AI <noreply@updates.geoagro.ai>`) |
 | `APP_BASE_URL` | Links absolutos en el email (stg/prod). Fallback: `VERCEL_URL` |
 
 ## Migración

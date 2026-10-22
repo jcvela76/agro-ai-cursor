@@ -10,7 +10,7 @@
 |----------|-----|
 | `DATABASE_URL` | Obligatorio para `persisted: true` |
 | `RESEND_API_KEY` | ✅ seteado Prod/Preview 2026-10-22 (cuenta Resend juliovela) |
-| `REPORT_EMAIL_FROM` | ✅ `Agro AI <onboarding@resend.dev>` hasta DNS `geoagro.ai` en Resend |
+| `REPORT_EMAIL_FROM` | ✅ `Agro AI <noreply@updates.geoagro.ai>` (dominio Resend verificado) |
 | `WAITLIST_NOTIFY_TO` | ✅ `me@juliovela.com` |
 
 ## Smoke

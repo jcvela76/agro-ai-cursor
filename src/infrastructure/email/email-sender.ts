@@ -91,7 +91,7 @@ export function createEmailSender(): EmailSender {
   if (!apiKey) {
     return new StubEmailSender();
   }
-  // Until geoagro.ai is verified in Resend, prefer onboarding@resend.dev (test From).
+  // Prefer verified domain (updates.geoagro.ai); onboarding@resend.dev is Resend's test From.
   const from =
     process.env.REPORT_EMAIL_FROM?.trim() ||
     "Agro AI <onboarding@resend.dev>";
