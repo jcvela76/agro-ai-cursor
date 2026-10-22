@@ -212,6 +212,16 @@ SMOKE_CLERK=1 SMOKE_FREE_WAIT_WEBHOOK=1 npm run smoke:free-selfserve
 
 Si `SMOKE_FREE_WAIT_WEBHOOK` hace timeout: en Svix/Dashboard confirmar endpoint `https://stg.geoagro.ai/api/webhooks/clerk` activo + evento `organization.created` + secret alineado con Vercel Preview. El endpoint responde `400 Verification failed` sin firma (ruta viva).
 
+**Verificado stg (2026-10-21):**
+
+| Check | Resultado |
+|-------|-----------|
+| Svix endpoint `https://stg.geoagro.ai/api/webhooks/clerk` | `organization.created` (+ billing) suscritos |
+| `CLERK_WEBHOOK_SIGNING_SECRET` Vercel **Preview** | seteado (alineado con Svix) |
+| `SMOKE_CLERK=1 SMOKE_FREE_WAIT_WEBHOOK=1` | PASS |
+| Sign-up browser `stg.geoagro.ai` → org nueva | `billingPlanSlug=free_org`, `entitlements=["weather"]`, `maxAllowedMemberships=2` **sin patch manual** |
+| `/app` UI | Weather Intelligence (base) · Parcelas 0/2 · Máx 25 ha |
+
 Helper stg Dashboard: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
 
 Production: `./scripts/clerk-webhook-prod.sh` — ver `docs/ops/clerk-webhook-production.md`.
@@ -223,6 +233,8 @@ CLERK_WEBHOOK_SIGNING_SECRET=whsec_...
 ```
 
 Vercel: set en **Preview** (y Development local vía `.env.local`). No commitear el secret.
+
+**Session task:** si Clerk deja `pending` + `choose-organization` con org ya activa, `CompleteChooseOrganizationIfReady` hace `session.touch()` → `/app`.
 
 ### 4. Smoke stg
 
