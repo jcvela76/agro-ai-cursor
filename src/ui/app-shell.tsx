@@ -1448,7 +1448,9 @@ export function AppShell({
 
   return (
     <div className={styles.shell}>
-      <div ref={mapContainerRef} className={styles.map} />
+      <div className={styles.mapFrame}>
+        <div ref={mapContainerRef} className={styles.map} />
+      </div>
       <ShellTour
         open={shellTourOpen}
         onOpenChange={setShellTourOpen}

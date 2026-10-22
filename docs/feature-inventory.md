@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-10-21 (ADR-061.2 Free webhook stg verify + task touch) |
+| **Última actualización** | 2026-10-22 (MapLibre shell height: mapFrame wrapper) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -89,7 +89,7 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 | CRUD parcelas | hecho | Create / patch / delete |
 | Geometría Point | hecho | Centroide lat/lng para clima |
 | Geometría Polygon / MultiPolygon | hecho | Contorno de parcela |
-| MapLibre fullscreen shell | hecho | `/app` + OpenFreeMap |
+| MapLibre fullscreen shell | hecho | `/app` + OpenFreeMap · `mapFrame` wrapper (evita height:0 vs `.maplibregl-map`) |
 | Tour shell primer uso | hecho | Overlay 4 pasos; `agro-ai-shell-tour-v1`; botón Guía; no marca checklist piloto |
 | Terra Draw create/edit | hecho | Dibujar/editar polígonos |
 | Markers / fill / fitBounds | hecho | Visualización y zoom |
