@@ -210,6 +210,8 @@ SMOKE_CLERK=1 npm run smoke:free-selfserve
 SMOKE_CLERK=1 SMOKE_FREE_WAIT_WEBHOOK=1 npm run smoke:free-selfserve
 ```
 
+Si `SMOKE_FREE_WAIT_WEBHOOK` hace timeout: en Svix/Dashboard confirmar endpoint `https://stg.geoagro.ai/api/webhooks/clerk` activo + evento `organization.created` + secret alineado con Vercel Preview. El endpoint responde `400 Verification failed` sin firma (ruta viva).
+
 Helper stg Dashboard: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
 
 Production: `./scripts/clerk-webhook-prod.sh` — ver `docs/ops/clerk-webhook-production.md`.
