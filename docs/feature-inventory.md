@@ -5,7 +5,7 @@ Inventario vivo de features y sub-features de Agro AI.
 
 | Campo | Valor |
 |-------|--------|
-| **Última actualización** | 2026-10-21 (ADR-060 Free + Enterprise LP) |
+| **Última actualización** | 2026-10-21 (ADR-061 Free self-serve) |
 | **Rama de referencia** | `stg` |
 | **Estados** | `hecho` · `stub` · `parcial` · `docs` · `planificado` · `refuse` |
 
@@ -18,7 +18,8 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 ### Autenticación
 | Feature | Estado | Detalle |
 |---------|--------|---------|
-| Sign-in / Sign-up (Clerk) | hecho | Login y registro |
+| Sign-in / Sign-up (Clerk) | hecho | Login y registro; redirect post-auth → `/app` |
+| Free self-serve signup | hecho | ADR-061 · LP CTA → `/sign-up` · CreateOrganization si sin org · webhook Free metadata |
 | Orgs = workspaces | hecho | Organización Clerk = workspace |
 | Organization switcher | hecho | Cambio de workspace en el shell |
 | Middleware protect `/app` + `/api/*` | hecho | Públicas: `/`, `/legal/*`, waitlist, webhooks, SEO, accept-invitation |
@@ -52,8 +53,8 @@ Entitlements en código: `weather` | `weather_plus` | `traceability` | `agronomi
 |---------|--------|---------|
 | Landing multi-sección | hecho | LP-5b hero stacked &lt;1024px (copy → map → panel); desktop 3-rail; mockup `lp-responsive-mockup-2026-08.md` |
 | LP demo Agro Agent | hecho | Tab hero + sección; `AgentChatView`; glass compartido; autoplay |
-| Precios informativos | hecho | LP Free + Enterprise (ADR-060); mid USD 29/79/99 solo piloto/interno; auditoría Enterprise sin fee en piloto (cupo) |
-| Waitlist form + API | hecho | `POST /api/waitlist` → Neon; rol/región/cultivo opcionales (LP-copy-3) |
+| Precios informativos | hecho | LP Free + Enterprise (ADR-060); Free CTA → `/sign-up` (ADR-061); mid USD 29/79/99 solo piloto/interno |
+| Waitlist form + API | hecho | Lead opcional / Enterprise; Free ya no depende de waitlist (`POST /api/waitlist`) |
 | SEO (robots, sitemap, OG, JSON-LD, icons) | hecho | ADR-027/028 |
 | Redirect autenticado `/` → `/app` | hecho | Middleware |
 | LP copy alineado a producto | hecho | LP-copy-1/2/3: claims, CTAs, precios, testimonio piloto, waitlist cualificación |
@@ -281,6 +282,7 @@ Gate: `weather` + `weather_plus`.
 |---------|--------|---------|
 | Mapper plan → entitlements | hecho | free, weather_base, weather_plus, operations, full |
 | Oferta comercial Free + Enterprise | hecho | ADR-060 · LP 2 cards · mid-tiers Clerk no en LP |
+| Free bootstrap on org create | hecho | ADR-061 · `EnsureFreeOrgOnCreate` en `organization.created` (idempotente) |
 | Clerk Billing sandbox + PricingTable | hecho | `/app/billing` · mid-tiers para piloto/interno |
 | Webhook sync entitlements | hecho | `POST /api/webhooks/clerk` |
 | Cancel flow | hecho | `/app/billing/cancel` |

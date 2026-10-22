@@ -7,6 +7,7 @@ import {
 import { SyncOrgBillingEntitlements } from "@/application/billing/sync-org-billing-entitlements";
 import { SyncOrgMemberLimit } from "@/application/billing/sync-org-member-limit";
 import { EnforceOrgMemberLimitOnInvite } from "@/application/billing/enforce-org-member-limit-on-invite";
+import { EnsureFreeOrgOnCreate } from "@/application/billing/ensure-free-org-on-create";
 import {
   GetWorkspaceSettings,
   UpdateWorkspaceSettings,
@@ -233,6 +234,10 @@ export const getWorkspaceSettings = new GetWorkspaceSettings(orgMetadataStore);
 export const updateWorkspaceSettings = new UpdateWorkspaceSettings(orgMetadataStore);
 export const syncOrgBillingEntitlements = new SyncOrgBillingEntitlements(orgMetadataStore);
 export const syncOrgMemberLimit = new SyncOrgMemberLimit(orgMetadataStore, orgMemberLimitGateway);
+export const ensureFreeOrgOnCreate = new EnsureFreeOrgOnCreate(
+  orgMetadataStore,
+  syncOrgBillingEntitlements,
+);
 export const enforceOrgMemberLimitOnInvite = new EnforceOrgMemberLimitOnInvite(
   orgMetadataStore,
   orgMemberLimitGateway,

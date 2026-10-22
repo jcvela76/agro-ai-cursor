@@ -29,10 +29,11 @@ Crear **Features** con slugs idénticos a nuestros entitlements:
 
 ## Planes para Organizations (slugs)
 
-**Modelo producto (ADR-060):** oferta pública = **Free** + **Enterprise**.  
-- **Free** no requiere suscripción — org en `free_org` con `weather`.  
+**Modelo producto (ADR-060 / ADR-061):** oferta pública = **Free** + **Enterprise**.  
+- **Free** self-serve: registro `/sign-up` → crear org → webhook `organization.created` aplica `free_org` + `weather` (idempotente; no pisa mid-tiers). Sin suscripción Clerk.  
 - **Enterprise** (ex Dedicado) no está en PricingTable; cotización tras auditoría ([`dedicated-plan-audit.md`](dedicated-plan-audit.md)).  
 - Mid-tiers (`weather_plus` / `operations` / `full`) quedan para **piloto / prueba interna** del stack con límites; no se venden en la LP.
+- Waitlist LP sigue como lead opcional / canal Enterprise; no es el único camino a Free.
 
 **Moneda:** precios mid en **USD** (internacional). Clerk Billing Development gateway cobra en USD; montos en Dashboard: $29 / $79 / $99 mensuales.
 
@@ -183,8 +184,17 @@ Eventos mínimos:
 - `subscriptionItem.canceled`
 - `subscriptionItem.expired`
 - `subscriptionItem.abandoned`
-- `organization.created` (Billing-3: sync `maxAllowedMemberships`)
+- `organization.created` (ADR-061: bootstrap Free metadata + sync `maxAllowedMemberships`)
 - `organizationInvitation.created` (Billing-3: revoca invitación sobre tope)
+
+### Free self-serve (Clerk Dashboard checklist)
+
+En app **agro-ai-auth** (Development y Production cuando aplique):
+
+1. **Organizations** habilitadas.
+2. Users pueden **crear organizaciones** (no solo admins/ops).
+3. Webhook incluye `organization.created` (arriba).
+4. Tras crear org sin plan de pago: metadata `billingPlanSlug=free_org`, `entitlements=["weather"]`, tope 2 asientos.
 
 Helper: `./scripts/clerk-webhook-stg.sh` (checklist + link Svix; no CRUD API).
 

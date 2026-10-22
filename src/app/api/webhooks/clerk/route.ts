@@ -7,6 +7,7 @@ import {
 import { parseSubscriptionItemEvent } from "@/application/billing/parse-subscription-item-event";
 import {
   enforceOrgMemberLimitOnInvite,
+  ensureFreeOrgOnCreate,
   syncOrgBillingEntitlements,
   syncOrgMemberLimit,
 } from "@/infrastructure/container";
@@ -38,10 +39,16 @@ export async function POST(req: NextRequest) {
   const parsedOrgCreated = parseOrganizationCreatedEvent(evt.type, evt.data);
   if (parsedOrgCreated) {
     try {
+      const freeResult = await ensureFreeOrgOnCreate.execute(parsedOrgCreated.orgId);
+      if (freeResult === "applied") {
+        console.info("Applied Free metadata on organization.created", {
+          orgId: parsedOrgCreated.orgId,
+        });
+      }
       await syncOrgMemberLimit.execute(parsedOrgCreated.orgId);
     } catch (err) {
-      console.error("Org member limit sync failed:", err);
-      return new Response("Member limit sync failed", { status: 500 });
+      console.error("Org Free bootstrap / member limit sync failed:", err);
+      return new Response("Org create sync failed", { status: 500 });
     }
   }
 

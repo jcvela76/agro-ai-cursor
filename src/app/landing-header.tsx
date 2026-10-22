@@ -60,9 +60,9 @@ export function LandingHeader() {
           <Link href="/sign-in" className={styles.navEnter}>
             Entrar
           </Link>
-          <a href="#lista" className={styles.btnPrimary}>
-            Solicitar piloto
-          </a>
+          <Link href="/sign-up" className={styles.btnPrimary}>
+            Empezar gratis
+          </Link>
         </div>
 
         <button
@@ -94,13 +94,13 @@ export function LandingHeader() {
             <Link href="/sign-in" className={styles.mobileEnter}>
               Entrar (cuenta existente)
             </Link>
-            <a
-              href="#lista"
+            <Link
+              href="/sign-up"
               className={styles.btnPrimaryBlock}
               onClick={() => setMenuOpen(false)}
             >
-              Solicitar acceso al piloto
-            </a>
+              Empezar gratis
+            </Link>
           </div>
         </div>
       ) : null}

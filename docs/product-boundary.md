@@ -19,7 +19,7 @@ Agro AI ayuda a equipos agrícolas autorizados a entender y gestionar parcelas u
 
 | Producto comercial | Rol |
 |--------------------|-----|
-| **Free** | Adquisición: Weather base (`free_org`) — clima por parcela con límites (2 parcelas × 25 ha, 2 asientos). Funnel hacia Enterprise. |
+| **Free** | Adquisición self-serve (`/sign-up` → crear org → `free_org` + `weather`). Clima por parcela con límites (2 parcelas × 25 ha, 2 asientos). Funnel hacia Enterprise. |
 | **Enterprise** | B2B dedicado (antes «Plan Dedicado»): software adaptado a IoT/ERP/APIs; cotización tras auditoría tecnológica. No checkout web. |
 
 La landing pública muestra **solo Free + Enterprise**. Los planes Clerk mid (`weather_plus`, `operations`, `full`) siguen existiendo para **piloto / prueba interna** con restricciones, no como oferta de marketing.

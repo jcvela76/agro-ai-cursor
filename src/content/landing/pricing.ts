@@ -45,7 +45,8 @@ export const LANDING_PRICING: readonly LandingPricingTier[] = [
       "Hasta 2 miembros en el workspace",
     ],
     highlight: true,
-    cta: "Solicitar acceso al piloto",
+    cta: "Empezar gratis",
+    ctaHref: "/sign-up",
   },
   {
     tier: "Enterprise",
