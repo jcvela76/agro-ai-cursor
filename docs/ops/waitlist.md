@@ -9,9 +9,9 @@
 | Variable | Uso |
 |----------|-----|
 | `DATABASE_URL` | Obligatorio para `persisted: true` |
-| `RESEND_API_KEY` | Envío real; sin ella el notify usa stub (signup igual OK) |
-| `REPORT_EMAIL_FROM` | From Resend (dominio verificado; en prueba `onboarding@resend.dev`) |
-| `WAITLIST_NOTIFY_TO` | Opcional; override del destinatario |
+| `RESEND_API_KEY` | ✅ seteado Prod/Preview 2026-10-22 (cuenta Resend juliovela) |
+| `REPORT_EMAIL_FROM` | ✅ `Agro AI <onboarding@resend.dev>` hasta DNS `geoagro.ai` en Resend |
+| `WAITLIST_NOTIFY_TO` | ✅ `me@juliovela.com` |
 
 ## Smoke
 
